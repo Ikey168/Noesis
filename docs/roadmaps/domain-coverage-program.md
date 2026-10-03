@@ -2,16 +2,16 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business (IB) and AI models and datasets (AI) tracks covered
-offline, not live; wave 3 planned. Decision:
+wave 2 industry-business (IB), AI models and datasets (AI) and waste and
+circular economy (WC) tracks covered offline, not live; wave 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
-gaps. Wave 1 and the wave 2 industry-business and AI models and datasets
-tracks are now covered offline, so 68 are covered and 21 are gaps. This program
+gaps. Wave 1 and the wave 2 tracks listed under "Wave 2" are now covered
+offline, so 69 are covered and 20 are gaps. This program
 fills every gap, one track per subdomain.
 
 ## How coverage is counted
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+WC01 is covered offline: `environment.waste` (track
+[#2740](https://github.com/Ikey168/Noesis/issues/2740)) holds fixture-tested
+Eurostat waste and circular-economy, EEA waste-transfer and OECD municipal
+waste sources, so its gap row is gone. Its sources stay `unverified-live`; live
+coverage waits for the track's "Validate live coverage" run (WC13).
+
 MO01 left no source; its amendment (#2754, written offline) leaves only
 Wikidata ownership statements, kept as "what Wikidata states" and never as a
 register, and no register-grade source. `media-outlets-ownership` stays a gap
@@ -101,7 +107,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
-| `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
@@ -123,7 +128,9 @@ their rows removed:
 - industry-business: covered offline (not live) by `economics.business`
   (track [#2738](https://github.com/Ikey168/Noesis/issues/2738));
 - AI models and datasets: covered offline (not live) by `technology.ai-models`
-  (track [#2742](https://github.com/Ikey168/Noesis/issues/2742)).
+  (track [#2742](https://github.com/Ikey168/Noesis/issues/2742));
+- waste and circular economy: covered offline (not live) by `environment.waste`
+  (track [#2740](https://github.com/Ikey168/Noesis/issues/2740)).
 
-12 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
+11 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
 track's "Validate live coverage" run. Wave 3 has 9.

@@ -358,6 +358,12 @@ For the project overview and local setup, start with the
   and the status history of its water bodies per WFD reporting cycle; reviewable station and water-body identity,
   citation links to hazards, weather and infrastructure, as-of answers and monitors; no forecasting, gap filling,
   own status assessments or flood-risk scores; [source audit](development/water-evidence/source-audit.md)
+- [Climate and Environment waste and circular economy guide](guides/environment-waste.md) — from a place to cited
+  Eurostat waste and circular-economy and OECD municipal-waste figures side by side as of a release (biennial years
+  absent), and from an environment.core facility to its cited EEA waste transfers per reporting year with
+  corrections and removals; reviewable place, facility and indicator identity, Chemicals and Products links and
+  monitors; no nowcast, filled year, blended or summed figure or own rate; offline only, not live;
+  [source audit](development/waste-evidence/source-audit.md)
 - [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
   species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,

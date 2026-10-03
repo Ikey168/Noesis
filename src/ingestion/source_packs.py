@@ -428,6 +428,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
 # Technology AI models and datasets: Hugging Face Hub metadata, OpenML and Epoch AI (#2742).
 NATIVE_CONNECTOR_MODULES["ai-models"] = "src.ingestion.ai_models_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ai-models"})
+# Climate and Environment waste and circular economy: Eurostat waste and circular economy, EEA waste transfers,
+# OECD municipal waste (#2740).
+NATIVE_CONNECTOR_MODULES["waste"] = "src.ingestion.waste_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"waste"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -1,0 +1,447 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "environment.waste",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.waste_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "environment.waste-records",
+      "contract": {
+        "name": "noesis-waste-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "register-schemas",
+        "list-series",
+        "indicator-for-place",
+        "series-history",
+        "facility-transfers",
+        "export-bundle",
+        "link-records",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "series": "a waste series is keyed by source, dataset, indicator, waste category (EWC-Stat), hazardousness, NACE activity or households, treatment operation (wst_oper), unit as published, place and periodicity; values live in the Economics series storage (economic_vintages, dataset_observations); circular-economy indicators are stored as Eurostat publishes them and no rate is computed from tonnages",
+        "transfers": "facility transfer rows are keyed by INSPIRE id, reporting year, hazardous or non-hazardous, recovery or disposal and domestic or transboundary, with the quantity in tonnes as published and the method code; they are environment.core observation series located at the eea-industry facility record (environment_vintages); no second facility register",
+        "vintages": "each changed release is an appended vintage with release and retrieval clocks (Eurostat LAST UPDATE, the EEA dataset version or a declared OECD release date, else the labelled retrieval time); a changed row for a past reporting year is a new vintage; a series or row a later complete release no longer states is removed_by_source; a truncated EEA page never removes; as-of answers select the vintage released by the date and cite source, record revision and as-of time",
+        "absence": "biennial odd years stay absent and are reported as not collected; a missing facility row is never a zero (facilities report only above the E-PRTR thresholds); confidential cells carry no value",
+        "side_by_side": "Eurostat, OECD and EEA figures are shown side by side with their own definitions, never blended or reconciled; facility transfers are never summed into national totals or compared with aggregates as one figure",
+        "links": "Chemicals links only where a published CAS number matches, Products links only by citation of the packaging and WEEE datasets, environment.core facility links only through accepted INSPIRE-id matches; each link pins both revisions and absent providers degrade to provider_absent",
+        "minimisation": "published aggregates and, per facility, only the INSPIRE id, reporting year and the published transfer quantities, codes and method; operator, parent-company, address, contact and competent-authority fields are refused at write time and in every answer",
+        "exclusions": "no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and EEA figures, no summing of facility transfers into national totals, no recycling rates, per-capita or material-flow figures of our own, no derived indicators, no forecasts"
+      }
+    },
+    {
+      "id": "environment.waste-identity",
+      "contract": {
+        "name": "noesis-waste-identity-match",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-places",
+        "propose-facilities",
+        "propose-related-indicators",
+        "review-identity",
+        "undo-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "places match through published codes (ISO, NUTS, Eurostat GEO) before names, INSPIRE ids match the environment.core facility record carrying them, and the same indicator across Eurostat and OECD is recorded as related; every assertion carries method, evidence and confidence and is proposed, reviewed, accepted or reverted; nothing is auto-merged; an unknown INSPIRE id stays unmatched and never creates a facility"
+      }
+    },
+    {
+      "id": "environment.waste-monitoring",
+      "contract": {
+        "name": "noesis-waste-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "monitoring": "place, indicator, facility, series and source watches on platform.subscriptions; notices for new releases, resubmitted past years, corrected transfer rows and removals cite the revisions before and after and state what changed; they are record changes, not assessments; refreshes are bounded and idempotent with receipts and a failed run never produces a removal notice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.waste_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.waste_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_waste_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_waste_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.waste_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.waste_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "facility-transfers",
+      "tool": "noesis-knowledge-engine.waste_facility_transfers",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-bundle",
+      "tool": "noesis-knowledge-engine.export_waste_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_waste_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject revision + target revision + basis"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:substances:read",
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_waste_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-places",
+      "tool": "noesis-knowledge-engine.propose_waste_place_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "area code + place + method"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-facilities",
+      "tool": "noesis-knowledge-engine.propose_waste_facility_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "INSPIRE id + facility record"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-related-indicators",
+      "tool": "noesis-knowledge-engine.propose_waste_related_indicators",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series pair + relation"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_waste_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "waste_identity_assertions history"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "undo-identity",
+      "tool": "noesis-knowledge-engine.revert_waste_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "waste_identity_assertions history"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_waste_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_waste_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_waste_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_waste_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "waste-record",
+      "store": "src.kb.waste_store",
+      "tables": [
+        "waste_releases",
+        "waste_series",
+        "waste_definitions",
+        "waste_vintages",
+        "waste_observations",
+        "waste_transfer_rows",
+        "waste_release_members",
+        "waste_notes",
+        "waste_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "waste-identity-assertion",
+      "store": "src.kb.waste_identity",
+      "tables": [
+        "waste_identity_assertions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "waste-link",
+      "store": "src.kb.waste_links",
+      "tables": [
+        "waste_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "waste-refresh-receipt",
+      "store": "src.kb.waste_monitoring",
+      "tables": [
+        "waste_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "releases",
+      "kind": "table-exists",
+      "target": "waste_releases"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "climate-environment-waste",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

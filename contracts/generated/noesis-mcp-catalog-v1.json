@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1838,
+      "tool_count": 1857,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1256,6 +1256,7 @@
         "noesis-knowledge-engine.create_trade_monitor",
         "noesis-knowledge-engine.create_treaties_monitor",
         "noesis-knowledge-engine.create_vulnerability_monitor",
+        "noesis-knowledge-engine.create_waste_monitor",
         "noesis-knowledge-engine.create_water_monitor",
         "noesis-knowledge-engine.create_weather_monitor",
         "noesis-knowledge-engine.create_web_archive_monitor",
@@ -1414,6 +1415,7 @@
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_trade_evidence_bundle",
         "noesis-knowledge-engine.export_treaty_evidence_bundle",
+        "noesis-knowledge-engine.export_waste_bundle",
         "noesis-knowledge-engine.export_water_bundle",
         "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_math_text_objects",
@@ -1723,6 +1725,7 @@
         "noesis-knowledge-engine.link_trade_ownership",
         "noesis-knowledge-engine.link_trade_sanctions",
         "noesis-knowledge-engine.link_treaty_records",
+        "noesis-knowledge-engine.link_waste_records",
         "noesis-knowledge-engine.link_water_records",
         "noesis-knowledge-engine.list_agrifood_crosswalks",
         "noesis-knowledge-engine.list_agrifood_links",
@@ -1880,6 +1883,9 @@
         "noesis-knowledge-engine.list_unmatched_substances",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
+        "noesis-knowledge-engine.list_waste_identity_assertions",
+        "noesis-knowledge-engine.list_waste_links",
+        "noesis-knowledge-engine.list_waste_series",
         "noesis-knowledge-engine.list_water_identity_matches",
         "noesis-knowledge-engine.list_water_links",
         "noesis-knowledge-engine.list_weather_station_matches",
@@ -2036,6 +2042,7 @@
         "noesis-knowledge-engine.poll_trade_monitor",
         "noesis-knowledge-engine.poll_treaties_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
+        "noesis-knowledge-engine.poll_waste_monitor",
         "noesis-knowledge-engine.poll_water_monitor",
         "noesis-knowledge-engine.poll_weather_monitor",
         "noesis-knowledge-engine.poll_web_archive_monitor",
@@ -2168,6 +2175,9 @@
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
+        "noesis-knowledge-engine.propose_waste_facility_matches",
+        "noesis-knowledge-engine.propose_waste_place_matches",
+        "noesis-knowledge-engine.propose_waste_related_indicators",
         "noesis-knowledge-engine.propose_water_identity_matches",
         "noesis-knowledge-engine.propose_weather_station_matches",
         "noesis-knowledge-engine.propose_web_archive_matches",
@@ -2287,6 +2297,7 @@
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.register_sports_forecast",
+        "noesis-knowledge-engine.register_waste_schemas",
         "noesis-knowledge-engine.register_water_schemas",
         "noesis-knowledge-engine.register_weather_schemas",
         "noesis-knowledge-engine.relate_events",
@@ -2425,6 +2436,7 @@
         "noesis-knowledge-engine.revert_trade_identity_match",
         "noesis-knowledge-engine.revert_treaty_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
+        "noesis-knowledge-engine.revert_waste_identity_match",
         "noesis-knowledge-engine.revert_water_identity_match",
         "noesis-knowledge-engine.revert_weather_station_match",
         "noesis-knowledge-engine.review_agrifood_crosswalk",
@@ -2524,6 +2536,7 @@
         "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.review_treaty_match",
         "noesis-knowledge-engine.review_vulnerability_component_match",
+        "noesis-knowledge-engine.review_waste_identity_match",
         "noesis-knowledge-engine.review_water_identity_match",
         "noesis-knowledge-engine.review_weather_evidence_link",
         "noesis-knowledge-engine.review_weather_station_match",
@@ -2610,6 +2623,7 @@
         "noesis-knowledge-engine.run_trade_monitor",
         "noesis-knowledge-engine.run_treaties_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
+        "noesis-knowledge-engine.run_waste_monitor",
         "noesis-knowledge-engine.run_water_monitor",
         "noesis-knowledge-engine.run_weather_monitor",
         "noesis-knowledge-engine.run_web_archive_monitor",
@@ -2792,6 +2806,11 @@
         "noesis-knowledge-engine.vulnerability_source_contracts",
         "noesis-knowledge-engine.vulnerability_standard_links",
         "noesis-knowledge-engine.warnings_in_force",
+        "noesis-knowledge-engine.waste_facility_transfers",
+        "noesis-knowledge-engine.waste_indicator_for_place",
+        "noesis-knowledge-engine.waste_readiness",
+        "noesis-knowledge-engine.waste_series_history",
+        "noesis-knowledge-engine.waste_source_contracts",
         "noesis-knowledge-engine.water_body_status_history",
         "noesis-knowledge-engine.water_for_place",
         "noesis-knowledge-engine.water_readiness",
@@ -2811,7 +2830,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1838
+      "visible_tool_count": 1857
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2822,11 +2841,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 162,
+      "available": 163,
       "degraded": 174,
-      "unauthorized": 1840
+      "unauthorized": 1858
     },
-    "tools": 2176
+    "tools": 2195
   },
   "tools": [
     {
@@ -38845,6 +38864,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a place, an indicator, a facility (INSPIRE id), a series or a source: notices for new\nreleases, new years, revised values and resubmitted past years, corrected transfer rows and removals.",
+      "id": "noesis-knowledge-engine.create_waste_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_waste_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch stations, rivers or water bodies for new values above published characteristic values, revised or\nwithdrawn values, station changes and new reporting cycles. Notices are record changes, not assessments.",
       "id": "noesis-knowledge-engine.create_water_monitor",
       "input_schema": {
@@ -46762,6 +46836,78 @@
       "required_scopes": [
         "knowledge:legal:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle for a place and/or a facility; every item cites its source, record revision and\nas-of time.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.export_waste_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "facility": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_waste_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -61267,6 +61413,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link waste records to Chemicals by a published CAS number (never by name), to Products by citation of the\npackaging and WEEE datasets, and transfer rows to their accepted environment.core facility.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.link_waste_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_waste_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:substances:read",
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link stations and water bodies to flood events citing them, weather sources stating the gauge,\ninfrastructure assets sharing an identifier and accepted places; absent providers are reported unavailable.\nNo proximity or causal links.",
       "id": "noesis-knowledge-engine.link_water_records",
       "input_schema": {
@@ -69659,6 +69838,188 @@
     },
     {
       "cost_class": "low",
+      "description": "Place, facility and indicator identity assertions in force (proposed, ambiguous, unmatched,\nprovider_absent, accepted, rejected, reverted), each with method, evidence, confidence and reviewer.",
+      "id": "noesis-knowledge-engine.list_waste_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_waste_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links of waste records to Chemicals (published CAS number), Products (citation) and environment.core\nfacilities (accepted match), each pinning both revisions; absent providers and targets reported.",
+      "id": "noesis-knowledge-engine.list_waste_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_waste_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Waste and circular-economy series with source, dataset, waste category, hazardousness, activity,\ntreatment operation, unit as published, place and periodicity.",
+      "id": "noesis-knowledge-engine.list_waste_series",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_waste_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Water identity proposals and decisions with method, evidence class and evidence.",
       "id": "noesis-knowledge-engine.list_water_identity_matches",
       "input_schema": {
@@ -76775,6 +77136,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a waste monitor's notices (new releases, new years, revisions, removals by the source).",
+      "id": "noesis-knowledge-engine.poll_waste_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_waste_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll water monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_water_monitor",
       "input_schema": {
@@ -82754,6 +83153,105 @@
         "knowledge:technical:read",
         "knowledge:technical:write",
         "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Match each stated INSPIRE id to the environment.core facility record carrying it; unknown ids stay\nunmatched and no facility is created.",
+      "id": "noesis-knowledge-engine.propose_waste_facility_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_waste_facility_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer every stated area code to Geospatial places by its published code; ambiguous codes stay review\ncandidates; nothing is used until reviewed and nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_waste_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_waste_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record the same or a related indicator published by Eurostat and the OECD for one accepted place as\nrelated (never merged or reconciled).",
+      "id": "noesis-knowledge-engine.propose_waste_related_indicators",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_waste_related_indicators",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -91046,6 +91544,33 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register the noesis-waste-record-v2 schema in the schema registry (idempotent per version).",
+      "id": "noesis-knowledge-engine.register_waste_schemas",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_waste_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register noesis-water-record-v2 in the schema registry.",
       "id": "noesis-knowledge-engine.register_water_schemas",
       "input_schema": {
@@ -96837,6 +97362,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed assertion; queries stop using it.",
+      "id": "noesis-knowledge-engine.revert_waste_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_waste_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed water identity decision (the entity identity decision is undone).",
       "id": "noesis-knowledge-engine.revert_water_identity_match",
       "input_schema": {
@@ -101534,6 +102100,62 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a proposed place, facility or indicator assertion with a reason (an ambiguous place by\nchoosing a cited candidate).",
+      "id": "noesis-knowledge-engine.review_waste_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_waste_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a water identity proposal with a reason; recorded as an entity identity decision.",
       "id": "noesis-knowledge-engine.review_water_identity_match",
       "input_schema": {
@@ -105912,6 +106534,51 @@
         "knowledge:technical:read",
         "knowledge:subscriptions:write",
         "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a waste monitor at a committed watermark; notices cite the revisions before and after.",
+      "id": "noesis-knowledge-engine.run_waste_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_waste_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -116056,6 +116723,220 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A facility's published off-site waste transfers per reporting year (INSPIRE id or the environment.core\nfacility record id): hazardousness, recovery or disposal, domestic or transboundary, quantity in tonnes as\npublished and method code, every vintage cited, truncated acquisitions and the reporting-threshold note.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.waste_facility_transfers",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "facility": {
+            "type": "string"
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "facility"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "waste_facility_transfers",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read",
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Waste and circularity figures for a place (place id or {scheme, code}) as released by a date: each source\nside by side with its definition, series key, flags, vintage and citation; biennial odd years absent.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.waste_indicator_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "waste_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which optional waste features are selected, the stores, per-source releases and staleness, and whether\nthe Chemicals, Products and environment.core facility links are available or provider_absent.",
+      "id": "noesis-knowledge-engine.waste_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "waste_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of a waste series with what each release added, revised, dropped or removed, each\nvintage cited.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.waste_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "environment",
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "waste_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:waste:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (Eurostat waste, Eurostat circular economy, EEA waste transfers, OECD\nmunicipal waste), terms, limits, revision models, caps, the bounded coverage and the minimisation decision;\nevery source is unverified-live until a dated live run.\nExclusions: no nowcasting, no filled years (biennial odd years stay absent), no blending of Eurostat, OECD and\nEEA figures, no summing of facility transfers into national totals, no own rates, per-capita or\nmaterial-flow figures, no derived indicators and no forecasts.",
+      "id": "noesis-knowledge-engine.waste_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "waste_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

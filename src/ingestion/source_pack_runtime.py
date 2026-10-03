@@ -589,6 +589,16 @@ def _ai_models_projector(conn: Any) -> Any:
 # Technology AI models and datasets (technology.ai-models, #2742).
 PROJECTORS["noesis-ai-model-record-v2"] = _ai_models_projector
 
+
+def _waste_projector(conn: Any) -> Any:
+    from src.kb.waste_store import WasteProjector
+
+    return WasteProjector(conn)
+
+
+# Climate and Environment waste and circular economy (environment.waste, #2740).
+PROJECTORS["noesis-waste-record-v2"] = _waste_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

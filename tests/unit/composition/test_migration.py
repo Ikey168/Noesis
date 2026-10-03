@@ -91,6 +91,7 @@ PROJECTOR_OWNERS = {
     "noesis-platform-transparency-record-v2": "src.kb.platform_transparency_records",
     "noesis-business-statistics-record-v2": "src.kb.business_statistics_store",  # Economics business (#2738)
     "noesis-ai-model-record-v2": "src.kb.ai_models_store",  # Technology AI models and datasets (#2742)
+    "noesis-waste-record-v2": "src.kb.waste_store",  # Climate and Environment waste (#2740)
 }
 
 
