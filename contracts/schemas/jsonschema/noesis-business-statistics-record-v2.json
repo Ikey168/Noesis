@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-business-statistics-record-v2",
+  "title": "Industry and business statistics series item: one series of one release (economics.business)",
+  "description": "One published series as a source released it (Eurostat short-term business statistics, Eurostat business demography or US Census County Business Patterns): source, dataset, indicator, classification (NACE Rev.2 or a NAICS vintage), size class, place, adjustment, unit with its index base year, statistical unit, the definition the source states and the observations (value text as published, status, flags verbatim). Each release is appended as a vintage by src/kb/business_statistics_store.py, never overwritten; removals and corrections are vintages. No record carries person- or firm-level data; a confidential, withheld or unpublished cell carries no value; nothing is nowcast, filled, re-based, adjusted, blended, reconstructed or derived.",
+  "type": "object",
+  "required": ["provider", "dataset", "native_key", "indicator", "classification", "size_class", "area", "adjustment", "unit", "statistical_unit", "frequency", "definition", "observations"],
+  "definitions": {
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}(-\\d{2})?$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "status": {"enum": ["reported", "confidential", "withheld", "not_published"]},
+        "flags": {"type": "object", "additionalProperties": {"type": "string"}},
+        "flag_meanings": {"type": "array", "items": {"type": "string"}},
+        "attributes": {"type": "object"}
+      },
+      "if": {"properties": {"status": {"not": {"const": "reported"}}}},
+      "then": {"properties": {"value": {"type": "null"}}}
+    }
+  },
+  "properties": {
+    "provider": {"enum": ["eurostat-sts", "eurostat-business-demography", "us-census-cbp"]},
+    "dataset": {"type": "string", "minLength": 1},
+    "native_key": {"type": "string", "minLength": 1},
+    "dataflow": {"type": "object"},
+    "indicator": {
+      "type": "object",
+      "required": ["code", "concept"],
+      "properties": {
+        "code": {"type": "string"},
+        "concept": {"enum": ["production_index", "turnover_index", "active_enterprises", "enterprise_births", "enterprise_deaths", "enterprise_survivals", "birth_rate", "death_rate", "establishments", "employment", "annual_payroll", "first_quarter_payroll"]},
+        "label": {"type": "string"}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "required": ["scheme", "version", "code"],
+      "properties": {
+        "scheme": {"enum": ["NACE", "NAICS"]},
+        "version": {"enum": ["Rev.2", "2017", "2022"]},
+        "code": {"type": "string"},
+        "native": {"type": "string"},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "size_class": {"type": "object", "required": ["code"]},
+    "area": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["eurostat-geo", "us-fips-state"]},
+        "code": {"type": "string"},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "adjustment": {"enum": ["NSA", "CA", "SCA", "SA", "not_applicable"]},
+    "unit": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {"code": {"type": "string"}, "label": {"type": ["string", "null"]}, "base_year": {"type": ["string", "null"]}}
+    },
+    "statistical_unit": {"enum": ["kind-of-activity-unit", "enterprise", "establishment"]},
+    "frequency": {"enum": ["monthly", "annual"]},
+    "dimensions": {"type": "object"},
+    "definition": {"type": "object", "required": ["provider", "statistical_unit"]},
+    "references": {"type": "array"},
+    "source_notes": {"type": "array"},
+    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+  }
+}

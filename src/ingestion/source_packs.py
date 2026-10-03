@@ -422,6 +422,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 # OSINT platform transparency: DSA statements of reasons, Meta and Google political ads, Lumen (#2580).
 NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
+# Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
+NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,indic_bt,nace_r2,s_adj,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,NSA,I21,DE,2096-01,95.1,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,NSA,I21,DE,2096-02,98.7,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,NSA,I21,DE,2096-03,109.3,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,NSA,I21,DE,2096-04,103.0,p\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,SCA,I21,DE,2096-01,101.4,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,SCA,I21,DE,2096-02,101.9,e\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,SCA,I21,DE,2096-03,102.2,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,B-D,SCA,I21,DE,2096-04,102.6,p\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,NSA,I21,DE,2096-01,96.6,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,NSA,I21,DE,2096-02,100.2,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,NSA,I21,DE,2096-03,112.8,b\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,NSA,I21,DE,2096-04,105.1,p\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,SCA,I21,DE,2096-01,103.2,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,SCA,I21,DE,2096-02,103.5,\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,SCA,I21,DE,2096-03,104.1,b\nESTAT:STS_INPR_M(1.0),15/03/24 23:00:00,M,PROD,C,SCA,I21,DE,2096-04,104.4,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/sts_inpr_m/M.PROD.B-D+C.SCA+NSA..DE?endPeriod=2098-12&format=SDMX-CSV&startPeriod=2096-01",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape; every value is fictional and the reference periods (2094-2097) are fictional (not live coverage); release stamps are past-dated so runtime retrievals never precede them",
+ "scenarios": [
+  "authored-fixture",
+  "last-update-release",
+  "obs-flags",
+  "adjusted-and-unadjusted",
+  "index-base-year",
+  "provisional-periods",
+  "break-in-series"
+ ]
+}

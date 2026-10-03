@@ -1,10 +1,12 @@
 # Industry and business statistics: source-contract audit and bounded coverage (IB01)
 
-Tracking: wave 2 tracker #2736 · recorded 2026-10-03.
+Tracking: industry and business statistics track #2738 (wave 2 tracker #2736) ·
+recorded 2026-10-03.
 
-No per-track tracker or delivery issue exists yet. They are opened once this
-audit names a surviving source; the acquisition, store, link and live-validation
-issues then cite this document.
+Delivery codes: IB02 records, IB03 Eurostat STS, IB04 Eurostat business
+demography, IB05 CBP, IB06 identity, IB07 links, IB08/IB09 queries, IB10
+monitoring, IB11 provider registration and gap closure, IB12 acceptance and
+guide, IB13 live validation (not yet run).
 
 This audit sets out, per source, what an `economics.business` provider in the
 existing Economics bundle (`packs/economics/`) may acquire, how, and on what
@@ -17,11 +19,12 @@ be checked against the live pages, the live terms and a real response before the
 first dated live run (the track's "Validate live coverage" issue, not yet
 opened). No source is `live` until that run exists.
 
-The machine-readable copy of these decisions does not exist yet.
-`PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and
-`LIVE_VERIFICATION` will be added in `src/ingestion/business_statistics_sources.py`
-by the track's acquisition issues and must match this audit; the source-pack
-entries those issues declare carry the same `live_verification` status.
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and `LIVE_VERIFICATION` in
+`src/ingestion/business_statistics_sources.py` (IB03-IB05) and must match this
+audit; the three `economic-statistics-and-filings` source-pack entries
+(`eurostat-sts`, `eurostat-business-demography` and `us-census-cbp`, pack version
+1.7.0) carry the same `live_verification` status.
 
 Non-goals for every source: no nowcasting, no filled periods, no re-basing of
 indices, no seasonal adjustment of our own, no blending of Eurostat and Census
@@ -102,9 +105,9 @@ none returns data about a person. Decision:
 
 | Source | Places | Series | Periods | Caps |
 | --- | --- | --- | --- | --- |
-| Eurostat STS | Germany (DE) | `sts_inpr_m`: production, `B-D` and `C`, `SCA` and `NSA`, current base year | at most 36 months from a declared start period | 1 document, 10 series per response |
+| Eurostat STS | Germany (DE) | `sts_inpr_m`: production, `B-D` and `C`, `SCA` and `NSA`, current base year (`I21`, _verify_); the unit position of the series key is left open so a rebased response is read as new series, never re-based | at most 36 months from a declared start period | 1 document, 10 series per response |
 | Eurostat business demography | Germany (DE) | active enterprises, births and deaths, total business economy, all size classes | from a declared start year | 1 document, 20 series |
-| Census CBP | California (state `06`) | `ESTAB`, `EMP`, `PAYANN` with their flags for NAICS `00` (total) and `31-33` (manufacturing) | the two most recent reference years | 2 documents (one per year), 50 rows per response |
+| Census CBP | California (state `06`) | `ESTAB`, `EMP`, `PAYANN` with their flags for NAICS `00` (total) and `31-33` (manufacturing), all establishment sizes (`EMPSZES=001`, _verify_); both NAICS codes in one request per year by repeating the NAICS predicate (_verify_) | the two most recent reference years | 2 documents (one per year), 50 rows per response |
 
 Justification: Germany and California are the places the labour track already
 covers, so Labour links (`economics.labour`) and the labour track's operator
@@ -123,10 +126,18 @@ further place, year or dataset is a source-pack version bump.
 
 | Source | Status | Checked | Evidence |
 | --- | --- | --- | --- |
-| Eurostat STS | `unverified-live` | - | none yet; offline fixtures to be authored |
-| Eurostat business demography | `unverified-live` | - | none yet; offline fixtures to be authored |
-| Census CBP | `unverified-live` | - | none yet; offline fixtures to be authored |
+| Eurostat STS | `unverified-live` | - | none yet; authored offline fixtures only |
+| Eurostat business demography | `unverified-live` | - | none yet; authored offline fixtures only |
+| Census CBP | `unverified-live` | - | none yet; authored offline fixtures only |
 
-The fixtures will be authored, not captured: synthetic values for reference
-years 2094-2097 and release dates in 2098-2099, so nothing can be mistaken for a
-published figure.
+The fixtures are authored, not captured: synthetic values for fictional
+reference periods 2094-2097, so nothing can be mistaken for a published figure.
+
+**Deviation (IB03-IB05, recorded with the acquisition commit).** This audit first
+said the fixtures' release dates would sit in 2098-2099. They sit in 2024
+instead (Eurostat `LAST UPDATE` stamps and the declared CBP release dates): the
+source-pack runtime retrieves at the real clock and the store refuses a release
+dated after its retrieval, so a future-dated release would fail every runtime
+run of the `economic-statistics-and-filings` pack (the convention the labour
+track settled in 1a6771af and 57e13f9a: fictional reference periods, past-dated
+releases and retrievals). Reference periods stay fictional.

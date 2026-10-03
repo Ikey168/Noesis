@@ -571,6 +571,16 @@ def _platform_transparency_projector(conn: Any) -> Any:
 # OSINT platform transparency feature (#2580).
 PROJECTORS["noesis-platform-transparency-record-v2"] = _platform_transparency_projector
 
+
+def _business_statistics_projector(conn: Any) -> Any:
+    from src.kb.business_statistics_store import BusinessStatisticsProjector
+
+    return BusinessStatisticsProjector(conn)
+
+
+# Economics industry and business statistics (economics.business, #2738).
+PROJECTORS["noesis-business-statistics-record-v2"] = _business_statistics_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
