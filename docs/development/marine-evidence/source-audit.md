@@ -48,6 +48,12 @@ with site and box geometry through `places-geometry` in the geospatial store.
 - No protected-area effectiveness, management or ecological-status judgement;
   site attributes are quoted as the reporting authority published them.
 
+## Project decisions (2026-10-03, #2736)
+
+- **Protected areas.** EEA Natura 2000 marine sites are accepted as the
+  protected-area source in place of WDPA, whose terms do not allow the intended
+  redistribution. WDPA stays `not-implemented`.
+
 ## Access decisions
 
 | Source | Publisher | Delivers | Decision |

@@ -39,8 +39,8 @@ published them; an amended return never overwrites the return it amends.
 | Source (proposed source-pack id) | Publisher | Delivers | Access | Decision |
 | --- | --- | --- | --- | --- |
 | `us-irs-eo-bmf` | US Internal Revenue Service, Exempt Organizations Business Master File extract | per EIN: name, subsection and classification codes, ruling date, deductibility, foundation code, status, NTEE code, latest asset, income and revenue amounts and filing requirement | CSV files per state or region on `www.irs.gov`, no key | `unverified-live` |
-| `us-irs-990-efile` | IRS, e-filed Form 990 series (TEOS XML) | one return per `OBJECT_ID`: header, financial summary, Part VII officers, directors, trustees and key employees with compensation, Schedule I grants to organisations, Schedule R related organisations, Schedule C lobbying totals | yearly index CSV plus yearly ZIP archives of XML returns on `apps.irs.gov`, no key | `unverified-live`, **conditional on a bounded read** (below) |
-| `uk-charity-commission-register` | Charity Commission for England and Wales, Register of Charities | per registered charity and linked charity: registration and removal, type, company number, classification, areas of operation, trustees, five-year financial history, annual-return history | Register of Charities API (JSON), subscription key | `unverified-live` |
+| `us-irs-990-efile` | IRS, e-filed Form 990 series (TEOS XML) | one return per `OBJECT_ID`: header, financial summary, Part VII counts of officers, directors, trustees and key employees and the compensation totals the form reports (names not stored), Schedule I grants to organisations, Schedule R related organisations, Schedule C lobbying totals | yearly index CSV plus yearly ZIP archives of XML returns on `apps.irs.gov`, no key | `unverified-live`, **conditional on a bounded read** (below) |
+| `uk-charity-commission-register` | Charity Commission for England and Wales, Register of Charities | per registered charity and linked charity: registration and removal, type, company number, classification, areas of operation, trustee count (names not stored), five-year financial history, annual-return history | Register of Charities API (JSON), subscription key | `unverified-live` |
 | `uk-360giving-datastore` | 360Giving, Datastore API | grants made and received per organisation identifier (org-id), as published by funders in the 360Giving Data Standard | anonymous JSON API | `unverified-live` |
 
 Documented, not acquired:
@@ -103,13 +103,12 @@ key, kind, role, dates) and the donor rule of the campaign-finance audit:
   and suffix, company number, org-id), names, codes, dates, city and state or
   country, figures as filed, grants made and received to and from
   organisations.
-- **Stored for a person in a governance role:** name as published, role or
-  title, the organisation, appointment date and chair flag as published, and
-  for Form 990 Part VII the average hours and reportable compensation amounts
-  as filed. Returned only to principals holding
-  `knowledge:civil-society:persons:read` in addition to the read scope;
-  everyone else sees per organisation the count of persons by role and the
-  totals the filing itself reports.
+- **Persons in a governance role: not stored** (project decision, 2026-10-03,
+  #2736). Trustee, officer, director and key-employee names, titles, hours and
+  compensation are dropped at acquisition. Per organisation, only the count of
+  persons by role and the totals the filing itself reports (for example total
+  reportable compensation) are kept. No `persons:read` scope exists, and no
+  erasure workflow is needed, because no person-level field is ever written.
 - **Redacted at acquisition:** the BMF `ICO` (in-care-of name) and street and
   ZIP (a small organisation's address is often a person's home); the Form 990
   paid-preparer name and PTIN and the signing officer's phone; Part VII
@@ -122,11 +121,9 @@ key, kind, role, dates) and the donor rule of the campaign-finance audit:
   only organisations are proposed, by stated identifiers (EIN, charity number,
   company number, org-id) first and names only as weak candidates.
 - **Retention:** revisions are retained with their source run for provenance.
-  If a register later withholds a person it published (a trustee name
-  dispensation, _verify_ how the Commission marks it) or removes a grant, the
-  next acquisition records that as a revision and an audited minimisation
-  revision removes the person's name from earlier revisions; the source's
-  withholding is never filled from another source.
+  If a register later removes a grant or changes a governance count, the next
+  acquisition records that as a revision. A source's withholding is never
+  filled from another source.
 - **Who may query:** `knowledge:civil-society:read` with namespace access;
   writes need `knowledge:civil-society:write`, identity and link reviews
   `knowledge:civil-society:review`.
@@ -155,7 +152,7 @@ a reviewable candidate citing the revisions it rests on.
 | --- | --- | --- | --- |
 | EO BMF | declared EINs from one state file | the current extract | 25 EINs, 1 file of at most 60 MB |
 | Form 990 | two declared public charities among those EINs, every original and amended return | two tax years | 10 returns, 5 MB per return, 200 Part VII rows, 500 Schedule I rows |
-| Charity Commission | declared registered charities: one with linked (subsidiary) charities, one removed charity, one charitable company | current entry and five-year history | 10 charities, 50 trustees per charity |
+| Charity Commission | declared registered charities: one with linked (subsidiary) charities, one removed charity, one charitable company | current entry and five-year history | 10 charities |
 | 360Giving | grants made by one declared funder (org-id) whose grants reach the declared charities, and grants received by those charities | as returned | 1,000 grants made, 500 received per charity |
 
 Justification: one US and one UK subject show a register entry, its filings
@@ -175,6 +172,6 @@ organisation, form or funder is a source-pack version bump.
 | 360Giving Datastore | `unverified-live` | - | none; offline fixtures not yet authored |
 
 The fixtures, once written, will be authored, not captured: fictional
-organisations, EINs, charity numbers and persons, tax periods in 2094-2097
+organisations, EINs and charity numbers (no persons), tax periods in 2094-2097
 and extract or load dates in 2098-2099, so nothing can be mistaken for a
 published record.

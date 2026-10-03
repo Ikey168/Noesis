@@ -31,6 +31,17 @@ between ICD revisions, no "excess mortality" estimate, and no blending of WHO,
 Eurostat, UN and national figures into one series. Values are stored and shown
 as each publisher released them, side by side.
 
+## Project decisions (2026-10-03, #2736)
+
+- **WHO licence.** WHO Mortality Database and GHO data are acquired without
+  commercial gating: the project treats its use as non-commercial. The licence
+  (CC BY-NC-SA 3.0 IGO, _verify_) and its share-alike notice are still recorded
+  on every value and every export, so the terms travel with the data.
+- **Overlap with `clinical.surveillance`.** Keys that the surveillance provider
+  already acquires (Eurostat `hlth_cd_*`, WHO GHO) are read through the
+  surveillance capability and never acquired twice. `clinical.mortality`
+  declares only new keys.
+
 ## Access decisions
 
 | Source (proposed source-pack id) | Publisher | Delivers | Access | Decision |
