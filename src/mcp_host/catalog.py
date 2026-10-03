@@ -420,6 +420,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.business import BUSINESS_WRITES
     if name in BUSINESS_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.waste import WASTE_WRITES
+    if name in WASTE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
         return "write"
@@ -1166,6 +1169,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.business import required_scopes as business_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in BUSINESS_TOOLS:
         return business_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.waste import WASTE_TOOLS
+    from tools.knowledge_engine_mcp.waste import required_scopes as waste_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in WASTE_TOOLS:
+        return waste_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
     from tools.knowledge_engine_mcp.legislation import (
         required_scopes as legislation_scopes,

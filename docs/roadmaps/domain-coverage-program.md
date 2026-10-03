@@ -2,17 +2,17 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business track (IB) covered offline, not live; wave 3
-planned. Decision:
+wave 2 industry-business (IB) and waste and circular economy (WC) tracks
+covered offline, not live; wave 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
-gaps. Wave 1 and the wave 2 industry-business track are now covered offline, so
-67 are covered and 22 are gaps. This program fills every gap, one track per
-subdomain.
+gaps. Wave 1 and the wave 2 industry-business and waste and circular economy
+tracks are now covered offline, so 68 are covered and 21 are gaps. This program
+fills every gap, one track per subdomain.
 
 ## How coverage is counted
 
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+WC01 is covered offline: `environment.waste` (track
+[#2740](https://github.com/Ikey168/Noesis/issues/2740)) holds fixture-tested
+Eurostat waste and circular-economy, EEA waste-transfer and OECD municipal
+waste sources, so its gap row is gone. Its sources stay `unverified-live`; live
+coverage waits for the track's "Validate live coverage" run (WC13).
+
 MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
 amended audit finds one. AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
@@ -98,7 +104,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
-| `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
@@ -115,6 +120,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows
 are gone. Their live coverage is still open, in each track's "Validate live
-coverage" issue. Wave 2 has 14 tracks; the industry-business track is covered
-offline (not live), so its row is gone and 13 wave 2 rows remain. Wave 3 has
-9.
+coverage" issue. Wave 2 has 14 tracks; the industry-business and waste and
+circular economy tracks are covered offline (not live), so their rows are gone
+and 12 wave 2 rows remain. Wave 3 has 9.

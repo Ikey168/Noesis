@@ -237,6 +237,7 @@
     "environment.biodiversity": {"subdomains": ["biodiversity"], "shapes": ["observations", "registry-records"]},
     "environment.core": {"subdomains": ["climate-emissions-air"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
     "environment.water": {"subdomains": ["water-hydrology"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+    "environment.waste": {"subdomains": ["waste-circular-economy"], "shapes": ["statistical-series", "observations"]},
 
     "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
     "clinical.devices": {"subdomains": ["medical-devices"], "shapes": ["registry-records", "events-notices"]},

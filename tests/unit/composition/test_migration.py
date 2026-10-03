@@ -90,6 +90,7 @@ PROJECTOR_OWNERS = {
     "noesis-income-distribution-record-v2": "src.kb.income_distribution_store",  # Society income (#2583)
     "noesis-platform-transparency-record-v2": "src.kb.platform_transparency_records",
     "noesis-business-statistics-record-v2": "src.kb.business_statistics_store",  # Economics business (#2738)
+    "noesis-waste-record-v2": "src.kb.waste_store",  # Climate and Environment waste (#2740)
 }
 
 

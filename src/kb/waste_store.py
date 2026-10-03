@@ -164,6 +164,7 @@ class WasteStore:
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
         self._environment = None
+        self._initialize = initialize
         if initialize:
             conn.execute(_DDL)
 
@@ -175,7 +176,7 @@ class WasteStore:
         if self._environment is None:
             from src.kb.environment_store import EnvironmentStore
 
-            self._environment = EnvironmentStore(self.conn, initialize=True, now=self.now)
+            self._environment = EnvironmentStore(self.conn, initialize=self._initialize, now=self.now)
         return self._environment
 
     # ------------------------------------------------------------------ writes
