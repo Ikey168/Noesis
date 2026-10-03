@@ -254,6 +254,7 @@
     "economics.labour": {"domain": "society-population", "subdomains": ["labour-employment"], "shapes": ["statistical-series"]},
     "economics.logistics": {"subdomains": ["logistics"], "shapes": ["statistical-series"], "themes": ["transport-mobility"]},
     "economics.public-finance": {"subdomains": ["public-finance"], "shapes": ["statistical-series"]},
+    "economics.tourism": {"subdomains": ["tourism-hospitality"], "shapes": ["statistical-series"]},
     "economics.trade": {"subdomains": ["trade"], "shapes": ["statistical-series"]},
 
     "energy.core": {"subdomains": ["energy-systems"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},

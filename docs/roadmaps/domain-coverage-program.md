@@ -2,17 +2,17 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business track (IB) covered offline, not live; wave 3
-planned. Decision:
+wave 2 industry-business (IB) and tourism (TO) tracks covered offline, not
+live; wave 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
-gaps. Wave 1 and the wave 2 industry-business track are now covered offline, so
-67 are covered and 22 are gaps. This program fills every gap, one track per
-subdomain.
+gaps. Wave 1 and the wave 2 industry-business and tourism tracks are now
+covered offline, so 68 are covered and 21 are gaps. This program fills every
+gap, one track per subdomain.
 
 ## How coverage is counted
 
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+TO01 is covered offline: `economics.tourism` (track
+[#2739](https://github.com/Ikey168/Noesis/issues/2739)) holds fixture-tested
+Eurostat tourism occupancy and capacity sources, so its gap row is gone. Its
+sources stay `unverified-live` and UN Tourism stays `not-implemented`; live
+coverage waits for the track's "Validate live coverage" run (TO12).
+
 MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
 amended audit finds one. AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
@@ -95,7 +101,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `social-protection` | Society and population | `society.social-protection` (existing `society` bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (existing `society` bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (existing `society` bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
-| `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
 | `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |
@@ -115,6 +120,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows
 are gone. Their live coverage is still open, in each track's "Validate live
-coverage" issue. Wave 2 has 14 tracks; the industry-business track is covered
-offline (not live), so its row is gone and 13 wave 2 rows remain. Wave 3 has
-9.
+coverage" issue. Wave 2 has 14 tracks; the industry-business and tourism
+tracks are covered offline (not live), so their rows are gone and 12 wave 2
+rows remain. Wave 3 has 9.

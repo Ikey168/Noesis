@@ -135,10 +135,11 @@ def test_the_bundle_validates_and_behaves_unchanged_with_the_feature_off_by_defa
     features = {f["id"]: f for f in composition["optional_features"]}
     # public-finance, the demographics feature (#1914) and the trade features (#2210) are optional and off by default.
     # The labour-statistics (#2219) and logistics (#2229) features are optional and off by default too,
-    # and so are the extractives features (#2653) and the business-statistics feature (#2738).
+    # and so are the extractives features (#2653), the business-statistics feature (#2738) and the
+    # tourism-statistics feature (#2739).
     assert set(features) == {
         "public-finance", "demographics", "trade-comtrade", "trade-comext", "labour-statistics", "logistics",
-        "extractives-eiti", "extractives-usgs", "extractives-bgs", "business-statistics",
+        "extractives-eiti", "extractives-usgs", "extractives-bgs", "business-statistics", "tourism-statistics",
     }
     assert features["demographics"]["default"] is False
     feature = features["public-finance"]
