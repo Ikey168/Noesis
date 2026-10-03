@@ -140,7 +140,7 @@ def register(mcp, safe, context):
 
     @mcp.tool()
     def tourism_readiness() -> dict:
-        """Whether the tourism-statistics feature is selected, the stores, per-source releases and staleness."""
+        """Which tourism features (one per source) are selected, the stores, per-source releases and staleness."""
         from src.kb.tourism_records import readiness
 
         return run_tool("tourism_readiness", readiness)
@@ -173,10 +173,11 @@ def register(mcp, safe, context):
         UN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no
         forecasts."""
         from src.kb.tourism_queries import TourismQueries
+        from src.kb.tourism_records import enabled_providers
 
         return run_tool("tourism_indicator_for_place", lambda conn: TourismQueries(conn).indicator_for_place(
             namespace, scopes=who()[1], place=place, concept=concept, frequency=frequency, residence=residence,
-            period=period, as_of=as_of, providers=providers))
+            period=period, as_of=as_of, providers=providers, enabled_providers=enabled_providers(conn)))
 
     @mcp.tool()
     def tourism_series_history(namespace: str, series_id: str) -> dict:
@@ -200,11 +201,13 @@ def register(mcp, safe, context):
         UN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no
         forecasts."""
         from src.kb.tourism_queries import TourismQueries
+        from src.kb.tourism_records import enabled_providers
 
         def op(conn):
             queries = TourismQueries(conn)
             answer = queries.indicator_for_place(namespace, scopes=who()[1], place=place, concept=concept,
-                                                 frequency=frequency, as_of=as_of)
+                                                 frequency=frequency, as_of=as_of,
+                                                 enabled_providers=enabled_providers(conn))
             return {"status": answer["status"], "evidence_bundle": queries.evidence_bundle(answer)}
 
         return run_tool("export_tourism_evidence_bundle", op)

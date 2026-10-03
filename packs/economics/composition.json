@@ -723,9 +723,40 @@
       ]
     },
     {
-      "id": "tourism-statistics",
+      "id": "tourism-occupancy",
       "default": false,
-      "description": "Tourism statistics: Eurostat tourism occupancy (nights spent and arrivals, monthly national and annual NUTS 2, SDMX) and capacity (establishments and bed places by NUTS 2 region, SDMX) in the Economics series storage with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds and release vintages, reviewable place matches and NUTS correspondence links, citation links to Geospatial boundaries and Labour section I series, comparability notes, as-of answers, evidence bundles and subscription monitors; UN Tourism is not-implemented. No nowcasting, filled months or regions, own seasonal adjustment, blending of Eurostat and UN Tourism figures, occupancy rates, averages, per-capita or per-bed figures, derived indicators or forecasts; Geospatial and Labour links degrade to provider_absent when those providers are not composed.",
+      "description": "Tourism occupancy (source eurostat-tourism-occupancy): Eurostat nights spent and arrivals at tourist accommodation establishments, monthly national (tour_occ_nim, tour_occ_arm) and annual NUTS 2 (tour_occ_nin2) through SDMX, in the Economics series storage with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds and release vintages, reviewable place matches and NUTS correspondence links, citation links to Geospatial boundaries and Labour section I series, comparability notes, as-of answers, evidence bundles and subscription monitors; UN Tourism is not-implemented. No nowcasting, filled months or regions, own seasonal adjustment, blending of Eurostat and UN Tourism figures, occupancy rates, averages, per-capita or per-bed figures, derived indicators or forecasts; Geospatial and Labour links degrade to provider_absent when those providers are not composed.",
+      "requires": [
+        {
+          "capability": "economics.tourism",
+          "contract": "noesis-tourism-statistics-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "tourism values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "tourism monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tourism series are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tourism-capacity",
+      "default": false,
+      "description": "Tourism capacity (source eurostat-tourism-capacity): Eurostat establishments and bed places by NUTS 2 region (tour_cap_nuts2) through SDMX, with the capacity reference date per value, in the Economics series storage with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds and release vintages, reviewable place matches and NUTS correspondence links, citation links to Geospatial boundaries and Labour section I series, comparability notes, as-of answers, evidence bundles and subscription monitors; UN Tourism is not-implemented. No nowcasting, filled months or regions, own seasonal adjustment, blending of Eurostat and UN Tourism figures, occupancy rates, averages, per-capita or per-bed figures, derived indicators or forecasts; Geospatial and Labour links degrade to provider_absent when those providers are not composed.",
       "requires": [
         {
           "capability": "economics.tourism",

@@ -1,8 +1,9 @@
 # Economics: tourism statistics
 
 The Economics bundle (`packs/economics/`) gains the provider
-`economics.tourism` (track #2739, subdomain `tourism-hospitality`) behind the
-optional `tourism-statistics` feature (default off). It answers: *given a place,
+`economics.tourism` (track #2739, subdomain `tourism-hospitality`) behind two
+optional, default-off features, one per source: `tourism-occupancy` and
+`tourism-capacity`. It answers: *given a place,
 an indicator and a date, how many nights spent, arrivals, establishments or bed
 places did Eurostat publish, for which residence of guest, accommodation type,
 frequency and NUTS version, with which flags, in which release?*

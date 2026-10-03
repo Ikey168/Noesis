@@ -2,7 +2,7 @@
 
 The pinned Eurostat tourism occupancy and capacity fixtures (authored in the documented shapes; every value and every
 reference period is fictional) replay through the real ``tourism-statistics`` adapter - through the SDMX connector -
-and the runtime's projector, with the ``tourism-statistics`` feature selected in the composition plan and sockets
+and the runtime's projector, with the ``tourism-occupancy`` and ``tourism-capacity`` features selected in the composition plan and sockets
 blocked. The journey takes Germany and Berlin to cited occupancy and capacity figures with definitions, vintages and
 flags: monthly and annual series kept apart, provisional months revised in a later vintage, a confidential cell
 returned as its status, as-of answers, history with comparability notes, NUTS identity review across a NUTS version
@@ -78,7 +78,7 @@ def review_all(identity, proposed, scopes):
 def test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags(tmp_path, monkeypatch):
     conn, coordinator, bundles, _ = _migrated(h.connection())
     coordinator.select("economics", bundles["economics"]["version"],
-                       features=["tourism-statistics", "labour-statistics"])
+                       features=["tourism-occupancy", "tourism-capacity", "labour-statistics"])
     assert coordinator.activate("tourism-acceptance")["status"] == "published"
     assert feature_enabled(conn) and "noesis-tourism-statistics-record-v2" in PROJECTORS
 
@@ -101,6 +101,7 @@ def test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_fla
     assert status["selected"] and status["providers"]["eurostat-tourism-occupancy"]["live_verification"] == \
         "unverified-live"
     assert status["providers"]["un-tourism"]["access_decision"] == "not-implemented"
+    assert status["features_selected"] == ["tourism-capacity", "tourism-occupancy"]
 
     # As of 2024-04-30, Germany's monthly nights spent per residence, provisional April flagged; cited per vintage.
     queries = TourismQueries(conn)

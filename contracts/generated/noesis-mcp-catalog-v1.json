@@ -114285,7 +114285,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Whether the tourism-statistics feature is selected, the stores, per-source releases and staleness.",
+      "description": "Which tourism features (one per source) are selected, the stores, per-source releases and staleness.",
       "id": "noesis-knowledge-engine.tourism_readiness",
       "input_schema": {
         "properties": {},

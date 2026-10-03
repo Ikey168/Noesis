@@ -1,4 +1,5 @@
-"""The Economics bundle's optional ``tourism-statistics`` feature and the ``economics.tourism`` provider (#2739)."""
+"""The Economics bundle's optional ``tourism-occupancy`` and ``tourism-capacity`` features (one per source) and the
+``economics.tourism`` provider (#2739)."""
 
 from __future__ import annotations
 
@@ -18,7 +19,12 @@ from src.composition.resolver import resolve
 from src.composition.shadow import provider_descriptors
 from src.domains import registry as domain_registry
 from src.ingestion.source_packs import validate_source_pack
-from src.kb.tourism_records import feature_enabled, readiness
+from src.kb.tourism_records import (
+    FEATURES,
+    enabled_providers,
+    feature_enabled,
+    readiness,
+)
 from tests.unit.composition.test_migration import _migrated
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -82,15 +88,17 @@ def test_descriptor_declares_capability_read_only_operations_stores_probe_and_so
     assert all(t.startswith("tourism_") for s in descriptor["stores"] for t in s["tables"])
 
 
-def test_tourism_statistics_is_an_optional_feature_of_the_existing_economics_pack():
+def test_tourism_features_are_optional_per_source_features_of_the_existing_economics_pack():
     composition = json.loads((ROOT / "packs/economics/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
-    feature = features["tourism-statistics"]
-    assert feature["default"] is False
-    assert {r["capability"] for r in feature["requires"]} == {
-        "economics.tourism", "economics.knowledge", "platform.subscriptions", "platform.source-acquisition"}
-    # Geospatial and Labour links degrade gracefully: neither provider is required.
-    assert "provider_absent" in feature["description"] and "No nowcasting" in feature["description"]
+    assert set(FEATURES) == {"tourism-occupancy", "tourism-capacity"}
+    for name, source in FEATURES.items():
+        feature = features[name]
+        assert feature["default"] is False and source in feature["description"]
+        assert {r["capability"] for r in feature["requires"]} == {
+            "economics.tourism", "economics.knowledge", "platform.subscriptions", "platform.source-acquisition"}
+        # Geospatial and Labour links degrade gracefully: neither provider is required.
+        assert "provider_absent" in feature["description"] and "No nowcasting" in feature["description"]
     profile = next(p for p in composition["contributes"]["profiles"] if p["id"] == "economics.tourism")
     assert {"nights spent", "arrivals", "residence of guest", "accommodation type", "NUTS version",
             "establishment threshold", "vintage", "confidential"} <= set(profile["vocabulary"])
@@ -111,13 +119,14 @@ def test_tourism_statistics_is_an_optional_feature_of_the_existing_economics_pac
     assert not list(ROOT.glob("packs/*tourism*"))  # no new pack
 
 
-@pytest.mark.parametrize("selection", [[], ["tourism-statistics"], ["tourism-statistics", "labour-statistics"],
-                                       ["tourism-statistics", "business-statistics"]])
+@pytest.mark.parametrize("selection", [[], ["tourism-occupancy"], ["tourism-capacity"],
+                                       ["tourism-occupancy", "tourism-capacity", "labour-statistics"],
+                                       ["tourism-capacity", "business-statistics"]])
 def test_each_selection_resolves_independently_and_together(selection):
     plan = economics_plan(selection)
-    tourism = "tourism-statistics" in selection
+    tourism = bool(set(selection) & set(FEATURES))
     assert ("economics.tourism" in bound(plan)) == tourism
-    if selection == ["tourism-statistics"]:
+    if selection in (["tourism-occupancy"], ["tourism-capacity"]):
         assert bound(plan) == FEATURE_PROVIDERS  # Geospatial and Labour are not required
         assert PACK in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
@@ -142,16 +151,24 @@ def test_readiness_and_feature_enablement_follow_the_composition_selection():
     report = readiness(duckdb.connect(":memory:"))
     assert report["selected"] is False and report["stores_ready"] is False
     assert {p["live_verification"] for p in report["providers"].values()} == {"unverified-live", "not-implemented"}
+    # Before composition manages the bundle every source answers; afterwards only the selected ones.
+    assert enabled_providers(duckdb.connect(":memory:")) == set(FEATURES.values())
     conn, coordinator, bundles, _ = _migrated()
     assert feature_enabled(conn) is False
-    coordinator.select("economics", bundles["economics"]["version"], features=["tourism-statistics"])
+    coordinator.select("economics", bundles["economics"]["version"], features=["tourism-capacity"])
     assert coordinator.activate("economics-tourism-on")["status"] == "published"
-    assert feature_enabled(conn) is True
+    assert feature_enabled(conn) is True and feature_enabled(conn, "tourism-occupancy") is False
+    assert enabled_providers(conn) == {"eurostat-tourism-capacity"}
+    status = readiness(conn)
+    assert status["features_selected"] == ["tourism-capacity"]
+    assert status["providers"]["eurostat-tourism-capacity"]["feature_selected"] is True
+    assert status["providers"]["eurostat-tourism-occupancy"]["feature_selected"] is False
     coordinator.select("economics", bundles["economics"]["version"], features=[])
     coordinator.activate("economics-tourism-off")
-    assert feature_enabled(conn) is False
+    assert feature_enabled(conn) is False and enabled_providers(conn) == set()
     doc = (ROOT / "docs/architecture/composition-migration.md").read_text()
-    assert "optional `tourism-statistics` feature" in doc and "`noesis-tourism-statistics-record-v2`" in doc
+    assert "optional `tourism-occupancy` and `tourism-capacity` features" in doc
+    assert "`noesis-tourism-statistics-record-v2`" in doc
 
 
 def test_taxonomy_classifies_the_provider_and_the_gap_row_is_removed():

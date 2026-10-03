@@ -63,7 +63,9 @@ REVIEW_SCOPE = "knowledge:tourism:review"
 DEFAULT_NAMESPACE = "global"
 ECONOMIC_DOMAIN = "economics"
 PROVIDER_ID = "economics.tourism"
-FEATURE = "tourism-statistics"
+# One optional, default-off Economics feature per source (each adds the economics.tourism provider).
+FEATURES = {"tourism-occupancy": "eurostat-tourism-occupancy", "tourism-capacity": "eurostat-tourism-capacity"}
+PROVIDER_FEATURES = {provider: feature for feature, provider in FEATURES.items()}
 RECORD_TYPES = ("release", "series", "definition", "vintage", "observation", "comparability_note")
 CHANGE_KINDS = ("new_series", "new_period", "revised_value", "definition_change", "removed_by_source")
 SCHEMA_FILE = f"contracts/schemas/jsonschema/{CONTRACT}.json"
@@ -254,17 +256,18 @@ def comparability_basis(left: Mapping[str, Any], right: Mapping[str, Any]) -> li
     return differences
 
 
-def _selected_features(conn: Any) -> list[str]:
+def _managed_features(conn: Any) -> list[str] | None:
+    """The Economics features of the active plan, or ``None`` before composition manages the bundle."""
     try:
         tables = {r[0] for r in conn.execute(
             "SELECT table_name FROM information_schema.tables WHERE table_name IN "
             "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
         ).fetchall()}
         if len(tables) < 4:
-            return []
+            return None
         managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle='economics'").fetchone()
         if not managed or managed[0] != "composition":
-            return []
+            return None
         row = conn.execute(
             "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
             "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
@@ -275,13 +278,27 @@ def _selected_features(conn: Any) -> list[str]:
     return list((plan.get("features") or {}).get("economics") or [])
 
 
-def feature_enabled(conn: Any) -> bool:
-    """Whether the Economics bundle's optional ``tourism-statistics`` feature is selected in the active plan."""
-    return FEATURE in _selected_features(conn)
+def _selected_features(conn: Any) -> list[str]:
+    return list(_managed_features(conn) or [])
+
+
+def feature_enabled(conn: Any, feature: str | None = None) -> bool:
+    """Whether a tourism feature (any of them, or the one named) is selected in the active plan."""
+    selected = set(_selected_features(conn))
+    return bool(selected & set(FEATURES)) if feature is None else feature in selected
+
+
+def enabled_providers(conn: Any) -> set[str]:
+    """The sources whose optional feature is selected (every one before composition manages the bundle)."""
+    managed = _managed_features(conn)
+    if managed is None:
+        return set(PROVIDERS)
+    return {FEATURES[f] for f in managed if f in FEATURES}
 
 
 def readiness(conn: Any) -> dict[str, Any]:
     ready = table_exists(conn, "tourism_vintages") and table_exists(conn, "tourism_releases")
+    selected = set(_selected_features(conn))
     providers = {}
     for provider, contract in PROVIDER_CONTRACTS.items():
         if contract["status"] == "not-implemented":
@@ -303,10 +320,12 @@ def readiness(conn: Any) -> dict[str, Any]:
                 state = {"stale": True, "reason": "last run failed"}
         providers[provider] = {"delivers": contract["delivers"], "access_decision": contract["status"],
                                "live_verification": LIVE_VERIFICATION[provider]["status"], "releases": releases,
-                               **state}
+                               "feature": PROVIDER_FEATURES[provider],
+                               "feature_selected": PROVIDER_FEATURES[provider] in selected, **state}
     return {
-        "feature": FEATURE,
-        "selected": feature_enabled(conn),
+        "features": list(FEATURES),
+        "selected": bool(selected & set(FEATURES)),
+        "features_selected": sorted(selected & set(FEATURES)),
         "stores_ready": ready,
         "series_storage": "economic_indicators, economic_series_map, economic_vintages and dataset_observations",
         "providers": providers,
@@ -347,8 +366,9 @@ __all__ = [
     "CONTRACT",
     "ECONOMIC_DOMAIN",
     "EXCLUSIONS",
-    "FEATURE",
+    "FEATURES",
     "MINIMISATION",
+    "PROVIDER_FEATURES",
     "PROVIDER_ID",
     "READ_SCOPE",
     "RECORD_TYPES",
@@ -360,6 +380,7 @@ __all__ = [
     "check_item",
     "comparability_basis",
     "digest",
+    "enabled_providers",
     "feature_enabled",
     "forbidden_paths",
     "iso",
