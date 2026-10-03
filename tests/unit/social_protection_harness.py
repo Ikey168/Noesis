@@ -143,6 +143,23 @@ def register_places(conn, geo_namespace: str = "geo", keys=tuple(PLACES)) -> dic
     return out
 
 
+GFS_FIXTURE = REVISIONS / "eurostat_gov_10a_exp_gf10_de.json"
+
+
+def load_public_finance(conn) -> dict[str, Any]:
+    """COFOG social protection (gov_10a_exp, GF10, Germany) through the real Public finance GFS path (authored)."""
+    from tests.unit import public_finance_harness as pf
+
+    item = pf.source("gfs")
+    item["public_finance"]["documents"] = [{
+        "dataset": "gov_10a_exp", "geography": "DE",
+        "label": "gov_10a_exp social protection (COFOG GF10), general government",
+        "filters": {"unit": "MIO_EUR", "sector": "S13", "cofog99": "GF10", "na_item": "TE"},
+    }]
+    return pf.apply(conn, "gfs", 0, GFS_FIXTURE.read_text(), item=item, run_id="run:gfs-gf10",
+                    now=lambda: SECOND_RETRIEVAL)
+
+
 def accept_places(conn, *, keys=("de", "fr")) -> dict[str, str]:
     """Register places, propose matches by published code and accept them as another principal."""
     from src.kb.social_protection_identity import SocialProtectionIdentity
