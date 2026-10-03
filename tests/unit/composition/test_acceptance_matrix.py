@@ -117,6 +117,11 @@ MATRIX = {
     "Company to extractive payments":
         "tests/unit/domains/test_extractives_acceptance.py::"
         "test_company_and_country_to_cited_extractive_payments_and_production_with_versions_identity_and_links",
+    # The Economics business-statistics feature's offline journey (#2738) composes economics (Eurostat STS, business
+    # demography, Census CBP, Labour and Trade links), geospatial identity, subscriptions and the source-pack runtime.
+    "Place to business statistics":
+        "tests/unit/domains/test_business_statistics_acceptance.py::"
+        "test_place_to_cited_eurostat_and_cbp_figures_side_by_side_with_definitions_vintages_and_flags",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

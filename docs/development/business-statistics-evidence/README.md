@@ -1,6 +1,6 @@
 # Industry and business statistics evidence (economics.business)
 
-Evidence for the Economics bundle's proposed `economics.business` provider
+Evidence for the Economics bundle's `economics.business` provider
 (subdomain `industry-business`, track #2738, wave 2 tracker #2736).
 
 - [source-audit.md](source-audit.md) - IB01: per-source contract, licence,
@@ -14,5 +14,8 @@ Evidence for the Economics bundle's proposed `economics.business` provider
   audit's deviation note): `tests/fixtures/source_packs/economic-business-*.json`
   (pinned in `config/source_packs/economic.json` 1.7.0) and the revision,
   rebase and concordance fixtures in `tests/fixtures/business/`.
+- Offline acceptance: `tests/unit/domains/test_business_statistics_acceptance.py`
+  (place to cited Eurostat and CBP figures side by side, sockets blocked) and the
+  [guide](../../guides/economics-business-statistics.md).
 - Live evidence: none yet. Until a dated live run exists every source is
   `unverified-live` and offline coverage is never reported as live coverage.

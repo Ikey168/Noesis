@@ -48,6 +48,13 @@ from src.kb.business_statistics_records import (
 from src.kb.business_statistics_store import BusinessStatisticsStore, citation
 
 HISTORY_CONTRACT = "noesis-business-statistics-history-v1"
+# Concepts that answer a similar question with different statistical units: paired only to state the difference.
+RELATED_CONCEPTS = {
+    frozenset({"active_enterprises", "establishments"}): (
+        "Eurostat counts active enterprises and Census counts establishments (single physical locations); an "
+        "enterprise may run several establishments, so the counts are different measures and are never compared as "
+        "one"),
+}
 NEVER_COMBINED = ("rows with different sources, statistical units, classifications or classification vintages, size "
                   "classes, adjustments or index base years are separate series and are never combined")
 
@@ -225,9 +232,15 @@ class BusinessQueries:
         pairs = []
         for i, left in enumerate(rows):
             for right in rows[i + 1:]:
-                if left["indicator"]["concept"] != right["indicator"]["concept"]:
+                concepts = {left["indicator"]["concept"], right["indicator"]["concept"]}
+                if len(concepts) > 1 and not any(concepts <= family for family in RELATED_CONCEPTS):
                     continue
                 differences = comparability_basis(left, right)
+                if len(concepts) > 1:
+                    differences.append({"kind": "different_concept", "field": "indicator",
+                                        "left": left["indicator"]["concept"], "right": right["indicator"]["concept"],
+                                        "statement": RELATED_CONCEPTS[next(f for f in RELATED_CONCEPTS
+                                                                           if concepts <= f)]})
                 links = []
                 if identity is not None and left["classification"] != right["classification"]:
                     target = {k: right["classification"][k] for k in ("scheme", "version", "code")}

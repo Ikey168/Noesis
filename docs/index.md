@@ -267,6 +267,11 @@ For the project overview and local setup, start with the
   BGS production and reserves side by side per vintage, reviewable company, commodity and project identity,
   cross-pack links and monitors; no reconciliation, own reserve estimate, risk score or price forecast;
   [source audit](development/extractives-evidence/source-audit.md)
+- [Economics business statistics guide](guides/economics-business-statistics.md) — Eurostat short-term business
+  statistics and business demography and US Census County Business Patterns for a place as of a release, side by
+  side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and
+  NACE/NAICS candidate links, Labour and Trade links and monitors; no nowcast, re-based index, blended figure or
+  reconstructed cell; [source audit](development/business-statistics-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
