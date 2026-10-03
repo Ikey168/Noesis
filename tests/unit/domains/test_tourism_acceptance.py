@@ -12,7 +12,6 @@ Offline evidence only, never live coverage (``docs/development/tourism-evidence/
 
 from __future__ import annotations
 
-import asyncio
 import socket
 
 import duckdb
@@ -34,6 +33,7 @@ from src.kb.tourism_records import (
     readiness,
 )
 from src.kb.tourism_store import TourismStore
+from src.mcp_host.introspection import tool_map
 from tests.unit import tourism_harness as h
 from tests.unit.composition.test_migration import _migrated
 
@@ -237,7 +237,7 @@ def test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_fla
     file_conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.READ_ONLY)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     answer = tools["tourism_indicator_for_place"].fn(namespace="global", place=GERMANY, concept="arrivals",
                                                      as_of="2024-05-31")
     assert answer["status"] == "reported" and forbidden_paths(answer) == []

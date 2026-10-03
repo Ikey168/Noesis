@@ -1,6 +1,5 @@
 """Typed Iteration tools are discoverable and enforce intake/namespace scopes."""
 
-import asyncio
 
 import duckdb
 
@@ -8,6 +7,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from src.kb.decisions import DecisionStore
 from src.kb.authored_reports import AuthoredReportStore
 from tools.knowledge_engine_mcp import server
+from src.mcp_host.introspection import tool_function, tool_map
 
 
 def test_iteration_mcp_discovery_and_scope(tmp_path, monkeypatch):
@@ -17,7 +17,7 @@ def test_iteration_mcp_discovery_and_scope(tmp_path, monkeypatch):
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(server, "_connection",
                         lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     for name in ("start_intake_iteration", "record_intake_iteration_outcome",
                  "propose_intake_playbook_revision", "accept_intake_playbook_revision",
                  "review_intake_iteration_stability", "start_intake_report_iteration",
@@ -65,7 +65,7 @@ def test_decision_iteration_mcp_discovery_and_authoritative_revision(tmp_path, m
     decision = DecisionStore(conn).create("research", "schedule", content,
                                           principal_id="alice", scopes=scopes)
     conn.close()
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = ("start_intake_decision_iteration", "record_intake_iteration_outcome",
              "propose_intake_decision_revision", "accept_intake_decision_revision")
     assert set(names) <= set(tools)
@@ -82,7 +82,7 @@ def test_decision_iteration_mcp_discovery_and_authoritative_revision(tmp_path, m
         intent="Review the schedule",
     )
     assert cycle["inputs"]["iteration_contract"] == "noesis-intake-iteration-decision-v1"
-    assert "noesis-intake-iteration-decision-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-intake-iteration-decision-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     measured = tools["record_intake_iteration_outcome"].fn(
         namespace="research", session_id=cycle["session_id"], command_key="measure",
         expected_revision=1, observed="Latency reached 7 seconds",
@@ -135,7 +135,7 @@ def test_report_iteration_mcp_discovery_and_authoritative_revision(tmp_path, mon
         "research", "report", content, principal_id="alice", scopes=scopes,
     )
     conn.close()
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = ("start_intake_report_iteration", "record_intake_iteration_outcome",
              "propose_intake_report_revision", "accept_intake_report_revision")
     assert set(names) <= set(tools)
@@ -171,7 +171,7 @@ def test_report_iteration_mcp_discovery_and_authoritative_revision(tmp_path, mon
         expected_revision=proposed["revision"],
     )
     assert accepted["data"]["accepted_revision"]["revision"] == 2
-    assert "noesis-intake-iteration-report-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-intake-iteration-report-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     current = AuthoredReportStore(duckdb.connect(path), initialize=False).inspect(
         "research", report["report_id"], principal_id="alice", scopes=scopes,
     )

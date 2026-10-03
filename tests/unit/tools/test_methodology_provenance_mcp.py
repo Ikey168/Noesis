@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -38,7 +39,7 @@ def test_methodology_mcp_end_to_end_authorization_replay_and_citation_closure(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_methodology_study",
         "get_methodology_study",
@@ -161,6 +162,6 @@ def test_methodology_mcp_scopes_and_capabilities():
     assert _required_scopes(
         "knowledge_engine_mcp", "read", "compare_study_methodologies"
     ) == ["knowledge:methodology:read"]
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert "noesis-methodology-study-v1" in capabilities["contracts"]
     assert "reviewed-bias-and-applicability-assessments" in capabilities["features"]

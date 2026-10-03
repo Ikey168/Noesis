@@ -11,7 +11,6 @@ Offline evidence only, never live coverage (``docs/development/business-statisti
 
 from __future__ import annotations
 
-import asyncio
 import socket
 
 import duckdb
@@ -32,6 +31,7 @@ from src.kb.business_statistics_records import (
 )
 from src.kb.business_statistics_store import BusinessStatisticsStore
 from src.kb.labour_identity import LabourIdentity
+from src.mcp_host.introspection import tool_map
 from tests.unit import business_statistics_harness as h
 from tests.unit import labour_harness as lh
 from tests.unit import trade_harness as th
@@ -228,7 +228,7 @@ def test_place_to_cited_eurostat_and_cbp_figures_side_by_side_with_definitions_v
     file_conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.READ_ONLY)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     answer = tools["compare_business_places"].fn(
         namespace="global", places=[{"scheme": "eurostat-geo", "code": "DE"}, {"scheme": "us-fips-state",
                                                                                 "code": "06"}],

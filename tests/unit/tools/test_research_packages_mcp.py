@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -35,7 +36,7 @@ def test_research_package_mcp_exchange_auth_and_isolation(tmp_path, monkeypatch)
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "validate_research_package_manifest",
         "create_research_package_manifest",
@@ -119,7 +120,7 @@ def test_research_package_catalog():
     ) == ["knowledge:packages:read"]
     assert (
         "noesis-research-package-v1"
-        in server.knowledge_engine_capabilities.fn()["contracts"]
+        in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     )
 
 
@@ -130,7 +131,7 @@ def test_rocrate_build_option_preserves_authorization_and_cancellation(tmp_path,
     scopes = {"knowledge:packages:read"}
     monkeypatch.setattr(server, "_context", lambda: ("researcher", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(db)))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     kwargs = {"namespace": "research", "package_id": "missing", "root_ids": [], "output_format": "ro-crate"}
     assert call(tools["build_research_package"], **kwargs)["error"]["code"] == "unauthorized"
     scopes.add("knowledge:packages:write")
@@ -150,7 +151,7 @@ def test_trust_policy_tool_requires_separate_scope(tmp_path, monkeypatch):
     scopes = {"knowledge:packages:import"}
     monkeypatch.setattr(server, "_context", lambda: ("reviewer", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(db)))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     tool = tools["set_research_package_trust_policy"]
     assert call(tool, namespace="import:peer", public_keys={})["error"]["code"] == "unauthorized"
     scopes.add("knowledge:packages:trust")

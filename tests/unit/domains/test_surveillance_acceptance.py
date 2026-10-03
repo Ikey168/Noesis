@@ -15,6 +15,7 @@ from src.kb.surveillance import NEVER_SENTENCE
 from src.kb.surveillance_monitoring import SurveillanceMonitor
 from src.kb.surveillance_places import SurveillancePlaces
 from src.kb.surveillance_vintages import compare, pin, pin_status, reporting_delay
+from src.mcp_host.introspection import tool_map
 from tests.unit.clinical import surveillance_harness as h
 
 TABLES = (
@@ -304,8 +305,6 @@ def test_reacquisition_restart_new_release_and_monitor_replay_are_idempotent(tmp
 def test_the_feature_off_leaves_clinical_unchanged_and_on_binds_tools_that_carry_the_never_sentence(
     tmp_path, monkeypatch
 ):
-    import asyncio
-
     import duckdb
 
     from src.composition.adapter import adapt_all
@@ -372,7 +371,7 @@ def test_the_feature_off_leaves_clinical_unchanged_and_on_binds_tools_that_carry
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     arguments = {
         "surveillance_series_values": {"series_id": ids["series_id"]},
         "surveillance_definition_history": {

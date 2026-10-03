@@ -1,8 +1,7 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -11,7 +10,7 @@ def test_project_public_tools_reopen_revise_archive_and_recheck_access(tmp_path,
     scopes = {"knowledge:projects:read", "knowledge:projects:write", "namespace:research:write", "domain:policy:read"}
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     request = dict(namespace="research", request_key="q", questions=["What changed?"], success_criteria=["Cite evidence"],
                    scope={"domains": ["policy"], "namespaces": []}, budget={"requests": 2})
     project = tools["create_research_project"].fn(**request)
@@ -40,7 +39,7 @@ def test_branch_public_tools(tmp_path, monkeypatch):
     conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", {"operator"}))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     parent = tools["create_research_project"].fn(namespace="r", request_key="q", questions=["Why?"],
         success_criteria=["Evidence"], scope={"namespaces": ["r"], "domains": []}, budget={})
     result = tools["branch_research_project"].fn(namespace="r", project_id=parent["project_id"], revision=1,

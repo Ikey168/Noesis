@@ -4,6 +4,7 @@ import asyncio
 import inspect
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -13,7 +14,7 @@ def call(tool, **kwargs):
 
 
 def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "run_maintenance_once",
         "run_maintenance_drain",
@@ -707,7 +708,7 @@ def test_maintenance_surface_and_catalog_scope_separation(monkeypatch):
 
 
 def test_capabilities_advertise_generation_contracts():
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     capabilities = call(tools["knowledge_engine_capabilities"])
     assert "noesis-maintenance-job-receipt-v1" in capabilities["contracts"]
     assert "noesis-knowledge-generation-v1" in capabilities["contracts"]

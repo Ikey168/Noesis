@@ -1,8 +1,7 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -12,7 +11,7 @@ def test_screening_public_tools_preserve_independent_reviews(tmp_path, monkeypat
     scopes = {"knowledge:reviews:read", "knowledge:reviews:write", "namespace:r:write"}
     monkeypatch.setattr(server, "_context", lambda: (actor[0], scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     content = {"question": "Which studies qualify?", "inclusion": ["Controlled"], "exclusion": ["Editorial"],
         "databases": ["Literature"], "search_expressions": ["Controlled study"], "date_from": "2020-01-01", "date_to": "2026-09-05",
         "reviewers": ["alice", "bob"], "fields": ["population"]}

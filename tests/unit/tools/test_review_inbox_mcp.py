@@ -1,8 +1,7 @@
-import asyncio
-
 from src.mcp_host.catalog import _mutability
 from tools.knowledge_engine_mcp import server
 from tests.unit.kb.test_review_inbox import setup
+from src.mcp_host.introspection import tool_map
 
 
 def test_public_review_routing_and_explicit_dataset_release(monkeypatch):
@@ -11,7 +10,7 @@ def test_public_review_routing_and_explicit_dataset_release(monkeypatch):
     principal = ['coordinator']
     monkeypatch.setattr(server, '_connection', lambda *, read_only: store.conn.cursor())
     monkeypatch.setattr(server, '_context', lambda: (principal[0], scopes))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assigned = tools['assign_review_inbox_task'].fn(namespace='r', task_id=task['task_id'], reviewers=['alice', 'bob'])
     assert assigned['status'] == 'assigned', assigned
     for reviewer in ['alice', 'bob']:

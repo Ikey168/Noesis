@@ -5,6 +5,7 @@ import inspect
 
 import duckdb
 
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +23,7 @@ def test_event_model_mcp_lifecycle_accounts_search_diff_and_replay(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     event_input = {
         "event_type": "policy-decision",
         "participants": ["agency:1"],

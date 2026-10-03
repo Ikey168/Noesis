@@ -1,10 +1,10 @@
 """Problem-action MCP tools expose preview and unavailable execution clearly."""
 
-import asyncio
 
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import intake, server
 
 
@@ -23,7 +23,7 @@ def test_problem_action_mcp_scopes_and_truthful_unavailable_result(tmp_path, mon
     )
     monkeypatch.setattr(intake, "PROBLEM_ACTION_ADAPTERS", {})
 
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     write_tools = (
         "propose_problem_action",
         "consent_problem_action",
@@ -36,7 +36,7 @@ def test_problem_action_mcp_scopes_and_truthful_unavailable_result(tmp_path, mon
         ]
     assert all(_mutability(name) == "write" for name in write_tools)
     assert _mutability("preview_problem_action") == "read"
-    assert "noesis-problem-action-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-problem-action-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
 
     opened = tools["start_problem_session"].fn(
         namespace="research",

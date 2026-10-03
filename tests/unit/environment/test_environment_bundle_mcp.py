@@ -1,6 +1,5 @@
 """E12: bundle declaration, readiness, enablement and the MCP entry points."""
 
-import asyncio
 
 import duckdb
 import pytest
@@ -11,6 +10,7 @@ from tests.unit.environment import harness
 from tests.unit.environment.harness import NS, SCOPES
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.environment import ENVIRONMENT_TOOLS, ENVIRONMENT_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture(scope="module")
@@ -28,7 +28,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, path, place_id
+    return tool_map(server.mcp), state, path, place_id
 
 
 def test_declared_contributions_reuse_existing_owners():

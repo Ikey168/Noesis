@@ -11,7 +11,6 @@ party is fictional. This is offline evidence only; it is not live coverage
 
 from __future__ import annotations
 
-import asyncio
 import socket
 import urllib.request
 
@@ -30,6 +29,7 @@ from src.kb.ownership_identity import OwnershipIdentityService
 from src.kb.subscriptions import SubscriptionStore
 from tests.unit import competition_harness as h
 from tests.unit.ownership import harness as own
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture(autouse=True)
@@ -157,7 +157,7 @@ def test_the_mcp_tools_answer_the_journey(tmp_path, monkeypatch):
     conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.REVIEW_SCOPES)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     contracts = tools["competition_source_contracts"].fn()
     assert set(contracts["live_verification"]) == {"ec-competition", "eu-tam", "uk-cma", "us-ftc", "us-doj"}
     cases = tools["lookup_competition_cases"].fn(namespace=h.NS, entity=h.HOLD_ENTITY, ownership_namespace=h.OWN_NS,

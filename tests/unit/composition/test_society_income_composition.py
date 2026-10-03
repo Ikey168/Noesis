@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -27,6 +26,7 @@ from src.kb.society_bundle import (
     require_enabled,
 )
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import income_distribution_harness as h
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp import server
@@ -139,7 +139,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(database, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, database
+    return tool_map(server.mcp), state, database
 
 
 def test_answers_identity_and_cited_export_through_mcp(mcp_env):

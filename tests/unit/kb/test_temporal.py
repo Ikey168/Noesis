@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 import time
@@ -31,6 +30,7 @@ from src.kb.temporal import (
     store_document_times,
 )
 from src.kb.watches import grant_watch_domain
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_DIR = REPO_ROOT / "contracts/schemas/jsonschema"
@@ -548,7 +548,7 @@ def test_rest_and_mcp_temporal_surfaces_share_one_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_temporal"].fn(domain="research", as_of="1")
     assert rest == mcp == sentinel
     assert len(calls) == 2
@@ -570,6 +570,6 @@ def test_indexed_temporal_pagination_performance():
 def test_contract_registry_exposes_temporal_schemas():
     from tools.contract_mcp.server import get_contract
 
-    assert get_contract.fn("temporal-assertion")["id"] == "noesis-temporal-assertion-v1"
-    assert get_contract.fn("temporal-query")["id"] == "noesis-temporal-query-v1"
-    assert get_contract.fn("temporal-response")["id"] == "noesis-temporal-response-v1"
+    assert tool_function(get_contract)("temporal-assertion")["id"] == "noesis-temporal-assertion-v1"
+    assert tool_function(get_contract)("temporal-query")["id"] == "noesis-temporal-query-v1"
+    assert tool_function(get_contract)("temporal-response")["id"] == "noesis-temporal-response-v1"

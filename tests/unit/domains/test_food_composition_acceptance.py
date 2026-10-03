@@ -10,7 +10,6 @@ subscription event.
 
 from __future__ import annotations
 
-import asyncio
 import socket
 
 import duckdb
@@ -18,6 +17,7 @@ import pytest
 
 from src.kb.food_composition import feature_enabled, forbidden_keys
 from src.kb.food_notice_links import NO_NOTICE
+from src.mcp_host.introspection import tool_map
 from tests.unit import food_composition_harness as h
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp import server
@@ -67,7 +67,7 @@ def test_gtin_to_cited_composition_label_history_identity_and_linked_notices(off
     state = {"principal": "analyst", "scopes": set(h.ALL)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     # Identity: the UPC-A in FDC Branded and the EAN-13 in OFF meet; the other brand's GTIN is a conflict.
     proposed = tools["propose_food_matches"].fn(namespace=h.NS)

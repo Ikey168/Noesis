@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -23,6 +22,7 @@ from src.domains.economic.queries import EconomicQueryError, economic_research
 from src.domains.pack_format import load_manifest, validate_manifest
 from src.evidence_bundle import verify_bundle
 from src.kb import contract
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tests/fixtures/economic/benchmark.json"
@@ -328,7 +328,7 @@ def test_rest_and_mcp_economic_surfaces_share_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_economic"].fn(
         domain="economics", query_type="trend", series_ids=["fred:GDPC1:US"]
     )

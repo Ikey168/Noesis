@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 import subprocess
@@ -18,6 +17,7 @@ from src.kb import contract
 from src.kb.clusters import ensure_cluster_schema
 from src.kb.membership import run_membership_pass
 from src.kb.registry import load_registry
+from src.mcp_host.introspection import tool_function, tool_map
 from src.osint.corroboration import corroborate
 from src.osint.independence import (
     METHOD_VERSION,
@@ -420,7 +420,7 @@ def test_kb_rest_and_mcp_share_the_same_origin_aware_service(tmp_path, monkeypat
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_corroborate"].fn("economics", "target")
     assert rest["data"] == mcp["data"] == direct["data"]
     assert "publication_support_count" in rest["data"]
@@ -490,7 +490,7 @@ def test_signal_repository_is_separate_from_decisions():
 def test_contract_registry_validates_origin_graph_example(alias):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, "valid-origin-graph")
+    result = tool_function(validate)(alias, "valid-origin-graph")
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == (
         "noesis-evidence-independence-v1"

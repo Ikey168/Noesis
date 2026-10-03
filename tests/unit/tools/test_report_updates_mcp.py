@@ -1,8 +1,7 @@
-import asyncio
-
 from src.mcp_host.catalog import _mutability
 from tools.knowledge_engine_mcp import server
 from tests.unit.kb.test_report_updates import setup, AUTH
+from src.mcp_host.introspection import tool_map
 
 
 def test_public_report_assessment_review_and_export(monkeypatch):
@@ -10,7 +9,7 @@ def test_public_report_assessment_review_and_export(monkeypatch):
     monkeypatch.setattr(server, '_connection', lambda *, read_only: store.conn.cursor())
     monkeypatch.setattr(server, '_context', lambda: ('alice', AUTH['scopes']))
     sources.observe({**payload, 'content': 'Corrected value.'})
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assessment = tools['assess_authored_report_changes'].fn(namespace='r', report_id=report['report_id'])
     proposal = tools['propose_authored_report_edit'].fn(namespace='r', assessment_id=assessment['assessment_id'], assertion_id='a1')
     assert proposal['status'] == 'pending', proposal

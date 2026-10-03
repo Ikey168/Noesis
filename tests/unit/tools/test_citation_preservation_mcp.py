@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -23,7 +24,7 @@ def test_citation_mcp_policy_capture_verify_repair_export_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_citation_archive_policy",
         "get_citation_archive_policy",
@@ -143,7 +144,7 @@ def test_citation_catalog_scopes_and_capabilities():
     assert _required_scopes(
         "knowledge_engine_mcp", "read", "export_preserved_citations"
     ) == ["knowledge:citation:read"]
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert (
         "noesis-citation-snapshot-v1" in capabilities["contracts"]
         and "approved-archive-link-rot-repair" in capabilities["features"]

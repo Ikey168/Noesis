@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import copy
 import importlib.util
 import json
@@ -26,6 +25,7 @@ from src.kb.contract import KBContractError
 from src.kb.membership import run_membership_pass
 from src.kb.promotion import promote_to_namespace
 from src.kb.registry import load_registry
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = (
@@ -631,7 +631,7 @@ def test_committed_invalid_example_is_rejected():
 def test_contract_registry_resolves_answer_aliases(alias, sample):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, sample)
+    result = tool_function(validate)(alias, sample)
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == "noesis-answer-v1"
 
@@ -660,7 +660,7 @@ def test_mcp_and_rest_are_thin_adapters_over_the_same_function(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_answer"].fn(
         domain="economics",
         question="inflation?",

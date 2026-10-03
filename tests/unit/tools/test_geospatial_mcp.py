@@ -5,6 +5,7 @@ import inspect
 
 import duckdb
 
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +23,7 @@ def test_geospatial_mcp_registry_resolution_search_relations_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_geospatial_place",
         "revise_geospatial_place",
@@ -141,7 +142,7 @@ def test_optional_multipart_simplification_tool(tmp_path, monkeypatch):
     scopes = {WRITE_SCOPE}
     monkeypatch.setattr(server, "_context", lambda: ("fixture", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(database)))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     result = _call(tools["simplify_geospatial_geometry"], namespace="berlin", geometry_id=original["geometry_id"],
         tolerance_m=10, backend="shapely", projected_crs="EPSG:25833")
     assert result["simplified_from"] == original["geometry_id"]
@@ -153,7 +154,7 @@ def test_optional_multipart_simplification_tool(tmp_path, monkeypatch):
 
 
 def test_geospatial_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-geospatial-place-v1",
         "noesis-geospatial-geometry-v1",

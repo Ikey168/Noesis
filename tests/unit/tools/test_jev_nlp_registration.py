@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import asyncio
-
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -15,7 +14,7 @@ def test_source_bound_jev_nlp_suggestions_are_public_and_scoped():
         "suggest_jev_stance",
         "suggest_jev_frames",
     }
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert names <= tools.keys()
     for name in names:
         assert _mutability(name) == "write"
@@ -30,4 +29,4 @@ def test_source_bound_jev_nlp_suggestions_are_public_and_scoped():
         "noesis-jev-stance-suggestion-v1",
         "noesis-jev-frame-suggestion-v1",
         "noesis-jev-mining-evaluation-v1",
-    } <= set(server.knowledge_engine_capabilities.fn()["contracts"])
+    } <= set(tool_function(server.knowledge_engine_capabilities)()["contracts"])

@@ -51,8 +51,9 @@ def test_standalone_kg_mcp_process_reads_seeded_graph(tmp_path):
     _seed(path)
     code = (
         "import json; "
+        "from src.mcp_host.introspection import tool_function as fn; "
         "from tools.kg_mcp.server import kg_stats, list_entities; "
-        "print(json.dumps({'stats': kg_stats.fn(), 'entities': list_entities.fn()}))"
+        "print(json.dumps({'stats': fn(kg_stats)(), 'entities': fn(list_entities)()}))"
     )
     env = dict(os.environ, NOESIS_DB_PATH=str(path), PYTHONPATH=str(Path(__file__).resolve().parents[2]))
     result = subprocess.run(

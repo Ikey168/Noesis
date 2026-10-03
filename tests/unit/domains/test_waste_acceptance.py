@@ -13,7 +13,6 @@ links and a place with no records. Offline evidence only, never live coverage
 
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 
@@ -37,6 +36,7 @@ from src.kb.waste_records import (
     selected_features,
 )
 from src.kb.waste_store import WasteStore
+from src.mcp_host.introspection import tool_map
 from tests.unit import waste_fixture_builder as builder
 from tests.unit import waste_harness as h
 from tests.unit.composition.test_migration import _migrated
@@ -236,7 +236,7 @@ def test_place_and_facility_to_cited_waste_figures_side_by_side_and_transfers_wi
     file_conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(SCOPES_WITH_ENVIRONMENT)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     answer = tools["waste_indicator_for_place"].fn(place={"scheme": "eurostat-geo", "code": "FR"},
                                                    as_of="2099-12-31")
     assert answer["side_by_side"] is True and forbidden_paths(answer) == [] and answer["exclusions"]

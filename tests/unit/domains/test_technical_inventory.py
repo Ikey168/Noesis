@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -18,6 +17,7 @@ from src.domains.technical.model import (
     record_advisory_range,
     record_object,
 )
+from src.mcp_host.introspection import tool_map
 
 SCHEMA = json.loads(
     (
@@ -153,7 +153,7 @@ def test_inventory_public_mcp_tools_are_scoped_and_replay(tmp_path, monkeypatch)
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert tools["import_technical_inventory"].parameters["required"] == [
         "content",
         "format",

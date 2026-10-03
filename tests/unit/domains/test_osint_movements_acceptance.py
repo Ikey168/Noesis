@@ -12,7 +12,6 @@ live coverage is MV15 (#2291) and is recorded separately, never here.
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 import socket
@@ -25,6 +24,7 @@ from src.composition.adapter import adapt_all
 from src.composition.resolver import resolve
 from src.composition.shadow import provider_descriptors
 from src.ingestion.osint_movement_sources import LIVE_VERIFICATION
+from src.mcp_host.introspection import tool_map
 from src.osint.investigations import MOVEMENT_TOOLS
 from src.osint.movement_monitoring import MovementMonitor
 from src.osint.movements import (
@@ -149,5 +149,5 @@ def test_gate_flag_off_serves_no_movement_tool(monkeypatch):
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
-    served = asyncio.run(module.mcp.get_tools())
+    served = tool_map(module.mcp)
     assert not set(MOVEMENT_TOOLS) & set(served) and "movement_source_contracts" in served

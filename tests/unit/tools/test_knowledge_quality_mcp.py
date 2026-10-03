@@ -7,6 +7,7 @@ import duckdb
 
 from src.kb.knowledge_quality import DIMENSIONS
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +23,7 @@ def test_quality_mcp_end_to_end(tmp_path, monkeypatch):
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "register_quality_policy",
         "get_quality_policy",
@@ -125,5 +126,5 @@ def test_quality_catalog():
     ) == ["knowledge:quality:read"]
     assert (
         "noesis-quality-assessment-v1"
-        in server.knowledge_engine_capabilities.fn()["contracts"]
+        in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     )

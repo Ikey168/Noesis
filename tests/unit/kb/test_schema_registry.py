@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import copy
 import importlib.util
 import json
@@ -22,6 +21,7 @@ from src.kb.schema_registry import (
     SchemaRegistryError,
 )
 from src.kb.transactions import COMMIT_SCOPE, PREVIEW_SCOPE, KnowledgeTransactionStore
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 EXAMPLES = ROOT / "contracts/examples/schema-registry"
@@ -603,7 +603,7 @@ def test_mcp_uses_operator_identity_and_separate_lifecycle_scopes(
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     builtin = tools["resolve_schema_module"].fn("schema", "knowledge-mutation", "1.0.0")
     assert builtin["provenance"]["kind"] == "builtin"
     denied = tools["register_schema_module"].fn(

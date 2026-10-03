@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -13,6 +12,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit import web_archive_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_SCOPES, WEB_ARCHIVE_TOOLS, WEB_ARCHIVE_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture()
@@ -29,7 +29,7 @@ def mcp_env(tmp_path, monkeypatch):
         raise AssertionError("Save Page Now must never reach the network in tests")
 
     monkeypatch.setattr(wayback, "_spn_request", refuse)
-    return asyncio.run(server.mcp.get_tools()), state, transport
+    return tool_map(server.mcp), state, transport
 
 
 def test_tools_are_registered_with_their_scopes_and_catalogued(mcp_env):

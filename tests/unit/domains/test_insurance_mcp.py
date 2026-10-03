@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 from pathlib import Path
 
@@ -11,6 +10,7 @@ import pytest
 
 import tests.unit.insurance_harness as h
 from tools.market_mcp.insurance import INSURANCE_SCOPES, INSURANCE_TOOLS, INSURANCE_WRITES
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -20,7 +20,7 @@ def tools():
     spec = importlib.util.spec_from_file_location("insurance_market_server", ROOT / "tools/market_mcp/server.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return asyncio.run(module.mcp.get_tools())
+    return tool_map(module.mcp)
 
 
 @pytest.fixture

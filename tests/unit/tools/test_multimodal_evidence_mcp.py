@@ -7,6 +7,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -45,7 +46,7 @@ def test_multimodal_mcp_binary_search_extract_citations_provenance_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_multimodal_asset",
         "get_multimodal_asset",
@@ -154,7 +155,7 @@ def test_multimodal_catalog_scopes_and_capabilities():
     assert _required_scopes(
         "knowledge_engine_mcp", "read", "inspect_media_provenance"
     ) == ["knowledge:multimodal:read"]
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert "noesis-multimodal-asset-v1" in capabilities["contracts"]
     assert (
         "media-transformation-and-authenticity-provenance" in capabilities["features"]

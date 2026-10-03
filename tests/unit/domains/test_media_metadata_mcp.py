@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 
 import duckdb
 import pytest
@@ -11,6 +10,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit import media_metadata_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.cultural import CULTURAL_TOOLS, MEDIA_SCOPES, MEDIA_TOOLS, MEDIA_WRITES
+from src.mcp_host.introspection import tool_map
 
 NAMESPACE = {"namespace:global:read", "namespace:global:write"}
 
@@ -28,7 +28,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "analyst", "scopes": set(h.ALL)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def test_tools_are_registered_beside_cultural_with_mutability_scopes_and_exclusions(mcp_env):

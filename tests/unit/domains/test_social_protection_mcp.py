@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.evidence_bundle.verifier import verify_bundle
 from src.kb.social_protection_records import forbidden_paths, personal_data_paths
+from src.mcp_host.introspection import tool_map
 from tests.unit import social_protection_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.social_protection import (
@@ -35,7 +35,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(database, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, database
+    return tool_map(server.mcp), state, database
 
 
 def test_tools_are_registered_and_answering_tools_declare_the_exclusions(mcp_env):

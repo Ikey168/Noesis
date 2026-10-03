@@ -1,6 +1,5 @@
 """H12: bundle declaration, readiness and MCP entry points with preserved tool ids and scopes."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -9,6 +8,7 @@ import pytest
 
 from src.kb.clinical_bundle import BUNDLE, BundleError, readiness, set_enabled
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.clinical.harness import NS, QUESTION, Env
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.clinical import (
@@ -33,7 +33,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "alice", "scopes": set(scopes)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, path
+    return tool_map(server.mcp), state, path
 
 
 def test_declaration_reuses_existing_owners_and_states_the_boundary():

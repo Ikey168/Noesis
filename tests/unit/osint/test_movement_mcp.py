@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import sys
 from pathlib import Path
@@ -10,6 +9,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from src.mcp_host.introspection import tool_map
 from src.osint.investigations import MOVEMENT_GATED_TOOLS, MOVEMENT_TOOLS, is_gated
 from src.osint.movements import request_log
 from tests.unit.osint.movement_harness import Env
@@ -33,7 +33,7 @@ def _server(monkeypatch, *, movements=None, gated=None, name="osint_movements"):
 
 
 def _tools(module):
-    return asyncio.run(module.mcp.get_tools())
+    return tool_map(module.mcp)
 
 
 def test_movement_tools_are_absent_while_the_flag_is_off(monkeypatch):
