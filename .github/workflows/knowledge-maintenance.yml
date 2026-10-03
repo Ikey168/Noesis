@@ -33,7 +33,9 @@ permissions:
 jobs:
   offline-conformance:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The all-domain reference run grows with every source pack: about 7 minutes
+    # on main, and pull-request runs were cancelled at 10 (#2737, wave 1's PR).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
