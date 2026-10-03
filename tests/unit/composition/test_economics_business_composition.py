@@ -146,4 +146,4 @@ def test_taxonomy_classifies_the_provider_and_the_gap_row_is_removed():
                                                            "shapes": ["statistical-series"]}
     program = (ROOT / "docs/roadmaps/domain-coverage-program.md").read_text()
     assert "| `industry-business` |" not in program
-    assert "67 are covered and 22 are gaps" in program
+    assert "68 are covered and 21 are gaps" in program  # social-protection covered offline too (#2741)

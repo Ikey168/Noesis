@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1823,
+      "tool_count": 1845,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1240,6 +1240,7 @@
         "noesis-knowledge-engine.create_review_protocol",
         "noesis-knowledge-engine.create_reviewed_intake_practice_pack",
         "noesis-knowledge-engine.create_sanctions_monitor",
+        "noesis-knowledge-engine.create_social_protection_monitor",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
         "noesis-knowledge-engine.create_space_registration_monitor",
@@ -1402,6 +1403,7 @@
         "noesis-knowledge-engine.export_research_entities_evidence_bundle",
         "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.export_review_annotation_dataset",
+        "noesis-knowledge-engine.export_social_protection_profile",
         "noesis-knowledge-engine.export_space_registration_evidence",
         "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
@@ -1708,6 +1710,7 @@
         "noesis-knowledge-engine.link_real_estate_records",
         "noesis-knowledge-engine.link_research_entities",
         "noesis-knowledge-engine.link_safety_citations",
+        "noesis-knowledge-engine.link_social_protection_series",
         "noesis-knowledge-engine.link_space_registration_citations",
         "noesis-knowledge-engine.link_sports_venue_place",
         "noesis-knowledge-engine.link_study_artifact",
@@ -1849,6 +1852,9 @@
         "noesis-knowledge-engine.list_safety_subject_matches",
         "noesis-knowledge-engine.list_sanctions_identity_candidates",
         "noesis-knowledge-engine.list_save_page_now_requests",
+        "noesis-knowledge-engine.list_social_protection_identity",
+        "noesis-knowledge-engine.list_social_protection_links",
+        "noesis-knowledge-engine.list_social_protection_series",
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
@@ -2017,6 +2023,7 @@
         "noesis-knowledge-engine.poll_real_estate_monitor",
         "noesis-knowledge-engine.poll_research_entities_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_social_protection_monitor",
         "noesis-knowledge-engine.poll_space_registration_monitor",
         "noesis-knowledge-engine.poll_sports_monitor",
         "noesis-knowledge-engine.poll_statute_monitor",
@@ -2146,6 +2153,8 @@
         "noesis-knowledge-engine.propose_safety_subject_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
+        "noesis-knowledge-engine.propose_social_protection_function_relations",
+        "noesis-knowledge-engine.propose_social_protection_place_matches",
         "noesis-knowledge-engine.propose_sports_identity_matches",
         "noesis-knowledge-engine.propose_substance_identities",
         "noesis-knowledge-engine.propose_substance_identity_manual",
@@ -2219,6 +2228,8 @@
         "noesis-knowledge-engine.record_research_coverage",
         "noesis-knowledge-engine.record_research_project_expenditure",
         "noesis-knowledge-engine.record_sanctions_trade_correlations",
+        "noesis-knowledge-engine.record_social_protection_comparability",
+        "noesis-knowledge-engine.record_social_protection_function_relation",
         "noesis-knowledge-engine.record_sports_club_lineage",
         "noesis-knowledge-engine.record_sports_decision",
         "noesis-knowledge-engine.record_sports_table_rule",
@@ -2272,6 +2283,7 @@
         "noesis-knowledge-engine.register_research_recipe",
         "noesis-knowledge-engine.register_retention_object",
         "noesis-knowledge-engine.register_retention_policy",
+        "noesis-knowledge-engine.register_social_protection_schemas",
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.register_sports_forecast",
@@ -2403,6 +2415,7 @@
         "noesis-knowledge-engine.revert_research_entity_identity_match",
         "noesis-knowledge-engine.revert_safety_subject_match",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
+        "noesis-knowledge-engine.revert_social_protection_identity",
         "noesis-knowledge-engine.revert_space_registration_citation",
         "noesis-knowledge-engine.revert_space_registration_party",
         "noesis-knowledge-engine.revert_sports_identity_match",
@@ -2498,6 +2511,8 @@
         "noesis-knowledge-engine.review_research_entity_identity_match",
         "noesis-knowledge-engine.review_safety_subject_match",
         "noesis-knowledge-engine.review_sanctions_identity_match",
+        "noesis-knowledge-engine.review_social_protection_comparability",
+        "noesis-knowledge-engine.review_social_protection_identity",
         "noesis-knowledge-engine.review_space_registration_party",
         "noesis-knowledge-engine.review_sports_identity_match",
         "noesis-knowledge-engine.review_sports_news_link",
@@ -2586,6 +2601,7 @@
         "noesis-knowledge-engine.run_research_entities_monitor",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
+        "noesis-knowledge-engine.run_social_protection_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
         "noesis-knowledge-engine.run_space_registration_monitor",
         "noesis-knowledge-engine.run_sports_monitor",
@@ -2657,6 +2673,12 @@
         "noesis-knowledge-engine.simulate_retention_eligibility",
         "noesis-knowledge-engine.slice_dataset_table",
         "noesis-knowledge-engine.small_body_history",
+        "noesis-knowledge-engine.social_protection_comparability_notes",
+        "noesis-knowledge-engine.social_protection_indicator_for_place",
+        "noesis-knowledge-engine.social_protection_profile",
+        "noesis-knowledge-engine.social_protection_readiness",
+        "noesis-knowledge-engine.social_protection_series_history",
+        "noesis-knowledge-engine.social_protection_source_contracts",
         "noesis-knowledge-engine.society_bundle_status",
         "noesis-knowledge-engine.source_identity_dossier",
         "noesis-knowledge-engine.source_identity_history",
@@ -2796,7 +2818,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1823
+      "visible_tool_count": 1845
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2807,11 +2829,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 161,
+      "available": 162,
       "degraded": 174,
-      "unauthorized": 1826
+      "unauthorized": 1847
     },
-    "tools": 2161
+    "tools": 2183
   },
   "tools": [
     {
@@ -37889,6 +37911,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a series, a provider, a measure, a function or a place: new releases, revisions,\nrestatements, definition changes and removals (record changes, not assessments).",
+      "id": "noesis-knowledge-engine.create_social_protection_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_social_protection_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist an explainable plan pinned to exact source capability versions.",
       "id": "noesis-knowledge-engine.create_source_acquisition_plan",
       "input_schema": {
@@ -46158,6 +46235,73 @@
       "required_scopes": [
         "knowledge:inbox:read",
         "knowledge:inbox:datasets"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The profile as a noesis-evidence-bundle-v1: every item cited with source, record revision and as-of\ntime; exclusions and the minimisation decision in its root receipt.",
+      "id": "noesis-knowledge-engine.export_social_protection_profile",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_social_protection_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60477,6 +60621,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link series to Demographics population denominators and to COFOG social-protection expenditure in\nPublic finance by shared code or accepted match; absences reported, nothing computed from linked series.\nExclusions: no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification\nof functions, no combination with COFOG, no per-capita or share figures of our own, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.link_social_protection_series",
+      "input_schema": {
+        "properties": {
+          "demographic_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "public_finance_namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_social_protection_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:demographics:read",
+        "knowledge:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Resolve the instrument identifiers, DOIs and bibcodes registrations state to Legal works and Science\npapers by exact identifier; absent packs are skipped; idempotent; never reactivates a revert.",
       "id": "noesis-knowledge-engine.link_space_registration_citations",
       "input_schema": {
@@ -68112,6 +68299,195 @@
       ],
       "required_scopes": [
         "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place and function assertions with their review state, unmatched areas and functions with no accepted\nrelation (queryable natively).",
+      "id": "noesis-knowledge-engine.list_social_protection_identity",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_social_protection_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links with their basis and pinned revisions; provider_absent and target_not_held reported, never\ndropped; COFOG links carry their distinct-concept note.",
+      "id": "noesis-knowledge-engine.list_social_protection_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_social_protection_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Series with source, dataset, measure, the publisher's own function, scheme type, financing, cash or in\nkind, basis, sex, unit as published, place and population denominator.",
+      "id": "noesis-knowledge-engine.list_social_protection_series",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "function": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_social_protection_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75923,6 +76299,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_social_protection_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_social_protection_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a registration monitor's recorded events.",
       "id": "noesis-knowledge-engine.poll_space_registration_monitor",
       "input_schema": {
@@ -81795,6 +82213,77 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose functions of different publishers that state the same published label as related (confidence\nlow); never merged or re-classified; COFOG stays distinct.",
+      "id": "noesis-knowledge-engine.propose_social_protection_function_relations",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_social_protection_function_relations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose place matches by published ISO code (names are context only); none accepted.",
+      "id": "noesis-knowledge-engine.propose_social_protection_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "geo",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_social_protection_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Deterministic candidates from cross ids, name + published birth date (players), name + country\n(teams) and competition + season; nothing is merged and every candidate waits for review.",
       "id": "noesis-knowledge-engine.propose_sports_identity_matches",
       "input_schema": {
@@ -86069,6 +86558,139 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose a cited comparability note for a series or a pair; nothing is harmonised or merged.",
+      "id": "noesis-knowledge-engine.record_social_protection_comparability",
+      "input_schema": {
+        "properties": {
+          "cited": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "other_series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "relation",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_social_protection_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "State, with citations, that one publisher's function ({scheme, code}) is related to another publisher's;\nproposed for review by another principal; a COFOG function is refused (distinct concept).",
+      "id": "noesis-knowledge-engine.record_social_protection_function_relation",
+      "input_schema": {
+        "properties": {
+          "cited": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "right",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_social_protection_function_relation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A cited club rename, merger or phoenix club as a reversible identity-history event; never a merge.",
       "id": "noesis-knowledge-engine.record_sports_club_lineage",
       "input_schema": {
@@ -90072,6 +90694,40 @@
       ],
       "required_scopes": [
         "knowledge:retention:admin"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-social-protection-record-v2 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_social_protection_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_social_protection_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -95850,6 +96506,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected assertion; the series stay as published.",
+      "id": "noesis-knowledge-engine.revert_social_protection_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_social_protection_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert one registration citation link (final for that target revision).",
       "id": "noesis-knowledge-engine.revert_space_registration_citation",
       "input_schema": {
@@ -100316,6 +101013,107 @@
       ],
       "required_scopes": [
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a recorded comparability note (another principal reviews).",
+      "id": "noesis-knowledge-engine.review_social_protection_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_social_protection_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject another principal's assertion with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_social_protection_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_social_protection_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -104804,6 +105602,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark (newest by default); a replay creates no new notices.",
+      "id": "noesis-knowledge-engine.run_social_protection_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_social_protection_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Run or resume one bounded source-pack execution; network access is explicit.",
       "id": "noesis-knowledge-engine.run_source_pack_execution",
       "input_schema": {
@@ -108619,6 +109466,307 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Source-stated breaks, definition differences and ESSPROS-SOCX scope notes, and reviewer notes.",
+      "id": "noesis-knowledge-engine.social_protection_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "ESSPROS, SOCX and ILO values for a place (place id or {scheme, code}) released by a date, side by side by\nmeasure with definitions, functions, units, flags, publication status and cited vintages; expenditure and\ncoverage are never equated and COFOG is shown only as cited links.\nExclusions: no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification\nof functions, no combination with COFOG, no per-capita or share figures of our own, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.social_protection_indicator_for_place",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "function": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "measure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reference_year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A place's expenditure, beneficiary and coverage figures from each source side by side as of a date, with\nDemographics and Public finance links.\nExclusions: no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification\nof functions, no combination with COFOG, no per-capita or share figures of our own, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.social_protection_profile",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "ready / fixture-only / stale / unavailable / feature-disabled per source, Demographics and Public finance\nlinks (provider_absent when not composed); live verification reported separately.",
+      "id": "noesis-knowledge-engine.social_protection_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every vintage of a series with changed periods, estimates replaced, report-edition restatements, manual\nedition and definition changes, removals and the comparability notes per release pair\n(comparability_unknown when none applies).\nExclusions: no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification\nof functions, no combination with COFOG, no per-capita or share figures of our own, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.social_protection_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (Eurostat ESSPROS, OECD SOCX, ILOSTAT SDG 1.3.1; the ILO dashboards\nnot-implemented), licences, limits and pacing, revision models, caps, bounded coverage and the minimisation\ndecision; every source is unverified-live until a dated live run.\nExclusions: no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification\nof functions, no combination with COFOG, no per-capita or share figures of our own, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.social_protection_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "social_protection_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

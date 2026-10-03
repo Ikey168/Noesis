@@ -1,0 +1,508 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "society.social-protection",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.social_protection_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "society.social-protection-series",
+      "contract": {
+        "name": "noesis-social-protection-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "list-series",
+        "indicator-for-place",
+        "series-history",
+        "comparability-notes",
+        "profile",
+        "export-profile",
+        "register-schemas",
+        "record-comparability-note",
+        "review-comparability-note"
+      ],
+      "semantic_constraints": {
+        "series": "keyed by source, dataset or dataflow, measure (expenditure, beneficiaries or coverage), the publisher's own classification (ESSPROS spfunc or pension category, SOCX policy area, ILO contingency), scheme or benefit type, financing, cash or in kind, gross or net basis, sex, unit as published, place and frequency; ILO's population denominator per series; values also in the Economics series storage (economic_vintages, dataset_observations; domain society)",
+        "definitions": "the ESSPROS manual edition, the SOCX methodology and ILO NOTE_SOURCE, NOTE_INDICATOR and NOTE_CLASSIF (verbatim) are definition revisions; a changed definition is a new revision",
+        "vintages": "each changed release is an appended vintage with release and retrieval clocks (Eurostat LAST UPDATE, a declared OECD or ILO release date or the labelled retrieval time); a restating World Social Protection Report edition is a new vintage; a series a complete later release no longer states gets a removed_by_source vintage; as-of answers select the vintage released by the date",
+        "values": "stored as published, never recomputed; OECD estimates and projections keep that status and are never final; flags b, p, e, d and c verbatim and c is a status, never a value",
+        "comparability": "expenditure, beneficiary counts and coverage are never presented as measuring the same thing; ESSPROS, SOCX and ILO rows are side by side and never combined; ESSPROS-SOCX scope notes, breaks, manual edition changes and restatements are source-stated notes; pairs without notes are comparability_unknown",
+        "minimisation": "published aggregates only; person- and household-level fields, registers, microdata and Social Security Inquiry returns refused at write time",
+        "exclusions": "no nowcasting, no filled years, no blending of ESSPROS, SOCX and ILO figures, no re-classification of one publisher's functions into another's, no combination with COFOG, no per-capita, per-beneficiary or share-of-GDP figure of our own, no derived indicators, no forecasts"
+      }
+    },
+    {
+      "id": "society.social-protection-identity",
+      "contract": {
+        "name": "noesis-social-protection-identity-assertion",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-place-matches",
+        "propose-function-relations",
+        "record-function-relation",
+        "review-identity",
+        "revert-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "places match through reviewed assertions on published ISO codes before names (the Geospatial place identity society.income uses); a function, branch or contingency may be recorded as related to another publisher's, never re-classified or merged; COFOG stays a distinct concept; nothing auto-accepted; unmatched records stay visible"
+      }
+    },
+    {
+      "id": "society.social-protection-links",
+      "contract": {
+        "name": "noesis-social-protection-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-series",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "links": "Demographics population denominators and COFOG social-protection expenditure (gov_10a_exp, GF10) in Public finance by shared published code or accepted match; both revisions pinned; no ratio or share computed; provider_absent and target_not_held reported"
+      }
+    },
+    {
+      "id": "society.social-protection-monitoring",
+      "contract": {
+        "name": "noesis-social-protection-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "delivery": "knowledge subscriptions and source-pack watermarks; no new scheduler; notices are record changes, not assessments; a failed run never produces a removal notice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.social_protection_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.social_protection_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_social_protection_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.social_protection_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.social_protection_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.social_protection_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "profile",
+      "tool": "noesis-knowledge-engine.social_protection_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-profile",
+      "tool": "noesis-knowledge-engine.export_social_protection_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_social_protection_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-comparability-note",
+      "tool": "noesis-knowledge-engine.record_social_protection_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series + relation + statement"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-comparability-note",
+      "tool": "noesis-knowledge-engine.review_social_protection_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "note_id + state"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-place-matches",
+      "tool": "noesis-knowledge-engine.propose_social_protection_place_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "area code + candidates"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-function-relations",
+      "tool": "noesis-knowledge-engine.propose_social_protection_function_relations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "function pair"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-function-relation",
+      "tool": "noesis-knowledge-engine.record_social_protection_function_relation",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "function pair + evidence"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_social_protection_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "assertion_id + state"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_social_protection_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "assertion_id + state"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_social_protection_identity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-series",
+      "tool": "noesis-knowledge-engine.link_social_protection_series",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series vintage + kind + target"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:social-protection:write",
+        "knowledge:demographics:read",
+        "knowledge:public-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_social_protection_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:social-protection:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_social_protection_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_social_protection_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription + watermark"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_social_protection_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:social-protection:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "social-protection-record",
+      "store": "src.kb.social_protection_store",
+      "tables": [
+        "social_protection_releases",
+        "social_protection_series",
+        "social_protection_definitions",
+        "social_protection_vintages",
+        "social_protection_observations",
+        "social_protection_release_members",
+        "social_protection_comparability",
+        "social_protection_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "social-protection-identity-assertion",
+      "store": "src.kb.social_protection_identity",
+      "tables": [
+        "social_protection_identity_assertions"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "social-protection-link",
+      "store": "src.kb.social_protection_links",
+      "tables": [
+        "social_protection_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "social-protection-refresh-receipt",
+      "store": "src.kb.social_protection_monitoring",
+      "tables": [
+        "social_protection_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "series",
+      "kind": "table-exists",
+      "target": "social_protection_vintages"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "social_protection_identity_assertions"
+    },
+    {
+      "id": "links",
+      "kind": "table-exists",
+      "target": "social_protection_links"
+    },
+    {
+      "id": "social-protection-source",
+      "kind": "source-pack-enabled",
+      "target": "society-social-protection"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "society-social-protection",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
