@@ -31,7 +31,7 @@ SCOPES = {
     "knowledge:subscriptions:write",
     "knowledge:geospatial:read",
     "knowledge:geospatial:write",
-    "knowledge:chemicals:read",
+    "knowledge:substances:read",
     "knowledge:products:read",
     f"namespace:{NS}:read",
     f"namespace:{NS}:write",
@@ -173,7 +173,7 @@ def seed_chemicals(conn, namespace: str = NS) -> str:
     from src.kb.substances_records import statement
     from src.kb.substances_store import SubstanceStore
 
-    subject = {"key": "fixture:substance:mercury", "kind": "unknown", "name": "mercury (authored fixture)"}
+    subject = {"key": "pubchem:cid:99000201", "kind": "unknown", "name": "mercury (authored fixture)"}
     src = {"url": "https://echa.europa.eu/", "locator": "/", "attribution": "authored test record (fictional)"}
     SubstanceStore(conn).observe(namespace, [
         statement("substance", "pubchem", subject, "element", {"preferred_name": "mercury"}, source=src),
