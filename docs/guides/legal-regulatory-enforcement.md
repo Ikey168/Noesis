@@ -40,8 +40,12 @@ sources ship in `legal-research` 1.5.0:
 | `edpb-art60-final-decisions` | `enforcement-edpb` | register entry slug |
 
 Live SEC requests need `NOESIS_SEC_USER_AGENT` (operator name and contact, as
-the SEC fair-access policy requires). Without it a live run fails with
-`source_unavailable`; requests are never sent anonymously. Units are declared,
+the SEC fair-access policy requires), the same variable every SEC reader in
+Noesis uses. The deprecated `NOESIS_EDGAR_USER_AGENT` and `NOESIS_SEC_CONTACT`
+still work with a warning naming `NOESIS_SEC_USER_AGENT`; when two of them are
+set to different values the run is refused rather than picking one. Without
+it a live run fails with `source_unavailable`; requests are never sent
+anonymously. Units are declared,
 never crawled; each run takes at most 20 units per source.
 
 ## Journey: company to cited actions

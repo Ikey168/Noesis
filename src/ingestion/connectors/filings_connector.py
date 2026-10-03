@@ -9,7 +9,7 @@ via EDGAR, and parses it into a ``source_type="note"`` ``Document``.
 
 It registers under the name ``"filings"`` (distinct from its ``source_type``,
 which is ``"note"`` — shared with the ``upload`` connector), and follows the
-adaptive-layer discipline: with no ``NOESIS_EDGAR_USER_AGENT`` configured, or
+adaptive-layer discipline: with no ``NOESIS_SEC_USER_AGENT`` configured, or
 for an unresolvable filer, ``fetch`` raises :class:`PermanentFetchError` so the
 source is skipped rather than retried.
 
@@ -42,6 +42,7 @@ from src.ingestion.connectors.edgar import (
 )
 from src.ingestion.connectors.filings import Filing, FilingFact, filing_to_document
 from src.ingestion.connectors.registry import register_connector
+from src.ingestion.sec_user_agent import SEC_USER_AGENT_ENV, SecUserAgentError
 from src.domains.market.financial_facts import MarketFinancialFactStore
 
 FILERS_ENV = "NOESIS_EDGAR_FILERS"
@@ -84,10 +85,13 @@ class FilingsConnector(Connector):
                 yield SourceRef(locator=ident, metadata={"source_id": f"edgar:{ident}"})
 
     def fetch(self, ref: SourceRef) -> RawDocument:
-        client = self._get_client()
+        try:
+            client = self._get_client()
+        except SecUserAgentError as exc:
+            raise PermanentFetchError(f"{exc}; skipping EDGAR") from exc
         if not client.configured:
             raise PermanentFetchError(
-                f"{FILERS_ENV.replace('FILERS', 'USER_AGENT')} not configured; skipping EDGAR"
+                f"{SEC_USER_AGENT_ENV} not configured; skipping EDGAR"
             )
         filing = harvest_filing(ref.locator, client=client)
         if filing is None:
