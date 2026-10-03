@@ -11,8 +11,8 @@ tourism series vintage in force when the link was made, and the target's current
 * ``labour`` - Economics Labour series (``economics.labour``, ``labour_series``) for accommodation and food services
   (NACE Rev.2 section ``I``) for the same place: by the same published area code (basis ``shared-identifier``) or
   because a reviewer accepted both the tourism place key and the labour area as the same Geospatial place (basis
-  ``accepted-match``, citing both assertions). The link lists the reference years the two pinned vintages share and
-  cites both; it never computes a ratio, share, per-employee or per-bed figure.
+  ``accepted-match``, citing both assertions), and only when the two pinned vintages share a reference year (the
+  same place and period). The link lists the shared reference years and cites both; it never computes a ratio, share, per-employee or per-bed figure.
 
 When the Geospatial or Labour provider is not composed (its store is absent) the link is recorded as
 ``provider_absent``; no held target is ``target_not_held``; a code several features carry is ``unresolved`` -
@@ -222,6 +222,8 @@ class TourismLinks:
                 periods = [r[0] for r in self.conn.execute(
                     "SELECT period FROM labour_observations WHERE namespace=? AND vintage_id=?",
                     [labour_namespace, labour_vintage[0]]).fetchall()]
+                if not _years(ours) & _years(periods):
+                    continue  # same place but no shared reference period: not the same place and period
                 targets.append(({"kind": "labour-series", "provider_id": "economics.labour",
                                  "namespace": labour_namespace, "id": series_id, "provider": provider,
                                  "native_key": native_key, "concept": load(indicator, {}).get("concept"),
@@ -238,7 +240,8 @@ class TourismLinks:
                 out["linked"] += [link["link_id"]] if new else []
             if not targets:
                 link, new = self._put(namespace, series, vintage, "labour", None, reference, None, "target_not_held",
-                                      {"reason": "no Labour series for NACE Rev.2 section I is held for this place"},
+                                      {"reason": "no Labour series for NACE Rev.2 section I is held for this place "
+                                                 "and a shared reference period"},
                                       principal_id)
                 out["missing"] += [link["link_id"]] if new else []
         return out

@@ -63,6 +63,7 @@ def test_labour_links_reach_section_i_series_by_shared_code_and_pin_revisions():
         assert link["evidence"]["labour_citation"]["vintage_id"] == link["target"]["vintage_id"]
         assert link["evidence"]["tourism_citation"]["vintage_id"] == link["vintage_id"]
         assert forbidden_paths(link) == []  # no ratio, share or per-bed figure
+        assert link["evidence"]["shared_reference_years"]  # same place and period only
     berlin = next(link for link in linked if link["reference"]["code"] == "DE30")
     assert "2096" in berlin["evidence"]["shared_reference_years"]
 
