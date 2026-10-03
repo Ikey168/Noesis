@@ -1,0 +1,17 @@
+{
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,accomunit,unit,nace_r2,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,BEDPL,NR,I551-I553,DE30,2094,151020,\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,BEDPL,NR,I551-I553,DE30,2095,152470,\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,BEDPL,NR,I551-I553,DE30,2096,154180,\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,BEDPL,NR,I551-I553,DE30,2097,155300,p\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,ESTBL,NR,I551-I553,DE30,2094,790,\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,ESTBL,NR,I551-I553,DE30,2095,801,e\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,ESTBL,NR,I551-I553,DE30,2096,814,\nESTAT:TOUR_CAP_NUTS2(1.0),15/09/24 11:00:00,A,ESTBL,NR,I551-I553,DE30,2097,819,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/tour_cap_nuts2/A.ESTBL+BEDPL.NR.I551-I553.DE30?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape; every value is fictional and the reference periods (2094-2097) are fictional (not live coverage); release stamps are past-dated so runtime retrievals never precede them; the operator re-declares the document under NUTS 2024 (a different place key)",
+ "release_declarations": {
+  "nuts_version": "2024"
+ },
+ "scenarios": [
+  "nuts-version-change",
+  "removed-by-source"
+ ]
+}

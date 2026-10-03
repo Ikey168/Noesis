@@ -30,6 +30,8 @@ FEATURE_PROVIDERS = {
     "platform.source-runtime",
 }
 PACK = {"pack_id": "economic-statistics-and-filings", "version": "1.7.0", "range": "^1.7.0"}
+# The bundle now pins 1.8.0 (the tourism sources, #2739); this provider still declares ^1.7.0, which it meets.
+BUNDLE_PACK = {**PACK, "version": "1.8.0", "range": "^1.8.0"}
 
 
 @pytest.fixture(autouse=True)
@@ -96,11 +98,11 @@ def test_business_statistics_is_an_optional_feature_of_the_existing_economics_pa
     assert {"statistical unit", "adjustment", "base year", "vintage", "noise flag", "withheld",
             "candidate link"} <= set(profile["vocabulary"])
     # The bundle pins the pack version that carries the business sources; one pin per pack.
-    assert PACK in composition["contributes"]["source_packs"]
+    assert BUNDLE_PACK in composition["contributes"]["source_packs"]
     assert [p["pack_id"] for p in composition["contributes"]["source_packs"]].count(
         "economic-statistics-and-filings") == 1
     installed = validate_source_pack(json.loads((ROOT / "config/source_packs/economic.json").read_text()))
-    assert installed["version"] == PACK["version"]
+    assert installed["version"] == BUNDLE_PACK["version"]
     assert validate_composition_manifest(adapt_all()["economics"]) == []
     pack = json.loads((ROOT / "packs/economics/pack.json").read_text())
     assert {"business-indicator nowcasts or forecasts", "re-based indices or own seasonal adjustment",
@@ -118,7 +120,7 @@ def test_each_selection_resolves_independently_and_together(selection):
     assert ("economics.business" in bound(plan)) == business
     if selection == ["business-statistics"]:
         assert bound(plan) == FEATURE_PROVIDERS
-        assert PACK in plan["source_packs"]
+        assert BUNDLE_PACK in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     assert ("noesis-knowledge-engine.business_indicator_for_place" in view.tools) == business
     assert "noesis-kb.kb_economic" in view.tools

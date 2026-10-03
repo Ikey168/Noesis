@@ -103,8 +103,8 @@
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.7.0",
-        "range": "^1.7.0"
+        "version": "1.8.0",
+        "range": "^1.8.0"
       },
       {
         "pack_id": "economic-shipping-and-logistics",

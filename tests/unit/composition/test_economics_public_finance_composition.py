@@ -173,8 +173,8 @@ def test_enabling_it_binds_the_legal_political_procurement_funding_identity_and_
         plan["features"]["economics"] == ["public-finance"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    # The bundle now pins 1.7.0 (the business sources, #2738); this provider still declares ^1.3.0, which it meets.
-    assert {**PACK, "version": "1.7.0", "range": "^1.7.0"} in plan["source_packs"]
+    # The bundle now pins 1.8.0 (the tourism sources, #2739); this provider still declares ^1.3.0, which it meets.
+    assert {**PACK, "version": "1.8.0", "range": "^1.8.0"} in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     tool = view.tools["noesis-knowledge-engine.compare_budget_line"]
     assert tool.pack == "economics" and tool.provider == "economics.public-finance"

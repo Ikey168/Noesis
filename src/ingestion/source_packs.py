@@ -425,6 +425,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"
 # Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
 NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
+# Economics tourism statistics: Eurostat tourism occupancy and capacity (#2739).
+NATIVE_CONNECTOR_MODULES["tourism-statistics"] = "src.ingestion.tourism_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 
 
 def native_connector_module(connector: str) -> Any:

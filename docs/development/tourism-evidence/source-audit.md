@@ -1,10 +1,13 @@
 # Tourism and hospitality: source-contract audit and bounded coverage (TO01)
 
-Tracking: wave 2 tracker #2736 · recorded 2026-10-03.
+Tracking: tourism statistics track #2739 (wave 2 tracker #2736) · recorded
+2026-10-03.
 
-No per-track tracker or delivery issue exists yet. They are opened once this
-audit names a surviving source; the acquisition, store, link and live-validation
-issues then cite this document.
+Delivery codes: TO02 records (#2745), TO03 Eurostat occupancy (#2750), TO04
+Eurostat capacity (#2760), TO05 identity (#2767), TO06 links (#2774), TO07 and
+TO08 queries (#2781, #2787), TO09 monitoring (#2793), TO10 provider registration
+and gap closure (#2800), TO11 acceptance and guide (#2805), TO12 live validation
+(#2811, not yet run).
 
 This audit sets out, per source, what an `economics.tourism` provider in the
 existing Economics bundle (`packs/economics/`) may acquire, how, and on what
@@ -17,11 +20,13 @@ Every item marked _verify_ must be checked against the live pages, the live term
 and a real response before the first dated live run (the track's "Validate live
 coverage" issue, not yet opened). No source is `live` until that run exists.
 
-The machine-readable copy of these decisions does not exist yet.
-`PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and
-`LIVE_VERIFICATION` will be added in `src/ingestion/tourism_sources.py` by the
-track's acquisition issues and must match this audit; the source-pack entries
-those issues declare carry the same `live_verification` status.
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and `LIVE_VERIFICATION` in
+`src/ingestion/tourism_sources.py` (TO03, TO04) and must match this audit; the
+two `economic-statistics-and-filings` source-pack entries
+(`eurostat-tourism-occupancy` and `eurostat-tourism-capacity`, pack version
+1.8.0) carry the same `live_verification` status. UN Tourism is recorded there as
+`not-implemented`.
 
 Non-goals for every source: no nowcasting, no filled months or regions, no
 seasonal adjustment of our own, no blending of Eurostat and UN Tourism figures,
@@ -96,9 +101,9 @@ guest or an individual establishment. Decision:
 
 | Source | Places | Series | Periods | Caps |
 | --- | --- | --- | --- | --- |
-| Eurostat occupancy, monthly | Germany (DE) | `tour_occ_nim` and `tour_occ_arm`: total, domestic and foreign residence, `I551-I553` | at most 36 months from a declared start period | 2 documents, 30 series per response |
+| Eurostat occupancy, monthly | Germany (DE) | `tour_occ_nim` and `tour_occ_arm`: total, domestic and foreign residence, `I551-I553`; series key `M.TOTAL+DOM+FOR.NR.I551-I553.DE` (freq, `c_resid`, unit, `nace_r2`, geo; _verify_ the order) | at most 36 months from a declared start period | 2 documents, 30 series per response |
 | Eurostat occupancy, NUTS 2 | Berlin (`DE30`) | `tour_occ_nin2`: total residence, `I551-I553` | from a declared start year | 1 document, 10 series |
-| Eurostat capacity | Berlin (`DE30`) | `tour_cap_nuts2`: establishments and bed places | from a declared start year | 1 document, 10 series |
+| Eurostat capacity | Berlin (`DE30`) | `tour_cap_nuts2`: establishments and bed places (capacity indicator dimension `accomunit`, codes `ESTBL`, `BEDPL`, _verify_); the capacity reference date Eurostat states is declared per document and stored per value (_verify_ the date) | from a declared start year | 1 document, 10 series |
 
 Justification: one country and one of its NUTS 2 regions show both frequencies,
 the residence split, provisional-to-revised monthly vintages and a regional
@@ -117,10 +122,21 @@ Every further place or dataset is a source-pack version bump.
 
 | Source | Status | Checked | Evidence |
 | --- | --- | --- | --- |
-| Eurostat occupancy | `unverified-live` | - | none yet; offline fixtures to be authored |
-| Eurostat capacity | `unverified-live` | - | none yet; offline fixtures to be authored |
+| Eurostat occupancy | `unverified-live` | - | none yet; authored offline fixtures only |
+| Eurostat capacity | `unverified-live` | - | none yet; authored offline fixtures only |
 | UN Tourism statistics | `not-implemented` | - | no stable machine access, terms not established (_verify_) |
 
-The fixtures will be authored, not captured: synthetic values for reference
-years 2094-2097 and release dates in 2098-2099, so nothing can be mistaken for a
-published figure.
+The fixtures are authored, not captured: synthetic values for fictional
+reference periods 2094-2097, so nothing can be mistaken for a published figure.
+The NUTS version each document uses is declared with the document (Eurostat's
+SDMX-CSV rows do not state it; _verify_ per dataset).
+
+**Deviation (TO03, TO04, recorded with the acquisition commit).** This audit
+first said the fixtures' release dates would sit in 2098-2099. They sit in 2024
+instead (Eurostat `LAST UPDATE` stamps): the source-pack runtime retrieves at
+the real clock and the store refuses a release dated after its retrieval, so a
+future-dated release would fail every runtime run of the
+`economic-statistics-and-filings` pack. This is the convention the labour track
+settled in 1a6771af and 57e13f9a and the business track recorded for IB03-IB05:
+fictional reference periods, past-dated releases and retrievals. Reference
+periods stay fictional.
