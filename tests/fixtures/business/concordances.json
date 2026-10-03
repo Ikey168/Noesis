@@ -1,0 +1,84 @@
+{
+ "note": "authored excerpts in the published tables' shape (rows as the tables state them); verify every row against the cited file before a live run",
+ "tables": [
+  {
+   "citation": {
+    "file_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "published_on": "2024-01-15",
+    "publisher": "Eurostat",
+    "url": "https://showvoc.op.europa.eu/#/datasets/ESTAT_NACE_Rev._2_-_ISIC_Rev._4"
+   },
+   "label": "NACE Rev.2 to ISIC Rev.4 correspondence (section level excerpt)",
+   "rows": [
+    {
+     "relation": "exact",
+     "source_code": "C",
+     "target_code": "C"
+    }
+   ],
+   "source": {
+    "scheme": "NACE",
+    "version": "Rev.2"
+   },
+   "target": {
+    "scheme": "ISIC",
+    "version": "Rev.4"
+   }
+  },
+  {
+   "citation": {
+    "file_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "published_on": "2024-02-01",
+    "publisher": "US Census Bureau",
+    "url": "https://www.census.gov/naics/concordances/2022_NAICS_to_ISIC_4.xlsx"
+   },
+   "label": "2022 NAICS to ISIC Rev.4 concordance (sector excerpt)",
+   "rows": [
+    {
+     "note": "some NAICS 31-33 industries fall in other ISIC sections",
+     "relation": "partial",
+     "source_code": "31-33",
+     "target_code": "C"
+    }
+   ],
+   "source": {
+    "scheme": "NAICS",
+    "version": "2022"
+   },
+   "target": {
+    "scheme": "ISIC",
+    "version": "Rev.4"
+   }
+  },
+  {
+   "citation": {
+    "file_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "published_on": "2024-02-01",
+    "publisher": "US Census Bureau",
+    "url": "https://www.census.gov/naics/concordances/2017_to_2022_NAICS.xlsx"
+   },
+   "label": "2017 NAICS to 2022 NAICS concordance (sector excerpt)",
+   "rows": [
+    {
+     "relation": "exact",
+     "source_code": "00",
+     "target_code": "00"
+    },
+    {
+     "note": "sector totals; individual industries moved between 2017 and 2022 codes",
+     "relation": "exact",
+     "source_code": "31-33",
+     "target_code": "31-33"
+    }
+   ],
+   "source": {
+    "scheme": "NAICS",
+    "version": "2017"
+   },
+   "target": {
+    "scheme": "NAICS",
+    "version": "2022"
+   }
+  }
+ ]
+}
