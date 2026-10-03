@@ -50,6 +50,9 @@ KINDS = ("area", "nuts_correspondence")
 CORRESPONDENCE_RELATIONS = ("unchanged", "recoded", "split", "merged", "boundary_change")
 STATES = ("proposed", "ambiguous", "unmatched", "accepted", "rejected", "reverted")
 EUROSTAT_ISO2 = {"EL": "GR", "UK": "GB"}
+# Confidence of a match by its method (stated on every assertion; a reviewer still decides).
+CONFIDENCE = {"published-code-and-version": "high", "published-code": "medium", "iso-alpha2-equivalent": "medium",
+              "published-nuts-correspondence": "high"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS tourism_identity_assertions (
   namespace TEXT NOT NULL, assertion_id TEXT NOT NULL, kind TEXT NOT NULL, subject_key TEXT NOT NULL,
@@ -132,6 +135,7 @@ class TourismIdentity:
             method, id_key, value, rule = match
             out.append({"place_id": place["place_id"], "place_revision_id": place["revision_id"],
                         "place_name": place["name"], "place_type": place["place_type"], "method": method,
+                        "confidence": CONFIDENCE[method],
                         "evidence": {"source_id_key": id_key, "value": value, "rule": rule}})
         return out
 
@@ -185,11 +189,14 @@ class TourismIdentity:
                 chosen = candidates[0]
                 target = {k: chosen[k] for k in ("place_id", "place_revision_id", "place_name", "place_type")}
                 method, state, reason = chosen["method"], "proposed", None
+                evidence["confidence"] = chosen["confidence"]
             elif distinct:
                 target, method, state = None, None, "ambiguous"
+                evidence["confidence"] = "low"
                 reason = "more than one place carries this code; a reviewer chooses one of the cited candidates"
             else:
                 target, method, state, reason = None, None, "unmatched", "no place carries this code and version"
+                evidence["confidence"] = None
             assertion_id, new = self._record(namespace, "area", subject, target, method,
                                              "exact" if target else None, evidence, state, reason, principal_id)
             if new:
@@ -261,7 +268,9 @@ class TourismIdentity:
                 if latest and latest["state"] in {"accepted", "rejected"}:
                     out.append(latest["assertion_id"])
                     continue
-                evidence = {"correspondence_id": table["correspondence_id"], "label": table["label"],
+                evidence = {"confidence": CONFIDENCE["published-nuts-correspondence"] if row["relation"] in
+                            {"unchanged", "recoded"} else "medium",
+                            "correspondence_id": table["correspondence_id"], "label": table["label"],
                             "citation": table["citation"], "row": row,
                             "stated": {"from": canonical(left) in stated, "to": canonical(right) in stated}}
                 assertion_id, new = self._record(namespace, "nuts_correspondence", subject,
@@ -288,7 +297,8 @@ class TourismIdentity:
             raise TourismError("not_found", "identity assertion is not visible in this namespace")
         return {"contract": CONTRACT, "namespace": namespace, "assertion_id": row[0], "kind": row[1],
                 "subject": json.loads(row[2]), "target": None if row[3] is None else json.loads(row[3]),
-                "method": row[4], "relation": row[5], "evidence": json.loads(row[6]), "state": row[7],
+                "method": row[4], "relation": row[5], "confidence": json.loads(row[6]).get("confidence"),
+                "evidence": json.loads(row[6]), "state": row[7],
                 "reason": row[8], "history": json.loads(row[9]), "created_by": row[10], "created_at_ms": row[11]}
 
     def assertions(self, namespace: str, *, scopes: Iterable[str], kind: str | None = None,
