@@ -1,0 +1,64 @@
+{
+ "_note": "Authored offline fixture in the publisher's documented shape (verify against a live response, II13): documentation ASN AS64500, documentation prefix 192.0.2.0/24, example.org, fictional organisations and dates in 2094-2099. Nothing here is a published record.",
+ "scenarios": [
+  "exact domain",
+  "e-mail SANs dropped",
+  "S/MIME certificate not stored"
+ ],
+ "native_pages": [
+  {
+   "request": "crt.sh/?output=json&q=example.org",
+   "status": 200,
+   "body": [
+    {
+     "issuer_ca_id": 90001,
+     "issuer_name": "C=ZZ, O=Fictional Trust Services, CN=Fictional TLS CA 1",
+     "common_name": "example.org",
+     "name_value": "example.org\nwww.example.org",
+     "id": 70000001,
+     "entry_timestamp": "2094-03-01T00:00:00.000",
+     "not_before": "2094-03-01T00:00:00",
+     "not_after": "2094-06-01T00:00:00",
+     "serial_number": "0a042c1d81",
+     "result_count": 2
+    },
+    {
+     "issuer_ca_id": 90001,
+     "issuer_name": "C=ZZ, O=Fictional Trust Services, CN=Fictional TLS CA 1",
+     "common_name": "example.org",
+     "name_value": "example.org\nwww.example.org\nhostmaster@example.org",
+     "id": 70000002,
+     "entry_timestamp": "2094-06-01T00:00:00.000",
+     "not_before": "2094-06-01T00:00:00",
+     "not_after": "2094-09-01T00:00:00",
+     "serial_number": "0a042c1d82",
+     "result_count": 2
+    },
+    {
+     "issuer_ca_id": 90001,
+     "issuer_name": "C=ZZ, O=Fictional Trust Services, CN=Fictional TLS CA 1",
+     "common_name": "example.org",
+     "name_value": "*.example.org\nexample.org",
+     "id": 70000003,
+     "entry_timestamp": "2095-01-01T00:00:00.000",
+     "not_before": "2095-01-01T00:00:00",
+     "not_after": "2095-04-01T00:00:00",
+     "serial_number": "0a042c1d83",
+     "result_count": 2
+    },
+    {
+     "issuer_ca_id": 90001,
+     "issuer_name": "C=ZZ, O=Fictional Trust Services, CN=Fictional TLS CA 1",
+     "common_name": "Jane Example (fictional person)",
+     "name_value": "jane@example.org",
+     "id": 70000004,
+     "entry_timestamp": "2095-01-02T00:00:00.000",
+     "not_before": "2095-01-02T00:00:00",
+     "not_after": "2096-01-02T00:00:00",
+     "serial_number": "0a042c1d84",
+     "result_count": 2
+    }
+   ]
+  }
+ ]
+}

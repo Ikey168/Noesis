@@ -425,6 +425,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"
 # Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
 NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
+# Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
+NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
 
 
 def native_connector_module(connector: str) -> Any:

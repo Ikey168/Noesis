@@ -32,6 +32,7 @@ Projection (:func:`project_rdap`) writes, through the
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import time
 from collections.abc import Callable, Mapping
@@ -45,13 +46,48 @@ ADAPTER_VERSION = "rdap-domain-v2"
 # endpoint is this registry file; the per-domain request goes straight to the
 # registry's server it names, so no cross-host redirect is ever followed.
 BOOTSTRAP_URL = "https://data.iana.org/rdap/dns.json"
+# The other IANA bootstrap files (autnum ranges and IP prefixes), read by the
+# Technology bundle's technology.internet-infrastructure provider (#2743).
+BOOTSTRAP_URLS = {
+    "dns": BOOTSTRAP_URL,
+    "asn": "https://data.iana.org/rdap/asn.json",
+    "ipv4": "https://data.iana.org/rdap/ipv4.json",
+    "ipv6": "https://data.iana.org/rdap/ipv6.json",
+}
 BOOTSTRAP_MAX_BYTES = 1_000_000
 BOOTSTRAP_TTL_MS = 24 * 3600 * 1000
 _BOOTSTRAP_CACHE: dict[str, Any] = {}
 
 
-def parse_bootstrap(raw: bytes) -> dict[str, str]:
-    """``tld -> https base URL`` from an IANA RDAP DNS bootstrap file."""
+def _bootstrap_key(kind: str, key: Any) -> str | None:
+    """A normalised bootstrap key: a TLD, a ``start-end`` autnum range or an IP prefix."""
+    raw = str(key).strip()
+    if kind == "dns":
+        return raw.lower().strip(".") or None
+    if kind == "asn":
+        start, _, end = raw.partition("-")
+        if not start.isdigit() or (end and not end.isdigit()):
+            return None
+        low, high = int(start), int(end or start)
+        return f"{low}-{high}" if low <= high else None
+    try:
+        network = ipaddress.ip_network(raw, strict=False)
+    except ValueError:
+        return None
+    if network.version != (4 if kind == "ipv4" else 6):
+        return None
+    return str(network)
+
+
+def parse_bootstrap(raw: bytes, kind: str = "dns") -> dict[str, str]:
+    """``key -> https base URL`` from an IANA RDAP bootstrap file (RFC 9224).
+
+    ``kind`` names the registry file: ``dns`` (keys are TLDs, as the OSINT
+    ``rdap-domain`` source reads it), ``asn`` (keys are ``start-end`` autnum
+    ranges from ``asn.json``) or ``ipv4``/``ipv6`` (keys are normalised IP
+    prefixes from ``ipv4.json``/``ipv6.json``). One parser for every file."""
+    if kind not in BOOTSTRAP_URLS:
+        raise obs.ObservationError("invalid_bootstrap", f"unknown bootstrap file {kind!r}")
     payload = json.loads(raw)
     services = payload.get("services") if isinstance(payload, Mapping) else None
     if not isinstance(services, list):
@@ -60,14 +96,42 @@ def parse_bootstrap(raw: bytes) -> dict[str, str]:
     for entry in services:
         if not (isinstance(entry, list) and len(entry) == 2):
             continue
-        tlds, urls = entry
+        keys, urls = entry
         https = [str(u) for u in urls or [] if str(u).lower().startswith("https://")]
         if not https:
             continue  # never downgrade to plain HTTP
         base = https[0] if https[0].endswith("/") else https[0] + "/"
-        for tld in tlds or []:
-            table.setdefault(str(tld).lower().strip("."), base)
+        for key in keys or []:
+            normalised = _bootstrap_key(kind, key)
+            if normalised:
+                table.setdefault(normalised, base)
     return table
+
+
+def bootstrap_base(kind: str, resource: str, table: Mapping[str, str]) -> str:
+    """The RDAP base URL an ``asn`` or ``ipv4``/``ipv6`` bootstrap table names for one
+    ASN or IP prefix: the containing autnum range, or the longest containing prefix."""
+    if kind == "asn":
+        number = int(str(resource).upper().removeprefix("AS"))
+        for key, base in table.items():
+            low, _, high = key.partition("-")
+            if int(low) <= number <= int(high):
+                return base
+    elif kind in {"ipv4", "ipv6"}:
+        wanted = ipaddress.ip_network(str(resource), strict=False)
+        best: tuple[int, str] | None = None
+        for key, base in table.items():
+            network = ipaddress.ip_network(key)
+            if (network.version == wanted.version and wanted.subnet_of(network)
+                    and (best is None or network.prefixlen > best[0])):
+                best = (network.prefixlen, base)
+        if best:
+            return best[1]
+    else:
+        raise obs.ObservationError("invalid_bootstrap", f"unknown bootstrap file {kind!r}")
+    raise obs.ObservationError(
+        "no_rdap_service", "the IANA bootstrap names no RDAP server for this resource"
+    )
 
 
 def bootstrap_table(
@@ -76,16 +140,19 @@ def bootstrap_table(
     now_ms: int,
     timeout_s: float,
     cache: dict[str, Any] | None = None,
+    kind: str = "dns",
 ) -> dict[str, str]:
-    """The bootstrap table, fetched once per TTL (one bounded GET, no retries)."""
+    """The bootstrap table, fetched once per file per TTL (one bounded GET, no retries)."""
     cache = _BOOTSTRAP_CACHE if cache is None else cache
+    # The DNS file keeps its original cache slots; every other file gets its own slot.
+    slot = cache if kind == "dns" else cache.setdefault(f"bootstrap:{kind}", {})
     if (
-        cache.get("table")
-        and now_ms - int(cache.get("fetched_at_ms", 0)) < BOOTSTRAP_TTL_MS
+        slot.get("table")
+        and now_ms - int(slot.get("fetched_at_ms", 0)) < BOOTSTRAP_TTL_MS
     ):
-        return cache["table"]
+        return slot["table"]
     response = transport(
-        url=BOOTSTRAP_URL,
+        url=BOOTSTRAP_URLS[kind],
         params={},
         headers={"Accept": "application/json"},
         timeout=timeout_s,
@@ -97,8 +164,8 @@ def bootstrap_table(
         raise obs.ObservationError(
             "bootstrap_unavailable", "IANA RDAP bootstrap unavailable"
         )
-    table = parse_bootstrap(raw)
-    cache.update(table=table, fetched_at_ms=now_ms)
+    table = parse_bootstrap(raw, kind)
+    slot.update(table=table, fetched_at_ms=now_ms)
     return table
 
 

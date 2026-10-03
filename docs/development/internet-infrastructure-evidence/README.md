@@ -9,10 +9,15 @@ provider (wave 2 tracker #2736, subdomain `internet-infrastructure`).
   re-verified live. RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list are
   `unverified-live`; direct RFC 6962 log access and CAIDA datasets are
   `not-implemented`.
-- Machine-readable copy: none yet. It will be added in
-  `src/ingestion/internet_infrastructure_sources.py` by the track's
-  acquisition issues and must match the audit.
-- Offline evidence: none yet. Fixtures will be authored with documentation
-  ASNs and prefixes, `example.org` and dates in 2094-2099.
+- Machine-readable copy: `src/ingestion/internet_infrastructure_sources.py`
+  (II03-II06, track #2743), matching the audit; the source-pack entries are
+  the separate `technology-internet-infrastructure` 1.0.0 pack
+  (`config/source_packs/technology-internet-infrastructure.json`).
+- Offline evidence: authored fixtures (documentation ASN AS64500, prefixes
+  192.0.2.0/24 and 198.51.100.0/24, 2001:db8::/32, `example.org`, fictional
+  organisations, dates in 2094-2099):
+  `tests/fixtures/source_packs/technology-internet-infrastructure-*.json`
+  (pinned in the source pack) and the revision, removal, deprecation and
+  transfer fixtures in `tests/fixtures/internet_infrastructure/`.
 - Live evidence: none. Until a dated live run exists every source is
   `unverified-live`, and offline coverage is never reported as live coverage.

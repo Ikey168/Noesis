@@ -1,0 +1,695 @@
+{
+ "_note": "Authored offline fixture in the publisher's documented shape (verify against a live response, II13): documentation ASN AS64500, documentation prefix 192.0.2.0/24, example.org, fictional organisations and dates in 2094-2099. Nothing here is a published record.",
+ "scenarios": [
+  "asn.json bootstrap",
+  "ipv4.json bootstrap",
+  "dns.json bootstrap",
+  "autnum",
+  "ip network",
+  "domain",
+  "individual entities dropped"
+ ],
+ "native_pages": [
+  {
+   "request": "data.iana.org/rdap/asn.json",
+   "status": 200,
+   "body": {
+    "version": "1.0",
+    "publication": "2094-06-01T00:00:00Z",
+    "description": "Fictional RDAP bootstrap file for asn (authored fixture)",
+    "services": [
+     [
+      [
+       "64496-64511"
+      ],
+      [
+       "https://rdap.db.ripe.net/"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "request": "rdap.db.ripe.net/autnum/64500",
+   "status": 200,
+   "body": {
+    "objectClassName": "autnum",
+    "handle": "AS64500",
+    "startAutnum": 64500,
+    "endAutnum": 64500,
+    "name": "EXAMPLE-TRANSIT",
+    "type": "DIRECT ALLOCATION",
+    "country": "ZZ",
+    "status": [
+     "active"
+    ],
+    "port43": "whois.ripe.net",
+    "entities": [
+     {
+      "objectClassName": "entity",
+      "handle": "ORG-EXAMPLE1-RIPE",
+      "roles": [
+       "registrant"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "org"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "org",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "hostmaster@example.org"
+        ],
+        [
+         "tel",
+         {
+          "type": "voice"
+         },
+         "uri",
+         "tel:+00-0000-0004"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "handle": "JD1-RIPE",
+      "roles": [
+       "administrative",
+       "technical"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "individual"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Jane Example (fictional person)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "jane@example.org"
+        ],
+        [
+         "tel",
+         {
+          "type": "voice"
+         },
+         "uri",
+         "tel:+00-0000-0005"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "handle": "AR1-RIPE",
+      "roles": [
+       "abuse"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "group"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Abuse desk"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "abuse@example.org"
+        ]
+       ]
+      ]
+     }
+    ],
+    "events": [
+     {
+      "eventAction": "registration",
+      "eventDate": "2094-01-20T00:00:00Z"
+     },
+     {
+      "eventAction": "last changed",
+      "eventDate": "2095-01-10T00:00:00Z"
+     },
+     {
+      "eventAction": "last update of RDAP database",
+      "eventDate": "2099-01-01T00:00:00Z"
+     }
+    ],
+    "rdapConformance": [
+     "rdap_level_0"
+    ]
+   }
+  },
+  {
+   "request": "data.iana.org/rdap/ipv4.json",
+   "status": 200,
+   "body": {
+    "version": "1.0",
+    "publication": "2094-06-01T00:00:00Z",
+    "description": "Fictional RDAP bootstrap file for ipv4 (authored fixture)",
+    "services": [
+     [
+      [
+       "192.0.0.0/8",
+       "198.0.0.0/8"
+      ],
+      [
+       "https://rdap.db.ripe.net/"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "request": "rdap.db.ripe.net/ip/192.0.2.0/24",
+   "status": 200,
+   "body": {
+    "objectClassName": "ip network",
+    "handle": "192.0.2.0 - 192.0.2.255",
+    "startAddress": "192.0.2.0",
+    "endAddress": "192.0.2.255",
+    "ipVersion": "v4",
+    "name": "EXAMPLE-DOC-NET",
+    "type": "ASSIGNED PA",
+    "country": "ZZ",
+    "parentHandle": "192.0.0.0 - 192.0.255.255",
+    "status": [
+     "active"
+    ],
+    "entities": [
+     {
+      "objectClassName": "entity",
+      "handle": "ORG-EXAMPLE1-RIPE",
+      "roles": [
+       "registrant"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "org"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "org",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "hostmaster@example.org"
+        ],
+        [
+         "tel",
+         {
+          "type": "voice"
+         },
+         "uri",
+         "tel:+00-0000-0004"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "handle": "JD1-RIPE",
+      "roles": [
+       "administrative",
+       "technical"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "individual"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Jane Example (fictional person)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "jane@example.org"
+        ],
+        [
+         "tel",
+         {
+          "type": "voice"
+         },
+         "uri",
+         "tel:+00-0000-0005"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "handle": "AR1-RIPE",
+      "roles": [
+       "abuse"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "group"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Abuse desk"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "abuse@example.org"
+        ]
+       ]
+      ]
+     }
+    ],
+    "events": [
+     {
+      "eventAction": "registration",
+      "eventDate": "2094-01-21T00:00:00Z"
+     },
+     {
+      "eventAction": "last changed",
+      "eventDate": "2095-01-11T00:00:00Z"
+     }
+    ],
+    "rdapConformance": [
+     "rdap_level_0",
+     "cidr0"
+    ]
+   }
+  },
+  {
+   "request": "data.iana.org/rdap/dns.json",
+   "status": 200,
+   "body": {
+    "version": "1.0",
+    "publication": "2094-06-01T00:00:00Z",
+    "description": "Fictional RDAP bootstrap file for dns (authored fixture)",
+    "services": [
+     [
+      [
+       "org"
+      ],
+      [
+       "https://rdap.publicinterestregistry.org/rdap/"
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "request": "rdap.publicinterestregistry.org/rdap/domain/example.org",
+   "status": 200,
+   "body": {
+    "objectClassName": "domain",
+    "handle": "D0000000001-FICTIONAL",
+    "ldhName": "example.org",
+    "status": [
+     "client transfer prohibited"
+    ],
+    "nameservers": [
+     {
+      "objectClassName": "nameserver",
+      "ldhName": "ns1.example.org"
+     },
+     {
+      "objectClassName": "nameserver",
+      "ldhName": "ns2.example.org"
+     }
+    ],
+    "entities": [
+     {
+      "objectClassName": "entity",
+      "roles": [
+       "registrar"
+      ],
+      "publicIds": [
+       {
+        "type": "IANA Registrar ID",
+        "identifier": "9999"
+       }
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "org"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Fictional Registrar"
+        ],
+        [
+         "org",
+         {},
+         "text",
+         "Fictional Registrar"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "roles": [
+       "registrant"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "org"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "org",
+         {},
+         "text",
+         "Example Networks Ltd (fictional)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "hostmaster@example.org"
+        ]
+       ]
+      ]
+     },
+     {
+      "objectClassName": "entity",
+      "roles": [
+       "technical"
+      ],
+      "vcardArray": [
+       "vcard",
+       [
+        [
+         "version",
+         {},
+         "text",
+         "4.0"
+        ],
+        [
+         "kind",
+         {},
+         "text",
+         "individual"
+        ],
+        [
+         "fn",
+         {},
+         "text",
+         "John Example (fictional person)"
+        ],
+        [
+         "adr",
+         {
+          "label": "1 Example Street\nExampleton"
+         },
+         "text",
+         [
+          "",
+          "",
+          "1 Example Street",
+          "Exampleton",
+          "",
+          "00000",
+          "ZZ"
+         ]
+        ],
+        [
+         "email",
+         {},
+         "text",
+         "john@example.org"
+        ],
+        [
+         "tel",
+         {
+          "type": "voice"
+         },
+         "uri",
+         "tel:+00-0000-0006"
+        ]
+       ]
+      ]
+     }
+    ],
+    "events": [
+     {
+      "eventAction": "registration",
+      "eventDate": "2094-01-05T00:00:00Z"
+     },
+     {
+      "eventAction": "expiration",
+      "eventDate": "2099-01-05T00:00:00Z"
+     },
+     {
+      "eventAction": "last changed",
+      "eventDate": "2095-02-01T00:00:00Z"
+     }
+    ]
+   }
+  }
+ ]
+}

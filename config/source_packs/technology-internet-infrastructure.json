@@ -1,0 +1,205 @@
+{
+ "pack_id": "technology-internet-infrastructure",
+ "version": "1.0.0",
+ "description": "Network registry records and routing observations for the Technology pack's optional internet-infrastructure features (#2743): RIPEstat routing observations, PeeringDB self-declared network, organisation and IX records, RDAP registrations for one declared ASN, prefix and domain, crt.sh certificates for that exact domain and the CT log list. Records as each source states them with source, record revision and as-of time; never merged across sources. Audit: docs/development/internet-infrastructure-evidence/source-audit.md. Every source is unverified-live until a dated run; direct RFC 6962 log APIs and CAIDA datasets are not implemented.",
+ "domains": [
+  "technical"
+ ],
+ "defaults": {
+  "connector": "internet-infrastructure",
+  "mapping": {
+   "target_schema": "noesis-internet-infrastructure-record-v2",
+   "version": "2.0.0"
+  },
+  "extractor_versions": [
+   "internet-infrastructure:1.0.0"
+  ],
+  "operations": [
+   "selection"
+  ],
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 86400
+  },
+  "health": {
+   "required": false,
+   "max_staleness_s": 604800
+  },
+  "update_cadence": "on explicit selection only; refreshes are bounded by the declared resources",
+  "auth": {
+   "kind": "none"
+  }
+ },
+ "sources": [
+  {
+   "source_id": "ripestat-routing",
+   "endpoint": "https://stat.ripe.net/data",
+   "publisher": "RIPE NCC, RIPEstat Data API",
+   "scope": "routing state for one declared ASN and one declared prefix it announces: as-overview, announced-prefixes, routing-status, rpki-validation and prefix-overview with sourceapp=noesis; never the whois or abuse-contact-finder calls (II01)",
+   "license": {
+    "id": "ripestat-terms",
+    "terms_url": "https://www.ripe.net/about-us/legal/ripestat-service-terms-and-conditions/",
+    "redistribution": "attribution 'RIPEstat, RIPE NCC' (verify the terms on redistribution of results, II13)"
+   },
+   "temporal_semantics": "each answer is an observation dated by RIPEstat's stated query_time or latest_time and data-call version; a later answer is a later observation, never a rewrite",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 50,
+    "max_bytes": 5000000,
+    "max_pages": 2
+   },
+   "internet_infrastructure": {
+    "namespace": "global",
+    "provider": "ripestat",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/internet-infrastructure-evidence/source-audit.md#bounded-first-coverage",
+    "selection": {
+     "asn": "AS64500",
+     "prefix": "192.0.2.0/24"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/technology-internet-infrastructure-ripestat.json",
+    "sha256": "7a57974786088defa625d4ebe35c603a717fb6115316d0dc8a0a59b4365dcab4",
+    "expected_output_hash": "cc98408cab50b144ad5a833925756378f1435a93f49ad3082bfb6524d36dbb0b"
+   }
+  },
+  {
+   "source_id": "peeringdb-network",
+   "endpoint": "https://www.peeringdb.com/api",
+   "publisher": "PeeringDB",
+   "scope": "the self-declared PeeringDB network of one declared ASN, its organisation, at most 20 netixlan rows, 5 IXs and declared facility ids, depth=0; poc objects and user accounts are never read (II01)",
+   "license": {
+    "id": "peeringdb-aup",
+    "terms_url": "https://www.peeringdb.com/aup",
+    "redistribution": "PeeringDB Acceptable Use Policy (verify the reuse and redistribution clauses, II13)"
+   },
+   "temporal_semantics": "each object's updated time dates its revision; status=deleted or a 404 for a declared id is a removed_by_source revision; the record is the network's self-declaration",
+   "auth": {
+    "kind": "optional-secret",
+    "secret_ref": "NOESIS_PEERINGDB_API_KEY"
+   },
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 50,
+    "max_bytes": 5000000,
+    "max_pages": 1
+   },
+   "internet_infrastructure": {
+    "namespace": "global",
+    "provider": "peeringdb",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/internet-infrastructure-evidence/source-audit.md#bounded-first-coverage",
+    "selection": {
+     "asn": "AS64500",
+     "facilities": [
+      5001
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/technology-internet-infrastructure-peeringdb.json",
+    "sha256": "41078baebc0cb52ef6f9e60418eb56c936a5879054f2f6dcd3c42e746de71bab",
+    "expected_output_hash": "2277319c3654c30b84faf71532dfe9dbae389e147addd47bb0cbefdc719b54ef"
+   }
+  },
+  {
+   "source_id": "rdap-registrations",
+   "endpoint": "https://data.iana.org/rdap/asn.json",
+   "publisher": "IANA RDAP bootstrap registry and the RIR or registry RDAP servers it names",
+   "scope": "RDAP registrations for one declared ASN, one declared prefix and one declared domain (3 objects); holder or registrant organisation, country, RIR, status, events and nameservers only; contacts and natural-person entities never stored (II01)",
+   "license": {
+    "id": "rir-registry-rdap-terms",
+    "terms_url": "https://www.iana.org/help/rdap-faq",
+    "redistribution": "provider-specific (RIPE Database terms, ARIN RDAP terms of use and the other registries' terms; verify each, II13)"
+   },
+   "temporal_semantics": "the last changed event (else the content digest) dates each revision; a 404 for a declared object is a removed_by_source revision; a transfer between RIRs is recorded as the stated bootstrap target; the bootstrap is read once per file per 24 h",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 10,
+    "max_bytes": 2000000,
+    "max_pages": 3
+   },
+   "internet_infrastructure": {
+    "namespace": "global",
+    "provider": "rdap",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/internet-infrastructure-evidence/source-audit.md#bounded-first-coverage",
+    "selection": {
+     "asn": "AS64500",
+     "prefix": "192.0.2.0/24",
+     "domain": "example.org"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/technology-internet-infrastructure-rdap.json",
+    "sha256": "d1bbd3c242321cce21489c99fc4cbc1c6d4ecd92d589b5976173cb248c8d9a42",
+    "expected_output_hash": "595425c60c89b3be0c87e747ece7a53ec019642232a6fbfb73707a5beb57a3d7"
+   }
+  },
+  {
+   "source_id": "crtsh-certificates",
+   "endpoint": "https://crt.sh/",
+   "publisher": "Sectigo (crt.sh)",
+   "scope": "certificate issuance facts for one exactly named declared domain: crt.sh id, issuer DN, validity, DNS SANs and log ids; e-mail SANs and subject fields beyond O dropped; more than 200 certificates is budget_exhausted, never truncated; revocation never inferred (II01)",
+   "license": {
+    "id": "crtsh-no-published-licence",
+    "terms_url": "https://crt.sh/",
+    "redistribution": "locator-only (certificate facts are cited by crt.sh locator; verify, II13)"
+   },
+   "temporal_semantics": "CT logs are append-only: each certificate is one issuance record dated by its crt.sh entry time; expired certificates stay recorded with their validity dates",
+   "budgets": {
+    "timeout_ms": 60000,
+    "max_results": 200,
+    "max_bytes": 10000000,
+    "max_pages": 1
+   },
+   "internet_infrastructure": {
+    "namespace": "global",
+    "provider": "crtsh",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/internet-infrastructure-evidence/source-audit.md#bounded-first-coverage",
+    "selection": {
+     "domain": "example.org"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/technology-internet-infrastructure-crtsh.json",
+    "sha256": "485b6920f43d49f369fb43b442381d28c8a0762d1351705be849aa2126720c00",
+    "expected_output_hash": "17b18fa67bf999ade7edc78c1a825008052023411c63612de70fb92e4dbc552c"
+   }
+  },
+  {
+   "source_id": "ct-log-list",
+   "endpoint": "https://www.gstatic.com/ct/log_list/v3/log_list.json",
+   "publisher": "Google Chrome CT log list v3",
+   "scope": "the current CT log list, one file of at most 2 MB: log ids, operators, URLs and states; operator e-mail addresses never read (II01)",
+   "license": {
+    "id": "chrome-ct-log-list",
+    "terms_url": "https://googlechrome.github.io/CertificateTransparency/log_list.html",
+    "redistribution": "published for CT policy use (verify the terms, II13)"
+   },
+   "temporal_semantics": "version and log_list_timestamp date each release; a log changing state is a new revision of that log; a log absent from a complete later list is removed_by_source",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 500,
+    "max_bytes": 2000000,
+    "max_pages": 1
+   },
+   "internet_infrastructure": {
+    "namespace": "global",
+    "provider": "ct-log-list",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/internet-infrastructure-evidence/source-audit.md#bounded-first-coverage",
+    "selection": {
+     "list": "v3"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/technology-internet-infrastructure-ct-log-list.json",
+    "sha256": "e5fe487af096dbf24c1f2b14c363f5ba47426f5de1db4c5dc980de6ce7eb8ff2",
+    "expected_output_hash": "f10cef3dfaf8c83bbdec1e465a0280ebbdf9f10cc0220017361e90dcd51c0c69"
+   }
+  }
+ ]
+}

@@ -1,0 +1,236 @@
+{
+ "_note": "Authored offline fixture in the publisher's documented shape (verify against a live response, II13): documentation ASN AS64500, documentation prefix 192.0.2.0/24, example.org, fictional organisations and dates in 2094-2099. Nothing here is a published record.",
+ "scenarios": [
+  "net",
+  "org",
+  "netixlan",
+  "ix",
+  "fac",
+  "self-declaration",
+  "poc never read"
+ ],
+ "native_pages": [
+  {
+   "request": "www.peeringdb.com/api/net?asn=64500&depth=0",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 9001,
+      "org_id": 7001,
+      "name": "Example Transit Network (fictional)",
+      "aka": "",
+      "name_long": "",
+      "website": "https://www.example.org",
+      "asn": 64500,
+      "looking_glass": "",
+      "route_server": "",
+      "irr_as_set": "AS-EXAMPLE",
+      "info_type": "NSP",
+      "info_types": [
+       "NSP"
+      ],
+      "info_prefixes4": 10,
+      "info_prefixes6": 2,
+      "info_traffic": "1-5Tbps",
+      "info_ratio": "Balanced",
+      "info_scope": "Europe",
+      "info_unicast": true,
+      "info_multicast": false,
+      "info_ipv6": true,
+      "info_never_via_route_servers": false,
+      "notes": "Peering requests: contact the fictional NOC by phone +00 0000 0000",
+      "policy_url": "",
+      "policy_general": "Open",
+      "policy_locations": "Not Required",
+      "policy_ratio": false,
+      "policy_contracts": "Not Required",
+      "netixlan_updated": "2095-03-01T00:00:00Z",
+      "created": "2094-02-01T00:00:00Z",
+      "updated": "2095-03-01T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "request": "www.peeringdb.com/api/org/7001?depth=0",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 7001,
+      "name": "Example Networks Ltd (fictional)",
+      "aka": "",
+      "name_long": "",
+      "website": "https://www.example.org",
+      "notes": "",
+      "address1": "1 Example Street",
+      "address2": "",
+      "city": "Exampleton",
+      "country": "ZZ",
+      "state": "",
+      "zipcode": "00000",
+      "floor": "",
+      "suite": "",
+      "latitude": null,
+      "longitude": null,
+      "created": "2094-02-01T00:00:00Z",
+      "updated": "2094-02-01T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "request": "www.peeringdb.com/api/netixlan?depth=0&net_id=9001",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 8001,
+      "net_id": 9001,
+      "ix_id": 6001,
+      "ixlan_id": 6101,
+      "name": "Fictional IX 6001",
+      "notes": "",
+      "speed": 10000,
+      "asn": 64500,
+      "ipaddr4": "198.51.100.10",
+      "ipaddr6": "2001:db8::10",
+      "is_rs_peer": true,
+      "bfd_support": false,
+      "operational": true,
+      "created": "2094-04-01T00:00:00Z",
+      "updated": "2094-04-01T00:00:00Z",
+      "status": "ok"
+     },
+     {
+      "id": 8002,
+      "net_id": 9001,
+      "ix_id": 6002,
+      "ixlan_id": 6102,
+      "name": "Fictional IX 6002",
+      "notes": "",
+      "speed": 1000,
+      "asn": 64500,
+      "ipaddr4": "198.51.100.20",
+      "ipaddr6": "2001:db8::20",
+      "is_rs_peer": true,
+      "bfd_support": false,
+      "operational": true,
+      "created": "2094-04-01T00:00:00Z",
+      "updated": "2094-04-01T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "request": "www.peeringdb.com/api/ix/6001?depth=0",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 6001,
+      "org_id": 7101,
+      "name": "Fictional Exchange One",
+      "aka": "",
+      "name_long": "",
+      "city": "Exampleton",
+      "country": "ZZ",
+      "region_continent": "Europe",
+      "media": "Ethernet",
+      "notes": "",
+      "proto_unicast": true,
+      "proto_multicast": false,
+      "proto_ipv6": true,
+      "website": "https://ix.example.org",
+      "url_stats": "",
+      "tech_email": "noc@ix.example.org",
+      "tech_phone": "+00 0000 0001",
+      "policy_email": "policy@ix.example.org",
+      "policy_phone": "+00 0000 0002",
+      "sales_email": "sales@ix.example.org",
+      "created": "2094-01-15T00:00:00Z",
+      "updated": "2094-01-15T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "request": "www.peeringdb.com/api/ix/6002?depth=0",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 6002,
+      "org_id": 7102,
+      "name": "Fictional Exchange Two",
+      "aka": "",
+      "name_long": "",
+      "city": "Exampleton",
+      "country": "ZZ",
+      "region_continent": "Europe",
+      "media": "Ethernet",
+      "notes": "",
+      "proto_unicast": true,
+      "proto_multicast": false,
+      "proto_ipv6": true,
+      "website": "https://ix.example.org",
+      "url_stats": "",
+      "tech_email": "noc@ix.example.org",
+      "tech_phone": "+00 0000 0001",
+      "policy_email": "policy@ix.example.org",
+      "policy_phone": "+00 0000 0002",
+      "sales_email": "sales@ix.example.org",
+      "created": "2094-01-15T00:00:00Z",
+      "updated": "2094-01-15T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  },
+  {
+   "request": "www.peeringdb.com/api/fac/5001?depth=0",
+   "status": 200,
+   "body": {
+    "meta": {},
+    "data": [
+     {
+      "id": 5001,
+      "org_id": 7200,
+      "name": "Fictional Carrier Hotel",
+      "aka": "",
+      "name_long": "",
+      "website": "https://dc.example.org",
+      "clli": "",
+      "rencode": "",
+      "npanxx": "",
+      "notes": "",
+      "address1": "2 Example Road",
+      "address2": "",
+      "city": "Exampleton",
+      "country": "ZZ",
+      "state": "",
+      "zipcode": "00000",
+      "region_continent": "Europe",
+      "latitude": 0.0,
+      "longitude": 0.0,
+      "sales_email": "sales@dc.example.org",
+      "tech_phone": "+00 0000 0003",
+      "created": "2094-01-10T00:00:00Z",
+      "updated": "2094-01-10T00:00:00Z",
+      "status": "ok"
+     }
+    ]
+   }
+  }
+ ]
+}
