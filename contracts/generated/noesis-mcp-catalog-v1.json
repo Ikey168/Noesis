@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1823,
+      "tool_count": 1839,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1208,6 +1208,7 @@
         "noesis-knowledge-engine.create_income_monitor",
         "noesis-knowledge-engine.create_infrastructure_monitor",
         "noesis-knowledge-engine.create_intake_skill",
+        "noesis-knowledge-engine.create_internet_infrastructure_monitor",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
         "noesis-knowledge-engine.create_labour_monitor",
@@ -1383,6 +1384,7 @@
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
         "noesis-knowledge-engine.export_intake_research_bundle",
+        "noesis-knowledge-engine.export_internet_infrastructure_bundle",
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_legislative_dossier_changes",
         "noesis-knowledge-engine.export_lexeme_dossier",
@@ -1627,6 +1629,10 @@
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
         "noesis-knowledge-engine.institution_statistics_as_of",
+        "noesis-knowledge-engine.internet_infrastructure_history",
+        "noesis-knowledge-engine.internet_infrastructure_readiness",
+        "noesis-knowledge-engine.internet_infrastructure_records_as_of",
+        "noesis-knowledge-engine.internet_infrastructure_source_contracts",
         "noesis-knowledge-engine.justice_statistics_for_place",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.labour_comparability_notes",
@@ -1692,6 +1698,8 @@
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_income_series",
         "noesis-knowledge-engine.link_infrastructure_records",
+        "noesis-knowledge-engine.link_internet_infrastructure_osint",
+        "noesis-knowledge-engine.link_internet_infrastructure_vulnerabilities",
         "noesis-knowledge-engine.link_labour_citations",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lifesci_records",
@@ -1800,6 +1808,9 @@
         "noesis-knowledge-engine.list_intake_feed_signal_rules",
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
+        "noesis-knowledge-engine.list_internet_infrastructure_identity",
+        "noesis-knowledge-engine.list_internet_infrastructure_links",
+        "noesis-knowledge-engine.list_internet_infrastructure_resources",
         "noesis-knowledge-engine.list_investigation_templates",
         "noesis-knowledge-engine.list_justice_place_resolutions",
         "noesis-knowledge-engine.list_labour_identity_assertions",
@@ -1999,6 +2010,7 @@
         "noesis-knowledge-engine.poll_humanitarian_monitor",
         "noesis-knowledge-engine.poll_income_monitor",
         "noesis-knowledge-engine.poll_infrastructure_monitor",
+        "noesis-knowledge-engine.poll_internet_infrastructure_monitor",
         "noesis-knowledge-engine.poll_labour_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_lifesci_monitor",
@@ -2111,6 +2123,7 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_internet_infrastructure_identity",
         "noesis-knowledge-engine.propose_labour_classification_matches",
         "noesis-knowledge-engine.propose_labour_place_matches",
         "noesis-knowledge-engine.propose_languoid_matches",
@@ -2381,6 +2394,7 @@
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_humanitarian_identity",
         "noesis-knowledge-engine.revert_income_identity",
+        "noesis-knowledge-engine.revert_internet_infrastructure_identity",
         "noesis-knowledge-engine.revert_labour_identity_match",
         "noesis-knowledge-engine.revert_legislation_identity_match",
         "noesis-knowledge-engine.revert_lifesci_match",
@@ -2463,6 +2477,7 @@
         "noesis-knowledge-engine.review_infrastructure_link",
         "noesis-knowledge-engine.review_infrastructure_operator_match",
         "noesis-knowledge-engine.review_intake_iteration_stability",
+        "noesis-knowledge-engine.review_internet_infrastructure_identity",
         "noesis-knowledge-engine.review_justice_comparability",
         "noesis-knowledge-engine.review_justice_place",
         "noesis-knowledge-engine.review_labour_comparability",
@@ -2563,6 +2578,7 @@
         "noesis-knowledge-engine.run_humanitarian_monitor",
         "noesis-knowledge-engine.run_income_monitor",
         "noesis-knowledge-engine.run_infrastructure_monitor",
+        "noesis-knowledge-engine.run_internet_infrastructure_monitor",
         "noesis-knowledge-engine.run_labour_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_lifesci_monitor",
@@ -2796,7 +2812,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1823
+      "visible_tool_count": 1839
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2807,11 +2823,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 161,
+      "available": 162,
       "degraded": 174,
-      "unauthorized": 1826
+      "unauthorized": 1841
     },
-    "tools": 2161
+    "tools": 2177
   },
   "tools": [
     {
@@ -35880,6 +35896,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a declared ASN, prefix or domain (optionally one provider) or a provider: notices of\nregistration changes, PeeringDB updates, new certificates, CT log state changes, changed routing\nobservations and removals; never a verdict. IP-keyed, person-keyed and wildcard targets are refused.",
+      "id": "noesis-knowledge-engine.create_internet_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_internet_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist an evidence-linked comparison of two pinned completed project runs.",
       "id": "noesis-knowledge-engine.create_investigation_comparison",
       "input_schema": {
@@ -45174,6 +45245,65 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle (noesis-evidence-bundle-v1) of a declared resource's records as of a date, citing every\nitem with source, record revision and as-of time.\nExclusions: no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed\nlookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks, no merged records.",
+      "id": "noesis-knowledge-engine.export_internet_infrastructure_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "resource": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "namespace",
+          "resource"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_internet_infrastructure_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56678,6 +56808,160 @@
     },
     {
       "cost_class": "low",
+      "description": "Every revision and observation each source stated about a declared resource, with citations.\nExclusions: no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed\nlookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks, no merged records.",
+      "id": "noesis-knowledge-engine.internet_infrastructure_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "resource": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "namespace",
+          "resource"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "internet_infrastructure_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which internet-infrastructure features are selected, the stores, per-source units and staleness.",
+      "id": "noesis-knowledge-engine.internet_infrastructure_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "internet_infrastructure_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A declared ASN, prefix or domain as of a date: RIPEstat routing observations, the PeeringDB\nself-declaration, RDAP registrations, crt.sh certificates and the CT logs they state, each source separately\nand cited with source, record revision and as-of time; accepted identity matches and links beside them.\nIP-keyed, person-keyed, wildcard and undeclared lookups are refused.\nExclusions: no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed\nlookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks, no merged records.",
+      "id": "noesis-knowledge-engine.internet_infrastructure_records_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "resource": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "namespace",
+          "resource"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "internet_infrastructure_records_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (RIPEstat, PeeringDB, RDAP, crt.sh, CT log list; RFC 6962 logs and CAIDA not\nimplemented), keys, limits, terms, revision models, caps, bounded coverage and the minimisation decision;\nevery source is unverified-live until a dated live run.\nExclusions: no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed\nlookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks, no merged records.",
+      "id": "noesis-knowledge-engine.internet_infrastructure_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "internet_infrastructure_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Official crime and justice statistics for a place ('us-state:CA', 'fbi-ori:...', 'eurostat-geo:DE',\n'police-uk-neighbourhood:force/id' or a geospatial place_id) from each source side by side, with the\ndefinition, unit, flags, coverage notes and vintage in force at the date; gaps and suppressed values are\nexplicit. No rankings, neighbourhood safety ratings or risk scores.",
       "id": "noesis-knowledge-engine.justice_statistics_for_place",
       "input_schema": {
@@ -59714,6 +59998,96 @@
       ],
       "required_scopes": [
         "knowledge:infrastructure:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link domain records to existing OSINT source identities by their stated domain (read-only; no source\nidentity is written); provider_absent when the OSINT store is not held. Nothing is inferred from shared\naddresses.\nExclusions: no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed\nlookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks, no merged records.",
+      "id": "noesis-knowledge-engine.link_internet_infrastructure_osint",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "osint_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_internet_infrastructure_osint",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:write",
+        "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link records to technology.vulnerabilities only where a source states a CVE id (none does in first\ncoverage); provider_absent when the Vulnerabilities store is not held.",
+      "id": "noesis-knowledge-engine.link_internet_infrastructure_vulnerabilities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "vulnerabilities_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_internet_infrastructure_vulnerabilities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:write",
+        "knowledge:vulnerabilities:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -65471,6 +65845,138 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity assertions between records of different sources (proposed, accepted, rejected, reverted) with\nmethod, evidence and confidence, and the records that stay unmatched.",
+      "id": "noesis-knowledge-engine.list_internet_infrastructure_identity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_internet_infrastructure_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links to OSINT source identities (stated domain) and Vulnerabilities (stated CVE id), each pinning both\nrevisions; absent providers and targets are reported.",
+      "id": "noesis-knowledge-engine.list_internet_infrastructure_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_internet_infrastructure_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The declared ASNs, prefixes and domains this namespace answers; nothing else is looked up.",
+      "id": "noesis-knowledge-engine.list_internet_infrastructure_resources",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_internet_infrastructure_resources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75223,6 +75729,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an internet-infrastructure monitor's events (registration changes, PeeringDB updates, new\ncertificates, CT log state changes, changed routing observations, removals).",
+      "id": "noesis-knowledge-engine.poll_internet_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_internet_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a labour monitor's events (new periods, revisions, benchmark revisions, definition changes).",
       "id": "noesis-knowledge-engine.poll_labour_monitor",
       "input_schema": {
@@ -80270,6 +80814,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose matches between records of different sources by stated identifiers (ASN, prefix, domain,\nPeeringDB id); a shared name is never a match and nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_internet_infrastructure_identity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_internet_infrastructure_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -94944,6 +95521,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted identity assertion; answers stop showing it.",
+      "id": "noesis-knowledge-engine.revert_internet_infrastructure_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_internet_infrastructure_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed mapping; the code is unmapped again.",
       "id": "noesis-knowledge-engine.revert_labour_identity_match",
       "input_schema": {
@@ -98638,6 +99256,51 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed identity assertion with a reason; nothing is merged.",
+      "id": "noesis-knowledge-engine.review_internet_infrastructure_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_internet_infrastructure_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -103657,6 +104320,51 @@
       ],
       "required_scopes": [
         "knowledge:infrastructure:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an internet-infrastructure monitor at a committed watermark; notices cite the records.",
+      "id": "noesis-knowledge-engine.run_internet_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_internet_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:technical:internet-infrastructure:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

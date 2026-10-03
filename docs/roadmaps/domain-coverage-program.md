@@ -2,16 +2,16 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business track (IB) covered offline, not live; wave 3
-planned. Decision:
+wave 2 industry-business (IB) and internet-infrastructure (II) tracks covered
+offline, not live; wave 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
-gaps. Wave 1 and the wave 2 industry-business track are now covered offline, so
-67 are covered and 22 are gaps. This program fills every gap, one track per
+gaps. Wave 1 and the wave 2 industry-business and internet-infrastructure
+tracks are now covered offline, so 68 are covered and 21 are gaps. This program fills every gap, one track per
 subdomain.
 
 ## How coverage is counted
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+II01 is covered offline: `technology.internet-infrastructure` (track
+[#2743](https://github.com/Ikey168/Noesis/issues/2743)) holds fixture-tested
+RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources, so its gap row is
+gone. Its sources stay `unverified-live`; live coverage waits for the track's
+"Validate live coverage" run (II13).
+
 MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
 amended audit finds one. AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
@@ -102,7 +108,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
-| `internet-infrastructure` | Technology | `technology.internet-infrastructure` | RIPEstat; PeeringDB; RDAP; certificate transparency logs; CAIDA datasets (acceptable-use policy) | OSINT, vulnerabilities | 2 |
 | `telecommunications-spectrum` | Technology | `technology.telecommunications` | FCC ULS and broadband data; Bundesnetzagentur data; ITU DataHub (terms) | infrastructure, competition | 3 |
 | `ai-models-datasets` | Technology | `technology.ai-models` | Hugging Face Hub metadata; OpenML; Epoch AI datasets | OSS ecosystems, literature | 2 |
 | `cyber-incidents` | Technology | `technology.cyber-incidents` | SEC 8-K Item 1.05 disclosures; HHS OCR breach portal; state breach-notification registers | vulnerabilities, market filings | 2 |
@@ -115,6 +120,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows
 are gone. Their live coverage is still open, in each track's "Validate live
-coverage" issue. Wave 2 has 14 tracks; the industry-business track is covered
-offline (not live), so its row is gone and 13 wave 2 rows remain. Wave 3 has
-9.
+coverage" issue. Wave 2 has 14 tracks; the industry-business and
+internet-infrastructure tracks are covered offline (not live), so their rows
+are gone and 12 wave 2 rows remain. Wave 3 has 9.
