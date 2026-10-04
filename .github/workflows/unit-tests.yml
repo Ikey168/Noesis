@@ -53,7 +53,7 @@ jobs:
             fastapi httpx uvicorn \
             aiofiles psutil requests \
             fastavro beautifulsoup4 lxml \
-            'fastmcp>=2.0,<3.0' pyyaml pyarrow huggingface_hub apscheduler
+            'fastmcp>=3.0,<4.0' pyyaml pyarrow huggingface_hub apscheduler
           pip install ".[ingestion,bibliography,evaluation]"
 
       - name: Verify immutable model pins
