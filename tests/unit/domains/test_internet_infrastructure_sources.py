@@ -284,20 +284,25 @@ def test_parse_bootstrap_reads_asn_ranges_and_ip_prefix_keys_with_the_same_parse
         {"org": "https://rdap.example.org/"}
 
 
+def _is_bootstrap(key: str) -> bool:
+    # Recorded call keys are "<host>/<path>"; compare the host exactly.
+    return key.split("/", 1)[0] == "data.iana.org"
+
+
 def test_rdap_fetches_each_bootstrap_file_once_per_24_hours_and_caps_three_objects():
     cache = {}
     calls = []
     h.fetch("rdap", transport=ii.fixture_transport(h.pages("rdap"), calls=calls), bootstrap_cache=cache)
-    boots = [c["key"] for c in calls if c["key"].startswith("data.iana.org")]
+    boots = [c["key"] for c in calls if _is_bootstrap(c["key"])]
     assert boots == ["data.iana.org/rdap/asn.json", "data.iana.org/rdap/ipv4.json", "data.iana.org/rdap/dns.json"]
     calls.clear()
     h.fetch("rdap", transport=ii.fixture_transport(h.pages("rdap"), calls=calls), bootstrap_cache=cache,
             now_ms=h.FIRST_RETRIEVAL + 3_600_000)
-    assert not [c for c in calls if c["key"].startswith("data.iana.org")]
+    assert not [c for c in calls if _is_bootstrap(c["key"])]
     calls.clear()
     h.fetch("rdap", transport=ii.fixture_transport(h.pages("rdap"), calls=calls), bootstrap_cache=cache,
             now_ms=h.FIRST_RETRIEVAL + 25 * 3_600_000)
-    assert len([c for c in calls if c["key"].startswith("data.iana.org")]) == 3
+    assert len([c for c in calls if _is_bootstrap(c["key"])]) == 3
     assert len(h.adapter("rdap").declared["units"]) == ii.CAPS["rdap"]["objects"] == 3
 
 
