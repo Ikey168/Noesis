@@ -21,6 +21,7 @@ import duckdb
 import pytest
 
 from src.database.local_warehouse_seed import ensure_schema_and_seed
+from src.mcp_host.introspection import tool_map
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -220,8 +221,8 @@ def _load_server(path: Path):
 
 
 def _tools(module):
-    """Registered tools through FastMCP 2.x's public async discovery API."""
-    return asyncio.run(module.mcp.get_tools())
+    """Registered tools through the fastmcp-version-neutral introspection helper."""
+    return tool_map(module.mcp)
 
 
 def _call(tool, kwargs):

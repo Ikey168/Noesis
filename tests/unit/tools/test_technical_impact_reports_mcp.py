@@ -1,6 +1,5 @@
 """Public technical tools over generated package and advisory records."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -11,6 +10,7 @@ from src.domains.technical.model import package_object_id, record_advisory_range
 from src.ingestion.revisions import DocumentRevisionStore
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tools.knowledge_engine_mcp import server
+from src.mcp_host.introspection import tool_map
 
 
 SCHEMAS = Path(__file__).resolve().parents[3] / "contracts/schemas/jsonschema"
@@ -45,7 +45,7 @@ def test_public_report_new_advisory_fixed_dependency_and_unchanged_inventory(tmp
               "document:osv:A-old:read", "document:osv:F-fixed:read"}
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(path), read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     inventory = tools["import_technical_inventory"].fn(
         content="affected==1.5\nfixed==2.0\n", format="requirements.txt")
     first = tools["create_technical_impact_report"].fn(

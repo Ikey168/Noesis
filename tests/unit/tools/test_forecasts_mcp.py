@@ -1,9 +1,9 @@
-import asyncio
 import time
 
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -11,7 +11,7 @@ def test_forecast_public_contract(tmp_path, monkeypatch):
     path = str(tmp_path / "forecasts.duckdb")
     monkeypatch.setattr(server, "_context", lambda: ("alice", {"operator"}))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     now = int(time.time() * 1000)
     forecast = tools["create_binary_forecast"].fn(namespace="r", request_key="f", question="Will it occur?",
         outcome_rule="Reviewed official event", resolution_at_ms=now+100000, probability=0.7, evidence=[])

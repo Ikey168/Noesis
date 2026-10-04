@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 import shutil
@@ -41,6 +40,7 @@ from src.kb.watches import (
     set_watch_status,
     watch_metrics,
 )
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = (
@@ -588,7 +588,7 @@ def test_contract_errors_and_surface_parity(monkeypatch, watch_corpus):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["watch_create"].fn(
         domain="economics",
         principal_id="alice",
@@ -687,7 +687,7 @@ def test_invalid_event_fixture_is_rejected():
 def test_contract_registry_resolves_watch_aliases(alias):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, "valid-watch")
+    result = tool_function(validate)(alias, "valid-watch")
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == (
         "noesis-claim-watch-v1"

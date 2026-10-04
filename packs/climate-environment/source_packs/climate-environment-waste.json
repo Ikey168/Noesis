@@ -1,0 +1,641 @@
+{
+  "pack_id": "climate-environment-waste",
+  "version": "1.0.0",
+  "description": "Climate and Environment waste and circular-economy sources for the optional waste features (environment.waste, #2740): Eurostat waste generation and treatment (biennial), Eurostat circular-economy indicators as published, EEA Industrial Reporting off-site waste transfers for the environment.core Berlin facilities, and OECD municipal waste. Every source is unverified-live until a dated run (WC13, #2810); no nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators.",
+  "domains": [
+    "environment"
+  ],
+  "defaults": {
+    "connector": "waste",
+    "update_cadence": "monthly re-check of the declared documents at most; every refresh stays inside the declared selection",
+    "temporal_semantics": "statistical series carry the source's release clock (Eurostat LAST UPDATE, a declared OECD release date or the labelled retrieval time); EEA transfer rows carry the stated dataset version, else the retrieval time; a changed release is an appended vintage and absence from a later complete release is a removed_by_source vintage",
+    "mapping": {
+      "target_schema": "noesis-waste-record-v2",
+      "version": "2.0.0"
+    },
+    "extractor_versions": [
+      "waste:1.0.0"
+    ],
+    "operations": [
+      "release"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 2592000
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 31536000
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 60,
+      "max_bytes": 2000000,
+      "max_pages": 2
+    },
+    "policy": {
+      "excluded": [
+        "nowcasting",
+        "filled years (biennial odd years stay absent)",
+        "blending Eurostat, OECD and EEA figures",
+        "summing facility transfers into national totals",
+        "own recycling rates, per-capita or material-flow figures",
+        "derived indicators",
+        "forecasts",
+        "operator, parent-company, address, contact and competent-authority fields",
+        "a second facility register"
+      ],
+      "values": "as published, with flags, method codes and release vintages"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "eurostat-waste",
+      "connector": "waste",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "publisher": "Eurostat (waste statistics)",
+      "scope": "Bounded Eurostat waste statistics through the SDMX connector's ESTAT SDMX-CSV path: env_wasgen total waste (all NACE activities plus households; hazardous and non-hazardous total, and hazardous) and env_wastrt total waste by treatment operation for Germany and France from a declared start year; biennial, odd years absent; at most 2 documents and 60 series per response (operator must verify the dataset codes, dimension order, wst_oper codes and flags)",
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "update_cadence": "biennial reference years; countries resubmit earlier years",
+      "temporal_semantics": "the SDMX-CSV LAST UPDATE column dates the release; TIME_PERIOD is the (biennial) reference year; a changed release is a new vintage",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 2000000,
+        "max_pages": 2
+      },
+      "waste": {
+        "namespace": "environment",
+        "provider": "eurostat-waste",
+        "format": "eurostat-waste-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "Eurostat waste generated (env_wasgen, total waste, all NACE activities and households, DE and FR)",
+            "flow": "env_wasgen",
+            "key": "A.T.HAZ_NHAZ+HAZ.TOTAL_HH.TOTAL.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "periodicity": "biennial",
+            "indicator": {
+              "codes": {
+                "env_wasgen": {
+                  "concept": "waste_generated",
+                  "label": "Generation of waste by waste category, hazardousness and NACE Rev. 2 activity"
+                }
+              }
+            },
+            "waste_category": {
+              "dimension": "waste",
+              "scheme": "EWC-Stat",
+              "labels": {
+                "TOTAL": "Total waste"
+              }
+            },
+            "hazard": {
+              "dimension": "hazard",
+              "labels": {
+                "HAZ_NHAZ": "Hazardous and non-hazardous - Total",
+                "HAZ": "Hazardous"
+              }
+            },
+            "activity": {
+              "dimension": "nace_r2",
+              "scheme": "NACE Rev.2",
+              "labels": {
+                "TOTAL_HH": "All NACE activities plus households"
+              }
+            },
+            "unit": {
+              "dimension": "unit",
+              "labels": {
+                "T": "Tonne"
+              }
+            },
+            "area": {
+              "dimension": "geo",
+              "scheme": "eurostat-geo",
+              "labels": {
+                "DE": "Germany",
+                "FR": "France"
+              }
+            },
+            "definition": {
+              "source_text": "Waste generated as reported under the Waste Statistics Regulation, by EWC-Stat category, hazardousness and NACE Rev.2 activity or households (verify)",
+              "scope": "total waste, all NACE activities plus households",
+              "methodology_notes": [
+                "Reference years are biennial (even years); odd years are not collected",
+                "Countries may resubmit earlier reference years"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "env_wasgen_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/env_wasgen_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32002R2150",
+                "relation": "defined_by",
+                "locator": "Regulation (EC) No 2150/2002 on waste statistics (verify amendments)"
+              },
+              {
+                "kind": "dataset",
+                "scheme": "eurostat-dataset",
+                "identifier": "env_waspac",
+                "url": "https://ec.europa.eu/eurostat/databrowser/view/env_waspac/default/table",
+                "relation": "later_document",
+                "locator": "Packaging waste by waste management operations (verify)"
+              },
+              {
+                "kind": "dataset",
+                "scheme": "eurostat-dataset",
+                "identifier": "env_waselee",
+                "url": "https://ec.europa.eu/eurostat/databrowser/view/env_waselee/default/table",
+                "relation": "later_document",
+                "locator": "Waste electrical and electronic equipment (verify)"
+              }
+            ]
+          },
+          {
+            "label": "Eurostat waste treatment (env_wastrt, total waste by treatment operation, DE and FR)",
+            "flow": "env_wastrt",
+            "key": "A.T.HAZ_NHAZ.TRT+RCV_R+DSP_L.TOTAL.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "periodicity": "biennial",
+            "indicator": {
+              "codes": {
+                "env_wastrt": {
+                  "concept": "waste_treated",
+                  "label": "Treatment of waste by waste category, hazardousness and waste management operations"
+                }
+              }
+            },
+            "waste_category": {
+              "dimension": "waste",
+              "scheme": "EWC-Stat",
+              "labels": {
+                "TOTAL": "Total waste"
+              }
+            },
+            "hazard": {
+              "dimension": "hazard",
+              "labels": {
+                "HAZ_NHAZ": "Hazardous and non-hazardous - Total"
+              }
+            },
+            "operation": {
+              "dimension": "wst_oper",
+              "labels": {
+                "TRT": "Waste treatment",
+                "RCV_R": "Recovery - recycling",
+                "DSP_L": "Disposal - landfill and other (verify codes)"
+              }
+            },
+            "unit": {
+              "dimension": "unit",
+              "labels": {
+                "T": "Tonne"
+              }
+            },
+            "area": {
+              "dimension": "geo",
+              "scheme": "eurostat-geo",
+              "labels": {
+                "DE": "Germany",
+                "FR": "France"
+              }
+            },
+            "definition": {
+              "source_text": "Waste treated in the reporting country by treatment operation (wst_oper) as reported under the Waste Statistics Regulation (verify codes)",
+              "scope": "total waste, the declared treatment operations",
+              "methodology_notes": [
+                "Reference years are biennial (even years); odd years are not collected"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "env_wasgen_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/env_wasgen_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32002R2150",
+                "relation": "defined_by",
+                "locator": "Regulation (EC) No 2150/2002 on waste statistics (verify amendments)"
+              },
+              {
+                "kind": "dataset",
+                "scheme": "eurostat-dataset",
+                "identifier": "env_waspac",
+                "url": "https://ec.europa.eu/eurostat/databrowser/view/env_waspac/default/table",
+                "relation": "later_document",
+                "locator": "Packaging waste by waste management operations (verify)"
+              },
+              {
+                "kind": "dataset",
+                "scheme": "eurostat-dataset",
+                "identifier": "env_waselee",
+                "url": "https://ec.europa.eu/eurostat/databrowser/view/env_waselee/default/table",
+                "relation": "later_document",
+                "locator": "Waste electrical and electronic equipment (verify)"
+              }
+            ]
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-waste-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "waste:1.0.0"
+      ],
+      "operations": [
+        "release"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-waste-eurostat.json",
+        "sha256": "bb3f21a681bd1a45003c34c961ebb50655f9bffc8656dfa733884577f702ee0f",
+        "expected_output_hash": "5405d4daa42bcd0de5eeb39e98f35a7c0b67922b2bd49213fed0dc54bf7a6582"
+      }
+    },
+    {
+      "source_id": "eurostat-circular-economy",
+      "connector": "waste",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "publisher": "Eurostat (circular economy monitoring framework)",
+      "scope": "Bounded Eurostat circular-economy indicators through the same SDMX-CSV path: cei_wm011 (recycling rate of municipal waste) and cei_srm030 (circular material use rate) for Germany and France from a declared start year, stored as Eurostat publishes them; one document per dataset, at most 10 series per response (operator must verify the codes and units)",
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "update_cadence": "annual releases that may revise earlier years",
+      "temporal_semantics": "the SDMX-CSV LAST UPDATE column dates the release; TIME_PERIOD is the reference year; a changed release is a new vintage",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 10,
+        "max_bytes": 1000000,
+        "max_pages": 2
+      },
+      "waste": {
+        "namespace": "environment",
+        "provider": "eurostat-circular-economy",
+        "format": "eurostat-cei-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "Eurostat recycling rate of municipal waste (cei_wm011, DE and FR)",
+            "flow": "cei_wm011",
+            "key": "A.RT.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "periodicity": "annual",
+            "indicator": {
+              "codes": {
+                "cei_wm011": {
+                  "concept": "municipal_waste_recycling_rate",
+                  "label": "Recycling rate of municipal waste"
+                }
+              }
+            },
+            "unit": {
+              "dimension": "unit",
+              "labels": {
+                "RT": "Percentage (verify the unit code)"
+              }
+            },
+            "area": {
+              "dimension": "geo",
+              "scheme": "eurostat-geo",
+              "labels": {
+                "DE": "Germany",
+                "FR": "France"
+              }
+            },
+            "definition": {
+              "source_text": "Recycling rate of municipal waste as Eurostat defines it in the circular economy monitoring framework; stored as published, never recomputed",
+              "scope": "municipal waste",
+              "methodology_notes": [
+                "Eurostat-published rate; Noesis computes no rate from tonnages"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "cei_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/cei_esms.htm",
+                "relation": "documented_in"
+              }
+            ]
+          },
+          {
+            "label": "Eurostat circular material use rate (cei_srm030, DE and FR)",
+            "flow": "cei_srm030",
+            "key": "A.RT.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "periodicity": "annual",
+            "indicator": {
+              "codes": {
+                "cei_srm030": {
+                  "concept": "circular_material_use_rate",
+                  "label": "Circular material use rate"
+                }
+              }
+            },
+            "unit": {
+              "dimension": "unit",
+              "labels": {
+                "RT": "Percentage (verify the unit code)"
+              }
+            },
+            "area": {
+              "dimension": "geo",
+              "scheme": "eurostat-geo",
+              "labels": {
+                "DE": "Germany",
+                "FR": "France"
+              }
+            },
+            "definition": {
+              "source_text": "Circular material use rate as Eurostat defines it in the circular economy monitoring framework; stored as published, never recomputed",
+              "scope": "whole economy",
+              "methodology_notes": [
+                "Eurostat-published rate; Noesis computes no material-flow figure"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "cei_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/cei_esms.htm",
+                "relation": "documented_in"
+              }
+            ]
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-waste-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "waste:1.0.0"
+      ],
+      "operations": [
+        "release"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-waste-eurostat-cei.json",
+        "sha256": "37fab13500f638617db34a69af72f68d85eae14a9245a09240061c9294d3ff4e",
+        "expected_output_hash": "44536fbf52c9b8fd22ed208dbfee343d9a3f3422754ae6ac400de7eb3ba640b8"
+      }
+    },
+    {
+      "source_id": "eea-industry-waste-transfers",
+      "connector": "waste",
+      "endpoint": "https://discodata.eea.europa.eu/sql",
+      "publisher": "European Environment Agency (Industrial Reporting under the IED and E-PRTR)",
+      "scope": "Off-site waste transfers (hazardous or non-hazardous, recovery or disposal, domestic or transboundary, tonnes and method code) for the environment.core Berlin facility selection and one reporting year, one pinned Discodata query selecting no operator, parent-company, address, contact or authority column; at most 500 rows (nrOfHits), a full page recorded as truncated (operator must verify the table and column names)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.eea.europa.eu/en/legal-notice",
+        "redistribution": "EEA standard re-use policy with attribution, citing the dataset version (verify)"
+      },
+      "update_cadence": "yearly publication; member states correct past reporting years",
+      "temporal_semantics": "the dataset version the EEA states dates the acquisition, else the retrieval time (labelled retrieval_time); a changed row for a past reporting year is a new vintage",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 1
+      },
+      "waste": {
+        "namespace": "environment",
+        "provider": "eea-industry-waste-transfers",
+        "format": "eea-waste-transfers-json",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "EEA Industrial Reporting off-site waste transfers, Berlin facility selection, reporting year 2096",
+            "selection": {
+              "country": "DE",
+              "city": "Berlin",
+              "reporting_year": 2096,
+              "limit": 500,
+              "facility_selection": "environment.core eea-industry"
+            },
+            "definition": {
+              "source_text": "Off-site transfers of hazardous and non-hazardous waste per facility and reporting year, by recovery (R) or disposal (D) and domestic or transboundary, in tonnes with the method code (verify the column names)",
+              "scope": "facilities of the environment.core Berlin selection, one reporting year",
+              "methodology_notes": [
+                "Facilities report only above the E-PRTR thresholds (verify); an absent row is not zero",
+                "Transfers are never summed into national totals"
+              ]
+            },
+            "references": [
+              {
+                "kind": "dataset",
+                "scheme": "eea-industrial-reporting",
+                "identifier": "industrial-reporting-ied-eprtr",
+                "url": "https://industry.eea.europa.eu/",
+                "relation": "published_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32006R0166",
+                "relation": "defined_by",
+                "locator": "Regulation (EC) No 166/2006 (E-PRTR), reporting thresholds (verify the successor regime)"
+              },
+              {
+                "kind": "pollutant",
+                "scheme": "cas",
+                "identifier": "7439-97-6",
+                "relation": "cites",
+                "locator": "E-PRTR pollutant list entry, mercury and compounds (as Hg) (fixture citation; verify)"
+              }
+            ]
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-waste-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "waste:1.0.0"
+      ],
+      "operations": [
+        "release"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-waste-eea-transfers.json",
+        "sha256": "e711ebd540551a26a78d9046db8777d14bb3608feff03a9e411a99bf96f839a6",
+        "expected_output_hash": "1e4faddeb6e13edfc27f109fa8935ec4e5291e08abb01ccc7e7f8e1d2500a1bc"
+      }
+    },
+    {
+      "source_id": "oecd-municipal-waste",
+      "connector": "waste",
+      "endpoint": "https://sdmx.oecd.org/public/rest/data",
+      "publisher": "OECD (Environment statistics)",
+      "scope": "Bounded OECD municipal waste generated, total, for Germany (DEU) and France (FRA) from a declared start year through the SDMX connector's OECD path (format=csvfile); one document, at most 10 series, paced at one request per 60 seconds (operator must verify the dataflow agency, id, version and dimensions)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+        "redistribution": "attribution-required (CC BY 4.0 since 2024, verify)"
+      },
+      "update_cadence": "annual; revisions without an update stamp",
+      "temporal_semantics": "no update stamp: the declared release date dates a changed response, else the retrieval time (labelled retrieval_time); OBS_STATUS B is a source-stated break",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 10,
+        "max_bytes": 1000000,
+        "max_pages": 1
+      },
+      "waste": {
+        "namespace": "environment",
+        "provider": "oecd-municipal-waste",
+        "format": "oecd-waste-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "OECD municipal waste generated, total (DEU and FRA)",
+            "flow": "OECD.ENV.EPI,DSD_MUNW@DF_MUNW,1.0",
+            "key": "DEU+FRA.A.MW_GEN.T",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "periodicity": "annual",
+            "dataflow": {
+              "verify": "agency OECD.ENV.EPI, dataflow DSD_MUNW@DF_MUNW, version 1.0 and the dimensions REF_AREA, FREQ, MEASURE and UNIT_MEASURE are not known with confidence; verify before the live run (WC13)"
+            },
+            "indicator": {
+              "dimension": "MEASURE",
+              "codes": {
+                "MW_GEN": {
+                  "concept": "municipal_waste_generated",
+                  "label": "Municipal waste generated, total"
+                }
+              }
+            },
+            "waste_category": {
+              "code": "MUNICIPAL",
+              "scheme": "OECD municipal waste",
+              "label": "Municipal waste"
+            },
+            "unit": {
+              "dimension": "UNIT_MEASURE",
+              "labels": {
+                "T": "Tonnes"
+              }
+            },
+            "area": {
+              "dimension": "REF_AREA",
+              "scheme": "iso3166-1-alpha3",
+              "labels": {
+                "DEU": "Germany",
+                "FRA": "France"
+              }
+            },
+            "release": {
+              "published_on": "2098-11-20",
+              "label": "OECD municipal waste (fixture declaration; verify the release calendar)"
+            },
+            "definition": {
+              "source_text": "Municipal waste generated as the OECD defines it (waste collected by or on behalf of municipalities; verify)",
+              "scope": "total municipal waste",
+              "methodology_notes": [
+                "For EU members the OECD and Eurostat figures share the joint questionnaire (verify) yet stay separate series"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "oecd-data-explorer",
+                "identifier": "municipal-waste",
+                "url": "https://www.oecd.org/en/data/datasets/municipal-waste.html",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "related",
+                "scheme": "joint-questionnaire",
+                "identifier": "OECD/Eurostat Joint Questionnaire on Waste",
+                "relation": "shares_questionnaire_with",
+                "locator": "verify"
+              }
+            ]
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-waste-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "waste:1.0.0"
+      ],
+      "operations": [
+        "release"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/environment-waste-oecd.json",
+        "sha256": "fa933cea4cf1e494a2bd730d2eb120b4b49eacf7d5afdff3bcf40223dea859d8",
+        "expected_output_hash": "3a3e01bbbf0907d84f15986ef3802cf31444cd5286c9bd8961e2f95d9d327e3f"
+      }
+    }
+  ]
+}

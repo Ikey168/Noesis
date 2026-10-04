@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.database.local_warehouse_seed import ensure_schema
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -31,7 +32,7 @@ def test_claim_timeline_mcp_state_detection_lineage_diff_timeline_replay_and_aut
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "capture_claim_timeline_state",
         "link_claim_evolution",
@@ -107,7 +108,7 @@ def test_claim_timeline_mcp_state_detection_lineage_diff_timeline_replay_and_aut
 
 
 def test_claim_timeline_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-claim-state-v1",
         "noesis-claim-lineage-v1",

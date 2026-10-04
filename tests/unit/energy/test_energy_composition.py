@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -19,6 +18,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.energy.harness import NS, SCOPES, acquire_all
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.energy import ENERGY_SCOPES, ENERGY_TOOLS, ENERGY_WRITES
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = json.loads((ROOT / "packs/energy/manifest.json").read_text())
@@ -100,7 +100,7 @@ def mcp(tmp_path, monkeypatch):
     state = {"principal": "analyst", "scopes": set()}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def call(tools, state, name, scopes, principal="analyst", **kwargs):

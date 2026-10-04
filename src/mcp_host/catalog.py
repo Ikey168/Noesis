@@ -18,6 +18,7 @@ from src.mcp_host.config import (
     REPO_ROOT,
     _is_project_server,
 )
+from src.mcp_host.introspection import list_tools_async
 
 CATALOG_CONTRACT = "noesis-mcp-catalog-v1"
 CATALOG_VERSION = 1
@@ -248,7 +249,7 @@ async def _inspect_server(
         mcp = getattr(module, "mcp", None)
         if mcp is None:
             return None, [], "server module does not export mcp"
-        discovered = await mcp.get_tools()
+        discovered = await list_tools_async(mcp)
         tools = []
         for name, tool in sorted(discovered.items()):
             tools.append(
@@ -405,6 +406,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_WRITES
     if name in WEB_ARCHIVE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.ai_models import AI_MODELS_WRITES
+    if name in AI_MODELS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_WRITES
     if name in EDUCATION_WRITES:
         return "write"
@@ -419,6 +423,20 @@ def _mutability(name: str) -> str:
         return "write"
     from tools.knowledge_engine_mcp.business import BUSINESS_WRITES
     if name in BUSINESS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.waste import WASTE_WRITES
+    if name in WASTE_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.social_protection import SOCIAL_PROTECTION_WRITES
+    if name in SOCIAL_PROTECTION_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.tourism import TOURISM_WRITES
+    if name in TOURISM_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.internet_infrastructure import (
+        INTERNET_INFRASTRUCTURE_WRITES,
+    )
+    if name in INTERNET_INFRASTRUCTURE_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
@@ -1132,6 +1150,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in WEB_ARCHIVE_TOOLS:
         return web_archive_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.ai_models import AI_MODELS_TOOLS
+    from tools.knowledge_engine_mcp.ai_models import required_scopes as ai_models_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in AI_MODELS_TOOLS:
+        return ai_models_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.trade import TRADE_TOOLS
     from tools.knowledge_engine_mcp.trade import required_scopes as trade_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TRADE_TOOLS:
@@ -1166,6 +1188,28 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.business import required_scopes as business_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in BUSINESS_TOOLS:
         return business_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.waste import WASTE_TOOLS
+    from tools.knowledge_engine_mcp.waste import required_scopes as waste_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in WASTE_TOOLS:
+        return waste_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.social_protection import SOCIAL_PROTECTION_TOOLS
+    from tools.knowledge_engine_mcp.social_protection import (
+        required_scopes as social_protection_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in SOCIAL_PROTECTION_TOOLS:
+        return social_protection_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.tourism import TOURISM_TOOLS
+    from tools.knowledge_engine_mcp.tourism import required_scopes as tourism_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in TOURISM_TOOLS:
+        return tourism_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.internet_infrastructure import (
+        INTERNET_INFRASTRUCTURE_TOOLS,
+    )
+    from tools.knowledge_engine_mcp.internet_infrastructure import (
+        required_scopes as internet_infrastructure_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in INTERNET_INFRASTRUCTURE_TOOLS:
+        return internet_infrastructure_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
     from tools.knowledge_engine_mcp.legislation import (
         required_scopes as legislation_scopes,

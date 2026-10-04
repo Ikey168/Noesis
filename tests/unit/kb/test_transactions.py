@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import copy
 import importlib.util
 import json
@@ -21,6 +20,7 @@ from src.kb.transactions import (
     KnowledgeTransactionStore,
     TransactionError,
 )
+from src.mcp_host.introspection import tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = REPO_ROOT / "contracts/schemas/jsonschema/noesis-knowledge-mutation-v1.json"
@@ -500,7 +500,7 @@ def test_mcp_uses_operator_identity_and_never_accepts_caller_supplied_scopes(
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     envelope = _envelope()
     preview = tools["preview_mutation_batch"].fn(envelope)
     committed = tools["commit_mutation_batch"].fn(envelope, preview["approval_hash"])

@@ -2,17 +2,17 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business track (IB) covered offline, not live; wave 3
-planned. Decision:
+wave 2 tracks listed under "Wave 2" covered offline, not live; wave 3 planned.
+Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
-gaps. Wave 1 and the wave 2 industry-business track are now covered offline, so
-67 are covered and 22 are gaps. This program fills every gap, one track per
-subdomain.
+gaps. Wave 1 and the wave 2 tracks listed under "Wave 2" are now covered
+offline, so 72 are covered and 17 are gaps. This program
+fills every gap, one track per subdomain.
 
 ## How coverage is counted
 
@@ -74,7 +74,7 @@ leaves at least one source.
 | II01 | internet infrastructure | `internet-infrastructure` | RIPEstat; PeeringDB; RDAP; crt.sh; CT log list | direct CT logs (unbounded); CAIDA (terms) |
 | AI01 | AI models | `ai-models` | Hugging Face Hub metadata; OpenML; Epoch AI | none |
 | CY01 | cyber incidents | `cyber-incidents` | SEC 8-K Item 1.05; Washington AG list (conditional) | HHS OCR portal (no API) |
-| MO01 | media outlets | `media-outlets` | **none** | Media Ownership Monitor (no machine access, terms); MAVISE and KEK (until an export and terms are confirmed) |
+| MO01 | media outlets | `media-outlets` | Wikidata ownership statements, narrowly (statements, never a register; amendment #2754) | Media Ownership Monitor (no machine access, terms); MAVISE, KEK, Ofcom licence lists and the medienanstalten TV station database (until an export or file and terms are confirmed); EMFA Art. 6 national databases (none confirmed) |
 
 IB01 is covered offline: `economics.business` (track
 [#2738](https://github.com/Ikey168/Noesis/issues/2738)) holds fixture-tested
@@ -82,8 +82,36 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
-MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
-amended audit finds one. AH01 rests on one source whose records are
+II01 is covered offline: `technology.internet-infrastructure` (track
+[#2743](https://github.com/Ikey168/Noesis/issues/2743)) holds fixture-tested
+RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources, so its gap row is
+gone. Its sources stay `unverified-live`; live coverage waits for the track's
+"Validate live coverage" run (II13).
+
+TO01 is covered offline: `economics.tourism` (track
+[#2739](https://github.com/Ikey168/Noesis/issues/2739)) holds fixture-tested
+Eurostat tourism occupancy and capacity sources, so its gap row is gone. Its
+sources stay `unverified-live` and UN Tourism stays `not-implemented`; live
+coverage waits for the track's "Validate live coverage" run (TO12).
+
+SS01 is covered offline: `society.social-protection` (track
+[#2741](https://github.com/Ikey168/Noesis/issues/2741)) holds fixture-tested
+Eurostat ESSPROS, OECD SOCX and ILOSTAT SDG 1.3.1 sources, so its gap row is
+gone. Its sources stay `unverified-live` (the ILO dashboards
+`not-implemented`); live coverage waits for the track's "Validate live
+coverage" run (SS13).
+
+WC01 is covered offline: `environment.waste` (track
+[#2740](https://github.com/Ikey168/Noesis/issues/2740)) holds fixture-tested
+Eurostat waste and circular-economy, EEA waste-transfer and OECD municipal
+waste sources, so its gap row is gone. Its sources stay `unverified-live`; live
+coverage waits for the track's "Validate live coverage" run (WC13).
+
+MO01 left no source; its amendment (#2754, written offline) leaves only
+Wikidata ownership statements, kept as "what Wikidata states" and never as a
+register, and no register-grade source. `media-outlets-ownership` stays a gap
+until a tracker's live validation passes; a tracker may open only on the
+conditions in the audit's "Conclusion of the amendment". AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 ## Gap table
@@ -92,19 +120,14 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | --- | --- | --- | --- | --- | --- |
 | `government-transparency` | Governance and law | `political.transparency` | Bundestag DIP (questions, printed papers); UK Parliament written questions API; FragDenStaat | legislation, public finance | 2 |
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
-| `social-protection` | Society and population | `society.social-protection` (existing `society` bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (existing `society` bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (existing `society` bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
-| `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
-| `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
-| `internet-infrastructure` | Technology | `technology.internet-infrastructure` | RIPEstat; PeeringDB; RDAP; certificate transparency logs; CAIDA datasets (acceptable-use policy) | OSINT, vulnerabilities | 2 |
 | `telecommunications-spectrum` | Technology | `technology.telecommunications` | FCC ULS and broadband data; Bundesnetzagentur data; ITU DataHub (terms) | infrastructure, competition | 3 |
-| `ai-models-datasets` | Technology | `technology.ai-models` | Hugging Face Hub metadata; OpenML; Epoch AI datasets | OSS ecosystems, literature | 2 |
 | `cyber-incidents` | Technology | `technology.cyber-incidents` | SEC 8-K Item 1.05 disclosures; HHS OCR breach portal; state breach-notification registers | vulnerabilities, market filings | 2 |
 | `film-broadcast` | Culture and leisure | `culture.film-broadcast` (new bundle) | Wikidata; European Audiovisual Observatory LUMIERE and MAVISE; TMDB (API terms) | media metadata | 3 |
 | `performing-arts-events` | Culture and leisure | `culture.performing-arts` (new bundle) | Wikidata; Eurostat cultural participation statistics | cultural heritage | 3 |
@@ -115,6 +138,22 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows
 are gone. Their live coverage is still open, in each track's "Validate live
-coverage" issue. Wave 2 has 14 tracks; the industry-business track is covered
-offline (not live), so its row is gone and 13 wave 2 rows remain. Wave 3 has
-9.
+coverage" issue. Wave 2 has 14 tracks, of which these are covered offline and
+their rows removed:
+
+- industry-business: covered offline (not live) by `economics.business`
+  (track [#2738](https://github.com/Ikey168/Noesis/issues/2738));
+- AI models and datasets: covered offline (not live) by `technology.ai-models`
+  (track [#2742](https://github.com/Ikey168/Noesis/issues/2742));
+- waste and circular economy: covered offline (not live) by `environment.waste`
+  (track [#2740](https://github.com/Ikey168/Noesis/issues/2740));
+- social protection: covered offline (not live) by `society.social-protection`
+  (track [#2741](https://github.com/Ikey168/Noesis/issues/2741));
+- tourism: covered offline (not live) by `economics.tourism`
+  (track [#2739](https://github.com/Ikey168/Noesis/issues/2739));
+- internet infrastructure: covered offline (not live) by
+  `technology.internet-infrastructure` (track
+  [#2743](https://github.com/Ikey168/Noesis/issues/2743)).
+
+8 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
+track's "Validate live coverage" run. Wave 3 has 9.

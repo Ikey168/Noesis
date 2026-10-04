@@ -1,0 +1,29 @@
+{
+ "note": "authored in the shape of Eurostat's published NUTS correspondence tables; the citation digest is synthetic and nothing here is a captured file (verify the table and its URL before a live run)",
+ "tables": [
+  {
+   "citation": {
+    "evidence_origin": "fixture",
+    "file_sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+    "published_on": "2024-01-01",
+    "publisher": "Eurostat (GISCO)",
+    "url": "https://ec.europa.eu/eurostat/web/nuts/correspondence-tables"
+   },
+   "label": "NUTS 2021 to NUTS 2024 correspondence (authored excerpt)",
+   "rows": [
+    {
+     "relation": "unchanged",
+     "source_code": "DE",
+     "target_code": "DE"
+    },
+    {
+     "relation": "unchanged",
+     "source_code": "DE30",
+     "target_code": "DE30"
+    }
+   ],
+   "source_version": "2021",
+   "target_version": "2024"
+  }
+ ]
+}

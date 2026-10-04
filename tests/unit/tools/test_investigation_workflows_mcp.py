@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 from pathlib import Path
@@ -9,6 +8,7 @@ from jsonschema import Draft202012Validator
 from src.ingestion.revisions import DocumentRevisionStore
 from src.kb.authored_reports import AuthoredReportStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.kb.test_authored_reports import CONTENT
 from tests.unit.kb.test_investigation_comparisons import setup
 from tests.unit.kb.test_investigation_templates import DEFINITION, install
@@ -44,7 +44,7 @@ def test_public_workflows_reopen_with_generated_schemas(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     def call(name, **kwargs):
         result = tools[name].fn(**kwargs)

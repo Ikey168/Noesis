@@ -45,7 +45,7 @@ def test_every_provider_has_the_audited_contract_caps_and_an_unverified_live_ent
 
 def test_the_pinned_fixtures_replay_offline_through_the_real_adapter():
     manifest = h.manifest()
-    assert manifest["version"] == "1.7.0"  # the business-statistics sources (#2738)
+    assert manifest["version"] == "1.8.0"  # 1.7.0 the business-statistics sources (#2738), 1.8.0 tourism (#2739)
     business = [s for s in manifest["sources"] if s["connector"] == "business-statistics"]
     assert {s["source_id"] for s in business} == set(h.SOURCES.values())
     assert {s["mapping"]["target_schema"] for s in business} == {"noesis-business-statistics-record-v2"}

@@ -122,6 +122,28 @@ MATRIX = {
     "Place to business statistics":
         "tests/unit/domains/test_business_statistics_acceptance.py::"
         "test_place_to_cited_eurostat_and_cbp_figures_side_by_side_with_definitions_vintages_and_flags",
+    # The Climate and Environment waste features' offline journey (#2740) composes environment.waste (Eurostat,
+    # OECD, EEA transfers at the environment.core facilities), geospatial identity, subscriptions and the runtime.
+    "Place and facility to waste and circularity figures":
+        "tests/unit/domains/test_waste_acceptance.py::"
+        "test_place_and_facility_to_cited_waste_figures_side_by_side_and_transfers_with_revisions",
+    # The Society social-protection features' offline journey (#2741) composes society.social-protection (ESSPROS,
+    # SOCX, ILOSTAT) with the source-pack runtime, geospatial identity, entity identity, subscriptions and, by
+    # citation, demographics and public finance.
+    "Country to cited social protection figures":
+        "tests/unit/domains/test_social_protection_acceptance.py::"
+        "test_country_to_cited_esspros_socx_and_ilo_figures_side_by_side",
+    # The Economics tourism-statistics feature's offline journey (#2739) composes economics (Eurostat tourism
+    # occupancy and capacity, Labour links), geospatial identity and boundaries, subscriptions and the source-pack
+    # runtime.
+    "Place to tourism statistics":
+        "tests/unit/domains/test_tourism_acceptance.py::"
+        "test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags",
+    # The Technology internet-infrastructure features' offline journey (#2743) composes technology (RIPEstat,
+    # PeeringDB, RDAP, crt.sh, CT log list), OSINT source identities, subscriptions and the source-pack runtime.
+    "ASN and domain to network registry records":
+        "tests/unit/domains/test_internet_infrastructure_acceptance.py::"
+        "test_asn_and_domain_to_cited_routing_interconnection_registration_and_certificate_records_with_revisions",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":
@@ -189,6 +211,12 @@ MATRIX = {
     "Package to release history and dependency graphs":
         "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
         "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
+    # The Technology AI models features' offline journey (#2742) composes technology (Hugging Face Hub, OpenML and
+    # Epoch AI records), entity identity, Literature (paper connector) and OSS ecosystems links, subscriptions and the
+    # source-pack runtime.
+    "Model to cited registry records":
+        "tests/unit/domains/test_ai_models_acceptance.py::"
+        "test_model_to_cited_registry_records_across_sources_with_revisions_licences_identity_and_links",
     # The Political legislation features' offline journey (#2451) composes the political dossier store, the
     # source-pack runtime, entity identity, the lobbying links, Legal works and subscriptions.
     "US or UK bill to cited legislative dossier":

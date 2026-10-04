@@ -157,6 +157,8 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "economics", "feature": "labour-statistics", "reason": "not selected"},
         {"pack": "economics", "feature": "logistics", "reason": "not selected"},  # #2229
         {"pack": "economics", "feature": "public-finance", "reason": "not selected"},
+        {"pack": "economics", "feature": "tourism-capacity", "reason": "not selected"},  # #2739
+        {"pack": "economics", "feature": "tourism-occupancy", "reason": "not selected"},  # #2739
         {"pack": "economics", "feature": "trade-comext", "reason": "not selected"},
         {"pack": "economics", "feature": "trade-comtrade", "reason": "not selected"},
         {"pack": "legal", "feature": "treaties-coe", "reason": "not selected"},  # #2581

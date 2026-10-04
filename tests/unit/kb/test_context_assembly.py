@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -22,6 +21,7 @@ from src.kb.context import (
     evaluate_context,
 )
 from src.kb.context_eval import evaluate_fixture
+from src.mcp_host.introspection import tool_function, tool_map
 from src.osint.independence import METHOD_VERSION, ensure_independence_schema
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -466,8 +466,8 @@ def test_offline_regression_fixture_passes():
 def test_contract_registry_exposes_context_schemas():
     from tools.contract_mcp.server import get_contract
 
-    assert get_contract.fn("context-request")["id"] == "noesis-context-request-v1"
-    assert get_contract.fn("context-response")["id"] == "noesis-context-response-v1"
+    assert tool_function(get_contract)("context-request")["id"] == "noesis-context-request-v1"
+    assert tool_function(get_contract)("context-response")["id"] == "noesis-context-response-v1"
 
 
 def test_rest_and_mcp_adapters_share_the_python_contract(monkeypatch):
@@ -496,7 +496,7 @@ def test_rest_and_mcp_adapters_share_the_python_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_context"].fn(
         task="Research output", token_budget=100, domains=["research"]
     )

@@ -237,6 +237,7 @@
     "environment.biodiversity": {"subdomains": ["biodiversity"], "shapes": ["observations", "registry-records"]},
     "environment.core": {"subdomains": ["climate-emissions-air"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
     "environment.water": {"subdomains": ["water-hydrology"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+    "environment.waste": {"subdomains": ["waste-circular-economy"], "shapes": ["statistical-series", "observations"]},
 
     "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
     "clinical.devices": {"subdomains": ["medical-devices"], "shapes": ["registry-records", "events-notices"]},
@@ -254,6 +255,7 @@
     "economics.labour": {"domain": "society-population", "subdomains": ["labour-employment"], "shapes": ["statistical-series"]},
     "economics.logistics": {"subdomains": ["logistics"], "shapes": ["statistical-series"], "themes": ["transport-mobility"]},
     "economics.public-finance": {"subdomains": ["public-finance"], "shapes": ["statistical-series"]},
+    "economics.tourism": {"subdomains": ["tourism-hospitality"], "shapes": ["statistical-series"]},
     "economics.trade": {"subdomains": ["trade"], "shapes": ["statistical-series"]},
 
     "energy.core": {"subdomains": ["energy-systems"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
@@ -342,13 +344,16 @@
     "science.systematic-reviews": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
 
     "society.income": {"subdomains": ["income-poverty-inequality"], "shapes": ["statistical-series"]},
+    "society.social-protection": {"subdomains": ["social-protection"], "shapes": ["statistical-series"]},
 
     "sports.football": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.forecasts": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.olympics": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.tennis": {"subdomains": ["sports"], "shapes": ["events-notices"]},
 
+    "technology.ai-models": {"subdomains": ["ai-models-datasets"], "shapes": ["registry-records", "versioned-documents", "observations"]},
     "technology.core": {"subdomains": ["software-vulnerabilities"], "shapes": ["registry-records", "versioned-documents"]},
+    "technology.internet-infrastructure": {"subdomains": ["internet-infrastructure"], "shapes": ["registry-records", "observations"]},
     "technology.patents": {"subdomains": ["patents"], "shapes": ["versioned-documents"]},
     "technology.standards": {"subdomains": ["standards-certification"], "shapes": ["versioned-documents"]},
     "technology.vulnerabilities": {"subdomains": ["software-vulnerabilities"], "shapes": ["events-notices"], "themes": ["security-defence"]},

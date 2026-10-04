@@ -1,0 +1,174 @@
+{
+  "pack_id": "technology-ai-models",
+  "version": "1.0.0",
+  "description": "Technology AI models and datasets (technology.ai-models, #2742): Hugging Face Hub model and dataset repository metadata per pinned revision sha (organisation namespaces only, card front matter and digest, the card body cited and never stored), OpenML dataset versions, one task and its run evaluations, and the Epoch AI notable-models rows that name the declared models, as revisioned registry records and observations labelled with who reported them. No weights or dataset files, no verdicts, rankings or popularity counts, no licence-compliance interpretation and no person fields. Source audit: docs/development/ai-models-evidence/source-audit.md.",
+  "domains": [
+    "technical"
+  ],
+  "defaults": {
+    "connector": "ai-models",
+    "update_cadence": "daily",
+    "temporal_semantics": "source-stated-revision-or-vintage",
+    "mapping": {
+      "target_schema": "noesis-ai-model-record-v2",
+      "version": "2.0.0"
+    },
+    "extractor_versions": [
+      "ai-models-sources:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "operations": [
+      "registry"
+    ],
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "huggingface-hub",
+      "endpoint": "https://huggingface.co/api",
+      "publisher": "Hugging Face (Hub repository metadata)",
+      "scope": "Bounded Hugging Face Hub metadata: declared public, non-gated model and dataset repositories under organisation namespaces (each namespace checked against the organisation endpoint first; a user namespace is refused), the repository metadata, refs, at most 10 declared revision shas each and the card file at each pinned sha (at most 1 MB; front matter and digest kept, the body never stored); at most 5 repositories (operator must verify endpoints, field names and limits before a live run)",
+      "license": {
+        "id": "huggingface-terms-of-service",
+        "terms_url": "https://huggingface.co/terms-of-service",
+        "redistribution": "metadata-facts-with-locator; card body cited by revision URL and digest, never stored"
+      },
+      "update_cadence": "on new revision shas; a pinned sha is immutable",
+      "temporal_semantics": "a revision is dated by its sha's lastModified; gated, disabled, 404 and renamed repositories get source-stated revisions dated by retrieval",
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_HF_TOKEN"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 1000000,
+        "max_pages": 5
+      },
+      "ai_models": {
+        "namespace": "global",
+        "provider": "huggingface-hub",
+        "format": "hf-hub-api-json",
+        "live_verification": "unverified-live",
+        "selection": {
+          "repositories": [
+            {
+              "repo_id": "example-org/fixture-model",
+              "kind": "model",
+              "revisions": [
+                "aa00000000000000000000000000000000002095"
+              ]
+            },
+            {
+              "repo_id": "example-org/fixture-small-model",
+              "kind": "model",
+              "revisions": []
+            },
+            {
+              "repo_id": "example-org/fixture-corpus",
+              "kind": "dataset",
+              "revisions": []
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/technology-ai-models-hub.json",
+        "sha256": "4ad5b63203d4d3ca9cacf2bc393c3532c91213f4945a2cc322d68b26b21b7492",
+        "expected_output_hash": "3478c68105134a0cc7ed8c5d83fbbfb61b32bd48b508185108f309e116cc7739"
+      }
+    },
+    {
+      "source_id": "openml",
+      "endpoint": "https://www.openml.org/api/v1/json",
+      "publisher": "OpenML (Open Machine Learning Foundation)",
+      "scope": "Bounded OpenML REST API v1 reads without a key: two declared dataset ids (description fields and qualities; creator, contributor and uploader excluded, the description and citation text kept only as digest and stated identifiers), one task and its run evaluations for the declared measure, at most 100 rows (operator must verify that API v1 is still served after OpenML's server migration)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.openml.org/terms",
+        "redistribution": "attribution-required; each dataset's declared licence stored as stated"
+      },
+      "update_cadence": "on dataset status, description or checksum changes and new run evaluations",
+      "temporal_semantics": "a dataset version is its own id dated by upload_date, later status changes by retrieval; evaluations are immutable per run id and a run no longer listed becomes not-returned",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 3
+      },
+      "ai_models": {
+        "namespace": "global",
+        "provider": "openml",
+        "format": "openml-json-v1",
+        "live_verification": "unverified-live",
+        "selection": {
+          "datasets": [
+            990061,
+            990062
+          ],
+          "tasks": [
+            {
+              "id": 9900001,
+              "measures": [
+                "predictive_accuracy"
+              ]
+            }
+          ],
+          "evaluation_limit": 100
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/technology-ai-models-openml.json",
+        "sha256": "2cdf97301f9d4471dacf6d1373f5255b8150fdcec7fcc8d86ff1ac1de987e782",
+        "expected_output_hash": "2bddfd0fff79e492e745ddd8950130c2fce788a331ab3188c61ad31977f17013"
+      }
+    },
+    {
+      "source_id": "epoch-ai",
+      "endpoint": "https://epoch.ai/data",
+      "publisher": "Epoch AI (notable AI models dataset)",
+      "scope": "One Epoch AI notable-models CSV per run (20 MB byte budget) and the data page's last-updated stamp; only the rows naming the declared models are stored (at most 20), with organisation, publication date, domain and Epoch's stated estimates with their confidence label; Authors excluded (operator must verify the file URL, column names and the stamp before a live run)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://epoch.ai/data",
+        "redistribution": "attribution-required (Epoch AI)"
+      },
+      "update_cadence": "on a changed file digest",
+      "temporal_semantics": "a release is dated by the page's last-updated stamp, else the retrieval time (retrieval_time); a changed digest is a new vintage and a revised estimate a new revision of its row",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 40,
+        "max_bytes": 20000000,
+        "max_pages": 1
+      },
+      "ai_models": {
+        "namespace": "global",
+        "provider": "epoch-ai",
+        "format": "epoch-models-csv",
+        "live_verification": "unverified-live",
+        "selection": {
+          "file": "https://epoch.ai/data/notable_ai_models.csv",
+          "page": "https://epoch.ai/data/notable-ai-models",
+          "models": [
+            "Fixture Model",
+            "Fixture Small Model"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/technology-ai-models-epoch.json",
+        "sha256": "7f8129a5f9fe9765127245149d4291fcfd8f30402ef40c0d40188997cba7b7c9",
+        "expected_output_hash": "b7aabf2980dfd3fe1ac314905f299096c5bb0eca87dd6f7fe1e6a6b61de8bc2e"
+      }
+    }
+  ]
+}

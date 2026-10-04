@@ -37,6 +37,7 @@ from src.ingestion.connectors.edgar import (
     normalize_cik,
     parse_inline_xbrl_facts,
 )
+from src.ingestion.sec_user_agent import missing_sec_user_agent_message
 
 CONTRACT = "noesis-sec-company-materials-v1"
 MAX_DOCUMENT_BYTES = 25 * 1024 * 1024
@@ -276,7 +277,7 @@ def harvest_sec_company_materials(
 
     client = client or EdgarClient()
     if not client.configured:
-        raise ValueError("set NOESIS_EDGAR_USER_AGENT to a descriptive SEC User-Agent")
+        raise ValueError(missing_sec_user_agent_message())
     for name, bound in (("max_earnings_filings", max_earnings_filings), ("max_insider_filings", max_insider_filings), ("max_ownership_filings", max_ownership_filings)):
         if type(bound) is not int or not 0 <= bound <= 50:
             raise ValueError(f"{name} must be between 0 and 50")

@@ -64,6 +64,14 @@
           "name": "noesis-business-statistics-record",
           "version": "2.0.0"
         }
+      },
+      {
+        "id": "economics.tourism",
+        "provider": "economics.tourism",
+        "contract": {
+          "name": "noesis-tourism-statistics-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -98,13 +106,17 @@
       {
         "id": "economics.business",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.tourism",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.7.0",
-        "range": "^1.7.0"
+        "version": "1.8.0",
+        "range": "^1.8.0"
       },
       {
         "pack_id": "economic-shipping-and-logistics",
@@ -264,6 +276,30 @@
           "noise flag": "CBP's per-value noise-infusion flag (low, moderate or high noise)",
           "withheld": "a cell the source does not publish to avoid disclosure; it carries no value",
           "candidate link": "a reviewable NACE-NAICS or NAICS-vintage relation from published concordances; never a merge"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.tourism",
+        "description": "Tourism statistics: a place's published nights spent, arrivals, establishments and bed places per Eurostat series as of a release vintage, with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds, vintages and comparability notes; monthly and annual series kept apart and never combined",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per value; every vintage on request",
+          "frequency": "monthly national and annual NUTS 2 series are separate rows; an annual period is never computed from months",
+          "cells": "confidential cells are shown as their status and carry no value; provisional months are flagged and revised in later vintages",
+          "identity": "places through accepted matches by published code; another NUTS version only through a reviewed link from Eurostat's published correspondence",
+          "sources": "Eurostat tourism occupancy and capacity; UN Tourism is not-implemented and reported as such"
+        },
+        "vocabulary": {
+          "nights spent": "each night a guest actually stays at a tourist accommodation establishment, as Eurostat defines it",
+          "arrivals": "guests checking in at a tourist accommodation establishment",
+          "residence of guest": "c_resid: domestic, foreign or total, as published",
+          "accommodation type": "nace_r2: I551 hotels, I552 holiday and short-stay, I553 camping, I551-I553 total",
+          "NUTS version": "the code list a place key belongs to; another version is another key",
+          "establishment threshold": "the minimum establishment size a country observes, recorded as a definition note",
+          "vintage": "one release of a series; a revised provisional month is a new vintage",
+          "confidential": "a cell the source does not publish (OBS_FLAG c); a status, never a value"
         },
         "source_packs": [
           "economic-statistics-and-filings"
@@ -683,6 +719,68 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "business series are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tourism-occupancy",
+      "default": false,
+      "description": "Tourism occupancy (source eurostat-tourism-occupancy): Eurostat nights spent and arrivals at tourist accommodation establishments, monthly national (tour_occ_nim, tour_occ_arm) and annual NUTS 2 (tour_occ_nin2) through SDMX, in the Economics series storage with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds and release vintages, reviewable place matches and NUTS correspondence links, citation links to Geospatial boundaries and Labour section I series, comparability notes, as-of answers, evidence bundles and subscription monitors; UN Tourism is not-implemented. No nowcasting, filled months or regions, own seasonal adjustment, blending of Eurostat and UN Tourism figures, occupancy rates, averages, per-capita or per-bed figures, derived indicators or forecasts; Geospatial and Labour links degrade to provider_absent when those providers are not composed.",
+      "requires": [
+        {
+          "capability": "economics.tourism",
+          "contract": "noesis-tourism-statistics-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "tourism values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "tourism monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tourism series are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tourism-capacity",
+      "default": false,
+      "description": "Tourism capacity (source eurostat-tourism-capacity): Eurostat establishments and bed places by NUTS 2 region (tour_cap_nuts2) through SDMX, with the capacity reference date per value, in the Economics series storage with residence of guest, accommodation type, NUTS version, flags, national establishment thresholds and release vintages, reviewable place matches and NUTS correspondence links, citation links to Geospatial boundaries and Labour section I series, comparability notes, as-of answers, evidence bundles and subscription monitors; UN Tourism is not-implemented. No nowcasting, filled months or regions, own seasonal adjustment, blending of Eurostat and UN Tourism figures, occupancy rates, averages, per-capita or per-bed figures, derived indicators or forecasts; Geospatial and Labour links degrade to provider_absent when those providers are not composed.",
+      "requires": [
+        {
+          "capability": "economics.tourism",
+          "contract": "noesis-tourism-statistics-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "tourism values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "tourism monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tourism series are acquired through the source-pack runtime"
         }
       ]
     }

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -13,6 +12,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit import legislation_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.legislation import LEGISLATION_SCOPES, LEGISLATION_TOOLS, LEGISLATION_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture()
@@ -25,7 +25,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.REVIEW_SCOPES | {"knowledge:subscriptions:write"})}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def test_tools_are_registered_with_every_scope_they_read_and_write(mcp_env):

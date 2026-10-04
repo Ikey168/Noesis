@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.schema_registry_mcp import server
 
 
@@ -34,7 +35,7 @@ def test_ontology_mcp_publication_mapping_validation_expansion_export_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_ontology",
         "inspect_ontology",

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -29,6 +28,7 @@ from src.kb.claim_links import ensure_claim_link_schema
 from src.kb.contract import KBContractError
 from src.kb.membership import run_membership_pass
 from src.kb.registry import load_registry
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 BENCHMARK = ROOT / "tests/fixtures/political/benchmark.json"
@@ -261,7 +261,7 @@ def test_rest_and_mcp_political_surfaces_share_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_political"].fn(
         domain="political", query_type="policy_changes", jurisdiction="EU"
     )

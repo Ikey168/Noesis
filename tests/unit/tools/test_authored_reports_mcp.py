@@ -1,8 +1,7 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -10,7 +9,7 @@ def test_public_report_export_reopen_and_revision(tmp_path, monkeypatch):
     path = str(tmp_path / "reports.duckdb")
     monkeypatch.setattr(server, "_context", lambda: ("alice", {"operator"}))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     content = {"title": "Report", "sections": [{"id": "s", "title": "Notes", "assertions": [
         {"id": "a", "text": "An authored observation", "kind": "commentary", "dependencies": [], "citations": []}]}],
         "snapshot": {"id": "snapshot", "generations": {"r": 1}}, "bibliography": [], "limitations": ["No sourced assertions"]}

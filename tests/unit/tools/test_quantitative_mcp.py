@@ -5,6 +5,7 @@ import inspect
 
 import duckdb
 
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +23,7 @@ def test_quantitative_mcp_discovery_vintages_comparison_calculation_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_quantitative_unit",
         "register_quantitative_metric",
@@ -140,7 +141,7 @@ def test_optional_pint_formula_tool(tmp_path, monkeypatch):
     scopes = {"knowledge:quantitative:write", "knowledge:quantitative:calculate"}
     monkeypatch.setattr(server, "_context", lambda: ("fixture", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(database)))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     metric = _call(tools["register_quantitative_metric"], namespace="berlin", canonical_name="Authored length",
         definition="Mixed-scale formula fixture", unit="m", formula={"expression": "a + b",
             "input_dimensions": {"a": {"length": 1}, "b": {"length": 1}}})
@@ -154,7 +155,7 @@ def test_optional_pint_formula_tool(tmp_path, monkeypatch):
 
 
 def test_quantitative_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-quantitative-metric-v1",
         "noesis-quantitative-observation-v1",

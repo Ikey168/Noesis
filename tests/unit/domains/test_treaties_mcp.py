@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.kb.treaties_records import forbidden_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import treaties_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.legal import LEGAL_TOOLS
@@ -31,7 +31,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.REVIEW_SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def test_tools_are_registered_in_the_legal_module_with_their_scopes_and_exclusions(mcp_env):

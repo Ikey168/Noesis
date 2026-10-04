@@ -1,6 +1,5 @@
 """Public decision comparison discovery, pinning, and current access."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -9,6 +8,7 @@ import jsonschema
 
 from src.kb.decisions import DecisionStore
 from src.mcp_host.catalog import _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -50,7 +50,7 @@ def test_decision_comparison_mcp(tmp_path, monkeypatch):
             scenarios=[], provenance="Author-declared utilities",
             principal_id="alice", scopes=scopes,
         )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     result = tools["inspect_decision_comparative_matrix"].fn(
         namespace="research", decision_id=decision["decision_id"],
         receipt_id=receipt["receipt_id"],

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.kb.lobbying import forbidden_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import lobbying_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.lobbying import (
@@ -36,7 +36,7 @@ def mcp_env(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    return asyncio.run(server.mcp.get_tools()), state, dossiers
+    return tool_map(server.mcp), state, dossiers
 
 
 def test_tools_are_registered_with_every_scope_they_read_and_write(mcp_env):

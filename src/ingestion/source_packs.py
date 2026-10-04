@@ -425,6 +425,22 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"
 # Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
 NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
+# Technology AI models and datasets: Hugging Face Hub metadata, OpenML and Epoch AI (#2742).
+NATIVE_CONNECTOR_MODULES["ai-models"] = "src.ingestion.ai_models_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ai-models"})
+# Climate and Environment waste and circular economy: Eurostat waste and circular economy, EEA waste transfers,
+# OECD municipal waste (#2740).
+NATIVE_CONNECTOR_MODULES["waste"] = "src.ingestion.waste_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"waste"})
+# Society social protection: Eurostat ESSPROS, OECD SOCX and ILOSTAT SDG 1.3.1 (#2741).
+NATIVE_CONNECTOR_MODULES["social-protection"] = "src.ingestion.social_protection_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"social-protection"})
+# Economics tourism statistics: Eurostat tourism occupancy and capacity (#2739).
+NATIVE_CONNECTOR_MODULES["tourism-statistics"] = "src.ingestion.tourism_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
+# Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
+NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
 
 
 def native_connector_module(connector: str) -> Any:

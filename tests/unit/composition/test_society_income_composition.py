@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -27,6 +26,7 @@ from src.kb.society_bundle import (
     require_enabled,
 )
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import income_distribution_harness as h
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp import server
@@ -64,8 +64,8 @@ def test_manifest_and_provider_validate_and_declare_the_taxonomy_cell():
     assert validate_composition_manifest(MANIFEST) == []
     assert validate_provider_descriptor(PROVIDER) == []
     assert SHARED <= {r["capability"] for r in MANIFEST["requires"]}
-    assert [(f["id"], f["default"]) for f in MANIFEST["optional_features"]] == [
-        ("pip", True), ("eu-silc", True), ("oecd-idd", True)]
+    assert [(f["id"], f["default"]) for f in MANIFEST["optional_features"]][:3] == [
+        ("pip", True), ("eu-silc", True), ("oecd-idd", True)]  # then the social-protection features (#2741)
     assert MANIFEST["advisory"]["exclusions"] == BUNDLE["exclusions"]
     tools = {o["tool"].split(".", 1)[1] for o in PROVIDER["operations"]}
     assert tools == INCOME_TOOLS - {"set_society_bundle_enabled"}
@@ -139,7 +139,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(database, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, database
+    return tool_map(server.mcp), state, database
 
 
 def test_answers_identity_and_cited_export_through_mcp(mcp_env):

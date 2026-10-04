@@ -37,8 +37,9 @@ def test_every_provider_has_an_audited_contract_and_a_live_verification_entry():
 
 def test_the_pinned_fixtures_replay_offline_through_the_real_adapter():
     manifest = h.manifest()
-    # The extractives sources ship in economic-extractives (#2653); 1.7.0 adds the business-statistics sources (#2738).
-    assert manifest["version"] == "1.7.0"
+    # The extractives sources ship in economic-extractives (#2653); 1.7.0 adds the business-statistics sources (#2738)
+    # and 1.8.0 the tourism-statistics sources (#2739).
+    assert manifest["version"] == "1.8.0"
     labour = [s for s in manifest["sources"] if s["connector"] == "labour-statistics"]
     assert {s["source_id"] for s in labour} == set(h.SOURCES.values())
     replay = SourcePackConformance(h.ROOT).offline({**manifest, "sources": labour})

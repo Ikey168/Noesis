@@ -8,8 +8,8 @@
   "panels": [],
   "planner_keywords": {
     "trend": ["indicator", "observation", "revision", "vintage"],
-    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index", "extractive payments", "mineral production", "mineral reserves", "revenue stream", "payment discrepancy", "industrial production", "production index", "business demography", "enterprise births", "enterprise deaths", "active enterprises", "establishments", "county business patterns", "annual payroll"],
-    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport", "eiti summary data", "usgs mineral commodity summaries", "bgs world mineral statistics", "eurostat short-term business statistics", "eurostat business demography", "census county business patterns"]
+    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index", "extractive payments", "mineral production", "mineral reserves", "revenue stream", "payment discrepancy", "industrial production", "production index", "business demography", "enterprise births", "enterprise deaths", "active enterprises", "establishments", "county business patterns", "annual payroll", "tourism", "nights spent", "arrivals", "tourist accommodation", "bed places", "hotel capacity"],
+    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport", "eiti summary data", "usgs mineral commodity summaries", "bgs world mineral statistics", "eurostat short-term business statistics", "eurostat business demography", "census county business patterns", "eurostat tourism", "tour_occ_nim", "tour_cap_nuts2"]
   },
   "enrichers": [
     {
@@ -70,7 +70,12 @@
     "business-statistics-vintages",
     "business-reviewable-identity",
     "business-citation-links",
-    "business-monitoring"
+    "business-monitoring",
+    "tourism-statistics-vintages",
+    "tourism-reviewable-identity",
+    "tourism-citation-links",
+    "tourism-evidence-bundle",
+    "tourism-monitoring"
   ],
   "schema_versions": {
     "dataset-series": "1.0.0",
@@ -109,7 +114,14 @@
     "business-statistics-answer": "1.0.0",
     "business-identity": "1.0.0",
     "business-link": "1.0.0",
-    "business-notification": "1.0.0"
+    "business-notification": "1.0.0",
+    "tourism-statistics-record": "2.0.0",
+    "tourism-statistics-answer": "1.0.0",
+    "tourism-statistics-history": "1.0.0",
+    "tourism-evidence-bundle": "1.0.0",
+    "tourism-identity": "1.0.0",
+    "tourism-link": "1.0.0",
+    "tourism-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -121,7 +133,7 @@
       "definition_revision", "geography_level", "series_break", "comparability_note", "trade_series",
       "trade_vintage", "classification_concordance", "trade_identity_assertion", "labour_series",
       "labour_definition", "labour_vintage", "port", "logistics_series", "port_match",
-      "eiti_report", "revenue_stream", "extractive_payment", "extractive_project", "commodity_series", "business_series", "business_vintage", "classification_candidate_link"
+      "eiti_report", "revenue_stream", "extractive_payment", "extractive_project", "commodity_series", "business_series", "business_vintage", "classification_candidate_link", "tourism_series", "tourism_vintage", "nuts_place_key", "nuts_correspondence_link"
     ],
     "relation_types": [
       "applies_to", "associated_with", "challenges", "issued_by", "measures",
@@ -129,7 +141,7 @@
       "line_in_plan", "paid_to", "cites_line", "enacted_by", "debated_in", "defined_by",
       "reported_under", "referenced_in", "comparable_with", "resolved_to", "mirror_of",
       "maps_to", "cited_by_measure", "denominator_of", "located_at_port", "matched_to_unlocode",
-      "paid_under_stream", "reported_in_version", "produced_in", "classified_by", "successor_of"
+      "paid_under_stream", "reported_in_version", "produced_in", "classified_by", "successor_of", "bounded_by", "corresponds_to"
     ]
   },
   "exclusions": [
@@ -158,6 +170,11 @@
     "business-indicator nowcasts or forecasts",
     "re-based indices or own seasonal adjustment",
     "blended Eurostat and Census business statistics",
-    "reconstructed suppressed or noise-infused cells"
+    "reconstructed suppressed or noise-infused cells",
+    "tourism nowcasts or forecasts",
+    "filled tourism months or regions",
+    "own occupancy rates, averages, per-capita or per-bed tourism figures",
+    "blended Eurostat and UN Tourism statistics",
+    "annual tourism totals computed from months"
   ]
 }

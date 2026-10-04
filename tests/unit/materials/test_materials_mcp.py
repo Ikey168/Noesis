@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -11,6 +10,7 @@ import pytest
 from src.kb.materials_store import record_key
 from src.kb.subscriptions import SubscriptionStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.materials import harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.materials import (
@@ -33,7 +33,7 @@ def _server(monkeypatch, path):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 @pytest.fixture()

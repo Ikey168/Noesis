@@ -580,6 +580,54 @@ def _business_statistics_projector(conn: Any) -> Any:
 
 # Economics industry and business statistics (economics.business, #2738).
 PROJECTORS["noesis-business-statistics-record-v2"] = _business_statistics_projector
+def _ai_models_projector(conn: Any) -> Any:
+    from src.kb.ai_models_store import AiModelsProjector
+
+    return AiModelsProjector(conn)
+
+
+# Technology AI models and datasets (technology.ai-models, #2742).
+PROJECTORS["noesis-ai-model-record-v2"] = _ai_models_projector
+
+
+def _waste_projector(conn: Any) -> Any:
+    from src.kb.waste_store import WasteProjector
+
+    return WasteProjector(conn)
+
+
+# Climate and Environment waste and circular economy (environment.waste, #2740).
+PROJECTORS["noesis-waste-record-v2"] = _waste_projector
+
+
+def _social_protection_projector(conn: Any) -> Any:
+    from src.kb.social_protection_store import SocialProtectionProjector
+
+    return SocialProtectionProjector(conn)
+
+
+# Society social protection (society.social-protection, #2741).
+PROJECTORS["noesis-social-protection-record-v2"] = _social_protection_projector
+
+
+def _tourism_statistics_projector(conn: Any) -> Any:
+    from src.kb.tourism_store import TourismProjector
+
+    return TourismProjector(conn)
+
+
+# Economics tourism statistics (economics.tourism, #2739).
+PROJECTORS["noesis-tourism-statistics-record-v2"] = _tourism_statistics_projector
+
+
+def _internet_infrastructure_projector(conn: Any) -> Any:
+    from src.kb.internet_infrastructure_store import InternetInfrastructureProjector
+
+    return InternetInfrastructureProjector(conn)
+
+
+# Technology internet infrastructure (technology.internet-infrastructure, #2743).
+PROJECTORS["noesis-internet-infrastructure-record-v2"] = _internet_infrastructure_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

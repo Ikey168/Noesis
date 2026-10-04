@@ -1,6 +1,5 @@
 """Supported MCP discovery and calls expose the same practice state machine."""
 
-import asyncio
 
 import duckdb
 
@@ -10,6 +9,7 @@ from src.kb.intake_modes import IntakeStore
 from src.kb.intake_research_bundle import IntakeResearchBundleStore
 from src.kb.intake_research_topic import start_research_topic
 from tools.knowledge_engine_mcp import server
+from src.mcp_host.introspection import tool_map
 
 
 def test_practice_public_mcp_round_trip_and_revocation(tmp_path, monkeypatch):
@@ -23,7 +23,7 @@ def test_practice_public_mcp_round_trip_and_revocation(tmp_path, monkeypatch):
         server, "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     cards = [{
         "kind": "recall", "prompt": "What stopped?", "answer": "The worker",
         "mastery_criterion": "Recall without notes on three reviews",
@@ -132,7 +132,7 @@ def test_practice_draft_mcp_accepts_selected_bundle_concepts_and_evidence(tmp_pa
     )
     conn.close()
 
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     reference = {"kind": "research_bundle", "id": bundle["bundle_id"],
                  "namespace": "research", "version": bundle["revision"]}
     selections = [{"reference": reference, "practice_kind": "recall",

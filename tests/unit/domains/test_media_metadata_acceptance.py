@@ -19,13 +19,13 @@ separately and stays ``unverified-live``.
 
 from __future__ import annotations
 
-import asyncio
 import socket
 
 import duckdb
 import pytest
 
 from src.kb.media_metadata import feature_enabled, record_id_for
+from src.mcp_host.introspection import tool_map
 from tests.unit import media_metadata_harness as h
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp import server
@@ -77,7 +77,7 @@ def test_title_creator_and_recording_to_cited_authority_records_with_revisions(o
     state = {"principal": "analyst", "scopes": set(h.ALL)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     # Offline evidence is reported separately from live evidence: every source stays unverified-live.
     status = tools["media_metadata_status"].fn()

@@ -1,10 +1,10 @@
 """Hosted decision tools are discoverable and default to closed execution."""
 
-import asyncio
 
 import duckdb
 
 from src.mcp_host.catalog import _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -16,7 +16,7 @@ def test_hosted_decision_mcp_authorization_and_rollout(tmp_path, monkeypatch):
         server, "_connection",
         lambda *, read_only: duckdb.connect(database, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     for name in (
         "run_hosted_typed_decision", "inspect_hosted_typed_decision",
         "suggest_jev_task", "suggest_awareness_with_jev",
@@ -71,7 +71,7 @@ def test_bounded_decision_evidence_mcp_uses_decision_scope_and_returns_receipt(t
         server, "_connection",
         lambda *, read_only: duckdb.connect(database, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert "record_decision_evidence" in tools
     assert _required_scopes(
         "knowledge_engine_mcp", "write", "record_decision_evidence"

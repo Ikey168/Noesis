@@ -6,6 +6,7 @@ import json
 
 import duckdb
 
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -60,7 +61,7 @@ def test_dataset_mcp_catalog_ingestion_queries_join_lineage_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_dataset_catalog",
         "get_dataset_catalog",
@@ -179,7 +180,7 @@ def test_dataset_mcp_economic_and_scientific_fixtures(tmp_path, monkeypatch):
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     for namespace in ("economic", "scientific"):
         dataset = _register(tools, namespace, "observations")
         result = _call(
@@ -189,7 +190,7 @@ def test_dataset_mcp_economic_and_scientific_fixtures(tmp_path, monkeypatch):
 
 
 def test_dataset_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-dataset-catalog-v1",
         "noesis-dataset-release-v1",

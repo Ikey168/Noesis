@@ -1,9 +1,8 @@
-import asyncio
-
 import duckdb
 
 from src.kb.subscriptions import SubscriptionStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.subscriptions_mcp import server
 
 
@@ -19,7 +18,7 @@ def test_subscription_delivery_tools_auth_and_lifecycle(tmp_path, monkeypatch):
     store.commit_watermark("research", 1)
     store.evaluate(sid, 1, {"items": [{"id": "a"}]}, principal_id="alice", scopes=scopes)
     conn.close()
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     item = tools["claim_subscription_deliveries"].fn(worker_id="worker")["deliveries"][0]
     identity = {key: item[key] for key in ("event_id", "delivery_kind", "lease_token")}
     assert tools["fail_subscription_delivery"].fn(**identity, error="unavailable", max_attempts=1)["status"] == "failed"

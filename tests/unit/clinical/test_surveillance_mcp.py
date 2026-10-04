@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.kb.surveillance import NEVER_SENTENCE
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import surveillance_fixture_builder as fb
 from tests.unit.clinical import surveillance_harness as h
 from tools.knowledge_engine_mcp import server
@@ -46,7 +46,7 @@ def mcp_env(tmp_path_factory):
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
     yield (
-        asyncio.run(server.mcp.get_tools()),
+        tool_map(server.mcp),
         state,
         {"series_id": germany["series_id"], "feature_id": feature},
     )

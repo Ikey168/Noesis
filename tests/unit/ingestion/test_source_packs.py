@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import copy
 import json
 from pathlib import Path
@@ -17,6 +16,7 @@ from src.ingestion.source_packs import (
     replay_native_fixture,
     validate_source_pack,
 )
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 PACK_DIR = ROOT / "config/source_packs"
@@ -54,8 +54,11 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230),
     # plus the Economics extractives features' separate economic-extractives pack (#2653),
     # plus the Society bundle's society-income-distribution pack (#2583),
-    # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580).
-    assert len(packs) == 35
+    # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580),
+    # plus the Technology AI models and datasets technology-ai-models pack (#2742),
+    # plus the Society bundle's society-social-protection pack (#2741),
+    # plus the Technology internet-infrastructure features' technology-internet-infrastructure pack (#2743).
+    assert len(packs) == 38
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -138,8 +141,12 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579),
     # plus the Society income pack's PIP country, PIP regional, EU-SILC and OECD IDD sources (#2583),
     # plus the OSINT platform-transparency features' DSA, Meta, Google and Lumen sources (#2580),
-    # plus the Economics business-statistics Eurostat STS, business demography and Census CBP sources (#2738).
-    assert sum(len(pack["sources"]) for pack in packs) == 340
+    # plus the Economics business-statistics Eurostat STS, business demography and Census CBP sources (#2738),
+    # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742),
+    # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
+    # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739),
+    # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743).
+    assert sum(len(pack["sources"]) for pack in packs) == 353
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -358,7 +365,7 @@ def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
     monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
     candidate = raw("research")
     candidate["version"] = _next_minor(candidate["version"])
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
     assert preview["installed_version"] == raw("research")["version"]
     assert opened == [True]

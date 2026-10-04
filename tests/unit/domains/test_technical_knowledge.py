@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 import os
@@ -46,6 +45,7 @@ from src.domains.technical.specifications import (
 )
 from src.ingestion.connectors.registry import is_registered
 from src.kb import contract
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURES = ROOT / "tests/fixtures/technical"
@@ -517,7 +517,7 @@ def test_rest_and_mcp_technical_surfaces_share_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_technical"].fn(
         domain="technology",
         query_type="depends_on",

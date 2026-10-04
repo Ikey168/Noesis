@@ -1,6 +1,5 @@
 """Public paper-family tools over generated, retained scholarly fixtures."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -9,6 +8,7 @@ import jsonschema
 
 from src.ingestion.revisions import DocumentRevisionStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -25,7 +25,7 @@ def test_public_paper_family_workflow_and_schemas(tmp_path, monkeypatch):
               "namespace:research:read", "namespace:research:write", "document:preprint:read"}
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(path), read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     created = tools["create_paper_family"].fn(
         namespace="research", family_key="fixture", root_member={
             "document_id": "preprint", "revision_id": record["revision_id"],

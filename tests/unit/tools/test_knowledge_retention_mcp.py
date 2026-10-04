@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -18,7 +19,7 @@ def test_archive_mcp_restores_into_a_fresh_database(tmp_path, monkeypatch):
     current = [tmp_path / "original.duckdb"]
     monkeypatch.setattr(server, "_context", lambda: ("admin", {"knowledge:retention:read", "knowledge:retention:execute"}))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(str(current[0])))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     checkpoint = call(tools["create_retention_checkpoint"], namespace="research", generation_start=1,
                       generation_end=1, records=[{"id": "source-1"}], tombstones=["source-0"], schema_version="1")
     archive = call(tools["archive_knowledge_checkpoint"], namespace="research", checkpoint_id=checkpoint["checkpoint_id"],
@@ -37,7 +38,7 @@ def test_retention_mcp_flow_auth_checkpoint_archive_gc(tmp_path, monkeypatch):
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "register_retention_policy",
         "register_retention_object",
@@ -129,5 +130,5 @@ def test_retention_catalog():
     ) == ["knowledge:retention:read"]
     assert (
         "noesis-retention-gc-plan-v1"
-        in server.knowledge_engine_capabilities.fn()["contracts"]
+        in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     )

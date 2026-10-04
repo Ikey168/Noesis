@@ -1,14 +1,18 @@
-"""Official MCP clients adapted to Noesis's existing synchronous federation."""
+"""Official MCP clients adapted to Noesis's existing synchronous federation.
+
+``src.integrations.mcp_sdk`` resolves the mcp 1.x/2.x client differences and
+records the mcp 2 redirect, session-expiry and OAuth-issuer review.
+"""
 
 import asyncio
 import json
 import os
 from contextlib import ExitStack, suppress
-from datetime import timedelta
 from threading import RLock
 from urllib.parse import urlsplit
 
 from .common import IntegrationError, finite
+from .mcp_sdk import field, read_timeout, session_streams, streamable_http, wire
 
 PRESETS = {
     "github": {
@@ -58,10 +62,10 @@ class StreamableMCPClient:
         self._closed = False
 
     def _connect(self):
-        import httpx
         from anyio.from_thread import start_blocking_portal
         from mcp import ClientSession
-        from mcp.client.streamable_http import streamable_http_client
+
+        streamable_http_client, httpx = streamable_http()
 
         if self._closed:
             raise IntegrationError("client_closed", "MCP session has been closed")
@@ -79,9 +83,11 @@ class StreamableMCPClient:
                     )
                 )
             )
-            read, write, _ = stack.enter_context(
-                portal.wrap_async_context_manager(
-                    streamable_http_client(self.endpoint, http_client=http)
+            read, write = session_streams(
+                stack.enter_context(
+                    portal.wrap_async_context_manager(
+                        streamable_http_client(self.endpoint, http_client=http)
+                    )
                 )
             )
             session = stack.enter_context(
@@ -89,13 +95,13 @@ class StreamableMCPClient:
                     ClientSession(
                         read,
                         write,
-                        read_timeout_seconds=timedelta(seconds=self.timeout),
+                        read_timeout_seconds=read_timeout(self.timeout),
                     )
                 )
             )
             self._portal, self._session = portal, session
             initialized = portal.call(self._invoke, "initialize")
-            self.version = initialized.serverInfo.version
+            self.version = field(initialized, "serverInfo").version
             self._stack = stack
         except BaseException:
             with suppress(Exception):
@@ -121,7 +127,7 @@ class StreamableMCPClient:
                 ):
                     return []
                 raise
-            data = result.model_dump(mode="json")
+            data = wire(result)
             if len(json.dumps(data).encode()) > self.max_bytes:
                 raise IntegrationError(
                     "result_limit", "MCP result exceeds output budget"

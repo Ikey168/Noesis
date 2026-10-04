@@ -13,9 +13,10 @@ public SEC endpoints:
   recent filings) for the narrative document.
 
 SEC fair-access rules require a descriptive ``User-Agent`` — set
-``NOESIS_EDGAR_USER_AGENT`` (e.g. ``"noesis-operator contact@example.com"``);
-without it the connector skips with a warning rather than sending anonymous
-traffic. The HTTP getter is injectable, so parsing is fully offline-testable.
+``NOESIS_SEC_USER_AGENT`` (e.g. ``"noesis-operator contact@example.com"``;
+resolved by :mod:`src.ingestion.sec_user_agent`, which still accepts the
+deprecated ``NOESIS_EDGAR_USER_AGENT``); without it the connector skips with a
+warning rather than sending anonymous traffic. The HTTP getter is injectable, so parsing is fully offline-testable.
 """
 
 from __future__ import annotations
@@ -23,7 +24,6 @@ from __future__ import annotations
 import json
 import hashlib
 import logging
-import os
 import re
 from datetime import date, datetime, time, timezone
 from decimal import Decimal, InvalidOperation
@@ -31,10 +31,11 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Union
 from urllib.parse import quote
 
 from src.ingestion.connectors.filings import Filing, FilingFact
+from src.ingestion.sec_user_agent import SEC_USER_AGENT_ENV, resolve_sec_user_agent
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT_ENV = "NOESIS_EDGAR_USER_AGENT"
+USER_AGENT_ENV = SEC_USER_AGENT_ENV
 
 _FACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 _SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
@@ -181,7 +182,7 @@ class EdgarClient:
         http_get: Optional[Callable[[str, str], str]] = None,
     ):
         self._user_agent = (
-            user_agent if user_agent is not None else os.getenv(USER_AGENT_ENV, "")
+            user_agent if user_agent is not None else resolve_sec_user_agent()
         ).strip()
         self._http_get = http_get or _http_get
 
@@ -1506,7 +1507,7 @@ def harvest_filing(
 ) -> Optional[Filing]:
     """Fetch a filer from EDGAR (by ticker or CIK) as a normalized Filing.
 
-    Skip-with-warning discipline: with no ``NOESIS_EDGAR_USER_AGENT``
+    Skip-with-warning discipline: with no ``NOESIS_SEC_USER_AGENT``
     configured, returns None rather than sending anonymous traffic. Returns
     None likewise for an unresolvable ticker.
     """

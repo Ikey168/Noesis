@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import asyncio
 from pathlib import Path
 
 import duckdb
@@ -14,6 +13,7 @@ from src.domains.technical.model import (
     record_advisory_range,
     record_object,
 )
+from src.mcp_host.introspection import tool_map
 
 
 def _package(conn, coordinate):
@@ -129,7 +129,7 @@ def test_impact_mcp_read_is_owner_scoped(tmp_path, monkeypatch):
     scopes = {"knowledge:technical:read"}
     monkeypatch.setattr(server, "_context", lambda: (actor[0], scopes))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     tool = tools["assess_technical_inventory_impact"].fn
     result = tool(inventory_id=inventory["inventory_id"])
     assert result["findings"][0]["reason"] == "package_not_acquired"

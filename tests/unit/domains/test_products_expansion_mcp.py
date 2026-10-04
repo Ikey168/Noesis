@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
-
 import duckdb
 import pytest
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.domains import test_products_expansion_sources as expansion
 from tests.unit.domains import test_products_pack as displays
 from tools.knowledge_engine_mcp import server
@@ -42,7 +41,7 @@ def _connect(monkeypatch, path, state):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    return asyncio.run(server.mcp.get_tools())
+    return tool_map(server.mcp)
 
 
 @pytest.fixture()

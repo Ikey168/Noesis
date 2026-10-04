@@ -1,0 +1,237 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "data_set_description": {
+     "citation": "Example Org (2095). Fixture Corpus. doi:10.99999/fixture-corpus-2095",
+     "collection_date": "2094",
+     "contributor": [
+      "Bob Example"
+     ],
+     "creator": [
+      "Ada Example"
+     ],
+     "default_target_attribute": "label",
+     "description": "Fictional corpus description v1.",
+     "description_version": "1",
+     "file_id": "9900610",
+     "format": "ARFF",
+     "id": "990061",
+     "language": "English",
+     "licence": "CC BY 4.0",
+     "md5_checksum": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0001",
+     "name": "fixture-corpus",
+     "original_data_url": "https://huggingface.co/datasets/example-org/fixture-corpus",
+     "processing_date": "2094-06-01T12:00:00",
+     "status": "active",
+     "tag": [
+      "fixture",
+      "text"
+     ],
+     "upload_date": "2094-06-01T12:00:00",
+     "uploader": "990001",
+     "url": "https://www.openml.org/data/v1/download/9900610/fixture-corpus.arff",
+     "version": "1",
+     "version_label": "1.0",
+     "visibility": "public"
+    }
+   },
+   "request": "www.openml.org/api/v1/json/data/990061",
+   "status": 200
+  },
+  {
+   "body": {
+    "data_qualities": {
+     "quality": [
+      {
+       "name": "NumberOfInstances",
+       "value": "1500.0"
+      },
+      {
+       "name": "NumberOfFeatures",
+       "value": "3.0"
+      },
+      {
+       "name": "NumberOfClasses",
+       "value": "2.0"
+      }
+     ]
+    }
+   },
+   "request": "www.openml.org/api/v1/json/data/qualities/990061",
+   "status": 200
+  },
+  {
+   "body": {
+    "data_set_description": {
+     "citation": "Example Org (2095). Fixture Corpus. doi:10.99999/fixture-corpus-2095",
+     "collection_date": "2094",
+     "contributor": [
+      "Bob Example"
+     ],
+     "creator": [
+      "Ada Example"
+     ],
+     "default_target_attribute": "label",
+     "description": "Fictional corpus description v2.",
+     "description_version": "1",
+     "file_id": "9900620",
+     "format": "ARFF",
+     "id": "990062",
+     "language": "English",
+     "licence": "Public",
+     "md5_checksum": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0002",
+     "name": "fixture-corpus",
+     "original_data_url": "https://huggingface.co/datasets/example-org/fixture-corpus",
+     "processing_date": "2096-01-05T09:00:00",
+     "status": "in_preparation",
+     "tag": [
+      "fixture",
+      "text"
+     ],
+     "upload_date": "2096-01-05T09:00:00",
+     "uploader": "990001",
+     "url": "https://www.openml.org/data/v1/download/9900620/fixture-corpus.arff",
+     "version": "2",
+     "version_label": "2.0",
+     "visibility": "public"
+    }
+   },
+   "request": "www.openml.org/api/v1/json/data/990062",
+   "status": 200
+  },
+  {
+   "body": {
+    "data_qualities": {
+     "quality": [
+      {
+       "name": "NumberOfInstances",
+       "value": "1800.0"
+      },
+      {
+       "name": "NumberOfFeatures",
+       "value": "3.0"
+      },
+      {
+       "name": "NumberOfClasses",
+       "value": "2.0"
+      }
+     ]
+    }
+   },
+   "request": "www.openml.org/api/v1/json/data/qualities/990062",
+   "status": 200
+  },
+  {
+   "body": {
+    "task": {
+     "input": [
+      {
+       "data_set": {
+        "data_set_id": "990061",
+        "target_feature": "label"
+       },
+       "name": "source_data"
+      },
+      {
+       "estimation_procedure": {
+        "id": "1",
+        "parameter": [
+         {
+          "name": "number_folds",
+          "value": "10"
+         }
+        ],
+        "type": "crossvalidation"
+       },
+       "name": "estimation_procedure"
+      },
+      {
+       "evaluation_measures": {
+        "evaluation_measure": "predictive_accuracy"
+       },
+       "name": "evaluation_measures"
+      }
+     ],
+     "tag": [
+      "fixture"
+     ],
+     "task_id": "9900001",
+     "task_name": "Task 9900001: fixture-corpus (Supervised Classification)",
+     "task_type": "Supervised Classification",
+     "task_type_id": "1"
+    }
+   },
+   "request": "www.openml.org/api/v1/json/task/9900001",
+   "status": 200
+  },
+  {
+   "body": {
+    "evaluations": {
+     "evaluation": [
+      {
+       "array_data": null,
+       "data_id": 990061,
+       "data_name": "fixture-corpus",
+       "flow_id": 99101,
+       "flow_name": "fixture.flow.Classifier1",
+       "function": "predictive_accuracy",
+       "run_id": 99000001,
+       "setup_id": 9001,
+       "task_id": 9900001,
+       "upload_time": "2094-07-01T10:00:00",
+       "uploader": 990001,
+       "uploader_name": "Ada Example",
+       "value": 0.81,
+       "values": null
+      },
+      {
+       "array_data": null,
+       "data_id": 990061,
+       "data_name": "fixture-corpus",
+       "flow_id": 99102,
+       "flow_name": "fixture.flow.Classifier2",
+       "function": "predictive_accuracy",
+       "run_id": 99000002,
+       "setup_id": 9002,
+       "task_id": 9900001,
+       "upload_time": "2094-08-01T10:00:00",
+       "uploader": 990001,
+       "uploader_name": "Ada Example",
+       "value": 0.83,
+       "values": null
+      },
+      {
+       "array_data": null,
+       "data_id": 990061,
+       "data_name": "fixture-corpus",
+       "flow_id": 99103,
+       "flow_name": "fixture.flow.Classifier3",
+       "function": "predictive_accuracy",
+       "run_id": 99000003,
+       "setup_id": 9003,
+       "task_id": 9900001,
+       "upload_time": "2095-01-15T10:00:00",
+       "uploader": 990001,
+       "uploader_name": "Ada Example",
+       "value": 0.79,
+       "values": null
+      }
+     ]
+    }
+   },
+   "request": "www.openml.org/api/v1/json/evaluation/list/task/9900001/function/predictive_accuracy/limit/100",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape (verify field names before a live run); every organisation, repository, sha, id, value and date (2094-2099) is fictional; not live coverage",
+ "scenarios": [
+  "authored-fixture",
+  "dataset-versions",
+  "qualities",
+  "task",
+  "run-evaluations",
+  "uploader-excluded"
+ ]
+}

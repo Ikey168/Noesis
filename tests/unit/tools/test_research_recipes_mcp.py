@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -47,7 +48,7 @@ def test_recipe_mcp_registry_preview_run_status_replay_export_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "validate_research_recipe",
         "register_research_recipe",
@@ -161,5 +162,5 @@ def test_recipe_catalog_scopes():
     ) == ["knowledge:recipes:read"]
     assert (
         "noesis-research-recipe-v1"
-        in server.knowledge_engine_capabilities.fn()["contracts"]
+        in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     )

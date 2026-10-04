@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-internet-infrastructure-record-v2",
+  "title": "Internet infrastructure item: one registry record, routing observation or complete listing (technology.internet-infrastructure)",
+  "description": "One statement as one source made it about one declared resource (an ASN, a prefix, a domain or the CT log list): a registry record (PeeringDB network, organisation, netixlan, IX or facility; RDAP autnum, IP network or domain; crt.sh certificate; CT log) with its state and the revision the source states, a RIPEstat observation dated by RIPEstat's stated time and data-call version, or a complete listing whose later absence of a member is a removed_by_source revision. Appended by src/kb/internet_infrastructure_store.py, never overwritten and never merged across sources. No record carries person or contact data, certificate subject fields beyond O, e-mail SANs, revocation, port, banner or exposed-service data, verdicts or rankings.",
+  "type": "object",
+  "required": ["record_type", "provider", "object_kind", "resource"],
+  "definitions": {
+    "resource": {
+      "type": "object",
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {"enum": ["asn", "prefix", "domain", "ct-log-list"]},
+        "value": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "record_type": {"enum": ["registry-record", "observation", "listing"]},
+    "provider": {"enum": ["ripestat", "peeringdb", "rdap", "crtsh", "ct-log-list"]},
+    "object_kind": {"enum": ["routing-observation", "net", "org", "netixlan", "ix", "fac", "autnum", "ip-network", "domain", "certificate", "ct-log"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "resource": {"$ref": "#/definitions/resource"},
+    "state": {"enum": ["published", "removed_by_source"]},
+    "revision": {
+      "type": "object",
+      "required": ["basis"],
+      "properties": {
+        "basis": {"enum": ["source_updated", "last_changed", "log_list_version", "entry_timestamp", "content_digest", "not_found", "absent_from_complete_listing"]},
+        "source_revision": {"type": ["string", "null"]},
+        "valid_from": {"type": ["string", "null"]}
+      }
+    },
+    "data_call": {"enum": ["as-overview", "announced-prefixes", "routing-status", "rpki-validation", "prefix-overview"]},
+    "data_call_version": {"type": "string", "minLength": 1},
+    "data_call_status": {"type": "string", "minLength": 1},
+    "stated_time": {"type": "string", "minLength": 1},
+    "time_basis": {"enum": ["query_time", "latest_time", "response_time"]},
+    "query": {"type": "object"},
+    "content": {"type": "object"},
+    "stated_identifiers": {"type": "object", "additionalProperties": {"type": "array"}},
+    "label": {"type": "string"},
+    "listing_key": {"type": "string", "minLength": 1},
+    "members": {"type": "array", "items": {"type": "string"}},
+    "complete": {"const": true}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "registry-record"}}},
+     "then": {"required": ["native_id", "state", "revision", "content", "stated_identifiers"]}},
+    {"if": {"properties": {"record_type": {"const": "observation"}}},
+     "then": {"required": ["native_id", "data_call", "data_call_version", "data_call_status", "stated_time", "time_basis", "content"],
+              "properties": {"provider": {"const": "ripestat"}}}},
+    {"if": {"properties": {"record_type": {"const": "listing"}}},
+     "then": {"required": ["listing_key", "members", "complete"]}}
+  ]
+}

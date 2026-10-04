@@ -1,0 +1,22 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/cei_wm011/A.RT.DE+FR?format=SDMX-CSV&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,DE,2094,66.1,\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,DE,2095,66.8,\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,DE,2096,67.2,p\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,FR,2094,41.9,\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,FR,2095,42.4,\nESTAT:CEI_WM011(1.0),22/04/98 11:00:00,A,RT,FR,2096,43.0,e\n"
+  },
+  {
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/cei_srm030/A.RT.DE+FR?format=SDMX-CSV&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,DE,2094,12.9,\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,DE,2095,13.1,\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,DE,2096,13.4,\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,FR,2094,19.6,\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,FR,2095,19.9,\nESTAT:CEI_SRM030(1.0),22/04/98 11:00:00,A,RT,FR,2096,20.3,\n"
+  }
+ ],
+ "note": "authored offline fixture in the provider's documented response shape (verify); every value is fictional; reference years 2094-2097 and release dates 2098-2099 are fictional, so nothing can be mistaken for a published figure; not live coverage",
+ "scenarios": [
+  "authored-fixture",
+  "last-update-release",
+  "published-rates",
+  "obs-flags"
+ ]
+}

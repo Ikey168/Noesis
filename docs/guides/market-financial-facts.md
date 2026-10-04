@@ -2,7 +2,7 @@
 
 The legacy `facts_to_filing_facts()` path remains available to the existing filing note and five-metric `ObservationStore` workflow. The broader path is `harvest_market_financial_facts()` in `src/ingestion/connectors/edgar.py`, connected to `MarketFinancialFactStore` through `FilingsConnector.ingest_market_financial_facts()`.
 
-Resolve the filer to a Noesis `issuer_id` through the instrument master, configure `NOESIS_EDGAR_USER_AGENT`, then provide that identity, namespace and current access context to the connector. The connector reads company facts plus the submissions feed, maps facts into `noesis-market-financial-fact-v1`, and passes the batch to the store. It does not infer a stable issuer ID from a current ticker.
+Resolve the filer to a Noesis `issuer_id` through the instrument master, configure `NOESIS_SEC_USER_AGENT`, then provide that identity, namespace and current access context to the connector. The connector reads company facts plus the submissions feed, maps facts into `noesis-market-financial-fact-v1`, and passes the batch to the store. It does not infer a stable issuer ID from a current ticker.
 
 ## Preserved filing semantics
 
@@ -72,5 +72,11 @@ Each receipt has `value_status` (`consistent` or `review_required`) separate
 from `readiness`, which stays `partial` while unmapped accounting tags exist.
 This evidence validates SEC-to-SEC normalization; it does not validate a
 commercial fundamentals vendor or record an analyst review. SEC requests need
-a descriptive `NOESIS_EDGAR_USER_AGENT`; SEC rejects some agent strings with
-HTTP 403, which the connector reports as an error rather than empty data.
+a descriptive `NOESIS_SEC_USER_AGENT` (operator name and contact), the one
+variable every SEC reader resolves through `src/ingestion/sec_user_agent.py`.
+The deprecated `NOESIS_EDGAR_USER_AGENT` still works with a warning naming
+`NOESIS_SEC_USER_AGENT`; when both are set to different values the run is
+refused rather than picking one. `NOESIS_SEC_CONTACT` is a different setting:
+the bare contact the corporate-ownership pack wraps in its own User-Agent. SEC rejects some
+agent strings with HTTP 403, which the connector reports as an error rather
+than empty data.

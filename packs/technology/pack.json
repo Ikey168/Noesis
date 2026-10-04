@@ -15,7 +15,13 @@
       "dependency",
       "version",
       "release",
-      "repository"
+      "repository",
+      "hugging face",
+      "openml",
+      "epoch ai",
+      "model revision",
+      "ai model",
+      "dataset"
     ],
     "claims": [
       "advisory",
@@ -29,13 +35,26 @@
       "cvss",
       "cwe",
       "cpe",
-      "exploited"
+      "exploited",
+      "asn",
+      "autonomous system",
+      "prefix announcement",
+      "routing status",
+      "rpki",
+      "peering",
+      "internet exchange",
+      "rdap registration",
+      "certificate transparency",
+      "ct log"
     ],
     "library": [
       "standard",
       "specification",
       "normative",
-      "implements"
+      "implements",
+      "model card",
+      "dataset card",
+      "declared licence"
     ]
   },
   "enrichers": [],
@@ -52,7 +71,16 @@
     "cwe-cpe-reference-modules",
     "reviewable-component-identity",
     "affected-as-of-impact",
-    "vulnerability-monitoring"
+    "vulnerability-monitoring",
+    "ai-model-dataset-registry-revisions",
+    "ai-model-cross-source-identity",
+    "ai-model-records-as-of",
+    "ai-model-licence-history",
+    "ai-model-monitoring",
+    "network-registry-revisions",
+    "routing-observations",
+    "reviewable-network-identity",
+    "network-registry-monitoring"
   ],
   "schema_versions": {
     "technical-model": "1.0.0",
@@ -61,7 +89,16 @@
     "vulnerability-answer": "1.0.0",
     "vulnerability-component-match": "1.0.0",
     "vulnerability-notification": "1.0.0",
-    "source-pack": "1.2.0"
+    "source-pack": "1.2.0",
+    "ai-model-record": "2.0.0",
+    "ai-model-answer": "1.0.0",
+    "ai-model-identity": "1.0.0",
+    "ai-model-notification": "1.0.0",
+    "internet-infrastructure-record": "2.0.0",
+    "internet-infrastructure-answer": "1.0.0",
+    "internet-infrastructure-identity": "1.0.0",
+    "internet-infrastructure-link": "1.0.0",
+    "internet-infrastructure-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -70,7 +107,8 @@
       "noesis-evidence-bundle-v1",
       "noesis-vulnerability-record-v1",
       "noesis-entity-identity-decision-v1",
-      "noesis-knowledge-subscription-v1"
+      "noesis-knowledge-subscription-v1",
+      "noesis-ai-model-record-v2"
     ],
     "object_types": [
       "advisory",
@@ -88,7 +126,23 @@
       "weakness_classification",
       "exploitation_evidence",
       "score",
-      "change_event"
+      "change_event",
+      "ai_model_repository",
+      "ai_dataset_repository",
+      "model_card",
+      "openml_dataset_version",
+      "openml_task",
+      "run_evaluation",
+      "self_reported_result",
+      "epoch_model_entry",
+      "autonomous_system",
+      "ip_prefix",
+      "network_registration",
+      "peering_network",
+      "internet_exchange",
+      "certificate",
+      "ct_log",
+      "routing_observation"
     ],
     "relation_types": [
       "affected_by",
@@ -108,7 +162,18 @@
       "classified_as",
       "listed_in_catalog",
       "scored_by",
-      "matched_component"
+      "matched_component",
+      "revision_of",
+      "self_reported_by",
+      "evaluated_on",
+      "estimated_by",
+      "matched_record",
+      "cites_paper",
+      "announces",
+      "registered_to",
+      "present_at_exchange",
+      "issued_for",
+      "logged_in"
     ]
   },
   "query_examples": [
@@ -130,6 +195,26 @@
         "coordinate": "pkg:pypi:fixture-parser"
       },
       "semantics": "advisories whose as-of revision names the exact coordinate or a reviewed CPE product; none found is unknown"
+    },
+    {
+      "intent": "What did each source state about a model on a date",
+      "tool": "ai_model_records_as_of",
+      "arguments": {
+        "namespace": "global",
+        "subject": "example-org/fixture-model",
+        "as_of": "2096-06-01"
+      },
+      "semantics": "each source's revision current at the date side by side (Hub sha, Epoch vintage), self-reported results and Epoch estimates with who reported them; never merged or ranked"
+    },
+    {
+      "intent": "What did each source state about a declared ASN on a date",
+      "tool": "internet_infrastructure_records_as_of",
+      "arguments": {
+        "namespace": "global",
+        "resource": "AS64500",
+        "as_of": "2096-01-01"
+      },
+      "semantics": "RIPEstat observations, the PeeringDB self-declaration and RDAP registrations side by side, each cited with source, revision and as-of time; never merged, no verdict"
     }
   ],
   "exclusions": [
@@ -137,6 +222,17 @@
     "patch or remediation advice",
     "severity inferred where the source states none",
     "averaged or merged scores",
-    "merged cross-source advisories"
+    "merged cross-source advisories",
+    "model weights or dataset file downloads",
+    "capability, safety, quality, risk or openness verdicts on models or datasets",
+    "model or dataset leaderboards, rankings and download, like or trending counts",
+    "licence-compliance interpretation of declared model or dataset licences",
+    "merged self-reported results, OpenML evaluations and Epoch estimates",
+    "exposed-service, port or banner data",
+    "subdomain enumeration or attack-surface mapping",
+    "IP-keyed or person-keyed infrastructure lookups",
+    "reputation, risk, hijack or misconfiguration verdicts",
+    "ranking of networks",
+    "merged RIPEstat, PeeringDB and RDAP records"
   ]
 }

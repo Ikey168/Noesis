@@ -6,6 +6,7 @@ import json
 
 import duckdb
 
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -76,7 +77,7 @@ def test_source_planner_mcp_preview_execution_receipts_scopes_and_secret_isolati
     monkeypatch.setattr(
         server, "_source_pack_runtime", lambda conn, initialize=False: Runtime()
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_source_capability",
         "get_source_capability",
@@ -168,7 +169,7 @@ def test_source_planner_mcp_six_domain_reproducibility(tmp_path, monkeypatch):
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
     monkeypatch.setattr(server, "_secret_resolver", lambda _: "available")
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     for domain in (
         "research",
         "political",
@@ -205,7 +206,7 @@ def test_source_planner_mcp_six_domain_reproducibility(tmp_path, monkeypatch):
 
 
 def test_source_planner_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-source-capability-v1",
         "noesis-source-research-objective-v1",

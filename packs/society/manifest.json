@@ -1,7 +1,7 @@
 {
   "pack_format": "noesis-pack-composition-v1",
   "id": "society",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Society and population: from a country or region to cited income, poverty and inequality figures (World Bank PIP, Eurostat EU-SILC, OECD IDD) side by side with definitions, release vintages, PPP rounds and comparability notes, as of a date, over shared Geospatial, entity-identity, subscription and source-acquisition providers; Demographics denominators and Labour series linked by citation when present. Figures are quoted as each source released them; nothing is nowcast, filled, blended or re-harmonised.",
   "contributes": {
     "capabilities": [
@@ -36,17 +36,58 @@
           "name": "noesis-income-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "society.social-protection-series",
+        "provider": "society.social-protection",
+        "contract": {
+          "name": "noesis-social-protection-record",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "id": "society.social-protection-identity",
+        "provider": "society.social-protection",
+        "contract": {
+          "name": "noesis-social-protection-identity-assertion",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "society.social-protection-links",
+        "provider": "society.social-protection",
+        "contract": {
+          "name": "noesis-social-protection-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "society.social-protection-monitoring",
+        "provider": "society.social-protection",
+        "contract": {
+          "name": "noesis-social-protection-monitor",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "society.income",
         "version": "1.0.0"
+      },
+      {
+        "id": "society.social-protection",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "society-income-distribution",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      },
+      {
+        "pack_id": "society-social-protection",
         "version": "1.0.0",
         "range": "^1.0.0"
       }
@@ -60,6 +101,17 @@
           "PPP round": "the PPP base year a poverty line and monetary figures are stated in",
           "welfare concept": "income or consumption as the source measures it",
           "comparability_unknown": "two vintages with no stated or recorded note"
+        }
+      },
+      {
+        "id": "society.social-protection",
+        "description": "Place-centred social protection expenditure, beneficiaries and coverage per source (Eurostat ESSPROS, OECD SOCX, ILOSTAT SDG 1.3.1), as of a release, side by side and never blended",
+        "vocabulary": {
+          "function": "the publisher's own classification: ESSPROS function (spfunc), SOCX policy area or ILO contingency; related across publishers only by review, never re-classified",
+          "measure": "expenditure, beneficiaries or coverage; never presented as measuring the same thing",
+          "COFOG": "general-government expenditure by function in economics.public-finance; a third, distinct concept",
+          "edition": "a World Social Protection Report edition; a restating edition is a new vintage",
+          "comparability_unknown": "two vintages or rows with no stated or recorded note"
         }
       }
     ]
@@ -153,6 +205,171 @@
           "reason": "the oecd-idd-income-distribution entries of the society-income-distribution source pack"
         }
       ]
+    },
+    {
+      "id": "esspros",
+      "default": false,
+      "description": "Eurostat ESSPROS coverage (spr_exp_sum, spr_exp_func, spr_pns_ben for Germany and France) with OBS_FLAG letters, the manual edition and release vintages; unverified-live; Demographics and Public finance links degrade to provider_absent when those providers are not composed",
+      "requires": [
+        {
+          "capability": "society.social-protection-series",
+          "contract": "noesis-social-protection-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-identity",
+          "contract": "noesis-social-protection-identity-assertion",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-links",
+          "contract": "noesis-social-protection-link",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-monitoring",
+          "contract": "noesis-social-protection-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries and regions resolve to Geospatial places through reviewed matches; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "place and related-indicator matches are reviewed, reversible identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the eurostat-esspros entry of the society-social-protection source pack"
+        }
+      ]
+    },
+    {
+      "id": "socx",
+      "default": false,
+      "description": "OECD SOCX public social expenditure (total and old age, % of GDP, Germany and France) with estimate status, breaks and paced requests; never blended with ESSPROS; unverified-live; Demographics and Public finance links degrade to provider_absent when those providers are not composed",
+      "requires": [
+        {
+          "capability": "society.social-protection-series",
+          "contract": "noesis-social-protection-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-identity",
+          "contract": "noesis-social-protection-identity-assertion",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-links",
+          "contract": "noesis-social-protection-link",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-monitoring",
+          "contract": "noesis-social-protection-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries and regions resolve to Geospatial places through reviewed matches; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "place and related-indicator matches are reviewed, reversible identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the oecd-socx entry of the society-social-protection source pack"
+        }
+      ]
+    },
+    {
+      "id": "ilo-coverage",
+      "default": false,
+      "description": "ILOSTAT SDG 1.3.1 social protection coverage (total and old age, both sexes, Germany and France) with population denominators, contingencies, notes and report editions; unverified-live; Demographics and Public finance links degrade to provider_absent when those providers are not composed",
+      "requires": [
+        {
+          "capability": "society.social-protection-series",
+          "contract": "noesis-social-protection-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-identity",
+          "contract": "noesis-social-protection-identity-assertion",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-links",
+          "contract": "noesis-social-protection-link",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "society.social-protection-monitoring",
+          "contract": "noesis-social-protection-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries and regions resolve to Geospatial places through reviewed matches; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "place and related-indicator matches are reviewed, reversible identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the ilo-social-protection-coverage entry of the society-social-protection source pack"
+        }
+      ]
     }
   ],
   "compatibility_aliases": {
@@ -185,8 +402,18 @@
         "intent": "How did this series change across releases",
         "tool": "noesis-knowledge-engine.income_series_history",
         "semantics": "every vintage with changed periods, PPP revisions and comparability notes"
+      },
+      {
+        "intent": "Social protection expenditure and coverage for this country as of a date",
+        "tool": "noesis-knowledge-engine.social_protection_indicator_for_place",
+        "semantics": "ESSPROS, SOCX and ILO vintages released by the date, side by side by measure; never combined"
+      },
+      {
+        "intent": "How did this social protection series change across releases",
+        "tool": "noesis-knowledge-engine.social_protection_series_history",
+        "semantics": "every vintage with revisions, estimates replaced, restatements and comparability notes"
       }
     ]
   },
-  "content_hash": "sha256:c60ce8c65698efa988bd4a6165a6778dd6c75a1beb89ebb797286086e9549d06"
+  "content_hash": "sha256:025a02a8d25c463524d69c0b1c7634a9456319d629f9688167fd4070643b189e"
 }

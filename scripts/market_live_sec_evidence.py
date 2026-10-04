@@ -4,12 +4,13 @@ This is an operator tool, not a CI test: it makes real SEC requests and writes
 a live-source pack separate from the deterministic fixture pack. It never
 stores filing payloads, only accessions, locators, counts and diagnostics.
 
-SEC fair-access rules require a descriptive ``NOESIS_EDGAR_USER_AGENT``. The
+SEC fair-access rules require a descriptive ``NOESIS_SEC_USER_AGENT`` (the
+deprecated ``NOESIS_EDGAR_USER_AGENT`` still works, with a warning). The
 script sleeps between issuers so it stays well below SEC request limits.
 
 Usage::
 
-    NOESIS_EDGAR_USER_AGENT="Noesis research bot (market fact reconciliation)" \\
+    NOESIS_SEC_USER_AGENT="Noesis research bot (market fact reconciliation)" \\
         python scripts/market_live_sec_evidence.py statements \\
         --output config/market/acceptance_packs/live-sec-statements.json
     python scripts/market_live_sec_evidence.py materials \\
@@ -34,6 +35,17 @@ DEFAULT_TICKERS = ("MSFT", "ORCL", "CRM", "ADBE", "NOW")
 REQUEST_PAUSE_SECONDS = 1.0
 
 
+def _sec_client(client_type):
+    """An EDGAR client with the configured User-Agent, or a refusal naming the variable."""
+
+    from src.ingestion.sec_user_agent import SecUserAgentError, require_sec_user_agent
+
+    try:
+        return client_type(user_agent=require_sec_user_agent())
+    except SecUserAgentError as exc:
+        raise SystemExit(str(exc)) from exc
+
+
 def _latest_accessions(submissions: dict, forms: tuple[str, ...]) -> dict[str, str]:
     recent = (submissions.get("filings") or {}).get("recent") or {}
     latest: dict[str, str] = {}
@@ -49,9 +61,7 @@ def statements(tickers: tuple[str, ...], forms: tuple[str, ...]) -> dict:
         reconcile_market_financial_facts_with_sec,
     )
 
-    client = EdgarClient()
-    if not client.configured:
-        raise SystemExit("set NOESIS_EDGAR_USER_AGENT to a descriptive SEC User-Agent")
+    client = _sec_client(EdgarClient)
     rows = []
     for ticker in tickers:
         cik = client.resolve_ticker(ticker)
@@ -139,9 +149,7 @@ def materials(tickers: tuple[str, ...]) -> dict:
     from src.ingestion.connectors.edgar import EdgarClient
     from src.ingestion.connectors.edgar_materials import harvest_sec_company_materials
 
-    client = EdgarClient()
-    if not client.configured:
-        raise SystemExit("set NOESIS_EDGAR_USER_AGENT to a descriptive SEC User-Agent")
+    client = _sec_client(EdgarClient)
     rows = []
     for ticker in tickers:
         try:
@@ -194,9 +202,7 @@ def dossiers(tickers: tuple[str, ...]) -> dict:
     from src.ingestion.connectors.edgar import EdgarClient, harvest_market_financial_facts
     from src.ingestion.connectors.edgar_materials import harvest_sec_company_materials
 
-    client = EdgarClient()
-    if not client.configured:
-        raise SystemExit("set NOESIS_EDGAR_USER_AGENT to a descriptive SEC User-Agent")
+    client = _sec_client(EdgarClient)
     namespace = "market:live-sec-evidence"
     scopes = {"market:research:read", "market:research:write", f"namespace:{namespace}:write", f"namespace:{namespace}:read"}
     rows = []

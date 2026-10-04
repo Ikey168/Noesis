@@ -10,7 +10,6 @@ and vintages, including a revised value and a benchmark revision. Offline eviden
 
 from __future__ import annotations
 
-import asyncio
 import socket
 
 import duckdb
@@ -30,6 +29,7 @@ from src.kb.labour_statistics import (
     forbidden_keys,
     readiness,
 )
+from src.mcp_host.introspection import tool_map
 from tests.unit import labour_harness as h
 from tests.unit.composition.test_migration import _migrated
 
@@ -197,7 +197,7 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     file_conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.READ_ONLY)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     answer = tools["labour_indicators_for_place"].fn(
         namespace="global", place={"scheme": "iso3166-1-alpha3", "code": "DEU"}, concept="unemployment_rate",
         as_of_ms=h.day_ms("2025-02-01"))

@@ -45,7 +45,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 from collections.abc import Callable, Mapping, Sequence
 from html import unescape
@@ -53,6 +52,11 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlencode, urlsplit
 
+from src.ingestion.sec_user_agent import (
+    SEC_USER_AGENT_ENV,
+    SecUserAgentError,
+    resolve_sec_user_agent,
+)
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
@@ -60,7 +64,6 @@ RECORD_CONTRACT = "noesis-enforcement-record-v2"
 CONNECTOR = "enforcement"
 MAX_UNITS = 20
 INDIVIDUAL = "[individual]"
-SEC_USER_AGENT_ENV = "NOESIS_SEC_USER_AGENT"
 REVIEW_BOUNDARY = ("Enforcement records are kept as each regulator published them. Nothing here scores risk or "
                    "compliance, infers wrongdoing from an initiated action, merges a settled 'neither admit nor "
                    "deny' outcome into a finding, profiles a named individual or gives legal advice.")
@@ -984,7 +987,10 @@ class EnforcementAdapter:
     def _headers(self) -> dict[str, str]:
         headers = {"Accept": "application/json, text/html, application/pdf, text/plain"}
         if self.provider == "us-sec":
-            agent = os.environ.get(SEC_USER_AGENT_ENV, "").strip()
+            try:
+                agent = resolve_sec_user_agent()
+            except SecUserAgentError as exc:
+                raise SourcePackError("source_unavailable", str(exc)) from exc
             if agent:
                 headers["User-Agent"] = agent
             elif self.live:

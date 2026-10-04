@@ -267,11 +267,31 @@ For the project overview and local setup, start with the
   BGS production and reserves side by side per vintage, reviewable company, commodity and project identity,
   cross-pack links and monitors; no reconciliation, own reserve estimate, risk score or price forecast;
   [source audit](development/extractives-evidence/source-audit.md)
+- [Technology internet infrastructure guide](guides/technology-internet-infrastructure.md) — RIPEstat routing
+  observations, the PeeringDB self-declaration, RDAP registrations and crt.sh certificates for a declared ASN,
+  prefix or domain as of a date, side by side and cited, reviewable identity, OSINT links and monitors; no
+  port or banner data, IP- or person-keyed lookup, verdict or ranking;
+  [source audit](development/internet-infrastructure-evidence/source-audit.md)
 - [Economics business statistics guide](guides/economics-business-statistics.md) — Eurostat short-term business
   statistics and business demography and US Census County Business Patterns for a place as of a release, side by
   side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and
   NACE/NAICS candidate links, Labour and Trade links and monitors; no nowcast, re-based index, blended figure or
   reconstructed cell; [source audit](development/business-statistics-evidence/source-audit.md)
+- [Technology AI models and datasets guide](guides/technology-ai-models.md) — a model's or dataset's registry
+  records as of a date from Hugging Face Hub revisions, OpenML datasets, tasks and run evaluations and Epoch AI
+  notable-model rows, side by side and cited, with revision and declared-licence history, reviewable
+  cross-source identity, Literature and OSS links and monitors; no weights, verdicts, rankings or licence
+  interpretation; offline only; [source audit](development/ai-models-evidence/source-audit.md)
+- [Society social protection guide](guides/society-social-protection.md) — Eurostat ESSPROS, OECD SOCX and ILOSTAT
+  SDG 1.3.1 for a country as of a release, side by side by measure with definitions, functions, vintages and
+  comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
+  blend, re-classification, COFOG combination, derived figure or forecast; offline only;
+  [source audit](development/social-protection-evidence/source-audit.md)
+- [Economics tourism guide](guides/economics-tourism.md) — Eurostat tourism occupancy and capacity for a place as
+  of a release, monthly and annual series kept apart with residence, accommodation type, NUTS version, flags and
+  vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
+  UN Tourism not-implemented; no nowcast, filled month, blended or derived figure;
+  [source audit](development/tourism-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
@@ -353,6 +373,12 @@ For the project overview and local setup, start with the
   and the status history of its water bodies per WFD reporting cycle; reviewable station and water-body identity,
   citation links to hazards, weather and infrastructure, as-of answers and monitors; no forecasting, gap filling,
   own status assessments or flood-risk scores; [source audit](development/water-evidence/source-audit.md)
+- [Climate and Environment waste and circular economy guide](guides/environment-waste.md) — from a place to cited
+  Eurostat waste and circular-economy and OECD municipal-waste figures side by side as of a release (biennial years
+  absent), and from an environment.core facility to its cited EEA waste transfers per reporting year with
+  corrections and removals; reviewable place, facility and indicator identity, Chemicals and Products links and
+  monitors; no nowcast, filled year, blended or summed figure or own rate; offline only, not live;
+  [source audit](development/waste-evidence/source-audit.md)
 - [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
   species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,

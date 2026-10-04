@@ -1,11 +1,10 @@
-import asyncio
-
 import duckdb
 
 from services.ingest.common.series_model import SeriesRecord
 from src.domains.economic.model import register_series
 from src.ingestion.revisions import DocumentRevisionStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.economic_releases import (
     ECONOMIC_RELEASE_READS,
@@ -56,7 +55,7 @@ def test_public_two_release_report_and_revocation(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     def call(name, **arguments):
         result = tools[name].fn(**arguments)

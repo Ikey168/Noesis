@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import importlib.util
 import json
@@ -11,6 +10,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from src.mcp_host.introspection import tool_map
 from tests.unit.onchain import fixture_builder as fb
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -26,7 +26,7 @@ def _load():
 
 
 def _tools(module):
-    return asyncio.run(module.mcp.get_tools())
+    return tool_map(module.mcp)
 
 
 @pytest.fixture()

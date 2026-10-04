@@ -1,7 +1,7 @@
 {
   "pack_format": "noesis-pack-composition-v1",
   "id": "climate-environment",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Climate and Environment: source-cited place dossiers of air-quality and climate series, grid generation/load/unavailability, industrial facilities, emissions trading and Umweltatlas layers over shared Geospatial, LEI, source-runtime and subscription providers. Observations, model output and forecasts stay distinct. Replaces the retired energy example pack.",
   "contributes": {
     "capabilities": [
@@ -100,6 +100,30 @@
           "name": "noesis-water-notification",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "environment.waste-records",
+        "provider": "environment.waste",
+        "contract": {
+          "name": "noesis-waste-record",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "id": "environment.waste-identity",
+        "provider": "environment.waste",
+        "contract": {
+          "name": "noesis-waste-identity-match",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "environment.waste-monitoring",
+        "provider": "environment.waste",
+        "contract": {
+          "name": "noesis-waste-notification",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -113,6 +137,10 @@
       },
       {
         "id": "environment.water",
+        "version": "1.0.0"
+      },
+      {
+        "id": "environment.waste",
         "version": "1.0.0"
       }
     ],
@@ -166,6 +194,22 @@
           "as_of": "revisions retrieved on or before the date",
           "missing": "values not published stay missing; never interpolated",
           "never": "No flood forecasting, gap filling, own status assessments or flood-risk scores."
+        }
+      },
+      {
+        "id": "environment.waste",
+        "description": "Waste and circular economy: a place to cited waste and circularity figures from Eurostat and the OECD side by side, and a facility known to environment.core to its cited off-site waste transfers per reporting year",
+        "vocabulary": {
+          "series": "one published series keyed by source, dataset, waste category, hazardousness, activity, treatment operation and unit as published",
+          "transfer row": "one facility's published off-site transfer for a reporting year: hazardous or not, recovery or disposal, domestic or transboundary, tonnes and method code",
+          "biennial": "Eurostat waste generation and treatment are collected every second year; odd years stay absent",
+          "truncated": "an EEA acquisition that filled its nrOfHits page; it never removes a row",
+          "removed_by_source": "a series or row a later complete release no longer states; earlier vintages stay"
+        },
+        "workflow_defaults": {
+          "as_of": "the vintage released by the date",
+          "absent": "years and rows a source did not publish stay absent; never filled and never zero",
+          "never": "No nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators."
         }
       }
     ]
@@ -490,7 +534,185 @@
           "reason": "water monitors are knowledge subscriptions"
         }
       ]
+    },
+    {
+      "id": "waste-eurostat",
+      "default": false,
+      "description": "Eurostat waste generation (env_wasgen) and treatment (env_wastrt) for Germany and France, biennial, as release vintages with OBS_FLAG letters verbatim; odd years stay absent. Part of the environment.waste provider: reviewable place, facility and indicator identity, links to Chemicals by published CAS number and to Products by citation (provider_absent when those providers are not composed), as-of answers, evidence bundles and monitors. No nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators.",
+      "requires": [
+        {
+          "capability": "environment.waste-records",
+          "contract": "noesis-waste-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-identity",
+          "contract": "noesis-waste-identity-match",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-monitoring",
+          "contract": "noesis-waste-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries match places registered in the geospatial owner by published code"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "waste monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "waste-eurostat-circular-economy",
+      "default": false,
+      "description": "Eurostat circular-economy indicators cei_wm011 and cei_srm030 for Germany and France, stored as Eurostat publishes them; no rate is computed. Part of the environment.waste provider: reviewable place, facility and indicator identity, links to Chemicals by published CAS number and to Products by citation (provider_absent when those providers are not composed), as-of answers, evidence bundles and monitors. No nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators.",
+      "requires": [
+        {
+          "capability": "environment.waste-records",
+          "contract": "noesis-waste-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-identity",
+          "contract": "noesis-waste-identity-match",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-monitoring",
+          "contract": "noesis-waste-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries match places registered in the geospatial owner by published code"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "waste monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "waste-eea-transfers",
+      "default": false,
+      "description": "EEA Industrial Reporting off-site waste transfers for the environment.core Berlin facilities, one reporting year, keyed by INSPIRE id and attached to the environment.core facility records (no second facility register); a full page is truncated, never complete. Part of the environment.waste provider: reviewable place, facility and indicator identity, links to Chemicals by published CAS number and to Products by citation (provider_absent when those providers are not composed), as-of answers, evidence bundles and monitors. No nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators.",
+      "requires": [
+        {
+          "capability": "environment.waste-records",
+          "contract": "noesis-waste-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-identity",
+          "contract": "noesis-waste-identity-match",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-monitoring",
+          "contract": "noesis-waste-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.records",
+          "contract": "noesis-environment-record",
+          "range": "^1.0.0",
+          "reason": "transfer rows are environment.core observation series located at its facility records"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries match places registered in the geospatial owner by published code"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "waste monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "waste-oecd",
+      "default": false,
+      "description": "OECD municipal waste generated for Germany and France (dataflow verify until the live run), beside Eurostat and never reconciled. Part of the environment.waste provider: reviewable place, facility and indicator identity, links to Chemicals by published CAS number and to Products by citation (provider_absent when those providers are not composed), as-of answers, evidence bundles and monitors. No nowcasting, filled years, blending of Eurostat, OECD and EEA figures, summed facility transfers, own rates or derived indicators.",
+      "requires": [
+        {
+          "capability": "environment.waste-records",
+          "contract": "noesis-waste-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-identity",
+          "contract": "noesis-waste-identity-match",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.waste-monitoring",
+          "contract": "noesis-waste-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "countries match places registered in the geospatial owner by published code"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "waste monitors are knowledge subscriptions"
+        }
+      ]
     }
   ],
-  "content_hash": "sha256:ca3bf168a56d61b74efca668c8dfa90ded15d978dfe0f06260d94f251a49ba8e"
+  "content_hash": "sha256:080242f290c2d0ff6953746c34cf78e39ef3ff979e1f1c1443187e30aec2bdf9"
 }

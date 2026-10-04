@@ -9469,6 +9469,35 @@ from tools.knowledge_engine_mcp.business import (
 )
 
 register_business_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.ai_models import (
+    register as register_ai_models_tools,
+)
+
+register_ai_models_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.waste import (
+    register as register_waste_tools,
+)
+
+register_waste_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.social_protection import (
+    register as register_social_protection_tools,
+)
+
+register_social_protection_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.tourism import (
+    register as register_tourism_tools,
+)
+
+register_tourism_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.internet_infrastructure import (
+    register as register_internet_infrastructure_tools,
+)
+
+register_internet_infrastructure_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":
