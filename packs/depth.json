@@ -1,0 +1,2145 @@
+{
+  "depth_format": 1,
+  "version": "1.0.0",
+  "description": "Source depth overlay (ADR-006). Each classified provider names the source-pack sources it acquires, the publishers it reads outside source packs (each with a file that quotes it), the providers it derives from, or why it has none. Each source resolves to exactly one publisher; a republisher counts as the publisher it derives from. A subdomain's depth is the number of distinct publishers across the providers that name it. Nothing here changes runtime behaviour, bundle ids, provider ids or source ids.",
+  "minimum_depth": 2,
+  "publishers": {
+    "acled": {
+      "name": "Armed Conflict Location & Event Data (ACLED)",
+      "match": [
+        "Armed Conflict Location"
+      ]
+    },
+    "aerospace-corporation": {
+      "name": "The Aerospace Corporation",
+      "match": [
+        "The Aerospace Corporation"
+      ]
+    },
+    "allianz": {
+      "name": "Allianz SE",
+      "match": [
+        "Allianz SE"
+      ]
+    },
+    "anses": {
+      "name": "Anses",
+      "match": [
+        "Anses"
+      ]
+    },
+    "archive-of-formal-proofs": {
+      "name": "Archive of Formal Proofs",
+      "match": [
+        "Archive of Formal Proofs"
+      ]
+    },
+    "arxiv": {
+      "name": "arXiv",
+      "match": [
+        "arXiv"
+      ]
+    },
+    "bafin": {
+      "name": "Bundesanstalt für Finanzdienstleistungsaufsicht (BaFin)",
+      "match": [
+        "Bundesanstalt für Finanzdienstleistungsaufsicht"
+      ]
+    },
+    "bbc": {
+      "name": "BBC",
+      "match": [
+        "BBC"
+      ]
+    },
+    "bea-aviation": {
+      "name": "Bureau d'Enquêtes et d'Analyses (BEA)",
+      "match": [
+        "Bureau d'Enquêtes et d'Analyses"
+      ]
+    },
+    "bfu": {
+      "name": "Bundesstelle für Flugunfalluntersuchung (BFU)",
+      "match": [
+        "Bundesstelle für Flugunfalluntersuchung"
+      ]
+    },
+    "bgs": {
+      "name": "British Geological Survey",
+      "match": [
+        "British Geological Survey"
+      ]
+    },
+    "blockstream": {
+      "name": "Blockstream",
+      "match": [
+        "Blockstream"
+      ]
+    },
+    "bls": {
+      "name": "U.S. Bureau of Labor Statistics",
+      "match": [
+        "U.S. Bureau of Labor Statistics",
+        "US Bureau of Labor Statistics"
+      ]
+    },
+    "bmf": {
+      "name": "Bundesministerium der Finanzen",
+      "match": [
+        "Bundesministerium der Finanzen"
+      ]
+    },
+    "bmj": {
+      "name": "Bundesministerium der Justiz",
+      "match": [
+        "Bundesministerium der Justiz"
+      ]
+    },
+    "bmwe": {
+      "name": "Bundesministerium für Wirtschaft und Energie (Förderdatenbank, EXIST)"
+    },
+    "bnetza": {
+      "name": "Bundesnetzagentur",
+      "match": [
+        "Bundesnetzagentur"
+      ]
+    },
+    "british-library": {
+      "name": "UK Web Archive (British Library and UK legal deposit libraries)"
+    },
+    "bundesanzeiger": {
+      "name": "Bundesanzeiger Verlag",
+      "match": [
+        "Bundesanzeiger Verlag"
+      ]
+    },
+    "bundestag": {
+      "name": "Deutscher Bundestag",
+      "match": [
+        "Deutscher Bundestag"
+      ]
+    },
+    "bundeswahlleiterin": {
+      "name": "Die Bundeswahlleiterin",
+      "match": [
+        "Die Bundeswahlleiterin"
+      ]
+    },
+    "capatronic": {
+      "name": "Capatronic GmbH",
+      "match": [
+        "Capatronic GmbH"
+      ]
+    },
+    "catalogue-of-life": {
+      "name": "Catalogue of Life",
+      "match": [
+        "Catalogue of Life"
+      ]
+    },
+    "celestrak": {
+      "name": "CelesTrak",
+      "match": [
+        "CelesTrak"
+      ]
+    },
+    "cisa": {
+      "name": "Cybersecurity and Infrastructure Security Agency (CISA)",
+      "match": [
+        "Cybersecurity and Infrastructure Security Agency"
+      ]
+    },
+    "cma": {
+      "name": "Competition and Markets Authority",
+      "match": [
+        "Competition and Markets Authority"
+      ]
+    },
+    "companies-house": {
+      "name": "Companies House (UK)",
+      "match": [
+        "Companies House"
+      ]
+    },
+    "copernicus-ems": {
+      "name": "Copernicus Emergency Management Service",
+      "match": [
+        "European Forest Fire Information System",
+        "Global Flood Awareness System"
+      ]
+    },
+    "council-of-europe": {
+      "name": "Council of Europe",
+      "match": [
+        "Council of Europe"
+      ]
+    },
+    "courtlistener": {
+      "name": "Free Law Project",
+      "match": [
+        "Free Law Project"
+      ]
+    },
+    "cpsc": {
+      "name": "U.S. Consumer Product Safety Commission",
+      "match": [
+        "U.S. Consumer Product Safety Commission"
+      ]
+    },
+    "crossref": {
+      "name": "Crossref",
+      "match": [
+        "Crossref"
+      ]
+    },
+    "crystallography-open-database": {
+      "name": "Crystallography Open Database",
+      "match": [
+        "Crystallography Open Database"
+      ]
+    },
+    "csb": {
+      "name": "U.S. Chemical Safety and Hazard Investigation Board",
+      "match": [
+        "U.S. Chemical Safety and Hazard Investigation Board"
+      ]
+    },
+    "cve-program": {
+      "name": "CVE Program",
+      "match": [
+        "CVE Program"
+      ]
+    },
+    "datacite": {
+      "name": "DataCite",
+      "match": [
+        "DataCite"
+      ]
+    },
+    "ddb": {
+      "name": "Deutsche Digitale Bibliothek",
+      "match": [
+        "Deutsche Digitale Bibliothek"
+      ]
+    },
+    "deps-dev": {
+      "name": "Open Source Insights (deps.dev)",
+      "match": [
+        "Open Source Insights"
+      ]
+    },
+    "destatis": {
+      "name": "Statistisches Bundesamt (Destatis)",
+      "match": [
+        "Statistisches Bundesamt"
+      ]
+    },
+    "dgfip": {
+      "name": "Direction générale des Finances publiques (DGFiP)",
+      "match": [
+        "DGFiP",
+        "IGN / DGFiP"
+      ]
+    },
+    "dnb": {
+      "name": "Deutsche Nationalbibliothek",
+      "match": [
+        "Deutsche Nationalbibliothek"
+      ]
+    },
+    "dwd": {
+      "name": "Deutscher Wetterdienst",
+      "match": [
+        "Deutscher Wetterdienst"
+      ]
+    },
+    "easa": {
+      "name": "European Union Aviation Safety Agency",
+      "match": [
+        "European Union Aviation Safety Agency"
+      ]
+    },
+    "echa": {
+      "name": "European Chemicals Agency",
+      "match": [
+        "European Chemicals Agency"
+      ]
+    },
+    "ecmwf": {
+      "name": "ECMWF (Copernicus Climate Change Service, ERA5)"
+    },
+    "edpb": {
+      "name": "European Data Protection Board",
+      "match": [
+        "European Data Protection Board"
+      ]
+    },
+    "eea": {
+      "name": "European Environment Agency",
+      "match": [
+        "European Environment Agency"
+      ]
+    },
+    "eia": {
+      "name": "U.S. Energy Information Administration",
+      "match": [
+        "U.S. Energy Information Administration"
+      ]
+    },
+    "eiopa": {
+      "name": "European Insurance and Occupational Pensions Authority (EIOPA)",
+      "match": [
+        "European Insurance and Occupational Pensions Authority"
+      ]
+    },
+    "eiti": {
+      "name": "Extractive Industries Transparency Initiative",
+      "match": [
+        "Extractive Industries Transparency Initiative"
+      ]
+    },
+    "elections-canada": {
+      "name": "Elections Canada",
+      "match": [
+        "Elections Canada"
+      ]
+    },
+    "electoral-commission-uk": {
+      "name": "The Electoral Commission (UK)",
+      "match": [
+        "The Electoral Commission"
+      ]
+    },
+    "ema": {
+      "name": "European Medicines Agency",
+      "match": [
+        "European Medicines Agency"
+      ]
+    },
+    "ember": {
+      "name": "Ember",
+      "match": [
+        "Ember"
+      ]
+    },
+    "embl-ebi": {
+      "name": "EMBL-EBI",
+      "match": [
+        "EMBL-EBI",
+        "Europe PMC"
+      ]
+    },
+    "emsc": {
+      "name": "European-Mediterranean Seismological Centre",
+      "match": [
+        "European-Mediterranean Seismological Centre"
+      ]
+    },
+    "energy-charts": {
+      "name": "Energy-Charts (Fraunhofer ISE)",
+      "match": [
+        "Energy-Charts"
+      ]
+    },
+    "entso-e": {
+      "name": "ENTSO-E",
+      "match": [
+        "ENTSO-E"
+      ]
+    },
+    "entsog": {
+      "name": "ENTSOG",
+      "match": [
+        "ENTSOG"
+      ]
+    },
+    "epa": {
+      "name": "U.S. Environmental Protection Agency",
+      "match": [
+        "U.S. Environmental Protection Agency"
+      ]
+    },
+    "epo": {
+      "name": "European Patent Office",
+      "match": [
+        "European Patent Office"
+      ]
+    },
+    "epoch-ai": {
+      "name": "Epoch AI",
+      "match": [
+        "Epoch AI"
+      ]
+    },
+    "esa": {
+      "name": "European Space Agency",
+      "match": [
+        "ESA DISCOSweb"
+      ]
+    },
+    "eter": {
+      "name": "European Tertiary Education Register (ETER)",
+      "match": [
+        "European Tertiary Education Register"
+      ]
+    },
+    "etherscan": {
+      "name": "Etherscan",
+      "match": [
+        "Etherscan"
+      ]
+    },
+    "european-commission": {
+      "name": "European Commission",
+      "match": [
+        "European Commission"
+      ]
+    },
+    "european-parliament": {
+      "name": "European Parliament",
+      "match": [
+        "European Parliament"
+      ]
+    },
+    "europeana": {
+      "name": "Europeana Foundation",
+      "match": [
+        "Europeana Foundation"
+      ]
+    },
+    "eurostat": {
+      "name": "Eurostat",
+      "match": [
+        "Eurostat"
+      ]
+    },
+    "faa": {
+      "name": "Federal Aviation Administration",
+      "match": [
+        "Federal Aviation Administration"
+      ],
+      "sources": [
+        "faa-airworthiness-directives"
+      ]
+    },
+    "fao": {
+      "name": "Food and Agriculture Organization of the United Nations",
+      "match": [
+        "Food and Agriculture Organization"
+      ]
+    },
+    "fbi": {
+      "name": "Federal Bureau of Investigation",
+      "match": [
+        "Federal Bureau of Investigation"
+      ]
+    },
+    "fca": {
+      "name": "Financial Conduct Authority",
+      "match": [
+        "Financial Conduct Authority"
+      ]
+    },
+    "fcdo": {
+      "name": "UK Foreign, Commonwealth & Development Office",
+      "match": [
+        "UK Foreign, Commonwealth"
+      ]
+    },
+    "fct-arquivo-pt": {
+      "name": "Arquivo.pt (Portuguese web archive, FCT)"
+    },
+    "fda": {
+      "name": "U.S. Food and Drug Administration",
+      "match": [
+        "US Food and Drug Administration",
+        "U.S. Food and Drug Administration"
+      ],
+      "sources": [
+        "clinical-devices-accessgudid"
+      ]
+    },
+    "fec": {
+      "name": "U.S. Federal Election Commission",
+      "match": [
+        "US Federal Election Commission"
+      ]
+    },
+    "federal-register": {
+      "name": "Office of the Federal Register",
+      "match": [
+        "Office of the Federal Register"
+      ]
+    },
+    "first": {
+      "name": "FIRST",
+      "match": [
+        "FIRST"
+      ]
+    },
+    "florida-oir": {
+      "name": "Florida Office of Insurance Regulation",
+      "match": [
+        "Florida Office of Insurance Regulation"
+      ]
+    },
+    "football-data": {
+      "name": "football-data.org",
+      "match": [
+        "football-data.org"
+      ]
+    },
+    "ftc": {
+      "name": "U.S. Federal Trade Commission",
+      "match": [
+        "U.S. Federal Trade Commission"
+      ]
+    },
+    "gbif": {
+      "name": "Global Biodiversity Information Facility",
+      "match": [
+        "Global Biodiversity Information Facility"
+      ]
+    },
+    "gcat": {
+      "name": "GCAT (Jonathan C. McDowell)",
+      "match": [
+        "GCAT"
+      ]
+    },
+    "gdacs": {
+      "name": "Global Disaster Alert and Coordination System",
+      "match": [
+        "Global Disaster Alert and Coordination System"
+      ]
+    },
+    "gdelt": {
+      "name": "GDELT Project",
+      "match": [
+        "GDELT Project"
+      ]
+    },
+    "geobasis-nrw": {
+      "name": "Geobasis NRW",
+      "match": [
+        "Geobasis NRW"
+      ]
+    },
+    "github": {
+      "name": "GitHub",
+      "match": [
+        "GitHub, Inc."
+      ]
+    },
+    "gleif": {
+      "name": "Global Legal Entity Identifier Foundation",
+      "match": [
+        "Global Legal Entity Identifier Foundation"
+      ]
+    },
+    "global-energy-monitor": {
+      "name": "Global Energy Monitor",
+      "match": [
+        "Global Energy Monitor"
+      ]
+    },
+    "global-fishing-watch": {
+      "name": "Global Fishing Watch",
+      "match": [
+        "Global Fishing Watch"
+      ]
+    },
+    "google": {
+      "name": "Google",
+      "match": [
+        "Google",
+        "Data Commons"
+      ]
+    },
+    "gpo": {
+      "name": "U.S. Government Publishing Office",
+      "match": [
+        "US Government Publishing Office"
+      ]
+    },
+    "gsa": {
+      "name": "U.S. General Services Administration",
+      "match": [
+        "U.S. General Services Administration"
+      ]
+    },
+    "guardian": {
+      "name": "The Guardian",
+      "match": [
+        "The Guardian"
+      ]
+    },
+    "gutachterausschuss-berlin": {
+      "name": "Gutachterausschuss für Grundstückswerte in Berlin",
+      "match": [
+        "Gutachterausschuss für Grundstückswerte in Berlin"
+      ]
+    },
+    "hm-land-registry": {
+      "name": "HM Land Registry",
+      "match": [
+        "HM Land Registry"
+      ]
+    },
+    "home-office": {
+      "name": "Home Office and police forces (England, Wales and Northern Ireland)",
+      "match": [
+        "Home Office and police forces"
+      ]
+    },
+    "hugging-face": {
+      "name": "Hugging Face",
+      "match": [
+        "Hugging Face"
+      ]
+    },
+    "iana": {
+      "name": "IANA and the registries its RDAP bootstrap names",
+      "match": [
+        "IANA RDAP bootstrap"
+      ]
+    },
+    "iau-mpc": {
+      "name": "IAU Minor Planet Center",
+      "match": [
+        "IAU Minor Planet Center"
+      ]
+    },
+    "iccat": {
+      "name": "International Commission for the Conservation of Atlantic Tunas",
+      "match": [
+        "International Commission for the Conservation of Atlantic Tunas"
+      ]
+    },
+    "icecat": {
+      "name": "Icecat",
+      "match": [
+        "Icecat"
+      ]
+    },
+    "ifcn": {
+      "name": "International Fact-Checking Network (Poynter)",
+      "match": [
+        "International Fact-Checking Network"
+      ]
+    },
+    "ilo": {
+      "name": "International Labour Organization",
+      "match": [
+        "International Labour Organization",
+        "ILO, ILOSTAT"
+      ]
+    },
+    "internet-archive": {
+      "name": "Internet Archive",
+      "match": [
+        "Internet Archive",
+        "Open Library"
+      ]
+    },
+    "ioc": {
+      "name": "International Olympic Committee"
+    },
+    "iom": {
+      "name": "IOM Displacement Tracking Matrix",
+      "match": [
+        "IOM Displacement Tracking Matrix"
+      ]
+    },
+    "iotc": {
+      "name": "Indian Ocean Tuna Commission",
+      "match": [
+        "Indian Ocean Tuna Commission"
+      ]
+    },
+    "iso": {
+      "name": "International Organization for Standardization",
+      "match": [
+        "International Organization for Standardization"
+      ]
+    },
+    "iucn": {
+      "name": "IUCN",
+      "match": [
+        "IUCN Red List"
+      ]
+    },
+    "joint-transparency-register": {
+      "name": "Joint Transparency Register Secretariat (European Parliament and European Commission)",
+      "sources": [
+        "eu-transparency-register"
+      ]
+    },
+    "kystverket": {
+      "name": "Kystverket (Norwegian Coastal Administration)",
+      "match": [
+        "Kystverket"
+      ]
+    },
+    "land-berlin": {
+      "name": "Land Berlin (Senate administration and Geoportal Berlin)",
+      "match": [
+        "Senatsverwaltung",
+        "Geoportal Berlin",
+        "Land Berlin"
+      ],
+      "sources": [
+        "berlin-bezirksgrenzen",
+        "berlin-schulen"
+      ]
+    },
+    "landeswahlleitung-berlin": {
+      "name": "Landeswahlleitung Berlin",
+      "match": [
+        "Landeswahlleitung Berlin"
+      ]
+    },
+    "library-of-congress": {
+      "name": "Library of Congress",
+      "match": [
+        "Library of Congress"
+      ]
+    },
+    "lumen": {
+      "name": "Lumen (Berkman Klein Center)",
+      "match": [
+        "Lumen"
+      ]
+    },
+    "materials-project": {
+      "name": "The Materials Project",
+      "match": [
+        "The Materials Project"
+      ]
+    },
+    "mathlib": {
+      "name": "Lean mathematical library (mathlib4) community",
+      "match": [
+        "Lean mathematical library"
+      ]
+    },
+    "max-planck-eva": {
+      "name": "Max Planck Institute for Evolutionary Anthropology (Glottolog, WALS)",
+      "match": [
+        "Glottolog",
+        "WALS Online"
+      ]
+    },
+    "meta": {
+      "name": "Meta Platforms",
+      "match": [
+        "Meta Platforms"
+      ]
+    },
+    "metabrainz": {
+      "name": "MetaBrainz Foundation",
+      "match": [
+        "MetaBrainz Foundation"
+      ]
+    },
+    "mit-election-lab": {
+      "name": "MIT Election Data and Science Lab",
+      "match": [
+        "MIT Election Data and Science Lab"
+      ]
+    },
+    "mitre": {
+      "name": "MITRE",
+      "match": [
+        "MITRE"
+      ]
+    },
+    "myetherwallet-lists": {
+      "name": "MyEtherWallet ethereum-lists contributors",
+      "match": [
+        "MyEtherWallet"
+      ]
+    },
+    "naic": {
+      "name": "National Association of Insurance Commissioners",
+      "match": [
+        "National Association of Insurance Commissioners"
+      ]
+    },
+    "nasa": {
+      "name": "NASA",
+      "match": [
+        "NASA"
+      ]
+    },
+    "nces": {
+      "name": "U.S. National Center for Education Statistics",
+      "match": [
+        "U.S. Department of Education"
+      ]
+    },
+    "nhtsa": {
+      "name": "National Highway Traffic Safety Administration",
+      "match": [
+        "National Highway Traffic Safety Administration",
+        "NHTSA"
+      ]
+    },
+    "nist": {
+      "name": "NIST",
+      "match": [
+        "NIST"
+      ]
+    },
+    "nlm": {
+      "name": "U.S. National Library of Medicine (incl. NCBI)",
+      "match": [
+        "US National Library of Medicine",
+        "U.S. National Library of Medicine",
+        "National Center for Biotechnology Information"
+      ]
+    },
+    "nlnet": {
+      "name": "NLnet Foundation"
+    },
+    "noaa": {
+      "name": "NOAA",
+      "match": [
+        "NOAA"
+      ]
+    },
+    "npm": {
+      "name": "npm, Inc.",
+      "match": [
+        "npm, Inc."
+      ]
+    },
+    "ntsb": {
+      "name": "National Transportation Safety Board",
+      "match": [
+        "National Transportation Safety Board"
+      ]
+    },
+    "oecd": {
+      "name": "OECD",
+      "match": [
+        "OECD"
+      ]
+    },
+    "oeis": {
+      "name": "The OEIS Foundation",
+      "match": [
+        "The OEIS Foundation"
+      ]
+    },
+    "ofac": {
+      "name": "U.S. Department of the Treasury (OFAC)",
+      "match": [
+        "U.S. Department of the Treasury"
+      ]
+    },
+    "open-food-facts": {
+      "name": "Open Food Facts",
+      "match": [
+        "Open Food Facts"
+      ]
+    },
+    "open-meteo-dwd": {
+      "name": "Open-Meteo (DWD ICON-D2 output)",
+      "match": [
+        "Open-Meteo (DWD"
+      ],
+      "derived_from": "dwd"
+    },
+    "open-meteo-ecmwf": {
+      "name": "Open-Meteo (ERA5 reanalysis)",
+      "match": [
+        "Open-Meteo (ERA5"
+      ],
+      "derived_from": "ecmwf"
+    },
+    "open-ownership": {
+      "name": "Open Ownership",
+      "match": [
+        "Open Ownership"
+      ]
+    },
+    "open-source-vulnerabilities": {
+      "name": "Open Source Vulnerabilities (OSV)",
+      "match": [
+        "Open Source Vulnerabilities"
+      ]
+    },
+    "openalex": {
+      "name": "OurResearch (OpenAlex)",
+      "match": [
+        "OurResearch"
+      ]
+    },
+    "openaq": {
+      "name": "OpenAQ",
+      "match": [
+        "OpenAQ"
+      ]
+    },
+    "openfootball": {
+      "name": "openfootball",
+      "match": [
+        "openfootball"
+      ]
+    },
+    "openml": {
+      "name": "OpenML",
+      "match": [
+        "OpenML"
+      ]
+    },
+    "openreview": {
+      "name": "OpenReview",
+      "match": [
+        "OpenReview"
+      ]
+    },
+    "opensky": {
+      "name": "The OpenSky Network",
+      "match": [
+        "The OpenSky Network"
+      ]
+    },
+    "openstreetmap": {
+      "name": "OpenStreetMap contributors",
+      "match": [
+        "OpenStreetMap contributors"
+      ]
+    },
+    "oqmd": {
+      "name": "Open Quantum Materials Database (Northwestern University)",
+      "match": [
+        "Open Quantum Materials Database"
+      ]
+    },
+    "orcid": {
+      "name": "ORCID",
+      "match": [
+        "ORCID"
+      ]
+    },
+    "peeringdb": {
+      "name": "PeeringDB",
+      "match": [
+        "PeeringDB"
+      ]
+    },
+    "pegelonline": {
+      "name": "WSV PEGELONLINE",
+      "match": [
+        "WSV PEGELONLINE"
+      ]
+    },
+    "phmsa": {
+      "name": "Pipeline and Hazardous Materials Safety Administration",
+      "match": [
+        "Pipeline and Hazardous Materials Safety Administration"
+      ]
+    },
+    "psf": {
+      "name": "Python Software Foundation (incl. PyPI)",
+      "match": [
+        "Python Software Foundation",
+        "Python Package Index"
+      ]
+    },
+    "publications-office": {
+      "name": "Publications Office of the European Union",
+      "match": [
+        "Publications Office of the European Union"
+      ]
+    },
+    "rcsb-pdb": {
+      "name": "RCSB Protein Data Bank",
+      "match": [
+        "RCSB Protein Data Bank"
+      ]
+    },
+    "registrar-consultant-lobbyists": {
+      "name": "Office of the Registrar of Consultant Lobbyists",
+      "match": [
+        "Office of the Registrar of Consultant Lobbyists"
+      ]
+    },
+    "reliefweb-ocha": {
+      "name": "UN OCHA (ReliefWeb, Humanitarian Data Exchange)",
+      "match": [
+        "ReliefWeb",
+        "Humanitarian Data Exchange"
+      ]
+    },
+    "rfc-editor": {
+      "name": "RFC Editor",
+      "match": [
+        "RFC Editor"
+      ]
+    },
+    "ripe-ncc": {
+      "name": "RIPE NCC",
+      "match": [
+        "RIPE NCC"
+      ]
+    },
+    "rki": {
+      "name": "Robert Koch-Institut",
+      "match": [
+        "Robert Koch-Institut"
+      ]
+    },
+    "ror": {
+      "name": "Research Organization Registry (ROR)",
+      "match": [
+        "Research Organization Registry"
+      ]
+    },
+    "rust-foundation": {
+      "name": "crates.io (Rust Foundation)",
+      "match": [
+        "crates.io"
+      ]
+    },
+    "sackmann": {
+      "name": "Jeff Sackmann / Tennis Abstract",
+      "match": [
+        "Jeff Sackmann"
+      ]
+    },
+    "sec": {
+      "name": "U.S. Securities and Exchange Commission",
+      "match": [
+        "U.S. Securities and Exchange Commission"
+      ]
+    },
+    "sectigo": {
+      "name": "Sectigo (crt.sh)",
+      "match": [
+        "Sectigo"
+      ]
+    },
+    "sil": {
+      "name": "SIL International",
+      "match": [
+        "SIL International"
+      ]
+    },
+    "software-heritage": {
+      "name": "Software Heritage",
+      "match": [
+        "Software Heritage"
+      ]
+    },
+    "sonatype": {
+      "name": "Sonatype (Maven Central)",
+      "match": [
+        "Sonatype"
+      ]
+    },
+    "spdx": {
+      "name": "SPDX Workgroup (Linux Foundation)",
+      "match": [
+        "SPDX Workgroup"
+      ]
+    },
+    "st-louis-fed": {
+      "name": "Federal Reserve Bank of St. Louis (FRED)",
+      "match": [
+        "Federal Reserve Bank of St. Louis"
+      ]
+    },
+    "statistik-bb": {
+      "name": "Amt für Statistik Berlin-Brandenburg",
+      "match": [
+        "Amt für Statistik Berlin-Brandenburg"
+      ]
+    },
+    "statsbomb": {
+      "name": "StatsBomb",
+      "match": [
+        "StatsBomb"
+      ]
+    },
+    "trygg-mat-tracking": {
+      "name": "Trygg Mat Tracking (Combined IUU Vessel List)",
+      "match": [
+        "Combined IUU Vessel List"
+      ]
+    },
+    "uba": {
+      "name": "Umweltbundesamt",
+      "match": [
+        "Umweltbundesamt"
+      ]
+    },
+    "ucdp": {
+      "name": "Uppsala Conflict Data Program",
+      "match": [
+        "Uppsala Conflict Data Program"
+      ]
+    },
+    "uk-caa": {
+      "name": "UK Civil Aviation Authority",
+      "match": [
+        "UK Civil Aviation Authority"
+      ]
+    },
+    "uk-cabinet-office": {
+      "name": "UK Cabinet Office",
+      "match": [
+        "UK Cabinet Office"
+      ]
+    },
+    "uk-crown-commercial-service": {
+      "name": "UK Crown Commercial Service",
+      "match": [
+        "UK Crown Commercial Service"
+      ]
+    },
+    "uk-parliament": {
+      "name": "UK Parliament",
+      "match": [
+        "UK Parliament"
+      ]
+    },
+    "un-security-council": {
+      "name": "United Nations Security Council",
+      "match": [
+        "United Nations Security Council"
+      ]
+    },
+    "un-treaty-section": {
+      "name": "United Nations Treaty Collection (Office of Legal Affairs)",
+      "match": [
+        "United Nations Treaty Collection"
+      ]
+    },
+    "unctad": {
+      "name": "UNCTAD",
+      "match": [
+        "UNCTAD"
+      ]
+    },
+    "unece": {
+      "name": "United Nations Economic Commission for Europe",
+      "match": [
+        "United Nations Economic Commission for Europe"
+      ]
+    },
+    "unesco-uis": {
+      "name": "UNESCO Institute for Statistics",
+      "match": [
+        "UNESCO Institute for Statistics"
+      ]
+    },
+    "unhcr": {
+      "name": "UNHCR",
+      "match": [
+        "UNHCR"
+      ]
+    },
+    "unicode": {
+      "name": "Unicode, Inc. (CLDR)",
+      "match": [
+        "Unicode CLDR"
+      ]
+    },
+    "uniprot": {
+      "name": "UniProt Consortium",
+      "match": [
+        "UniProt Consortium"
+      ]
+    },
+    "unoosa": {
+      "name": "UN Office for Outer Space Affairs",
+      "match": [
+        "UNOOSA",
+        "United Nations registration documents"
+      ]
+    },
+    "unsd": {
+      "name": "United Nations Statistics Division",
+      "match": [
+        "United Nations Statistics Division"
+      ]
+    },
+    "us-census": {
+      "name": "U.S. Census Bureau",
+      "match": [
+        "US Census Bureau"
+      ]
+    },
+    "us-doj": {
+      "name": "U.S. Department of Justice",
+      "match": [
+        "U.S. Department of Justice"
+      ]
+    },
+    "us-senate": {
+      "name": "United States Senate",
+      "match": [
+        "United States Senate",
+        "Secretary of the Senate"
+      ]
+    },
+    "usda": {
+      "name": "U.S. Department of Agriculture",
+      "match": [
+        "U.S. Department of Agriculture",
+        "USDA"
+      ]
+    },
+    "usgs": {
+      "name": "U.S. Geological Survey",
+      "match": [
+        "U.S. Geological Survey"
+      ]
+    },
+    "vbb": {
+      "name": "Verkehrsverbund Berlin-Brandenburg",
+      "match": [
+        "Verkehrsverbund Berlin-Brandenburg"
+      ]
+    },
+    "voltaria": {
+      "name": "Voltaria Components Ltd",
+      "match": [
+        "Voltaria Components"
+      ]
+    },
+    "wcpfc": {
+      "name": "Western and Central Pacific Fisheries Commission",
+      "match": [
+        "Western and Central Pacific Fisheries Commission"
+      ]
+    },
+    "who": {
+      "name": "World Health Organization",
+      "match": [
+        "World Health Organization"
+      ]
+    },
+    "wikimedia": {
+      "name": "Wikimedia Foundation",
+      "match": [
+        "Wikidata",
+        "Wikimedia Foundation"
+      ]
+    },
+    "wiktextract": {
+      "name": "kaikki.org Wiktextract (English Wiktionary)",
+      "match": [
+        "kaikki.org"
+      ],
+      "derived_from": "wikimedia"
+    },
+    "wits": {
+      "name": "World Bank WITS (from UN Statistics Division tables)",
+      "sources": [
+        "wits-classification-concordances"
+      ],
+      "derived_from": "unsd"
+    },
+    "world-bank": {
+      "name": "World Bank",
+      "match": [
+        "World Bank"
+      ]
+    },
+    "wri": {
+      "name": "World Resources Institute",
+      "match": [
+        "World Resources Institute"
+      ]
+    },
+    "zbmath": {
+      "name": "zbMATH Open (FIZ Karlsruhe)",
+      "match": [
+        "zbMATH Open"
+      ]
+    }
+  },
+  "providers": {
+    "agrifood.core": {
+      "sources": [
+        "faostat-qcl-pp-fbs",
+        "nass-quickstats-crops",
+        "fas-psd-balances",
+        "eurostat-agri-crops-prices",
+        "agri-food-portal-cereal-prices"
+      ]
+    },
+    "astronomy.exoplanets": {
+      "sources": [
+        "exoplanet-archive-ps",
+        "exoplanet-archive-pscomppars",
+        "exoplanet-archive-toi",
+        "exoplanet-archive-koi",
+        "exoplanet-archive-removed"
+      ]
+    },
+    "astronomy.launches": {
+      "sources": [
+        "gcat-launch-log",
+        "gcat-satellite-catalog",
+        "gcat-organizations",
+        "celestrak-satcat"
+      ]
+    },
+    "astronomy.small-bodies": {
+      "sources": [
+        "mpc-designation-identifier",
+        "mpc-mpcorb-nea",
+        "jpl-sbdb-solutions",
+        "jpl-sentry-listings"
+      ]
+    },
+    "astronomy.space-object-registration": {
+      "sources": [
+        "unoosa-online-index",
+        "unoosa-registration-documents",
+        "esa-discos-objects",
+        "esa-discos-reentries",
+        "aerospace-reentries"
+      ]
+    },
+    "astronomy.space-weather": {
+      "sources": [
+        "noaa-swpc-alerts"
+      ]
+    },
+    "chemicals.substances": {
+      "sources": [
+        "pubchem-compounds",
+        "echa-clp-classifications",
+        "echa-reach-lists",
+        "comptox-toxval"
+      ]
+    },
+    "clinical.core": {
+      "sources": [
+        "ctgov-trial-history",
+        "ctgov-question-search",
+        "ctis-trials",
+        "euctr-trials",
+        "openfda-products",
+        "ema-medicines",
+        "medicines-drugsfda-submissions"
+      ]
+    },
+    "clinical.devices": {
+      "sources": [
+        "clinical-devices-openfda-510k",
+        "clinical-devices-openfda-pma",
+        "clinical-devices-openfda-classification",
+        "clinical-devices-openfda-recalls",
+        "clinical-devices-openfda-maude",
+        "clinical-devices-accessgudid",
+        "clinical-devices-eudamed-actors",
+        "clinical-devices-eudamed-devices",
+        "clinical-devices-eudamed-certificates"
+      ]
+    },
+    "clinical.health-capacity": {
+      "sources": [
+        "who-gho-health-capacity",
+        "oecd-health-statistics",
+        "eurostat-health-care-resources"
+      ]
+    },
+    "clinical.medicines": {
+      "sources": [
+        "medicines-ema-epar",
+        "medicines-dailymed-spl",
+        "medicines-fda-dsc",
+        "ema-medicines",
+        "openfda-products",
+        "medicines-drugsfda-submissions"
+      ]
+    },
+    "clinical.surveillance": {
+      "sources": [
+        "rki-tuberkulose-meldedaten",
+        "who-gho-tuberculosis",
+        "eurostat-causes-of-death-tuberculosis",
+        "destatis-todesursachen-tuberkulose"
+      ]
+    },
+    "economics.business": {
+      "sources": [
+        "eurostat-sts",
+        "eurostat-business-demography",
+        "us-census-cbp"
+      ]
+    },
+    "economics.core": {
+      "sources": [
+        "world-bank-indicators",
+        "eurostat-dissemination",
+        "fred-series"
+      ]
+    },
+    "economics.demographics": {
+      "sources": [
+        "eurostat-demography-migration",
+        "unhcr-refugee-data-finder",
+        "iom-dtm-idps",
+        "destatis-genesis-population-migration",
+        "statistik-bb-bezirke"
+      ]
+    },
+    "economics.extractives": {
+      "sources": [
+        "eiti-summary-data",
+        "usgs-mineral-commodity-summaries",
+        "bgs-world-mineral-statistics"
+      ]
+    },
+    "economics.labour": {
+      "sources": [
+        "ilostat-labour-indicators",
+        "oecd-labour-statistics",
+        "eurostat-lfs-labour",
+        "bls-public-data-api"
+      ]
+    },
+    "economics.logistics": {
+      "sources": [
+        "unece-unlocode-ports",
+        "unctadstat-maritime-series",
+        "eurostat-maritime-transport",
+        "bls-ppi-deep-sea-freight"
+      ]
+    },
+    "economics.public-finance": {
+      "sources": [
+        "bundeshaushalt-open-data",
+        "berlin-haushalt",
+        "eu-financial-transparency-system",
+        "eurostat-government-finance"
+      ]
+    },
+    "economics.tourism": {
+      "sources": [
+        "eurostat-tourism-occupancy",
+        "eurostat-tourism-capacity"
+      ]
+    },
+    "economics.trade": {
+      "sources": [
+        "un-comtrade-trade-flows",
+        "eurostat-comext-trade-flows",
+        "wits-classification-concordances"
+      ]
+    },
+    "energy.core": {
+      "sources": [
+        "energy-entsoe-de-lu",
+        "energy-eia-fuel-type-ciso",
+        "energy-eia-demand-ciso",
+        "energy-eia-interchange-ciso",
+        "energy-eia-capacity-plants",
+        "energy-ember-generation-deu",
+        "energy-ember-demand-deu",
+        "energy-ember-capacity-deu",
+        "energy-eurostat-balances",
+        "energy-charts-public-power-de"
+      ]
+    },
+    "engineering-safety.defects": {
+      "sources": [
+        "nhtsa-odi-investigations",
+        "nhtsa-complaints"
+      ]
+    },
+    "engineering-safety.directives": {
+      "sources": [
+        "faa-airworthiness-directives",
+        "easa-airworthiness-directives"
+      ]
+    },
+    "engineering-safety.identity": {
+      "derives_from": [
+        "engineering-safety.defects",
+        "engineering-safety.directives",
+        "engineering-safety.investigations"
+      ]
+    },
+    "engineering-safety.investigations": {
+      "sources": [
+        "ntsb-investigations",
+        "csb-investigations",
+        "phmsa-hazardous-liquid-incidents",
+        "bfu-reports",
+        "bea-reports"
+      ]
+    },
+    "engineering-safety.recommendations": {
+      "sources": [
+        "ntsb-investigations",
+        "csb-investigations"
+      ]
+    },
+    "environment.biodiversity": {
+      "sources": [
+        "col-checklist-releases",
+        "gbif-species-occurrences",
+        "iucn-red-list-reference"
+      ]
+    },
+    "environment.core": {
+      "sources": [
+        "openaq-berlin-mitte",
+        "uba-berlin",
+        "entsoe-de-lu",
+        "smard-de",
+        "eea-industry-berlin",
+        "eu-ets-berlin",
+        "open-meteo-archive-berlin",
+        "open-meteo-forecast-berlin",
+        "dwd-berlin-alexanderplatz"
+      ]
+    },
+    "environment.waste": {
+      "sources": [
+        "eurostat-waste",
+        "eurostat-circular-economy",
+        "eea-industry-waste-transfers",
+        "oecd-municipal-waste"
+      ]
+    },
+    "environment.water": {
+      "sources": [
+        "pegelonline-stations-levels",
+        "usgs-water-data",
+        "eea-wise-wfd-status"
+      ]
+    },
+    "fisheries.core": {
+      "sources": [
+        "gfw-vessels-effort",
+        "fao-fishstat-capture",
+        "iccat-vessel-lists",
+        "wcpfc-vessel-lists",
+        "iotc-vessel-lists",
+        "combined-iuu-vessel-list"
+      ]
+    },
+    "funding.core": {
+      "publishers": [
+        {
+          "id": "nlnet",
+          "evidence": "src/ingestion/funding_providers.py",
+          "quote": "NLnet Foundation"
+        },
+        {
+          "id": "european-commission",
+          "evidence": "src/ingestion/funding_providers.py",
+          "quote": "\"name\": \"European Commission\""
+        },
+        {
+          "id": "bmwe",
+          "evidence": "src/ingestion/funding_providers.py",
+          "quote": "Bundesministerium für Wirtschaft und Energie"
+        }
+      ]
+    },
+    "funding.development-finance": {
+      "sources": [
+        "oecd-crs-development-finance"
+      ]
+    },
+    "geospatial.core": {
+      "sources": [
+        "berlin-bezirksgrenzen",
+        "berlin-schulen",
+        "umweltatlas-umweltzone",
+        "umweltatlas-laerm-lden",
+        "umweltatlas-klimafunktion"
+      ]
+    },
+    "geospatial.housing": {
+      "sources": [
+        "berlin-boris-bodenrichtwerte",
+        "berlin-bebauungsplaene",
+        "berlin-wohnlagen",
+        "berlin-mietspiegel",
+        "statistik-bb-bautaetigkeit",
+        "destatis-genesis-bautaetigkeit"
+      ]
+    },
+    "geospatial.infrastructure": {
+      "sources": [
+        "infrastructure-gppd-deu",
+        "infrastructure-gem-coal-plants-de",
+        "infrastructure-gem-gas-pipelines-de",
+        "infrastructure-gem-lng-terminals-us",
+        "infrastructure-osm-lusatia",
+        "infrastructure-eia-power-plants-socal",
+        "infrastructure-eia-lng-terminals-gulf",
+        "infrastructure-eia-gas-pipelines-gulf",
+        "infrastructure-entsog-de-points"
+      ]
+    },
+    "geospatial.real-estate": {
+      "sources": [
+        "hmlr-price-paid-data",
+        "hmlr-uk-hpi",
+        "dvf-geolocalisees",
+        "eurostat-house-price-index",
+        "inspire-cp-france",
+        "inspire-cp-nordrhein-westfalen"
+      ]
+    },
+    "geospatial.transit": {
+      "sources": [
+        "vbb-gtfs"
+      ]
+    },
+    "hazards.core": {
+      "sources": [
+        "usgs-earthquakes",
+        "emsc-earthquakes",
+        "gdacs-events",
+        "nhc-advisories",
+        "effis-burnt-areas",
+        "glofas-notifications"
+      ]
+    },
+    "humanitarian.core": {
+      "sources": [
+        "reliefweb-reports-sdn",
+        "reliefweb-disasters-sdn",
+        "hdx-sdn-datasets",
+        "ucdp-candidate-sdn",
+        "ucdp-ged-sdn",
+        "acled-events"
+      ]
+    },
+    "legal.core": {
+      "sources": [
+        "cellar-gdpr-deu",
+        "cellar-gdpr-eng",
+        "cellar-c362-14-deu",
+        "berlin-law-publications",
+        "cellar-product-safety-acts-eng"
+      ]
+    },
+    "legal.courts": {
+      "sources": [
+        "courtlistener-dockets",
+        "courtlistener-opinions",
+        "rii-federal-decisions"
+      ]
+    },
+    "legal.enforcement": {
+      "sources": [
+        "sec-enforcement-releases",
+        "fca-final-notices",
+        "epa-echo-enforcement-cases",
+        "edpb-art60-final-decisions"
+      ]
+    },
+    "legal.federal-statutes": {
+      "sources": [
+        "gii-federal-statutes",
+        "ris-federal-statute-versions",
+        "bgbl-federal-promulgations"
+      ]
+    },
+    "legal.justice-statistics": {
+      "sources": [
+        "fbi-cde-summarized",
+        "police-uk-street-crime",
+        "eurostat-crime-iccs"
+      ]
+    },
+    "legal.sanctions": {
+      "sources": [
+        "eu-sanctions-consolidated",
+        "un-sc-consolidated",
+        "ofac-sls",
+        "uk-sanctions-list",
+        "cellar-sanctions-acts-eng",
+        "cellar-dual-use-2021-821"
+      ]
+    },
+    "legal.treaties": {
+      "sources": [
+        "untc-treaty-status",
+        "eu-cellar-agreements",
+        "coe-treaty-office"
+      ]
+    },
+    "linguistics.languoids": {
+      "sources": [
+        "glottolog-cldf",
+        "sil-iso639-3"
+      ]
+    },
+    "linguistics.lexicon": {
+      "sources": [
+        "wikidata-lexemes",
+        "kaikki-wiktextract",
+        "cldr-json"
+      ]
+    },
+    "linguistics.typology": {
+      "sources": [
+        "wals-cldf"
+      ]
+    },
+    "market.bafin": {
+      "sources": [
+        "bafin-voting-rights",
+        "bafin-managers-transactions",
+        "bundesanzeiger-net-short-positions",
+        "bafin-company-database",
+        "bafin-warnings-measures"
+      ]
+    },
+    "market.core": {
+      "none": "licensed price providers are not selected yet; their acceptance gate is #1780"
+    },
+    "market.insurance": {
+      "sources": [
+        "eiopa-insurance-statistics",
+        "insurer-sfcr-allianz",
+        "naic-market-share-reports",
+        "florida-oir-catastrophe-claims",
+        "noaa-ncei-billion-dollar-disasters"
+      ]
+    },
+    "market.lei": {
+      "sources": [
+        "gleif-lei"
+      ]
+    },
+    "materials.computed": {
+      "sources": [
+        "materials-project-ti-al-oxides",
+        "jarvis-dft-3d-snapshot",
+        "oqmd-ti-al-oxides"
+      ]
+    },
+    "materials.experimental": {
+      "sources": [
+        "nist-webbook-titanium-oxide"
+      ]
+    },
+    "materials.structures": {
+      "sources": [
+        "cod-titanium-oxide-structures"
+      ]
+    },
+    "news.core": {
+      "sources": [
+        "guardian-content",
+        "bbc-world-rss",
+        "gdelt-doc"
+      ]
+    },
+    "news.fact-checks": {
+      "sources": [
+        "news-fact-checks-google",
+        "news-fact-checks-datacommons",
+        "news-fact-checks-ifcn"
+      ]
+    },
+    "onchain.core": {
+      "sources": [
+        "etherscan-v2-mainnet",
+        "blockstream-esplora-bitcoin",
+        "ethereum-lists-tokens"
+      ]
+    },
+    "osint.core": {
+      "sources": [
+        "internet-archive-cdx",
+        "rdap-domain",
+        "crt-sh",
+        "gdelt-doc"
+      ]
+    },
+    "osint.movements": {
+      "sources": [
+        "movements-faa-registry",
+        "movements-uk-caa-ginfo",
+        "movements-opensky",
+        "movements-gfw-port-visits",
+        "movements-kystdatahuset-ais",
+        "movements-unctad-port-calls"
+      ]
+    },
+    "osint.platform-transparency": {
+      "sources": [
+        "dsa-sor-dumps",
+        "meta-ad-library-political",
+        "google-political-ads",
+        "lumen-notices"
+      ]
+    },
+    "oss.archive": {
+      "sources": [
+        "software-heritage"
+      ]
+    },
+    "oss.dependency-graphs": {
+      "sources": [
+        "deps-dev-npm"
+      ]
+    },
+    "oss.licences": {
+      "sources": [
+        "spdx-license-list"
+      ]
+    },
+    "oss.registries": {
+      "sources": [
+        "pypi-json",
+        "npm-registry",
+        "crates-io",
+        "maven-central"
+      ]
+    },
+    "ownership.competition": {
+      "sources": [
+        "ec-competition-cases",
+        "eu-state-aid-tam",
+        "uk-cma-cases",
+        "us-ftc-cases",
+        "us-doj-atr-cases"
+      ]
+    },
+    "ownership.core": {
+      "sources": [
+        "gleif-level2",
+        "companies-house",
+        "sec-edgar-ownership",
+        "open-ownership-bods"
+      ]
+    },
+    "platform.web-archives": {
+      "sources": [
+        "internet-archive-cdx"
+      ],
+      "publishers": [
+        {
+          "id": "internet-archive",
+          "evidence": "src/ingestion/memento.py",
+          "quote": "Internet Archive Wayback Machine"
+        },
+        {
+          "id": "british-library",
+          "evidence": "src/ingestion/memento.py",
+          "quote": "UK Web Archive (British Library"
+        },
+        {
+          "id": "fct-arquivo-pt",
+          "evidence": "src/ingestion/memento.py",
+          "quote": "Arquivo.pt (Portuguese web archive, FCT)"
+        },
+        {
+          "id": "library-of-congress",
+          "evidence": "src/ingestion/memento.py",
+          "quote": "Library of Congress web archives"
+        }
+      ]
+    },
+    "political.campaign-finance": {
+      "sources": [
+        "us-fec-committees",
+        "us-fec-candidates",
+        "us-fec-filings",
+        "us-fec-schedule-a",
+        "us-fec-schedule-b",
+        "us-fec-schedule-e",
+        "uk-ec-donations",
+        "uk-ec-spending"
+      ]
+    },
+    "political.core": {
+      "sources": [
+        "us-federal-register-executive",
+        "eu-eurlex-regulatory",
+        "ca-elections-results",
+        "de-bundestag-dip"
+      ]
+    },
+    "political.elections": {
+      "sources": [
+        "de-bundeswahlleiterin-btw-results",
+        "de-berlin-agh-results",
+        "gb-electoral-commission-ge-results",
+        "us-mit-election-lab-countypres"
+      ]
+    },
+    "political.legislation": {
+      "sources": [
+        "us-congress-gov-bills",
+        "us-congress-gov-house-votes",
+        "us-senate-roll-calls",
+        "us-govinfo-bills",
+        "us-govinfo-billstatus",
+        "uk-parliament-bills",
+        "uk-commons-divisions",
+        "uk-lords-divisions",
+        "uk-hansard-debates"
+      ]
+    },
+    "political.lobbying": {
+      "sources": [
+        "eu-transparency-register",
+        "de-lobbyregister",
+        "ep-mep-meetings",
+        "ec-meetings",
+        "uk-consultant-lobbyists",
+        "us-senate-lda"
+      ]
+    },
+    "procurement.core": {
+      "sources": [
+        "ted-notices",
+        "uk-fts-ocds",
+        "uk-contracts-finder-ocds",
+        "sam-opportunities"
+      ]
+    },
+    "products.appliances": {
+      "sources": [
+        "eprel-washing-machines",
+        "eprel-refrigerating-appliances",
+        "icecat-washing-machines",
+        "icecat-refrigerating-appliances"
+      ]
+    },
+    "products.components": {
+      "sources": [
+        "bmecat-capatronic-mlcc",
+        "bmecat-voltaria-mlcc"
+      ]
+    },
+    "products.core": {
+      "sources": [
+        "icecat-displays",
+        "eprel-displays"
+      ]
+    },
+    "products.food": {
+      "sources": [
+        "off-food-products",
+        "fdc-foods",
+        "ciqual-composition"
+      ]
+    },
+    "products.safety": {
+      "sources": [
+        "safety-gate-alerts",
+        "cpsc-recalls",
+        "nhtsa-recalls",
+        "rasff-notifications"
+      ]
+    },
+    "science.cultural": {
+      "sources": [
+        "ddb-berlin-photographs",
+        "europeana-berlin-images"
+      ]
+    },
+    "science.education-statistics": {
+      "sources": [
+        "ipeds-institution-statistics",
+        "eter-institution-statistics",
+        "unesco-uis-education-indicators",
+        "oecd-eag-education-indicators",
+        "eurostat-rd-statistics"
+      ]
+    },
+    "science.life-sciences": {
+      "sources": [
+        "uniprot-lifesci-proteins",
+        "ncbi-gene-lifesci",
+        "ncbi-taxonomy-lifesci",
+        "rcsb-pdb-lifesci-structures",
+        "chembl-lifesci-bioactivity"
+      ]
+    },
+    "science.literature": {
+      "sources": [
+        "europe-pmc",
+        "arxiv-api",
+        "datacite-dois",
+        "crossref-works",
+        "openalex-works",
+        "openreview-notes"
+      ]
+    },
+    "science.mathematics": {
+      "sources": [
+        "mathlib4-fib",
+        "afp-zeckendorf",
+        "oeis-sequences",
+        "zbmath-open"
+      ]
+    },
+    "science.media-metadata": {
+      "sources": [
+        "openlibrary-media",
+        "musicbrainz-media",
+        "wikidata-media",
+        "dnb-gnd-media",
+        "dnb-catalogue-media",
+        "loc-lcnaf-media",
+        "loc-catalogue-media"
+      ]
+    },
+    "science.methodology": {
+      "derives_from": [
+        "science.literature",
+        "clinical.core"
+      ]
+    },
+    "science.paper-families": {
+      "sources": [
+        "crossref-works",
+        "openalex-works",
+        "arxiv-api",
+        "europe-pmc"
+      ]
+    },
+    "science.research-entities": {
+      "sources": [
+        "research-entities-ror",
+        "research-entities-orcid",
+        "research-entities-datacite",
+        "research-entities-cordis"
+      ]
+    },
+    "science.systematic-reviews": {
+      "derives_from": [
+        "science.literature"
+      ]
+    },
+    "society.income": {
+      "sources": [
+        "pip-country-estimates",
+        "pip-regional-aggregates",
+        "eurostat-silc-income-poverty",
+        "oecd-idd-income-distribution"
+      ]
+    },
+    "society.social-protection": {
+      "sources": [
+        "eurostat-esspros",
+        "oecd-socx",
+        "ilo-social-protection-coverage"
+      ]
+    },
+    "sports.football": {
+      "sources": [
+        "football-data-pl-matches",
+        "football-data-pl-standings",
+        "football-data-pl-teams",
+        "openfootball-en1",
+        "statsbomb-open-data"
+      ]
+    },
+    "sports.forecasts": {
+      "derives_from": [
+        "sports.football",
+        "sports.tennis",
+        "sports.olympics"
+      ]
+    },
+    "sports.olympics": {
+      "publishers": [
+        {
+          "id": "ioc",
+          "evidence": "src/ingestion/sports_sources.py",
+          "quote": "International Olympic Committee"
+        }
+      ]
+    },
+    "sports.tennis": {
+      "sources": [
+        "sackmann-atp-matches",
+        "sackmann-wta-matches"
+      ]
+    },
+    "technology.ai-models": {
+      "sources": [
+        "huggingface-hub",
+        "openml",
+        "epoch-ai"
+      ]
+    },
+    "technology.core": {
+      "derives_from": [
+        "technology.vulnerabilities"
+      ]
+    },
+    "technology.internet-infrastructure": {
+      "sources": [
+        "ripestat-routing",
+        "peeringdb-network",
+        "rdap-registrations",
+        "crtsh-certificates",
+        "ct-log-list"
+      ]
+    },
+    "technology.patents": {
+      "sources": [
+        "epo-ops-patents"
+      ]
+    },
+    "technology.standards": {
+      "sources": [
+        "iso-open-data"
+      ]
+    },
+    "technology.vulnerabilities": {
+      "sources": [
+        "osv-api",
+        "nvd-cve-api",
+        "nvd-cve-history",
+        "github-advisory-database",
+        "cisa-kev",
+        "first-epss",
+        "cve-services",
+        "nvd-cpe-dictionary",
+        "cwe-downloads"
+      ]
+    },
+    "weather.forecasts": {
+      "sources": [
+        "dwd-mosmix-l",
+        "nws-gridpoint-forecast",
+        "open-meteo-icon-d2"
+      ]
+    },
+    "weather.observations": {
+      "sources": [
+        "dwd-10min-air-temperature",
+        "dwd-hourly-air-temperature",
+        "dwd-hourly-precipitation",
+        "aviationweather-metar-taf"
+      ]
+    },
+    "weather.verification": {
+      "derives_from": [
+        "weather.forecasts",
+        "weather.observations"
+      ]
+    },
+    "weather.warnings": {
+      "sources": [
+        "dwd-cap-warnings",
+        "nws-alerts"
+      ]
+    }
+  }
+}

@@ -181,6 +181,13 @@ gaps, scheduled in the
 [domain coverage program](docs/roadmaps/domain-coverage-program.md). Offline
 coverage and live coverage are reported separately.
 
+Coverage alone does not show how many publishers stand behind an answer.
+[ADR-006](docs/architecture/decisions/ADR-006-source-depth.md) computes each
+covered subdomain's depth, the number of distinct publishers behind it, from
+the source packs. Today 4 of the 72 covered subdomains rest on one publisher;
+the [source depth program](docs/roadmaps/source-depth-program.md) schedules
+them.
+
 Packs share one core: stores, identity review, monitoring, and composition. A
 pack adds sources, vocabulary, enrichers, and workflow templates without
 changing core code. A test enforces the admission rule. A new source must name
