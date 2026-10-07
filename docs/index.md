@@ -127,9 +127,12 @@ For the project overview and local setup, start with the
   [ADR-001 tool-panel annotation](architecture/decisions/ADR-001-tool-panel-annotation.md) ·
   [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md) ·
   [ADR-004 pack taxonomy](architecture/decisions/ADR-004-pack-taxonomy.md) ·
-  [ADR-005 domain coverage program](architecture/decisions/ADR-005-domain-coverage-program.md)
+  [ADR-005 domain coverage program](architecture/decisions/ADR-005-domain-coverage-program.md) ·
+  [ADR-006 source depth](architecture/decisions/ADR-006-source-depth.md)
 - [Domain coverage program](roadmaps/domain-coverage-program.md) — the
   subdomain gaps in the pack taxonomy and the track that fills each one
+- [Source depth program](roadmaps/source-depth-program.md) — the publishers
+  behind each covered subdomain and the thin subdomains that rest on one
 
 ## Integration
 

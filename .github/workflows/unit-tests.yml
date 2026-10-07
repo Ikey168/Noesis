@@ -67,6 +67,8 @@ jobs:
             tests/unit/analytics \
             tests/unit/app \
             tests/unit/argument_mining \
+            tests/unit/composition/test_pack_taxonomy.py \
+            tests/unit/composition/test_source_depth.py \
             tests/unit/config \
             tests/unit/domains \
             tests/unit/engineering_safety \
