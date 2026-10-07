@@ -74,7 +74,11 @@ Ask for anything missing; these decide everything downstream.
    consistent state of the corpus:
    `begin_research_snapshot(selection={"namespaces": ["paper-ai-education-2026"]})`.
    Its namespace generations become the report's `snapshot.generations`.
-6. **Draft, cite, export** with **paper-draft**.
+6. **Draft, cite, export** with **paper-draft**. Alongside it:
+   **research-gaps** for the motivation and research agenda,
+   **paper-figures** for the PRISMA diagram, evidence map and tables,
+   **literature-watch** on a fixed rhythm until the search cut-off, and
+   **reference-integrity** before anything is submitted or circulated.
 7. **Close out.** Record spend with `record_research_project_expenditure`,
    complete the intake session, and close the snapshot
    (`close_research_snapshot`) once the export is done.

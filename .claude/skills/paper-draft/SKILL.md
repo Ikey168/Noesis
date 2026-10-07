@@ -97,6 +97,9 @@ revisions stay readable with `inspect_authored_report(..., revision=n)`.
 
 ## 5. Export
 
+Run **reference-integrity** first; figures and tables come from
+**paper-figures**.
+
 - **Citation closure:** `export_zotero_bibliography(..., report_id=<id>)` fails
   with `citation_closure_failed` if the report cites a key the export lacks.
 - **Native:** `export_authored_report(namespace, report_id)` → Markdown, the

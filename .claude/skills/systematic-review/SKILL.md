@@ -77,7 +77,7 @@ study and publication counts stay distinct.
 `extract_review_field(namespace, candidate_id, field_name, value, start, end)`
 proposes a value for a protocol field, anchored to the exact `[start, end)`
 span of the committed full text. A second reviewer accepts or rejects it with
-`review_study_field`. Values without a span (e.g. an effect size you computed)
+`review_study_field` (`decision="accepted"|"rejected"`). Values without a span (e.g. an effect size you computed)
 belong in the paper's analysis, labelled as calculations — not as extracted
 fields.
 
