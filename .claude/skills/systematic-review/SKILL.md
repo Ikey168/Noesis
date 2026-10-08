@@ -1,6 +1,6 @@
 ---
 name: systematic-review
-description: Run a protocol-registered systematic (or scoping) literature review in Noesis — eligibility criteria and search plan fixed up front, candidates traced to their search run and source revision, independent dual screening with blinded reviewers and adjudication, span-anchored data extraction with second-reviewer checks, visible protocol amendments, and a PRISMA-mapped export (counts, study fields, ASReview CSV). Use when a paper's claims rest on a systematic search of the literature, e.g. a review or meta-analysis on AI in education. Drives the noesis-knowledge-engine MCP review_protocol / review_candidate tools.
+description: Design and run a protocol-registered systematic (or scoping) literature review in Noesis — register eligibility criteria, databases, search expressions, date window, two independent reviewers and extraction fields before any screening; define the evidence-qualifier fields; amend visibly; and export the PRISMA-mapped result (counts, study fields, ASReview CSV). The search and the screening/extraction stages run through the literature-search and screening-extraction skills. Use when a paper's claims rest on a systematic search of the literature, e.g. a review or meta-analysis on AI in education. Drives the noesis-knowledge-engine MCP review_protocol / review_candidate tools.
 ---
 
 # Systematic review
@@ -42,53 +42,21 @@ create_review_protocol(namespace="paper-ai-education-2026", request_key="srp-v1"
   amendment is visible in the export; earlier candidates keep their original
   criteria. Never quietly re-create the protocol.
 
-## 2. Search and add candidates
+## 2. Search, screen, extract
 
-Run each `search_expression` through the scholarly connectors with the
-protocol's date window (see **science-overview**, step 2, for the connector
-table and ingestion path). Ingest hits so each paper is a Noesis document, then
-add each one:
+The protocol is carried out by two stage skills:
 
-```
-add_review_candidate(namespace=..., protocol_id=..., protocol_revision=1,
-  publication_id=<document id>, source_revision=<committed revision>,
-  source_namespace="paper-ai-education-2026", search_run_id=<run receipt id>,
-  study_id=<one id per study; reuse it for multiple reports of the same study>,
-  title=..., abstract=..., full_text_available=<true only if the text is ingested>)
-```
+- **literature-search**: per-database query plan, harvest, search-run
+  receipts, ingestion, searches outside Noesis (ERIC), full texts, and
+  `add_review_candidate`.
+- **screening-extraction**: calibration, blinded dual screening,
+  adjudication, span-anchored extraction and second-reviewer checks.
 
-Dedupe by DOI before adding; group companion papers under one `study_id` so
-study and publication counts stay distinct.
+Check the protocol's `databases` against the connectors listed in
+**literature-search** before registering it. A database without a connector
+is searched outside Noesis and named as such in the protocol.
 
-**Databases Noesis does not cover.** Check the protocol's `databases` against
-the connector list. For education research the main gap is **ERIC**, which has
-no Noesis connector (`dblp` does cover AIED, EDM, LAK and L@S proceedings). Search
-it outside Noesis, record the date and query in the protocol, and ingest the
-hits by DOI or URL so they become cited documents. If you skip it, the paper's
-limitations say so; it may not claim a comprehensive search.
-
-## 3. Screen independently
-
-- Each reviewer: `screen_review_candidate(..., stage="title_abstract",
-  decision="include"|"exclude"|"pending", reason=...)`, then `stage="full_text"`
-  for includes. Reviewers cannot see each other's decisions
-  (`inspect_review_candidate` / `list_review_candidates` are blinded).
-- Missing full text stays `pending` — it cannot be included or excluded.
-- Disagreements: `adjudicate_review_candidate(..., screening_hash=...)` against
-  the exact decision set being resolved.
-- An agent may **suggest** an ordering (the export's `asreview_unlabeled_csv`
-  feeds ASReview) but never records a screening decision on a human's behalf.
-
-## 4. Extract data
-
-`extract_review_field(namespace, candidate_id, field_name, value, start, end)`
-proposes a value for a protocol field, anchored to the exact `[start, end)`
-span of the committed full text. A second reviewer accepts or rejects it with
-`review_study_field` (`decision="accepted"|"rejected"`). Values without a span (e.g. an effect size you computed)
-belong in the paper's analysis, labelled as calculations — not as extracted
-fields.
-
-## 5. Qualify the evidence
+## 3. Qualify the evidence
 
 Make these protocol `fields` so they are extracted and second-reviewed like any
 other value; they decide how strong the paper's conclusions may be:
@@ -108,7 +76,7 @@ other value; they decide how strong the paper's conclusions may be:
 Accuracy figures for contested tools (for example AI-text detectors) are cited
 from the specific evaluation, never from a vendor claim alone.
 
-## 6. Export for the paper
+## 4. Export for the paper
 
 `export_systematic_review(namespace, protocol_id)` returns the protocol and
 amendments, every candidate with screening and fields, distinct

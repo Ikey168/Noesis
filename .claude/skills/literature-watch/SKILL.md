@@ -8,7 +8,7 @@ description: Keep a Noesis paper current while it is being written — standing 
 On a topic that moves weekly, a paper drafted in spring is out of date by its
 review round. This skill sets up the watches once and then runs a short, recorded
 check on a fixed rhythm. It does not change the paper by itself: anything worth
-acting on goes to **systematic-review** (as a new candidate under the
+acting on goes to **literature-search** (as a new candidate under the
 protocol) or **paper-draft** (as a revision). Run it inside the
 **paper-project** namespace.
 
@@ -63,7 +63,7 @@ Record all watch, subscription and monitor ids in the research project
 
 | Item | Decision |
 |---|---|
-| New study inside the review's question and date window | `escalate`: ingest it, then `add_review_candidate` under the protocol (or an amendment if the window must move). It is screened like every other candidate. |
+| New study inside the review's question and date window | `escalate`: ingest it and add it as a candidate (**literature-search**, with its own receipt), or amend the protocol if the window must move. It is screened like every other candidate (**screening-extraction**). |
 | New study that challenges a claim the paper makes | `escalate` → Deep Research; then a **paper-draft** revision or a discussion point. Never drop it because it is inconvenient. |
 | Revised statistic the paper cites | `flag`; update through `assess_authored_report_changes` in **paper-draft**. |
 | Retraction or correction of a cited work | `flag`; handle with **reference-integrity**. |
