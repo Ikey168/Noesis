@@ -8,7 +8,10 @@ entries in 38 source packs (`config/source_packs/*.json`), of which 155 need
 no credentials, plus about 60 domain provider modules
 (`src/ingestion/*_sources.py`, `*_providers.py`) and the code-level connectors
 under `src/ingestion/connectors/`. Only the ones that need a credential appear
-here; everything else works without a key. Source-pack sources
+here; everything else works without a key. Providers that the source audits
+(`docs/development/*-evidence/source-audit.md`, `docs/roadmaps/*-source-audit.md`)
+evaluated but did not implement, and that would need a credential, are listed
+separately at the end. Source-pack sources
 declare their secret as `auth.secret_ref` in `config/source_packs/*.json`
 (`required-secret` = the source is skipped without it, `optional-secret` =
 higher rate limits or extra data); code-level connectors read the variable
@@ -140,10 +143,38 @@ figure. Sources are listed at the end.
 | Embeddings backend `openai` | Required for that backend: `OPENAI_API_KEY` | Not free (paid API) | `local_sentence_transformers` backend (built in, no key) |
 | Vision describer | Required: `ANTHROPIC_API_KEY` (`NOESIS_VISION_PROVIDER=anthropic`) | Not free (paid API) | A local open-weight vision model; no built-in local provider yet |
 | Telegram alert channel | Required for that channel: `TELEGRAM_BOT_TOKEN` | Free (about 30 messages/s broadcast limit) | — |
+| Anti-detection scraper CAPTCHA solving (`src/scraper/captcha_solver.py`) | Required for that feature: `captcha_api_key` constructor argument (no environment variable) | **Not free**: 2Captcha charges per solved CAPTCHA (from about $0.50 per 1,000 image CAPTCHAs, more for reCAPTCHA; secondary sources) | Skip sources that require CAPTCHAs |
 | Email alert / report channel | Required for that channel: `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` (+ `SMTP_FROM`, `SMTP_PORT`, `SMTP_TLS`) | Depends on the mail provider | — |
 | optional integration `github` | Required: `NOESIS_GITHUB_TOKEN` / `GITHUB_PERSONAL_ACCESS_TOKEN` / `GITHUB_TOKEN` | Free (personal access token) | — |
 | MCP integration `github` | Required: `NOESIS_GITHUB_MCP_TOKEN` | Free (personal access token) | — |
 | MCP integration `context7` | Required: `NOESIS_CONTEXT7_API_KEY` | Free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan | Self-hosted Context7 (open source) |
+
+## Audited but not implemented (would need a credential)
+
+These providers are documented in the source audits but have no connector.
+Implementing any of them would add a credential to this page.
+
+| Provider | Audit | Credential | Audit decision |
+|---|---|---|---|
+| UK Charity Commission register API | civil-society | subscription key (`NOESIS_CHARITY_COMMISSION_API_KEY` reserved) | wave-2 domain, not implemented |
+| Argo GDAC / Argovis | marine | API key (`NOESIS_ARGOVIS_API_KEY` reserved) | wave-2 domain, not implemented |
+| Copernicus Marine | marine | account password (`NOESIS_COPERNICUS_MARINE_PASSWORD` reserved) | wave-2 domain, not implemented |
+| Copernicus Land Monitoring Service (CLMS) | land-soils | service key (`NOESIS_CLMS_SERVICE_KEY` reserved) | wave-2 domain, not implemented |
+| UN Population Division Data Portal (WPP) | mortality | token (`NOESIS_UN_DATAPORTAL_TOKEN` reserved) | wave-2 domain, not implemented |
+| IHME Global Burden of Disease results | mortality | individual login, non-commercial user agreement | not implemented |
+| Socrata open-data portals | cyber-incidents | app token (`NOESIS_SOCRATA_APP_TOKEN` reserved) | wave-2 domain, not implemented |
+| FAO EMPRES-i+ | animal-health | FAO account (`NOESIS_FAO_EMPRES_I_TOKEN` reserved, not granted) | gated, not granted |
+| MAVISE (Council of Europe media database) | media-outlets | account only if required (`NOESIS_MAVISE_ACCOUNT_TOKEN` reserved) | gated if an account is required |
+| Libraries.io | oss-ecosystems | API key (free; data dumps CC BY-SA 4.0) | not implemented: duplicates package registries and deps.dev |
+| PyPI downloads on BigQuery | oss-ecosystems | Google Cloud account; queries are billed | out of scope (billed popularity signal) |
+| Nexar (Octopart) | products-expansion | OAuth2 client credentials, commercial API terms | link record only; terms restrict storing part data |
+| GRDC river discharge (BfG) | water | registration; data on request for own use | not implemented |
+| Space-Track decay and TIP messages | astronomy | account | not implemented (redistribution terms) |
+| Copernicus Atmosphere Data Store (CAMS) | environment | ECMWF account + API key | not implemented |
+| Unternehmensregister | ownership | account for some documents | not implemented |
+| Verisk Property Claim Services | insurance | paid subscription | excluded (licensed) |
+| Ethnologue | linguistics | paid subscription | excluded (licence forbids reuse) |
+| Ansys Granta, MatWeb | materials | licensed commercial databases | excluded (no redistribution rights) |
 
 ## Where keys live
 
@@ -220,3 +251,5 @@ that are backed up unencrypted; inject them at start from a secret manager
 - Space-Track: [overview](https://newspaceeconomy.ca/2023/06/22/overview-of-space-track-org-a-space-situational-awareness-service-by-the-u-s-department-of-defense/)
 - IUCN Red List: [API client notes](https://zitniklab.hms.harvard.edu/ToolUniverse/_modules/tooluniverse/iucn_tool.html), [Jentic FAQ](https://jentic.com/apis/iucnredlist)
 - Context7: [free-tier change](https://blog.devgenius.io/context7-quietly-slashed-its-free-tier-by-92-16fa05ddce03), [usage docs](https://context7.com/docs/howto/usage.md)
+- 2Captcha: [Capterra listing](https://capterra.com/p/10039723/2Captcha/), [solver price comparison](https://research.aimultiple.com/captcha-solving-services)
+- Audited-but-not-implemented providers: the source audits under `docs/development/*-evidence/` and `docs/roadmaps/*-source-audit.md` (civil-society, marine, land-soils, mortality, cyber-incidents, animal-health, media-outlets, oss-ecosystems, products-expansion, water, astronomy, environment, ownership, insurance, linguistics, materials)
