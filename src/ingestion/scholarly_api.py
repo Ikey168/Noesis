@@ -153,21 +153,9 @@ def records(name, payload, *, cursor, limit):
             identity, url = doi, "https://doi.org/" + doi
         else:
             title = item.get("title") or item.get("display_name") or ""
-            inverted = item.get("abstract_inverted_index") or {}
-            positions = {}
-            for word, offsets in inverted.items():
-                for offset in offsets:
-                    if (
-                        not isinstance(offset, int)
-                        or offset < 0
-                        or offset > 100000
-                        or offset in positions
-                    ):
-                        raise ValueError("invalid abstract position")
-                    positions[offset] = word
-            if positions and set(positions) != set(range(len(positions))):
-                raise ValueError("abstract positions are not contiguous")
-            abstract = " ".join(positions[i] for i in range(len(positions)))
+            from src.ingestion.connectors.scholarly.abstracts import rebuild_inverted_abstract
+
+            abstract = rebuild_inverted_abstract(item.get("abstract_inverted_index") or {})
             authors = [
                 a.get("author", {}).get("display_name", "")
                 for a in item.get("authorships", [])

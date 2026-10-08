@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1915,
+      "tool_count": 1916,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1937,6 +1937,7 @@
         "noesis-knowledge-engine.lookup_lexeme",
         "noesis-knowledge-engine.lookup_material",
         "noesis-knowledge-engine.lookup_ownership_entity",
+        "noesis-knowledge-engine.lookup_paper_abstracts",
         "noesis-knowledge-engine.lookup_product_models",
         "noesis-knowledge-engine.lookup_product_notices",
         "noesis-knowledge-engine.lookup_sanctions_designation",
@@ -2888,7 +2889,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1915
+      "visible_tool_count": 1916
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2899,11 +2900,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 166,
+      "available": 167,
       "degraded": 174,
       "unauthorized": 1913
     },
-    "tools": 2253
+    "tools": 2254
   },
   "tools": [
     {
@@ -74390,6 +74391,57 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Look up paper abstracts by DOI (OpenAlex, then Crossref, then Semantic Scholar).\n\nEach abstract carries the provider it came from; DOIs no provider can supply\nare listed as missing. Read-only: nothing is stored. At most 200 DOIs.",
+      "id": "noesis-knowledge-engine.lookup_paper_abstracts",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "dois": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "dois"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_paper_abstracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

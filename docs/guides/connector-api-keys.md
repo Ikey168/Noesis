@@ -40,7 +40,7 @@ figure. Sources are listed at the end.
 
 | Connector | Needs API key | Free / not free | Suggested alternative if not free | Suggested alternative if freemium/limited |
 |---|---|---|---|---|
-| `scopus` (PR #2834) | Required: `ELSEVIER_API_KEY` | Free key for non-commercial use, but without an institutional entitlement only the STANDARD view (no abstracts, first author only, 25 records per request; 20,000 searches per week). Full access needs a Scopus subscription. | — | Abstracts by DOI from `openalex` / `crossref` / `semantic_scholar`; broad coverage from `openalex` |
+| `scopus` (PR #2834) | Required: `ELSEVIER_API_KEY` | Free key for non-commercial use, but without an institutional entitlement only the STANDARD view (no abstracts, first author only, 25 records per request; 20,000 searches per week). Full access needs a Scopus subscription. | — | Abstracts by DOI via `AbstractBackfill` / MCP `lookup_paper_abstracts` (OpenAlex → Crossref → Semantic Scholar); broad coverage from `openalex` |
 | `core` | Required: `CORE_API_KEY` | Free key (registration), for non-commercial academic use per secondary sources; official limits not published | — | — |
 | `semantic_scholar` | Optional: `SEMANTIC_SCHOLAR_API_KEY` | Free key on request (introductory 1 request/s dedicated); keyless requests share one throttled pool | — | Semantic Scholar Datasets API (bulk snapshots, same key) for large harvests |
 | `pubmed`, clinical providers, `ncbi-gene-lifesci`, `ncbi-taxonomy-lifesci` | Optional: `NCBI_API_KEY` / `NOESIS_NCBI_API_KEY` | Free; 10 requests/s with a key, 3 without | — | PubMed annual baseline and update files (FTP, no key) for bulk |
