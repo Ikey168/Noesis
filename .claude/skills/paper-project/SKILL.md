@@ -1,6 +1,6 @@
 ---
 name: paper-project
-description: Plan and run an academic paper end to end in Noesis — from research questions to a cited, exportable manuscript. Use when the user wants to write a paper, article, thesis chapter, or literature review backed by Noesis evidence. Creates a persistent research project with explicit questions, success criteria, scope, and budget, picks the paper type (systematic review, scoping/narrative review, empirical/secondary-data study, position paper), routes each phase to the right skill (science-overview, systematic-review, ai-education-evidence, paper-draft), and tracks the work in a bounded Deep Research or Creation intake session. Drives the noesis-knowledge-engine MCP.
+description: Plan and run an academic paper end to end in Noesis — from research questions to a cited, exportable manuscript. Use when the user wants to write a paper, article, thesis chapter, or literature review backed by Noesis evidence. Creates a persistent research project with explicit questions, success criteria, scope, and budget, picks the paper type (systematic review, scoping/narrative review, empirical/secondary-data study, position paper), routes each phase to the right skill (science-overview, systematic-review, paper-draft and the supporting paper skills), and tracks the work in a bounded Deep Research or Creation intake session. Drives the noesis-knowledge-engine MCP.
 ---
 
 # Paper project
@@ -37,8 +37,8 @@ Ask for anything missing; these decide everything downstream.
 | Paper type | Evidence route | Rigor gate |
 |---|---|---|
 | Systematic review / meta-analysis | **systematic-review** (registered protocol, dual screening, span-anchored extraction) | PRISMA counts exported from `export_systematic_review` |
-| Scoping or narrative review | **science-overview** + **ai-education-evidence** | coverage & contradictions reported, not smoothed |
-| Empirical / secondary-data study | **ai-education-evidence** (education statistics as of a vintage) + **science-overview** for related work | every number cites source, vintage, unit, period |
+| Scoping or narrative review | **science-overview** | coverage & contradictions reported, not smoothed |
+| Empirical / secondary-data study | statistics as of a vintage (see **paper-draft**, "Citing statistics and AI systems") + **science-overview** for related work | every number cites source, vintage, unit, period |
 | Position / perspective paper | **science-overview** for the state of the art; commentary is allowed but labelled | each argument's premises are sourced |
 
 ## Workflow
@@ -90,7 +90,7 @@ Ask for anything missing; these decide everything downstream.
   missing. Model background knowledge is not a citation.
 - **Partial coverage is a result.** If a database the field relies on is not a
   Noesis connector (for education research: ERIC, see
-  **ai-education-evidence**), the paper's methods and limitations say so.
+  **systematic-review**), the paper's methods and limitations say so.
 - **Idempotent keys.** Reuse a `request_key` only to replay the same request;
   a new framing gets a new key.
 - **Do not ingest, publish or submit without the user's go-ahead.** Harvesting

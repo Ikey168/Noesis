@@ -64,7 +64,7 @@ review". This is the paper's supplementary table and a reviewer's first check.
 ## 4. Context statistics charts
 
 From `country_education_statistics_as_of` / `institution_statistics_as_of`
-(**ai-education-evidence**). Each series is labelled with source, indicator,
+(see **paper-draft**, "Citing statistics and AI systems"). Each series is labelled with source, indicator,
 unit (and currency and scale as published), reference period and release
 vintage. Keep different sources as separate series; no averaging, merging or
 currency conversion. Show the publisher's special codes (missing, not

@@ -71,8 +71,26 @@ these keys:
   the point, not a weakness: readers can tell what the evidence says from what
   the authors conclude.
 - Numbers you computed (pooled effect, proportions, counts) are `calculation`
-  dependencies that point at the inputs; statistics come from the education
-  tools with their vintage (see **ai-education-evidence**).
+  dependencies that point at the inputs.
+
+### Citing statistics and AI systems
+
+- **Education statistics** (UNESCO UIS, OECD Education at a Glance, Eurostat
+  R&D, US IPEDS, ETER) are acquired through source pack
+  `primary-scientific-evidence` (`preflight_source_pack_run`, then
+  `run_source_pack_execution`, with live network only on the user's go-ahead).
+  Cite them with `country_education_statistics_as_of` or
+  `institution_statistics_as_of`, and with `education_value_vintages` for the
+  exact vintage. Every number states source, unit, reference period and
+  vintage. `education_statistics_readiness()` shows providers still marked
+  `unverified-live`; say so where they are used. The feature refuses rankings,
+  merged or averaged sources, currency conversion and per-student ratios, so a
+  derived figure is a `calculation` over cited inputs. Statistics describe
+  context; they never show an effect.
+- **AI systems a study used**: `ai_model_records_as_of(namespace, subject,
+  as_of=<study date>)` and `ai_model_revision_history` (Hugging Face Hub,
+  OpenML, Epoch AI) pin which model version that was. They carry no
+  capability, safety or quality verdict; do not present them as one.
 
 A typical paper's sections: Introduction · Background · Methods (search,
 eligibility, screening, extraction; for an empirical paper data and analysis)
