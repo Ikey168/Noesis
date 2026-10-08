@@ -15,6 +15,8 @@ except ImportError:
 
 # Set testing environment
 os.environ["TESTING"] = "true"
+# Never count test traffic against the real free-tier quota ledger (src/ingestion/quota.py).
+os.environ.setdefault("NOESIS_QUOTA_DISABLED", "1")
 
 # Only import database setup if dependencies are available
 if PSYCOPG2_AVAILABLE:

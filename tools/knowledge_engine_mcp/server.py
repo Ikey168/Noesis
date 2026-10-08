@@ -8477,6 +8477,14 @@ def lookup_paper_abstracts(dois: list[str], providers: list[str] | None = None) 
 
 
 @mcp.tool()
+def inspect_source_quotas(host: str | None = None) -> dict:
+    """Show free-tier quotas per API host: limits, usage in the current window, reset time, blocks."""
+    from src.ingestion.quota import QuotaLedger
+
+    return _safe(lambda _conn: QuotaLedger().status(host), required_scope="knowledge:read")
+
+
+@mcp.tool()
 def acquire_opencitations(
     identifier: str, direction: str = "references", snapshot_sha256: str | None = None,
     cursor: dict[str, Any] | None = None, page_size: int = 100,

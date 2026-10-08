@@ -1074,16 +1074,30 @@ class HTTPSPageAdapter:
                 )
 
         opener = urllib.request.build_opener(PublicSameHostRedirect())
+        from src.ingestion import quota
+
+        try:
+            quota.acquire(target)
+        except quota.QuotaDeferred as deferred:
+            # A declared free-tier budget (config/source_quotas.json) is spent:
+            # report it like a provider rate limit so the run is deferred, not failed.
+            raise SourcePackError(
+                "rate_limited",
+                str(deferred),
+                retry_after_ms=max(0, int((deferred.retry_at - time.time()) * 1000)),
+            ) from deferred
         try:
             with opener.open(request, timeout=timeout) as response:
                 content = response.read(max_bytes + 1)
                 if len(content)>max_bytes:
                     raise SourcePackError('response_too_large', 'source response exceeds its byte limit')
+                quota.note_response(target, response.status, dict(response.headers), len(content))
                 return {"status": response.status,"headers": dict(response.headers),"content": content, "final_url": response.geturl()}
         except urllib.error.HTTPError as exc:
             # Preserve status/retry headers without copying an unbounded or
             # sensitive upstream error body into a durable failure receipt.
             try:
+                quota.note_response(target, exc.code, dict(exc.headers or {}))
                 return {'status':exc.code,'headers':dict(exc.headers or {}),'content':b''}
             finally:
                 exc.close()

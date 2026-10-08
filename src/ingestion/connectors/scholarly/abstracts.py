@@ -36,6 +36,7 @@ from src.ingestion.connectors.scholarly.base import (
     _user_agent,
 )
 from src.ingestion.connectors.base import PermanentFetchError
+from src.ingestion.quota import QuotaDeferred
 
 CONTRACT = "noesis-abstract-backfill-v1"
 PROVIDERS = ("openalex", "crossref", "semantic_scholar")
@@ -123,8 +124,10 @@ class AbstractBackfill:
         openalex_key: Optional[str] = None,
         semantic_scholar_key: Optional[str] = None,
     ):
-        self._get = http_get or _default_http_get
-        self._post = http_post or _default_http_post
+        from src.ingestion.quota import metered_get, metered_post
+
+        self._get = metered_get(http_get or _default_http_get)
+        self._post = metered_post(http_post or _default_http_post)
         self._resolver = dns_resolver
         self._contact = contact or os.getenv("NOESIS_SCHOLARLY_CONTACT")
         self._openalex_key = (openalex_key or os.getenv("NOESIS_OPENALEX_API_KEY")
@@ -157,7 +160,7 @@ class AbstractBackfill:
                 break
             try:
                 found = getattr(self, "_" + provider)(pending, requests)
-            except (PermanentFetchError, urllib.error.URLError, OSError, ValueError) as exc:
+            except (PermanentFetchError, urllib.error.URLError, OSError, ValueError, QuotaDeferred) as exc:
                 errors[provider] = _describe(exc)
                 continue
             retrieved_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -269,6 +272,8 @@ class AbstractBackfill:
 
 
 def _describe(exc: BaseException) -> str:
+    if isinstance(exc, QuotaDeferred):
+        return f"quota deferred until {exc.as_dict()['retry_at']} ({exc.reason})"
     if isinstance(exc, urllib.error.HTTPError):
         return f"HTTP {exc.code}"
     return f"{type(exc).__name__}: {str(exc)[:200]}"

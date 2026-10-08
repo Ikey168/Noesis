@@ -31,6 +31,8 @@ For the project overview and local setup, start with the
   deterministic ingest-to-export composition, receipts, recovery, and watermarks
 - **[Production source packs](guides/source-packs.md)** — deployable connector
   execution, durable cursors, backfills, quarantine, schedules, and live gates
+- **[Bulk releases and free-tier quotas](guides/bulk-releases.md)** — free bulk
+  alternatives to capped APIs, resumable runs, shared per-host quotas
 - **[Connector API keys](guides/connector-api-keys.md)** — every connector that
   needs a key or token, whether it is free, and free alternatives where not
 - **[Continuous knowledge maintenance](guides/knowledge-maintenance.md)** —

@@ -146,7 +146,11 @@ class Connector(abc.ABC):
         for ref in self.discover(query):
             try:
                 raw = self.fetch(ref)
-            except Exception:  # noqa: BLE001 - resilience: skip unreachable sources
+            except Exception as exc:  # noqa: BLE001 - resilience: skip unreachable sources
+                from src.ingestion.quota import QuotaDeferred
+
+                if isinstance(exc, QuotaDeferred):
+                    raise  # a free-tier budget is exhausted: the run is deferred, not empty
                 self._on_error("fetch", ref)
                 continue
             try:

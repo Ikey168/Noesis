@@ -1,0 +1,24 @@
+# Bulk-release job: /srv/bulk/jobs/%i.json (see docs/guides/bulk-releases.md).
+# Install: sudo cp deploy/bulk/noesis-bulk@.{service,timer} /etc/systemd/system/
+#          sudo systemctl enable --now noesis-bulk@<job>.timer
+[Unit]
+Description=Noesis bulk-release job %i
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/noesis
+EnvironmentFile=-/home/ubuntu/.config/noesis/mcp.env
+Environment=NOESIS_BULK_STATE_DIR=/srv/bulk/state
+Environment=NOESIS_BULK_WORK_DIR=/srv/bulk/tmp
+# Secrets (API keys) come from OpenBao when the job needs any; exit 75 = sealed/unreachable.
+ExecStart=/home/ubuntu/bin/bao-env noesis/mcp noesis/research -- /srv/noesis/.venv/bin/python -m src.ingestion.bulk job /srv/bulk/jobs/%i.json
+# 2 = deferred (quota) or budget exhausted: resumable, not a failure
+SuccessExitStatus=2
+Nice=15
+IOSchedulingClass=idle
+MemoryMax=4G
+TimeoutStartSec=8h
