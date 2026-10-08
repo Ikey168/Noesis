@@ -9,7 +9,7 @@ description: Find and justify research gaps for a Noesis paper from the evidence
 a record with a type, thresholds, the evidence that falls short, and a status.
 Tools are on the **`noesis-knowledge-engine`** MCP server; run them in the
 **paper-project** namespace after the corpus exists (**science-overview**,
-**systematic-review**).
+or **systematic-review** through **screening-extraction**).
 
 ## 1. Fix the policy before looking
 

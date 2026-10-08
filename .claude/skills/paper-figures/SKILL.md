@@ -34,6 +34,14 @@ Derive each box from `candidates[]`:
 | Studies included / reports of included studies | distinct `study_id` / count of full-text `include` |
 | Records identified via other methods | searches outside Noesis (e.g. ERIC), a separate column from the protocol's records |
 
+**Full-text candidates.** In the two-step order of **literature-search**,
+each retrieved full text is a second candidate with the same `study_id` and
+`search_run_id`, and a title/abstract reason citing the first candidate. Keep
+the list of these pairs from the retrieval step. Leave the second candidates
+out of every "records" box. Count them only as reports retrieved, and take the
+full-text decisions from them. Their abstract-only partners then count as
+retrieved, not as "not retrieved".
+
 Candidates with status `pending` or `disputed` at either stage are shown in
 their own box ("awaiting screening" or "awaiting adjudication"). They are never
 folded into include or exclude. A diagram with open boxes is a draft; resolve
@@ -64,7 +72,7 @@ review". This is the paper's supplementary table and a reviewer's first check.
 ## 4. Context statistics charts
 
 From `country_education_statistics_as_of` / `institution_statistics_as_of`
-(see **paper-draft**, "Citing statistics and AI systems"). Each series is labelled with source, indicator,
+(**context-data**). Each series is labelled with source, indicator,
 unit (and currency and scale as published), reference period and release
 vintage. Keep different sources as separate series; no averaging, merging or
 currency conversion. Show the publisher's special codes (missing, not

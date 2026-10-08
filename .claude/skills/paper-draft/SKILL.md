@@ -75,22 +75,10 @@ these keys:
 
 ### Citing statistics and AI systems
 
-- **Education statistics** (UNESCO UIS, OECD Education at a Glance, Eurostat
-  R&D, US IPEDS, ETER) are acquired through source pack
-  `primary-scientific-evidence` (`preflight_source_pack_run`, then
-  `run_source_pack_execution`, with live network only on the user's go-ahead).
-  Cite them with `country_education_statistics_as_of` or
-  `institution_statistics_as_of`, and with `education_value_vintages` for the
-  exact vintage. Every number states source, unit, reference period and
-  vintage. `education_statistics_readiness()` shows providers still marked
-  `unverified-live`; say so where they are used. The feature refuses rankings,
-  merged or averaged sources, currency conversion and per-student ratios, so a
-  derived figure is a `calculation` over cited inputs. Statistics describe
-  context; they never show an effect.
-- **AI systems a study used**: `ai_model_records_as_of(namespace, subject,
-  as_of=<study date>)` and `ai_model_revision_history` (Hugging Face Hub,
-  OpenML, Epoch AI) pin which model version that was. They carry no
-  capability, safety or quality verdict; do not present them as one.
+Education statistics and AI-model records come from **context-data**. Cite
+each value as a `source` dependency with its source, unit, reference period
+and vintage; a figure derived from them is a `calculation`. They describe
+context and never stand in for evidence of an effect.
 
 A typical paper's sections: Introduction · Background · Methods (search,
 eligibility, screening, extraction; for an empirical paper data and analysis)
