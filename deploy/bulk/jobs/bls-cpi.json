@@ -1,0 +1,6 @@
+{
+  "adapter": "bls-flat-files",
+  "params": {"survey": "cu", "series": ["CUSR0000SA0", "CUUR0000SA0"], "since_year": 2015},
+  "sink": "dataset",
+  "namespace": "bulk-economics"
+}

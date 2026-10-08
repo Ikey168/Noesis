@@ -226,7 +226,9 @@ class ScholarlyConnector(Connector):
     def __init__(self, http_get: Optional[Callable[[str, Mapping[str, str]], bytes]] = None,
                  dns_resolver: Optional[Callable[[str], List[str]]] = None,
                  api_key: Optional[str] = None):
-        self._http_get = http_get or _default_http_get
+        from src.ingestion.quota import metered_get
+
+        self._http_get = metered_get(http_get or _default_http_get)
         self._resolver = dns_resolver
         self._api_key = api_key
 

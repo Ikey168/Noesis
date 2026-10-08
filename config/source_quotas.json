@@ -1,0 +1,25 @@
+{
+  "contract": "noesis-source-quota-v1",
+  "note": "Free-tier limits per API host, checked October 2026 (see docs/guides/connector-api-keys.md). Counts are per request unless a byte limit is given. Raise a limit only after checking the provider's current terms.",
+  "hosts": {
+    "api.openalex.org": {"note": "free key: $1/day usage (about 1,000 searches or 10,000 list calls); counted conservatively as requests", "limits": [{"window": "day", "requests": 1000}]},
+    "api.semanticscholar.org": {"note": "free key: 1 request/s; keyless shares a throttled pool", "limits": [{"window": "second", "requests": 1}]},
+    "eutils.ncbi.nlm.nih.gov": {"note": "3 requests/s without key, 10 with NCBI_API_KEY", "limits": [{"window": "second", "requests": 3}]},
+    "api.elsevier.com": {"note": "Scopus Search: 20,000 requests/week per key", "limits": [{"window": "week", "requests": 20000}]},
+    "ops.epo.org": {"note": "EPO OPS free tier: 4 GB/week", "limits": [{"window": "week", "bytes": 4000000000}]},
+    "comtradeapi.un.org": {"note": "free registered key: about 500 calls/day", "limits": [{"window": "day", "requests": 500}]},
+    "api.bls.gov": {"note": "BLS API v2: 500 queries/day", "limits": [{"window": "day", "requests": 500}]},
+    "api.census.gov": {"note": "500 calls/IP/day without key", "limits": [{"window": "day", "requests": 500}]},
+    "api.football-data.org": {"note": "free tier: 10 calls/min", "limits": [{"window": "minute", "requests": 10}]},
+    "api.etherscan.io": {"note": "free tier: 3 calls/s, 100,000/day", "limits": [{"window": "second", "requests": 3}, {"window": "day", "requests": 100000}]},
+    "www.courtlistener.com": {"note": "free token since May 2026: 5/min, 50/hour, 125/day", "limits": [{"window": "minute", "requests": 5}, {"window": "hour", "requests": 50}, {"window": "day", "requests": 125}]},
+    "api.sam.gov": {"note": "non-federal key without SAM role: about 10 calls/day", "limits": [{"window": "day", "requests": 10}]},
+    "api.iatistandard.org": {"note": "Datastore Exploratory tier: 5 calls/min, 100 calls/week", "limits": [{"window": "minute", "requests": 5}, {"window": "week", "requests": 100}]},
+    "api.company-information.service.gov.uk": {"note": "600 requests per 5 minutes per key", "limits": [{"seconds": 300, "requests": 600}]},
+    "api.openaq.org": {"note": "key: about 60/min and 2,000/hour (secondary sources)", "limits": [{"window": "minute", "requests": 60}, {"window": "hour", "requests": 2000}]},
+    "api.fda.gov": {"note": "with key: 240/min, 120,000/day", "limits": [{"window": "minute", "requests": 240}, {"window": "day", "requests": 120000}]},
+    "services.nvd.nist.gov": {"note": "with key: 50 requests per 30 s", "limits": [{"seconds": 30, "requests": 50}]},
+    "api.tavily.com": {"note": "free: 1,000 credits/month (basic search = 1 credit)", "limits": [{"window": "month", "requests": 1000}]},
+    "api.firecrawl.dev": {"note": "free: 1,000 credits/month (1 credit per page)", "limits": [{"window": "month", "requests": 1000}]}
+  }
+}

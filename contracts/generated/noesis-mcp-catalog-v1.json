@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1916,
+      "tool_count": 1917,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1633,6 +1633,7 @@
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.inspect_source_pack_upgrade_receipt",
+        "noesis-knowledge-engine.inspect_source_quotas",
         "noesis-knowledge-engine.inspect_standard_edition",
         "noesis-knowledge-engine.inspect_systematic_review_screening_suggestion",
         "noesis-knowledge-engine.inspect_technical_impact_report",
@@ -2889,7 +2890,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1916
+      "visible_tool_count": 1917
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2900,11 +2901,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 167,
+      "available": 168,
       "degraded": 174,
       "unauthorized": 1913
     },
-    "tools": 2254
+    "tools": 2255
   },
   "tools": [
     {
@@ -58356,6 +58357,45 @@
       ],
       "required_scopes": [
         "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Show free-tier quotas per API host: limits, usage in the current window, reset time, blocks.",
+      "id": "noesis-knowledge-engine.inspect_source_quotas",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_source_quotas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
