@@ -160,7 +160,7 @@ These providers are documented in the source audits but have no connector.
 Implementing any of them would add a credential to this page.
 
 | Provider | Audit | Credential | Audit decision |
-|---|---|---|---|---|
+|---|---|---|---|
 | UK Charity Commission register API | civil-society | subscription key (`NOESIS_CHARITY_COMMISSION_API_KEY` reserved) | wave-2 domain, not implemented |
 | Argo GDAC / Argovis | marine | API key (`NOESIS_ARGOVIS_API_KEY` reserved) | wave-2 domain, not implemented |
 | Copernicus Marine | marine | account password (`NOESIS_COPERNICUS_MARINE_PASSWORD` reserved) | wave-2 domain, not implemented |
