@@ -60,6 +60,13 @@ add_review_candidate(namespace=..., protocol_id=..., protocol_revision=1,
 Dedupe by DOI before adding; group companion papers under one `study_id` so
 study and publication counts stay distinct.
 
+**Databases Noesis does not cover.** Check the protocol's `databases` against
+the connector list. For education research the main gap is **ERIC**, which has
+no Noesis connector (`dblp` does cover AIED, EDM, LAK and L@S proceedings). Search
+it outside Noesis, record the date and query in the protocol, and ingest the
+hits by DOI or URL so they become cited documents. If you skip it, the paper's
+limitations say so; it may not claim a comprehensive search.
+
 ## 3. Screen independently
 
 - Each reviewer: `screen_review_candidate(..., stage="title_abstract",
@@ -81,7 +88,27 @@ span of the committed full text. A second reviewer accepts or rejects it with
 belong in the paper's analysis, labelled as calculations — not as extracted
 fields.
 
-## 5. Export for the paper
+## 5. Qualify the evidence
+
+Make these protocol `fields` so they are extracted and second-reviewed like any
+other value; they decide how strong the paper's conclusions may be:
+
+- **Design**: RCT, quasi-experimental, pre/post without control,
+  correlational, qualitative.
+- **Outcome type**: measured learning vs. perception, engagement or usage.
+  Satisfaction is not a learning outcome.
+- **Duration**: short interventions confound novelty effects.
+- **Context**: country, education level (ISCED), subject, language.
+- **Era**: a technology break changes what transfers. For AI in education,
+  the ChatGPT release (30 Nov 2022) separates earlier tutoring-system evidence
+  from LLM-tutor evidence.
+- **Conflicts of interest**: authored or funded by the vendor of the
+  system evaluated.
+
+Accuracy figures for contested tools (for example AI-text detectors) are cited
+from the specific evaluation, never from a vendor claim alone.
+
+## 6. Export for the paper
 
 `export_systematic_review(namespace, protocol_id)` returns the protocol and
 amendments, every candidate with screening and fields, distinct
