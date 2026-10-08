@@ -72,6 +72,32 @@ per-adapter host allowlist, public addresses only, contact User-Agent.
 | `sam-opportunities-extract` | retrieval day | `naics_prefixes`, `agencies`, `keywords`, `set_aside`, `posted_since`, `active_only` (contacts and description dropped) |
 | `iati-activities` | Bulk Data Service index time (per-file SHA-1) | `publishers` (required), `recipient_countries`, `statuses`, `identifiers` |
 | `courtlistener-bulk` | newest non-empty file date | `tables` (courts, `people-db-*`, `financial-disclosures*`), `where` |
+| `openalex-snapshot` (documents) | snapshot date (manifest) | `dois` / `ids` / `primary_topic_ids` / `source_ids` / `title_contains`, `publication_year_from`/`_to`, `types`, `languages`, `updated_since` |
+| `pubmed-baseline` (documents) | baseline year + last update file | `pmids` / `mesh` / `journals` / `keywords`, `year_from`/`_to`, `include_baseline`, `include_updates` |
+| `s2-datasets` | S2AG release (or diff range) | `dataset` (abstracts/papers), `corpus_ids` / `dois` / `all_records`, `release`, `since_release` — needs `SEMANTIC_SCHOLAR_API_KEY` |
+| `openaq-archive` | listing date | `location_ids` (required), `date_from`, `date_to` (≤ 24 months), `parameters` |
+
+### Large dumps: what to expect
+
+- **OpenAlex snapshot** (2026-09-23: 476 million works, 2,040 Parquet files,
+  ~707 GB) is never downloaded: DuckDB queries each part on S3 and transfers only
+  the needed columns. A title search took about 100 s per ~880 MB part on the
+  server (a full pass ≈ 2–3 days), so run it under `--max-files`/`--max-seconds`
+  over several nights and use `updated_since` for later runs. Works map to the
+  same `document_id` as the `openalex` connector. Report a snapshot extract as its
+  own source (filter + snapshot date); it is not the API's relevance search.
+- **PubMed** baseline (1,334 files, ~20–40 MB each) plus daily update files; each
+  file's published MD5 is fetched and verified before parsing; `DeleteCitation`
+  PMIDs go to a `deletions` table. About 17 s per file on the server.
+- **Semantic Scholar Datasets** need the API key for shard links (pre-signed S3
+  URLs on `ai2-s2ag.s3.amazonaws.com`; the key is never sent to S3). Not yet
+  verified live — no key configured when written.
+- **ORCID public data file** — not implemented: the 2024 file is about 730 GB
+  (summaries) plus 3.1 TB (activities) uncompressed, and the free Public API
+  covers record lookups.
+
+Remote (`remote` mode) queries do not count bytes; their budgets are files and
+seconds.
 
 Not available as bulk data (checked October 2026):
 

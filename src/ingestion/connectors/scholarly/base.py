@@ -369,7 +369,13 @@ def _extract_authors(record: Mapping[str, Any], source: ScholarlySource) -> List
 def _document_id(source_name: str, raw_id: str, doi: Any) -> str:
     import hashlib
 
-    basis = ("doi:" + str(doi).lower() if doi else f"{source_name}:{raw_id}")
+    if doi:
+        # One id per DOI across sources: OpenAlex gives "https://doi.org/10.x", Crossref "10.x".
+        doi = str(doi).strip().lower()
+        for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "http://dx.doi.org/", "doi:"):
+            if doi.startswith(prefix):
+                doi = doi[len(prefix):]
+    basis = ("doi:" + doi if doi else f"{source_name}:{raw_id}")
     return "paper:" + hashlib.sha1(basis.encode("utf-8")).hexdigest()[:24]
 
 

@@ -24,6 +24,10 @@ ADAPTERS: Dict[str, str] = {
     "sam-opportunities-extract": "src.ingestion.bulk.adapters.sam:SamOpportunities",
     "iati-activities": "src.ingestion.bulk.adapters.iati:IatiActivities",
     "courtlistener-bulk": "src.ingestion.bulk.adapters.courtlistener:CourtListenerBulk",
+    "openalex-snapshot": "src.ingestion.bulk.adapters.openalex_snapshot:OpenAlexSnapshot",
+    "pubmed-baseline": "src.ingestion.bulk.adapters.pubmed_baseline:PubMedBaseline",
+    "s2-datasets": "src.ingestion.bulk.adapters.s2_datasets:SemanticScholarDatasets",
+    "openaq-archive": "src.ingestion.bulk.adapters.openaq_archive:OpenAqArchive",
 }
 
 

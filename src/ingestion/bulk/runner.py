@@ -78,6 +78,20 @@ class _CountingRaw(io.RawIOBase):
             super().close()
 
 
+_HEX_ALGOS = {32: "md5", 40: "sha1", 64: "sha256"}
+
+
+def _with_published_checksum(f: ReleaseFile, text: str) -> ReleaseFile:
+    """Attach a checksum published as a small text file (e.g. ``MD5(file)= <hex>``)."""
+    import dataclasses
+    import re as _re
+    match = _re.search(r"\b([0-9a-fA-F]{64}|[0-9a-fA-F]{40}|[0-9a-fA-F]{32})\b", text or "")
+    if not match:
+        raise ChecksumMismatch(f"no checksum found at {f.metadata.get('checksum_url')}")
+    digest = match.group(1).lower()
+    return dataclasses.replace(f, checksum=(_HEX_ALGOS[len(digest)], digest))
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -112,6 +126,9 @@ class BulkRunner:
             release = release or self.adapter.list_release(self.http, params)
         except QuotaDeferred as deferred:
             return {**receipt, **deferred.as_dict(), "finished_at": _now_iso()}
+        except Exception as exc:  # noqa: BLE001 - a failed listing is a failed run, reported in the receipt
+            return {**receipt, "status": "failed", "finished_at": _now_iso(),
+                    "errors": [{"stage": "list_release", "error": f"{type(exc).__name__}: {str(exc)[:300]}"}]}
         release_dir = self.state_root / _safe_name(release.release_id)
         manifest = self._manifest(release, release_dir)
         receipt.update({"release_id": release.release_id, "manifest_id": manifest["manifest_id"],
@@ -213,6 +230,8 @@ class BulkRunner:
         nbytes = 0
         local: Optional[Path] = None
         if f.mode == "download":
+            if f.checksum is None and f.metadata.get("checksum_url"):
+                f = _with_published_checksum(f, self.http.get_text(f.metadata["checksum_url"], limit=4096))
             local = self.work_root / _safe_name(release_dir.name) / _safe_name(f.name)
             nbytes, digests = self.http.download(f.url, local, max_bytes=max(1, byte_cap))
             if f.checksum:
