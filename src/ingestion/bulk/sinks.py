@@ -134,6 +134,8 @@ class DocumentSink(Sink):
         self.manifest_id = manifest["manifest_id"]
 
     def write(self, file, table, records):
+        if table != "documents":
+            return  # side tables (e.g. PubMed deletions) stay in the subset files
         self.pending.extend(records)
         if len(self.pending) >= self.batch:
             self._flush()

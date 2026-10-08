@@ -77,11 +77,12 @@ class BulkHttp:
         with self._request(url, "HEAD") as response:
             return {k.lower(): v for k, v in dict(response.headers).items()}
 
-    def get_text(self, url: str, limit: int = TEXT_LIMIT, encoding: str = "utf-8") -> str:
-        return self.get_bytes(url, limit).decode(encoding, "replace")
+    def get_text(self, url: str, limit: int = TEXT_LIMIT, encoding: str = "utf-8",
+                 headers: Optional[Mapping[str, str]] = None) -> str:
+        return self.get_bytes(url, limit, headers).decode(encoding, "replace")
 
-    def get_bytes(self, url: str, limit: int = TEXT_LIMIT) -> bytes:
-        with self._request(url) as response:
+    def get_bytes(self, url: str, limit: int = TEXT_LIMIT, headers: Optional[Mapping[str, str]] = None) -> bytes:
+        with self._request(url, extra=headers) as response:
             data = response.read(limit + 1)
         if len(data) > limit:
             raise PermanentFetchError(f"{url} exceeds {limit} bytes")

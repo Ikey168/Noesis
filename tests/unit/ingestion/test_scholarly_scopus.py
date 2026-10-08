@@ -122,3 +122,9 @@ def test_rejects_non_allowlisted_resolution():
     ref = next(iter(conn.discover({"topic": "ChatGPT"})))
     with pytest.raises(PermanentFetchError):
         conn.fetch(ref)
+
+
+def test_document_id_is_the_same_for_doi_url_and_bare_doi():
+    from src.ingestion.connectors.scholarly.base import _document_id
+    assert _document_id("openalex", "W1", "https://doi.org/10.1000/ABC") == _document_id("crossref", "x", "10.1000/abc")
+    assert _document_id("pubmed", "1", "doi:10.1000/abc") == _document_id("scopus", "2", "10.1000/ABC")
