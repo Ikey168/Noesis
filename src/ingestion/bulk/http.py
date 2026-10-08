@@ -38,7 +38,19 @@ class BulkHttp:
                  opener: Optional[Callable[..., Any]] = None, headers: Optional[Mapping[str, str]] = None):
         self.allowed = tuple(h.lower() for h in allowed_hosts)
         self._resolver = resolver
-        self._open = opener or (lambda request, timeout: urllib.request.urlopen(request, timeout=timeout))
+        if opener is None:
+            client = self
+
+            class _CheckedRedirect(urllib.request.HTTPRedirectHandler):
+                """Every redirect hop must stay on the allowlist and resolve publicly."""
+
+                def redirect_request(self, req, fp, code, msg, headers, newurl):
+                    client.check(newurl)
+                    return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+            built = urllib.request.build_opener(_CheckedRedirect())
+            opener = lambda request, timeout: built.open(request, timeout=timeout)  # noqa: E731
+        self._open = opener
         self.headers = {"User-Agent": _user_agent(), **dict(headers or {})}
 
     # -- guards ----------------------------------------------------------------- #
@@ -111,9 +123,11 @@ class BulkHttp:
 
 
 def _digests(path: Path) -> Dict[str, str]:
-    sha, md5 = hashlib.sha256(), hashlib.md5()  # noqa: S324 - MD5 only to match published checksums
+    # MD5 and SHA-1 only to match checksums that providers publish.
+    sha, md5, sha1 = hashlib.sha256(), hashlib.md5(), hashlib.sha1()  # noqa: S324
     with open(path, "rb") as handle:
         for chunk in iter(lambda: handle.read(CHUNK), b""):
             sha.update(chunk)
             md5.update(chunk)
-    return {"sha256": sha.hexdigest(), "md5": md5.hexdigest()}
+            sha1.update(chunk)
+    return {"sha256": sha.hexdigest(), "md5": md5.hexdigest(), "sha1": sha1.hexdigest()}
