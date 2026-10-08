@@ -90,6 +90,10 @@ CREATE TABLE IF NOT EXISTS dataset_intelligence_audit (
 """
 
 
+def _release_id(namespace: str, dataset_id: str, native_release_id: str) -> str:
+    return "dataset-release:" + _digest([namespace, dataset_id, native_release_id])[:24]
+
+
 class DatasetIntelligenceError(ValueError):
     def __init__(self, code: str, message: str, **details: Any) -> None:
         super().__init__(message)
@@ -501,10 +505,7 @@ class DatasetIntelligenceStore:
             "provenance": dict(provenance or {}),
         }
         release_hash = _digest(stable)
-        release_id = (
-            "dataset-release:"
-            + _digest([namespace, dataset_id, native_release_id])[:24]
-        )
+        release_id = _release_id(namespace, dataset_id, native_release_id)
         existing = self.conn.execute(
             "SELECT release_hash,created_at_ms FROM dataset_releases WHERE release_id=? AND namespace=?",
             [release_id, namespace],
@@ -551,6 +552,14 @@ class DatasetIntelligenceStore:
             self.conn.execute("ROLLBACK")
             raise
         return self.release(namespace, release_id, scopes={READ_SCOPE})
+
+    def find_release(
+        self, namespace: str, dataset_id: str, native_release_id: str, *, scopes: set[str]
+    ) -> dict[str, Any] | None:
+        """The release registered for this upstream release id, if any."""
+        return self.release(
+            namespace, _release_id(namespace, dataset_id, native_release_id), scopes=scopes
+        )
 
     def release(
         self, namespace: str, release_id: str, *, scopes: set[str]

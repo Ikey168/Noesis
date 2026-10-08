@@ -14,8 +14,8 @@ WorkingDirectory=/srv/noesis
 EnvironmentFile=-/home/ubuntu/.config/noesis/mcp.env
 Environment=NOESIS_BULK_STATE_DIR=/srv/bulk/state
 Environment=NOESIS_BULK_WORK_DIR=/srv/bulk/tmp
-# Secrets (API keys) come from OpenBao when the job needs any; exit 75 = sealed/unreachable.
-ExecStart=/home/ubuntu/bin/bao-env noesis/mcp noesis/research -- /srv/noesis/.venv/bin/python -m src.ingestion.bulk job /srv/bulk/jobs/%i.json
+# API keys come from OpenBao (every secret/apis/<provider> entry); exit 75 = sealed/unreachable.
+ExecStart=/home/ubuntu/bin/bao-env apis/* -- /srv/noesis/.venv/bin/python -m src.ingestion.bulk job /srv/bulk/jobs/%i.json
 # 2 = deferred (quota) or budget exhausted: resumable, not a failure
 SuccessExitStatus=2
 Nice=15
