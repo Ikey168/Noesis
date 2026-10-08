@@ -65,6 +65,26 @@ per-adapter host allowlist, public addresses only, contact User-Agent.
 |---|---|---|
 | `bls-flat-files` | newest Last-Modified of the selected files | `survey` + `series` / `series_prefix` / `all_series`, `since_year`, `files` |
 | `companies-house-snapshot` | monthly snapshot date | `company_numbers`, `postcode_prefix`, `sic_prefix`, `status`, `incorporated_since`, or `all_companies` |
+| `eia-bulk` | manifest `last_updated` | `datasets` + `series` / `series_prefix` / `all_series`, `since_period` |
+| `ember-generation` | file Last-Modified | `frequency`, `iso3` / `areas` / `all_areas`, `sources`, `since` (CC BY 4.0) |
+| `fas-psd` | file Last-Modified | `commodity_codes` / `commodities` / `all_commodities`, `countries`, `attributes`, `since_market_year` |
+| `opensanctions-targets` | artifact version (SHA-1 verified) | `collection`, `ids`, `names`, `countries`, `datasets`, `schemata`, or `all_targets` (CC BY-NC 4.0; phones/emails dropped) |
+| `sam-opportunities-extract` | retrieval day | `naics_prefixes`, `agencies`, `keywords`, `set_aside`, `posted_since`, `active_only` (contacts and description dropped) |
+| `iati-activities` | Bulk Data Service index time (per-file SHA-1) | `publishers` (required), `recipient_countries`, `statuses`, `identifiers` |
+| `courtlistener-bulk` | newest non-empty file date | `tables` (courts, `people-db-*`, `financial-disclosures*`), `where` |
+
+Not available as bulk data (checked October 2026):
+
+- **CourtListener case law** — `dockets`, `opinions`, `opinion-clusters` and
+  `citations` have been published as empty files since 2024-03-01; use the API
+  token within its quota or a free EDU membership.
+- **Kystverket open AIS** — `ais-public.kystverket.no` did not answer from the
+  server or a desktop, and the historical service (`hais.kystverket.no`) is an
+  interactive order flow, so there is no automatable keyless bulk route yet.
+
+Redirects are followed only when every hop stays on the adapter's allowlist and
+resolves to a public address (SAM.gov's extract redirects to a pre-signed S3
+URL on `falextracts.s3.amazonaws.com`, which is allowlisted).
 
 ## Scheduled jobs on the server
 
