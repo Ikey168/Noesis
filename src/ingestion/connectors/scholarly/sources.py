@@ -417,8 +417,117 @@ class MedrxivConnector(_RxivConnector):
     SOURCE = ScholarlySource(name="medrxiv", allowed_host="api.biorxiv.org", build_url=lambda q: "")
 
 
+# --------------------------------------------------------------------------- #
+# Scopus — Elsevier Scopus Search API (STANDARD view, paged, key required)
+# --------------------------------------------------------------------------- #
+@register_connector
+class ScopusConnector(ScholarlyConnector):
+    """Scopus via the Elsevier Scopus Search API (needs ELSEVIER_API_KEY).
+
+    Works with a key that has no institutional entitlement: the STANDARD view
+    returns title, first author, venue, cover date and DOI, but no abstract, and
+    at most 25 records per request, so ``fetch`` pages with ``start``.
+
+    The topic is a Scopus advanced-search expression; a plain topic is wrapped in
+    ``TITLE-ABS-KEY(...)``. Scopus filters dates by year only (``date=YYYY-YYYY``)
+    and its cover date is the issue date, which can lie after online
+    publication. Records are therefore kept when their cover date is after the
+    window's ``until`` and flagged ``cover_date_after_window`` for screening;
+    records before ``since`` are dropped. ``source_total_results`` reports the
+    API's hit count, so a truncated harvest is visible in the search receipt.
+    """
+
+    name = "scopus"
+    source_type = "paper"
+    SOURCE = ScholarlySource(name="scopus", allowed_host="api.elsevier.com",
+                             build_url=lambda q: "", requires_env="ELSEVIER_API_KEY",
+                             api_key_header="X-ELS-APIKey")
+
+    _SEARCH = "https://api.elsevier.com/content/search/scopus"
+    PAGE_SIZE = 25  # STANDARD-view maximum without an institutional entitlement
+    _FIELD_CODES = ("TITLE-ABS-KEY(", "TITLE(", "ABS(", "KEY(", "ALL(", "AUTH(", "DOI(", "SRCTITLE(")
+
+    def discover(self, query: Union[str, Mapping[str, Any], None] = None) -> Iterable[SourceRef]:
+        q = ScholarlyQuery.coerce(query)
+        if q is None:
+            return
+        yield SourceRef(locator="scopus", title=f"scopus:{q.topic}", metadata={"source_id": "scopus", "query": {
+            "topic": q.topic, "since": q.since, "until": q.until, "limit": q.limit}})
+
+    def _expression(self, topic: str) -> str:
+        upper = topic.upper()
+        return topic if any(code in upper for code in self._FIELD_CODES) else f"TITLE-ABS-KEY({topic})"
+
+    def fetch(self, ref: SourceRef) -> RawDocument:
+        from src.ingestion.connectors.scholarly.base import _assert_public_https, _default_http_get, _user_agent
+        key = self._api_key or os.getenv("ELSEVIER_API_KEY")
+        if not key:
+            raise PermanentFetchError("scopus needs ELSEVIER_API_KEY; skipping (set the key to enable)")
+        q = ScholarlyQuery.coerce((ref.metadata or {}).get("query") or {})
+        since, until = _win(q)
+        headers = {"Accept": "application/json", "User-Agent": _user_agent(), "X-ELS-APIKey": key}
+        get = self._http_get or _default_http_get
+        entries: List[Mapping[str, Any]] = []
+        total = None
+        start = 0
+        while len(entries) < q.limit:
+            url = self._SEARCH + "?" + urllib.parse.urlencode({
+                "query": self._expression(q.topic), "date": f"{since[:4]}-{until[:4]}",
+                "sort": "-coverDate", "view": "STANDARD", "start": start,
+                "count": min(self.PAGE_SIZE, q.limit - len(entries))})
+            _assert_public_https(url, self.SOURCE.allowed_host, self._resolver)
+            page = json.loads(get(url, headers).decode("utf-8", "replace")).get("search-results", {})
+            total = int(page.get("opensearch:totalResults") or 0)
+            batch = [e for e in page.get("entry", []) if "error" not in e]
+            entries.extend(batch)
+            start += len(batch)
+            if not batch or start >= total:
+                break
+        body = {"total": total, "entries": entries[:q.limit]}
+        return RawDocument(ref=ref, content=json.dumps(body), content_type="application/json")
+
+    def parse(self, raw: RawDocument) -> List[Document]:
+        from src.ingestion.connectors.scholarly.base import _document_id
+        content = raw.content
+        if isinstance(content, bytes):
+            content = content.decode("utf-8", "replace")
+        body = json.loads(content) if content else {}
+        q = ScholarlyQuery.coerce((raw.ref.metadata or {}).get("query") or {})
+        lo = _to_millis(q.since) if q and q.since else None
+        hi = (_to_millis(q.until) + 86_400_000 - 1) if q and q.until else None
+        docs: List[Document] = []
+        for rec in body.get("entries", []):
+            eid, title = rec.get("eid"), rec.get("dc:title")
+            if not eid or not title:
+                continue
+            doi = rec.get("prism:doi")
+            published = _to_millis(rec.get("prism:coverDate"))
+            if lo is not None and (published is None or published < lo):
+                continue
+            link = next((l.get("@href") for l in rec.get("link", []) if l.get("@ref") == "scopus"), None)
+            docs.append(Document(
+                document_id=_document_id("scopus", eid, doi),
+                source_type="paper", language="en", ingested_at=raw.fetched_at,
+                source_id="scopus", url=link or (f"https://doi.org/{doi}" if doi else None),
+                title=str(title),
+                content=None,  # STANDARD view carries no abstract
+                authors=[rec["dc:creator"]] if rec.get("dc:creator") else [],
+                created_at=published,
+                metadata={k: v for k, v in {
+                    "source_api": "scopus", "external_id": eid,
+                    "doi": doi, "work_identifier": ("doi:" + doi.lower()) if doi else f"scopus:{eid}",
+                    "venue": rec.get("prism:publicationName"),
+                    "document_type": rec.get("subtypeDescription"),
+                    "content_coverage": "metadata-only",
+                    "authors_coverage": "first-author-only",
+                    "cover_date_after_window": bool(hi is not None and published is not None and published > hi),
+                    "source_total_results": body.get("total"),
+                }.items() if v not in (None, "", [], False)}))
+        return docs
+
+
 #: All scholarly connector registry names provided by this module.
 SCHOLARLY_SOURCES = [
     "openalex", "crossref", "semantic_scholar", "europepmc", "pubmed",
-    "biorxiv", "medrxiv", "doaj", "core", "dblp", "hal", "plos", "zenodo",
+    "biorxiv", "medrxiv", "doaj", "core", "dblp", "hal", "plos", "zenodo", "scopus",
 ]

@@ -34,6 +34,7 @@ Add a source by appending a `ScholarlySource` spec + a one-line subclass in
 | `hal` | api.archives-ouvertes.fr | — | multi-disciplinary (France) |
 | `plos` | api.plos.org | — | PLOS journals |
 | `zenodo` | zenodo.org | — | research outputs / datasets |
+| `scopus` | api.elsevier.com | `ELSEVIER_API_KEY` (required) | STANDARD view: no abstracts, first author only, 25 per request (paged); year-granular date filter; cover dates after `until` are kept and flagged `cover_date_after_window` |
 
 Network safety: credential-free HTTPS only, per-source host allowlist, and the
 resolved address must be public (no SSRF). Set `NOESIS_SCHOLARLY_CONTACT` (a
