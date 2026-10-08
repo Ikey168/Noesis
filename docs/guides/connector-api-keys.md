@@ -1,7 +1,14 @@
 # Connector API keys
 
-Every Noesis connector that reads an API key, token or credential, whether it
-is free to obtain, and a free alternative where it is not. Source-pack sources
+Every Noesis connector that reads an API key, token, account or contact
+string, whether it is free to obtain, and a free alternative where it is not.
+
+**Scope.** Noesis has far more connectors than this page lists: 243 source
+entries in 38 source packs (`config/source_packs/*.json`), of which 155 need
+no credentials, plus about 60 domain provider modules
+(`src/ingestion/*_sources.py`, `*_providers.py`) and the code-level connectors
+under `src/ingestion/connectors/`. Only the ones that need a credential appear
+here; everything else works without a key. Source-pack sources
 declare their secret as `auth.secret_ref` in `config/source_packs/*.json`
 (`required-secret` = the source is skipped without it, `optional-secret` =
 higher rate limits or extra data); code-level connectors read the variable
@@ -51,6 +58,10 @@ figure. Sources are listed at the end.
 | `fas-psd-balances` | Required: `NOESIS_FAS_API_KEY` | Unconfirmed: PSD data are public and free; key sign-up not confirmed | PSD Online downloads (free) |
 | `nass-quickstats-crops` | Required: `NOESIS_NASS_API_KEY` | Unconfirmed: key from Quick Stats; no fee found | — |
 | `us-census-cbp` | Optional: `NOESIS_CENSUS_API_KEY` | Free; 500 calls/IP/day without a key | — |
+| `development_finance` (IATI Datastore) | Required: `NOESIS_IATI_DATASTORE_KEY` | Free subscription key: Exploratory tier 5 calls/min and 100 calls/week without approval; Full Access tier after IATI Secretariat approval | IATI Registry bulk XML (free) |
+| `environment_providers` OpenAQ | Required: `NOESIS_OPENAQ_API_KEY` | Free key; full rate limit with a key (about 60/min, 2,000/hour per secondary sources), much lower without | — |
+| `water_sources` USGS Water Data | Optional: `NOESIS_USGS_WATER_API_KEY` | Free api.data.gov key; lower anonymous limit without | — |
+| `environment_providers` Copernicus Atmosphere Data Store (not implemented) | Account + personal API key | Free ECMWF account; per-dataset licence acceptance | — |
 | market connector `fmp` | Required: `FMP_API_KEY` | Freemium: free plan 250 calls/day, non-commercial; paid plans from about $22/month | SEC EDGAR XBRL company facts (`sec-edgar`, free) for fundamentals |
 
 ## Politics, law, government, companies
@@ -66,6 +77,9 @@ figure. Sources are listed at the end.
 | `fbi-cde-summarized` | Required: `NOESIS_FBI_CDE_API_KEY` | Free api.data.gov key; default 1,000 requests/hour | — |
 | `sam-opportunities` | Required: `NOESIS_SAM_API_KEY` | Free key, but non-federal users without a SAM role get about 10 calls/day (1,000/day with a role); keys expire after 90 days (secondary sources) | SAM.gov public Contract Opportunities data extract (download) |
 | `companies-house` | Required: `NOESIS_COMPANIES_HOUSE_API_KEY` | Free; 600 requests per 5 minutes per key | — |
+| `ownership_providers` OpenCorporates | Required: `NOESIS_OPENCORPORATES_API_KEY` | Free share-alike key only for public-benefit users (journalists, NGOs, academics), with attribution and open contribution back; otherwise paid, API plans from £2,250/year | GLEIF LEI (`lei_sources`, free, no key); national registers such as `companies-house` |
+| `ownership_providers` Unternehmensregister (not implemented) | Account for some documents | Register information free without registration since August 2022; filed annual accounts cost €1 plus VAT | Free register extracts |
+| optional integration `opensanctions` | Required: `NOESIS_OPENSANCTIONS_API_KEY` | API not free for general users (about €0.10 per call); free keys only via a public-interest grant (journalists, NGOs, academic researchers); business use needs a licence | Bulk data download, free for non-commercial use (CC BY-NC 4.0, no key) |
 | `sec-edgar-ownership` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key) | Free | — |
 | `sec-edgar` | Optional: `NOESIS_SEC_USER_AGENT` (contact string) | Free | — |
 
@@ -83,6 +97,12 @@ figure. Sources are listed at the end.
 | `lumen-notices` | Required: `NOESIS_LUMEN_API_TOKEN` | Free researcher token on request to the Lumen team | — |
 | `meta-ad-library-political` | Required: `NOESIS_META_AD_LIBRARY_TOKEN` | Free; requires personal identity verification (facebook.com/ID) and a developer app; outside the EU/UK only political and social-issue ads are returned | — |
 | `glofas-notifications` | Required: `NOESIS_GLOFAS_TOKEN` | Copernicus GloFAS data are free and open with registration; token process for notifications unconfirmed (some EFAS real-time products are partner-only) | — |
+| `brave_discovery` (web discovery) | Required: `NOESIS_BRAVE_API_KEY` | **Not free** for new accounts since 2026: about $5 per 1,000 searches with $5 of monthly credit (≈ 1,000 searches) | Common Crawl index (`common_crawl`, free, no key); Tavily free tier |
+| optional integration `exa` (search) | Required: `NOESIS_EXA_API_KEY` / `EXA_API_KEY` | Paid with free credits (sign-up and monthly credits; amounts differ between Exa's own pages) | Tavily free tier; Common Crawl |
+| optional integration `tavily` (search) | Required: `NOESIS_TAVILY_API_KEY` / `TAVILY_API_KEY` | Free 1,000 credits per month (no card); pay-as-you-go above | — |
+| optional integration `jina` (reader) | Required: `NOESIS_JINA_API_KEY` / `JINA_API_KEY` | Free 10 million tokens per new key, non-commercial only; paid top-ups | Keyless Reader at a low rate limit |
+| optional integration `firecrawl` (scraping) | Required: `NOESIS_FIRECRAWL_API_KEY` / `FIRECRAWL_API_KEY` | Free 1,000 credits per month; paid plans from $16–19/month | — |
+| optional integration `zyte` (scraping) | Required: `NOESIS_ZYTE_API_KEY` / `ZYTE_API_KEY` | **Not free**: $5 trial credit for 30 days, then pay per successful response | Firecrawl free tier; direct HTTP acquisition |
 
 ## Products, chemicals, materials, space, sport, culture, software
 
@@ -95,6 +115,8 @@ figure. Sources are listed at the end.
 | `comptox-toxval` | Required: `NOESIS_COMPTOX_API_KEY` | Free key by email request (ccte_api@epa.gov) | — |
 | `materials-project-ti-al-oxides` | Required: `NOESIS_MATERIALS_PROJECT_API_KEY` | Free account | — |
 | `esa-discos-objects`, `esa-discos-reentries` | Required: `NOESIS_ESA_DISCOS_TOKEN` | Public DISCOSweb API with an ESA account; no fee found | — |
+| `astronomy_registration_sources` Space-Track decay/TIP (not implemented) | Account (email + password) | Free account; user agreement restricts redistribution | ESA DISCOS (`esa-discos-*`) |
+| `biodiversity_sources` IUCN Red List | Required: `NOESIS_IUCN_API_TOKEN` | Free token on application, non-commercial use; bulk use needs written permission | — |
 | `etherscan-v2-mainnet` | Required: `NOESIS_ETHERSCAN_API_KEY` | Free tier: 3 calls/s, 100,000/day, selected chains, attribution required; paid plans from $49/month | Free tier; Blockscout API or a public Ethereum RPC endpoint |
 | `football-data-pl-*` (3 sources) | Required: `NOESIS_FOOTBALL_DATA_API_KEY` | Free tier: 12 competitions incl. the Premier League, 10 calls/min, delayed scores; paid €12–199/month | Free tier covers these sources |
 | `ddb-berlin-photographs` | Required: `NOESIS_DDB_API_KEY` | Free (account; metadata CC0) | — |
@@ -104,6 +126,9 @@ figure. Sources are listed at the end.
 | `software-heritage` | Optional: `NOESIS_SWH_TOKEN` | Free account token; raises rate limits | — |
 | `uniprot-lifesci-proteins`, `rcsb-pdb-lifesci-structures`, `chembl-lifesci-bioactivity` | Optional: `NOESIS_SCIENCE_CONTACT` (contact string) | Free | — |
 | `dnb-*`, `loc-*`, `musicbrainz-media`, `openlibrary-media`, `wikidata-media` | Optional: `NOESIS_MEDIA_METADATA_CONTACT` (contact string) | Free | — |
+| SEC EDGAR filings connector (`edgar`) | Optional: `NOESIS_EDGAR_USER_AGENT` (contact string) | Free | — |
+| source-pack runtime | Optional: `NOESIS_RESEARCH_CONTACT` (contact string) | Free | — |
+| scholarly connectors (`openalex`, `crossref`, …) | Optional: `NOESIS_SCHOLARLY_CONTACT` (contact e-mail for polite API use) | Free | — |
 
 ## Integrations and AI services (not data sources)
 
@@ -115,6 +140,10 @@ figure. Sources are listed at the end.
 | Embeddings backend `openai` | Required for that backend: `OPENAI_API_KEY` | Not free (paid API) | `local_sentence_transformers` backend (built in, no key) |
 | Vision describer | Required: `ANTHROPIC_API_KEY` (`NOESIS_VISION_PROVIDER=anthropic`) | Not free (paid API) | A local open-weight vision model; no built-in local provider yet |
 | Telegram alert channel | Required for that channel: `TELEGRAM_BOT_TOKEN` | Free (about 30 messages/s broadcast limit) | — |
+| Email alert / report channel | Required for that channel: `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` (+ `SMTP_FROM`, `SMTP_PORT`, `SMTP_TLS`) | Depends on the mail provider | — |
+| optional integration `github` | Required: `NOESIS_GITHUB_TOKEN` / `GITHUB_PERSONAL_ACCESS_TOKEN` / `GITHUB_TOKEN` | Free (personal access token) | — |
+| MCP integration `github` | Required: `NOESIS_GITHUB_MCP_TOKEN` | Free (personal access token) | — |
+| MCP integration `context7` | Required: `NOESIS_CONTEXT7_API_KEY` | Free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan | Self-hosted Context7 (open source) |
 
 ## Where keys live
 
@@ -176,3 +205,18 @@ that are backed up unencrypted; inject them at start from a secret manager
 - Internet Archive: [S3 credentials](https://doc-tools.readthedocs.io/en/ia-test-gsod/tutorial-get-ia-credentials.html)
 - TypeSafe / JEV: [pricing summary](https://www.eesel.ai/blog/typesafe-jev-pricing), [Requesty listing](https://www.requesty.ai/model/typesafe/jev)
 - Telegram: [Bot FAQ](https://core.telegram.org/bots/faq)
+- IATI: [Datastore API](https://iatistandard.org/en/iati-tools-and-resources/iati-datastore/how-to-use-the-datastore-api/), [API Gateway](https://iatistandard.org/en/iati-tools-and-resources/api-gateway/)
+- OpenAQ: [getting started](https://docs.openaq.org/docs/getting-started)
+- Copernicus ADS: [account setup](https://providentia.readthedocs.io/en/stable/ADS.html)
+- OpenCorporates: [pricing](https://opencorporates.com/pricing/), [terms of use](https://opencorporates.com/terms-of-use-2/)
+- Unternehmensregister: [register overview](https://ecovis-kso.com/blog/register-uebersicht-das-unternehmensregister/)
+- OpenSanctions: [free and non-commercial use](https://www.opensanctions.org/docs/commercial/exemption/), [API](https://www.opensanctions.org/api/)
+- Brave Search API: [pricing 2026](https://costbench.com/software/ai-search-apis/brave-search-api/), [free plan](https://www.costbench.com/software/ai-search-apis/brave-search-api/free-plan/)
+- Exa: [pricing](https://exa.ai/docs/reference/pricing), [billing](https://exa.ai/docs/reference/billing)
+- Tavily: [API credits](https://docs.tavily.com/guides/api-credits)
+- Jina: [pricing](https://jina.ai/api-dashboard/pricing/)
+- Firecrawl: [pricing](https://www.firecrawl.dev/pricing)
+- Zyte: [API pricing](https://docs.zyte.com/zyte-api/pricing.html)
+- Space-Track: [overview](https://newspaceeconomy.ca/2023/06/22/overview-of-space-track-org-a-space-situational-awareness-service-by-the-u-s-department-of-defense/)
+- IUCN Red List: [API client notes](https://zitniklab.hms.harvard.edu/ToolUniverse/_modules/tooluniverse/iucn_tool.html), [Jentic FAQ](https://jentic.com/apis/iucnredlist)
+- Context7: [free-tier change](https://blog.devgenius.io/context7-quietly-slashed-its-free-tier-by-92-16fa05ddce03), [usage docs](https://context7.com/docs/howto/usage.md)
