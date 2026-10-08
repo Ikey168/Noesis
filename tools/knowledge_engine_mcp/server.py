@@ -8460,6 +8460,23 @@ def resolve_research_package_closure(
 
 
 @mcp.tool()
+def lookup_paper_abstracts(dois: list[str], providers: list[str] | None = None) -> dict:
+    """Look up paper abstracts by DOI (OpenAlex, then Crossref, then Semantic Scholar).
+
+    Each abstract carries the provider it came from; DOIs no provider can supply
+    are listed as missing. Read-only: nothing is stored. At most 200 DOIs.
+    """
+    from src.ingestion.connectors.scholarly.abstracts import PROVIDERS, AbstractBackfill
+
+    def lookup(_conn):
+        if not isinstance(dois, list) or len(dois) > 200:
+            raise ValueError("dois must be a list of at most 200 DOIs")
+        return AbstractBackfill().fetch(dois, providers=tuple(providers or PROVIDERS))
+
+    return _safe(lookup, required_scope="knowledge:read")
+
+
+@mcp.tool()
 def acquire_opencitations(
     identifier: str, direction: str = "references", snapshot_sha256: str | None = None,
     cursor: dict[str, Any] | None = None, page_size: int = 100,
