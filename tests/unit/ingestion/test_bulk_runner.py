@@ -230,6 +230,21 @@ def test_dataset_sink_registers_release_and_ingests(tmp_path):
     assert again["status"] == "complete" and again["outputs"]["dataset_release_id"] != receipt["outputs"]["dataset_release_id"]
 
 
+def test_dataset_sink_rerun_of_same_release_reuses_it(tmp_path):
+    duckdb = pytest.importorskip("duckdb")
+    db = tmp_path / "w.duckdb"
+    params = {"survey": "cu", "series": ["CUSR0000SA0"]}
+
+    def run():
+        return runner(get_bulk_adapter("bls-flat-files"), tmp_path, bls_web(),
+                      sinks=[DatasetSink("bulk-test", lambda: duckdb.connect(str(db)))]).run(params)
+
+    first, second = run(), run()
+    assert first["status"] == second["status"] == "complete"
+    assert second["outputs"]["dataset_release_id"] == first["outputs"]["dataset_release_id"]
+    assert second["outputs"]["ingestion_receipts"] == 0           # unchanged files are not re-ingested
+
+
 def test_stream_byte_budget_enforced(tmp_path):
     # size known from HEAD: the runner stops before downloading
     receipt = runner(get_bulk_adapter("bls-flat-files"), tmp_path, bls_web(), budgets=Budgets(max_bytes=50)).run(

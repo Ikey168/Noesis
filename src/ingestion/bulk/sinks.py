@@ -79,6 +79,13 @@ class DatasetSink(Sink):
                                              spec["license"], spec["tables"], spec["code_lists"],
                                              spec["partitions"], principal_id=self.principal, scopes=scopes)
             self.table_ids = {t["identity"]: t["table_id"] for t in dataset["tables"]}
+            existing = store.find_release(self.namespace, dataset["dataset_id"], release.release_id,
+                                          scopes={"knowledge:dataset:read"})
+            if existing:
+                # A re-run of an upstream release registered earlier (e.g. the weekly timer between
+                # monthly publications): keep it; its retrieval time and manifest are the first run's.
+                self.release_id = existing["release_id"]
+                return
             published = _ms(release.published_at)
             registered = store.register_release(self.namespace, dataset["dataset_id"], release.release_id,
                                                 release.release_id, retrieved_at_ms=int(time.time() * 1000),

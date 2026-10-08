@@ -188,6 +188,26 @@ commit them, paste them into tickets or chat, or store them in `.env` files
 that are backed up unencrypted; inject them at start from a secret manager
 (e.g. OpenBao via a small wrapper) instead.
 
+The reference deployment keeps them in an OpenBao KV v2 mount, organised by
+where a key comes from rather than which process uses it:
+
+| Path | Holds | Read by |
+|---|---|---|
+| `secret/apis/<provider>` | third-party API keys, e.g. `apis/core`, `apis/ncbi` | every Noesis process (`apis/*`) |
+| `secret/infra/<system>` | credentials of your own systems (database, MCP auth tokens) | only that system |
+| `secret/desktop/<provider>` | keys that only workstation tools use | the workstation |
+
+- **One entry per provider; field names are the variables the code reads.**
+  `apis/core` holds `CORE_API_KEY`. Where code reads two names for one key
+  (`NCBI_API_KEY` and `NOESIS_NCBI_API_KEY`), store it under both.
+- **Adding a key** is creating `apis/<provider>`; processes started through
+  `bao-env "apis/*" -- …` pick it up at their next start, with no policy or
+  unit change. Within one `apis/*` load, two entries setting the same variable
+  to different values is an error.
+- **Bookkeeping** goes in each entry's custom metadata: `tier`, `dashboard`,
+  `rotated`, `account`, `bitwarden` (the password-manager item for the
+  provider's web login), `note`.
+
 ## Sources (checked October 2026)
 
 - Scopus: [pybliometrics access](https://pybliometrics.readthedocs.io/en/stable/access.html), [Using the Scopus API](https://www.casrai.org/guides/using-the-scopus-api)
