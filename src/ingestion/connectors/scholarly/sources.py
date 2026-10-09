@@ -10,6 +10,7 @@ Add a new source by appending a spec + a one-line subclass at the bottom.
 """
 from __future__ import annotations
 
+import html
 import json
 import os
 import urllib.parse
@@ -243,6 +244,130 @@ CORE = ScholarlySource(
 )
 
 
+# --------------------------------------------------------------------------- #
+# ERIC -- Education Resources Information Center (IES/ED), JSON Solr API
+# --------------------------------------------------------------------------- #
+def _eric_records(body: Any) -> List[Mapping[str, Any]]:
+    """Pull ERIC's Solr ``response.docs``; synthesize a record URL, coerce the
+    integer ``publicationdateyear`` to a year string the base can parse, and
+    unescape the HTML entities ERIC leaves in titles/abstracts."""
+    out: List[Mapping[str, Any]] = []
+    for doc in _get(body, "response.docs", []) or []:
+        if not isinstance(doc, Mapping):
+            continue
+        rec = dict(doc)
+        rid = doc.get("id")
+        rec["_url"] = doc.get("url") or (f"https://eric.ed.gov/?id={rid}" if rid else None)
+        rec["_year"] = str(doc.get("publicationdateyear") or "")
+        for field_name in ("title", "description"):
+            value = doc.get(field_name)
+            if isinstance(value, str):
+                rec[field_name] = html.unescape(value)
+        out.append(rec)
+    return out
+
+
+def _eric_url(q: ScholarlyQuery) -> str:
+    since, until = _win(q)
+    expr = "%s AND publicationdateyear:[%s TO %s]" % (q.topic, since[:4], until[:4])
+    return (
+        "https://api.ies.ed.gov/eric/?search=" + enc(expr)
+        + "&format=json&start=0&rows=%d" % min(q.limit, 200)
+        + "&fields=" + enc("id,title,author,description,publicationdateyear,source,url,subject,peerreviewed")
+    )
+
+
+ERIC = ScholarlySource(
+    name="eric",
+    allowed_host="api.ies.ed.gov",
+    build_url=_eric_url,
+    transform_records=_eric_records,
+    id_path="id",
+    title_path="title",
+    abstract_path="description",
+    authors_path="author",   # list of plain-string names
+    date_path="_year",       # year-granular: ERIC publication dates are a year only
+    url_path="_url",
+    venue_path="source",
+)
+
+
+# --------------------------------------------------------------------------- #
+# EdArXiv -- education preprints on OSF Preprints (api.osf.io JSON:API)
+# --------------------------------------------------------------------------- #
+def _iso_seconds(value: Any) -> Optional[str]:
+    """OSF timestamps carry microseconds (e.g. ``...:02.449559``) that the base
+    date parser rejects; keep whole seconds so the publication date resolves."""
+    text = str(value or "")
+    return text[:19] if "T" in text else (text or None)
+
+
+def _edarxiv_records(body: Any) -> List[Mapping[str, Any]]:
+    """Flatten OSF's JSON:API preprints into flat records: lift the embedded
+    contributor full names, prefer the minted DOI (``links.preprint_doi`` when
+    ``attributes.doi`` is absent), and resolve the preprint's HTML URL."""
+    out: List[Mapping[str, Any]] = []
+    for item in body.get("data", []) or []:
+        if not isinstance(item, Mapping):
+            continue
+        attrs = item.get("attributes") or {}
+        links = item.get("links") or {}
+        names: List[str] = []
+        contributors = (((item.get("embeds") or {}).get("contributors") or {}).get("data")) or []
+        for contributor in contributors:
+            user = (((contributor.get("embeds") or {}).get("users") or {}).get("data")) or {}
+            name = (user.get("attributes") or {}).get("full_name") if isinstance(user, Mapping) else None
+            if name:
+                names.append(name)
+        doi = attrs.get("doi")
+        if not doi:
+            preprint_doi = str(links.get("preprint_doi") or "")
+            if "doi.org/" in preprint_doi:
+                doi = preprint_doi.split("doi.org/", 1)[1]
+        out.append({
+            "id": item.get("id"),
+            "title": attrs.get("title"),
+            "description": attrs.get("description"),
+            "date_published": _iso_seconds(attrs.get("date_published") or attrs.get("date_created")),
+            "doi": doi or None,
+            "authors": names,
+            "venue": "EdArXiv",
+            "html": links.get("html") or (
+                f"https://osf.io/preprints/edarxiv/{item.get('id')}/" if item.get("id") else None),
+        })
+    return out
+
+
+def _edarxiv_url(q: ScholarlyQuery) -> str:
+    since, until = _win(q)
+    params = {
+        "filter[provider]": "edarxiv",
+        "filter[title]": q.topic,              # OSF preprints search is a title contains-match
+        "filter[date_published][gte]": since,
+        "filter[date_published][lte]": until,
+        "embed": "contributors",
+        "sort": "-date_published",
+        "page[size]": min(q.limit, 100),
+    }
+    return "https://api.osf.io/v2/preprints/?" + urllib.parse.urlencode(params)
+
+
+EDARXIV = ScholarlySource(
+    name="edarxiv",
+    allowed_host="api.osf.io",
+    build_url=_edarxiv_url,
+    transform_records=_edarxiv_records,
+    id_path="id",
+    title_path="title",
+    abstract_path="description",
+    authors_path="authors",  # flattened to plain-string names by the transform
+    date_path="date_published",
+    doi_path="doi",
+    url_path="html",
+    venue_path="venue",
+)
+
+
 def _spec_connector(spec: ScholarlySource):
     cls = type(
         "".join(p.capitalize() for p in spec.name.split("_")) + "Connector",
@@ -262,6 +387,8 @@ HalConnector = _spec_connector(HAL)
 PlosConnector = _spec_connector(PLOS)
 ZenodoConnector = _spec_connector(ZENODO)
 CoreConnector = _spec_connector(CORE)
+EricConnector = _spec_connector(ERIC)
+EdarxivConnector = _spec_connector(EDARXIV)
 
 
 # --------------------------------------------------------------------------- #
@@ -530,4 +657,5 @@ class ScopusConnector(ScholarlyConnector):
 SCHOLARLY_SOURCES = [
     "openalex", "crossref", "semantic_scholar", "europepmc", "pubmed",
     "biorxiv", "medrxiv", "doaj", "core", "dblp", "hal", "plos", "zenodo", "scopus",
+    "eric", "edarxiv",
 ]
