@@ -21,13 +21,27 @@ from src.ingestion.connectors.base import PermanentFetchError, RawDocument, Sour
 from src.ingestion.connectors.registry import register_connector
 from src.ingestion.connectors.scholarly.base import (
     DEFAULT_LIMIT,
+    HARD_MAX_LIMIT,
     ScholarlyConnector,
     ScholarlyQuery,
     ScholarlySource,
     _get,
     _to_millis,
     enc,
+    get_with_retry,
 )
+
+
+def _with_param(url: str, key: str, value: Any) -> str:
+    """Return ``url`` with query parameter ``key`` set to ``value`` (added or replaced)."""
+    parts = urllib.parse.urlsplit(url)
+    params = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query, keep_blank_values=True) if k != key]
+    params.append((key, str(value)))
+    return urllib.parse.urlunsplit(parts._replace(query=urllib.parse.urlencode(params, quote_via=urllib.parse.quote)))
+
+
+def _param(url: str, key: str) -> Optional[str]:
+    return dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(url).query)).get(key)
 
 
 def _win(q: ScholarlyQuery, default_days: int = 3650) -> tuple[str, str]:
@@ -40,14 +54,30 @@ def _win(q: ScholarlyQuery, default_days: int = 3650) -> tuple[str, str]:
 # --------------------------------------------------------------------------- #
 # Declarative JSON-search sources
 # --------------------------------------------------------------------------- #
+def _openalex_url(q: ScholarlyQuery) -> str:
+    window = "from_publication_date:%s,to_publication_date:%s" % _win(q)
+    if q.scope == "title_abstract":
+        if "," in q.topic:
+            raise ValueError("openalex title_abstract scope: commas are not allowed in the topic (filter syntax)")
+        head = "https://api.openalex.org/works?filter=title_and_abstract.search:" + enc(q.topic) + "," + window
+    else:
+        head = "https://api.openalex.org/works?search=" + enc(q.topic) + "&filter=" + window
+    return head + "&per-page=%d&sort=publication_date:desc&cursor=*" % min(q.limit, 200)
+
+
+def _openalex_next(q: ScholarlyQuery, body: Any, url: str, fetched: int) -> Optional[str]:
+    cursor = ((body or {}).get("meta") or {}).get("next_cursor")
+    return _with_param(url, "cursor", cursor) if cursor else None
+
+
 OPENALEX = ScholarlySource(
     name="openalex",
     allowed_host="api.openalex.org",
-    build_url=lambda q: (
-        "https://api.openalex.org/works?search=" + enc(q.topic)
-        + "&filter=from_publication_date:%s,to_publication_date:%s" % _win(q)
-        + "&per-page=%d&sort=publication_date:desc" % q.limit
-    ),
+    build_url=_openalex_url,
+    next_page=_openalex_next,
+    total_path="meta.count",
+    max_limit=HARD_MAX_LIMIT,
+    scopes=("title_abstract",),
     results_path="results",
     id_path="id",
     title_path="display_name",
@@ -106,14 +136,26 @@ SEMANTIC_SCHOLAR = ScholarlySource(
 # S2 works without a key (lower rate limit); drop the hard requirement.
 SEMANTIC_SCHOLAR.requires_env = None
 
+def _europepmc_url(q: ScholarlyQuery) -> str:
+    topic = "TITLE_ABS:(%s)" % q.topic if q.scope == "title_abstract" else q.topic
+    return ("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query="
+            + enc("%s AND (FIRST_PDATE:[%s TO %s])" % (topic, *_win(q)))
+            + "&format=json&resultType=core&pageSize=%d&cursorMark=*" % min(q.limit, 1000))
+
+
+def _europepmc_next(q: ScholarlyQuery, body: Any, url: str, fetched: int) -> Optional[str]:
+    nxt = (body or {}).get("nextCursorMark")
+    return _with_param(url, "cursorMark", nxt) if nxt and nxt != _param(url, "cursorMark") else None
+
+
 EUROPE_PMC = ScholarlySource(
     name="europepmc",
     allowed_host="www.ebi.ac.uk",
-    build_url=lambda q: (
-        "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query="
-        + enc("%s AND (FIRST_PDATE:[%s TO %s])" % (q.topic, *_win(q)))
-        + "&format=json&resultType=core&pageSize=%d" % min(q.limit, 100)
-    ),
+    build_url=_europepmc_url,
+    next_page=_europepmc_next,
+    total_path="hitCount",
+    max_limit=HARD_MAX_LIMIT,
+    scopes=("title_abstract",),
     results_path="resultList.result",
     id_path="id",
     title_path="title",
@@ -125,13 +167,30 @@ EUROPE_PMC = ScholarlySource(
     venue_path="journalInfo.journal.title",
 )
 
+def _doaj_url(q: ScholarlyQuery) -> str:
+    """DOAJ has no date parameter, so the window goes into the query as a
+    ``bibjson.year`` range (year-granular; the post-filter enforces the exact
+    dates). DOAJ rejects wildcards ("disallowed Lucene features")."""
+    since, until = _win(q)
+    query = "(%s) AND bibjson.year:[%s TO %s]" % (q.topic, since[:4], until[:4])
+    return ("https://doaj.org/api/search/articles/" + enc(query)
+            + "?pageSize=%d&page=1&sort=created_date:desc" % min(q.limit, 100))
+
+
+def _doaj_next(q: ScholarlyQuery, body: Any, url: str, fetched: int) -> Optional[str]:
+    total = (body or {}).get("total") or 0
+    page = int(_param(url, "page") or 1)
+    size = int(_param(url, "pageSize") or 100)
+    return _with_param(url, "page", page + 1) if page * size < total else None
+
+
 DOAJ = ScholarlySource(
     name="doaj",
     allowed_host="doaj.org",
-    build_url=lambda q: (
-        "https://doaj.org/api/search/articles/" + enc(q.topic)
-        + "?pageSize=%d&sort=created_date:desc" % min(q.limit, 100)
-    ),
+    build_url=_doaj_url,
+    next_page=_doaj_next,
+    total_path="total",
+    max_limit=HARD_MAX_LIMIT,
     results_path="results",
     id_path="id",
     title_path="bibjson.title",
@@ -241,14 +300,23 @@ def _core_records(body: Any) -> list:
     ]
 
 
+def _core_next(q: ScholarlyQuery, body: Any, url: str, fetched: int) -> Optional[str]:
+    total = (body or {}).get("totalHits") or 0
+    offset = int(_param(url, "offset") or 0) + int(_param(url, "limit") or 100)
+    return _with_param(url, "offset", offset) if offset < total else None
+
+
 CORE = ScholarlySource(
     name="core",
     allowed_host="api.core.ac.uk",
     build_url=lambda q: (
         "https://api.core.ac.uk/v3/search/works/?q="
         + enc(_core_query(q))
-        + "&limit=%d" % min(q.limit, 100)
+        + "&limit=%d&offset=0" % min(q.limit, 100)
     ),
+    next_page=_core_next,
+    total_path="totalHits",
+    max_limit=HARD_MAX_LIMIT,
     transform_records=_core_records,
     results_path="results",
     id_path="id",
@@ -297,16 +365,19 @@ class PubmedConnector(ScholarlyConnector):
     name = "pubmed"
     source_type = "paper"
     SOURCE = ScholarlySource(name="pubmed", allowed_host="eutils.ncbi.nlm.nih.gov",
-                             build_url=lambda q: "")  # unused; custom fetch below
+                             build_url=lambda q: "",  # unused; custom fetch below
+                             max_limit=HARD_MAX_LIMIT)  # esearch returns up to 10,000 ids
+    SUMMARY_BATCH = 200  # ids per esummary request (keeps URLs short)
 
     _EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
     def discover(self, query: Union[str, Mapping[str, Any], None] = None) -> Iterable[SourceRef]:
+        from src.ingestion.connectors.scholarly.base import _for_source, _query_dict
         q = ScholarlyQuery.coerce(query)
         if q is None:
             return
-        yield SourceRef(locator="pubmed", metadata={"source_id": "pubmed", "query": {
-            "topic": q.topic, "since": q.since, "until": q.until, "limit": q.limit}})
+        q = _for_source(q, self.SOURCE)
+        yield SourceRef(locator="pubmed", metadata={"source_id": "pubmed", "query": _query_dict(q)})
 
     def _key_param(self) -> str:
         key = self._api_key or os.getenv("NCBI_API_KEY")
@@ -318,24 +389,31 @@ class PubmedConnector(ScholarlyConnector):
         since, until = _win(q)
         term = "%s AND (%s[PDAT] : %s[PDAT])" % (q.topic, since.replace("-", "/"), until.replace("-", "/"))
         esearch = (f"{self._EUTILS}/esearch.fcgi?db=pubmed&retmode=json&sort=pub+date"
-                   f"&retmax={min(q.limit, 100)}&term={enc(term)}" + self._key_param())
+                   f"&retmax={min(q.limit, HARD_MAX_LIMIT)}&term={enc(term)}" + self._key_param())
         headers = {"Accept": "application/json", "User-Agent": _user_agent()}
-        get = self._http_get or _default_http_get
+        raw_get = self._http_get or _default_http_get
+        get = lambda url, headers: get_with_retry(raw_get, url, headers)
         _assert_public_https(esearch, self.SOURCE.allowed_host, self._resolver)
-        ids = (json.loads(get(esearch, headers).decode("utf-8", "replace"))
-               .get("esearchresult", {}).get("idlist", []))
-        if not ids:
-            return RawDocument(ref=ref, content=json.dumps({"result": {}}), content_type="application/json")
-        esummary = (f"{self._EUTILS}/esummary.fcgi?db=pubmed&retmode=json"
-                    f"&id={','.join(ids)}" + self._key_param())
-        _assert_public_https(esummary, self.SOURCE.allowed_host, self._resolver)
-        return RawDocument(ref=ref, content=get(esummary, headers), content_type="application/json")
+        found = json.loads(get(esearch, headers).decode("utf-8", "replace")).get("esearchresult", {})
+        ids = found.get("idlist", [])[:q.limit]
+        total = int(found["count"]) if str(found.get("count", "")).isdigit() else None
+        result: dict = {"uids": []}
+        for i in range(0, len(ids), self.SUMMARY_BATCH):
+            esummary = (f"{self._EUTILS}/esummary.fcgi?db=pubmed&retmode=json"
+                        f"&id={','.join(ids[i:i + self.SUMMARY_BATCH])}" + self._key_param())
+            _assert_public_https(esummary, self.SOURCE.allowed_host, self._resolver)
+            part = json.loads(get(esummary, headers).decode("utf-8", "replace")).get("result", {})
+            result["uids"].extend(part.get("uids", []))
+            result.update({k: v for k, v in part.items() if k != "uids"})
+        return RawDocument(ref=ref, content=json.dumps({"result": result, "total": total}),
+                           content_type="application/json")
 
     def parse(self, raw: RawDocument) -> List[Document]:
         content = raw.content
         if isinstance(content, bytes):
             content = content.decode("utf-8", "replace")
-        result = (json.loads(content) if content else {}).get("result", {})
+        payload = json.loads(content) if content else {}
+        result, total = payload.get("result", {}), payload.get("total")
         q = ScholarlyQuery.coerce((raw.ref.metadata or {}).get("query") or {})
         lo = _to_millis(q.since) if q and q.since else None
         hi = (_to_millis(q.until) + 86_400_000 - 1) if q and q.until else None
@@ -365,6 +443,7 @@ class PubmedConnector(ScholarlyConnector):
                     "doi": doi, "work_identifier": ("doi:" + doi.lower()) if doi else f"pubmed:{pmid}",
                     "venue": rec.get("fulljournalname") or rec.get("source"),
                     "content_coverage": "metadata-only",
+                    "source_total_results": total,
                 }.items() if v}))
         return docs
 
@@ -464,22 +543,27 @@ class ScopusConnector(ScholarlyConnector):
     source_type = "paper"
     SOURCE = ScholarlySource(name="scopus", allowed_host="api.elsevier.com",
                              build_url=lambda q: "", requires_env="ELSEVIER_API_KEY",
+                             max_limit=5000, scopes=("title_abstract",),
                              api_key_header="X-ELS-APIKey")
 
     _SEARCH = "https://api.elsevier.com/content/search/scopus"
     PAGE_SIZE = 25  # STANDARD-view maximum without an institutional entitlement
+    MAX_RESULTS = 5000  # Scopus Search API: start + count may not exceed 5,000
     _FIELD_CODES = ("TITLE-ABS-KEY(", "TITLE(", "ABS(", "KEY(", "ALL(", "AUTH(", "DOI(", "SRCTITLE(")
 
     def discover(self, query: Union[str, Mapping[str, Any], None] = None) -> Iterable[SourceRef]:
+        from src.ingestion.connectors.scholarly.base import _for_source, _query_dict
         q = ScholarlyQuery.coerce(query)
         if q is None:
             return
-        yield SourceRef(locator="scopus", title=f"scopus:{q.topic}", metadata={"source_id": "scopus", "query": {
-            "topic": q.topic, "since": q.since, "until": q.until, "limit": q.limit}})
+        q = _for_source(q, self.SOURCE)
+        yield SourceRef(locator="scopus", title=f"scopus:{q.topic}", metadata={"source_id": "scopus", "query": _query_dict(q)})
 
-    def _expression(self, topic: str) -> str:
+    def _expression(self, topic: str, scope: Optional[str] = None) -> str:
         upper = topic.upper()
-        return topic if any(code in upper for code in self._FIELD_CODES) else f"TITLE-ABS-KEY({topic})"
+        if any(code in upper for code in self._FIELD_CODES):
+            return topic
+        return f"TITLE-ABS({topic})" if scope == "title_abstract" else f"TITLE-ABS-KEY({topic})"
 
     def fetch(self, ref: SourceRef) -> RawDocument:
         from src.ingestion.connectors.scholarly.base import _assert_public_https, _default_http_get, _user_agent
@@ -489,13 +573,14 @@ class ScopusConnector(ScholarlyConnector):
         q = ScholarlyQuery.coerce((ref.metadata or {}).get("query") or {})
         since, until = _win(q)
         headers = {"Accept": "application/json", "User-Agent": _user_agent(), "X-ELS-APIKey": key}
-        get = self._http_get or _default_http_get
+        raw_get = self._http_get or _default_http_get
+        get = lambda url, headers: get_with_retry(raw_get, url, headers)
         entries: List[Mapping[str, Any]] = []
         total = None
         start = 0
         while len(entries) < q.limit:
             url = self._SEARCH + "?" + urllib.parse.urlencode({
-                "query": self._expression(q.topic), "date": f"{since[:4]}-{until[:4]}",
+                "query": self._expression(q.topic, q.scope), "date": f"{since[:4]}-{until[:4]}",
                 "sort": "-coverDate", "view": "STANDARD", "start": start,
                 "count": min(self.PAGE_SIZE, q.limit - len(entries))})
             _assert_public_https(url, self.SOURCE.allowed_host, self._resolver)

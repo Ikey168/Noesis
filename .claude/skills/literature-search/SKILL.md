@@ -49,11 +49,34 @@ before running anything:
 | `dblp` | `LLM tutoring` | 2022 → 2026 | year-granular; AIED/EDM/LAK/L@S proceedings |
 | `core` | … | … | needs `CORE_API_KEY` |
 
-Each call returns at most **200** results (`limit` is capped). If a query
-returns exactly the limit, the result set is truncated. Split the window (by
-year or half-year) until every slice returns fewer than the limit, and record
+Each connector returns at most `limit` records, up to its own ceiling
+(`get_connector(name).SOURCE.max_limit`): **10,000** for the sources that page
+(`openalex`, `europepmc`, `pubmed`, `core`, `doaj`), **5,000** for `scopus`, and
+**200** (a single request) for the rest (`crossref`, `semantic_scholar`, `dblp`,
+…). Every harvested document carries the API's hit count as
+`metadata["source_total_results"]`. A query is **truncated** when that total
+exceeds the effective limit, or when `metadata["source_unretrieved_records"]` is
+set (a later page kept failing after retries, so the pages read so far were
+kept). Split truncated queries by window until no slice is truncated, and record
 each slice. Set `NOESIS_SCHOLARLY_CONTACT` to a contact email to respect the
 APIs' rate limits.
+
+Scope and syntax:
+
+- Pass `"scope": "title_abstract"` for `openalex`, `europepmc` and `scopus` to
+  match only title and abstract. OpenAlex's `search` and unfielded Europe PMC
+  queries also match full texts, which inflates hits by orders of magnitude. A
+  source that can't honour a scope raises instead of ignoring it.
+- `openalex`, `core` and `doaj` reject or ignore wildcards: expand `term*` into
+  explicit forms.
+- `core`: combine bare terms with explicit `AND`; use one flat OR group per
+  concept (nested parentheses silently under-match); a lone quoted phrase is
+  rejected, a phrase inside a group works.
+- `doaj`: the window is applied as a `bibjson.year` range (year-granular); run
+  large queries in year slices, because deep offsets of a large result set can
+  return HTTP 502.
+- `crossref` and `semantic_scholar` (`/paper/search`) have no Boolean syntax;
+  they can't execute a Boolean search expression.
 
 ## 2. Harvest, receipt, ingest
 
@@ -65,11 +88,17 @@ from src.ingestion.connectors.registry import get_connector
 from src.gateway import ingest_documents
 from src.noesis_cli.config import load_config
 
-query = {"topic": "<exact string>", "since": "2022-11-30", "until": "2026-09-30", "limit": 200}
-docs = list(get_connector("openalex").harvest(query))
+query = {"topic": "<exact string>", "since": "2022-11-30", "until": "2026-09-30",
+         "limit": 10000, "scope": "title_abstract"}
+connector = get_connector("openalex")
+docs = list(connector.harvest(query))
 
+limit = min(query["limit"], connector.SOURCE.max_limit)
+meta = docs[0].metadata if docs else {}
+total, unretrieved = meta.get("source_total_results"), meta.get("source_unretrieved_records") or 0
 receipt = {"database": "openalex", "query": query, "run_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-           "hits": len(docs), "truncated": len(docs) >= query["limit"],
+           "hits": len(docs), "api_total": total, "unretrieved": unretrieved,
+           "truncated": bool(unretrieved) or (total > limit if total is not None else len(docs) >= limit),
            "document_ids": sorted(d.document_id for d in docs)}
 receipt["search_run_id"] = "search:" + hashlib.sha256(json.dumps(receipt, sort_keys=True).encode()).hexdigest()[:24]
 
