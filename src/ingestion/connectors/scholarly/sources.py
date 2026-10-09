@@ -219,14 +219,37 @@ ZENODO = ScholarlySource(
     venue_path="metadata.journal.title",
 )
 
+def _core_query(q: ScholarlyQuery) -> str:
+    """CORE v3 rejects ``publishedDate`` comparisons (HTTP 500), so filter by
+    year and let the publication-date post-filter enforce the exact window.
+    The topic is parenthesised because CORE ORs bare terms."""
+    since, until = _win(q)
+    return "(%s) AND yearPublished>=%s AND yearPublished<=%s" % (q.topic, since[:4], until[:4])
+
+
+def _core_records(body: Any) -> list:
+    """CORE often omits ``publishedDate`` but sets ``yearPublished``; without a
+    date the post-filter would drop the record, so fall back to the year."""
+    records = body.get("results") if isinstance(body, dict) else None
+    if not isinstance(records, list):
+        return []
+    return [
+        {**r, "publishedDate": str(r["yearPublished"])}
+        if isinstance(r, dict) and not r.get("publishedDate") and r.get("yearPublished")
+        else r
+        for r in records
+    ]
+
+
 CORE = ScholarlySource(
     name="core",
     allowed_host="api.core.ac.uk",
     build_url=lambda q: (
-        "https://api.core.ac.uk/v3/search/works?q="
-        + enc("%s AND publishedDate>=%s AND publishedDate<=%s" % (q.topic, *_win(q)))
+        "https://api.core.ac.uk/v3/search/works/?q="
+        + enc(_core_query(q))
         + "&limit=%d" % min(q.limit, 100)
     ),
+    transform_records=_core_records,
     results_path="results",
     id_path="id",
     title_path="title",
