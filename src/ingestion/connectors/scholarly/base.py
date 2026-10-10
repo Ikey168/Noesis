@@ -24,11 +24,13 @@ import ipaddress
 import json
 import socket
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable, Iterable, List, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Iterable, List, Mapping, Optional, Sequence, Union, Tuple
 
 from services.ingest.common.document_model import Document
 from src.ingestion.connectors.base import (
@@ -40,8 +42,21 @@ from src.ingestion.connectors.base import (
 
 CONTRACT = "noesis-scholarly-source-v1"
 DEFAULT_LIMIT = 50
+#: Default per-source ceiling (one request's worth for non-paging sources).
 MAX_LIMIT = 200
+#: Absolute ceiling for any query; paging sources raise their own ``max_limit``
+#: up to this value so systematic searches can retrieve a full result set.
+HARD_MAX_LIMIT = 10_000
+#: Search scopes a query may request; each source declares which it supports.
+SCOPES = ("title_abstract",)
+#: Result orderings a query may request instead of the source default.
+ORDERS = ("relevance",)
 _TIMEOUT_S = 30
+#: Transient server errors are retried with exponential backoff before a
+#: paged query is abandoned (a systematic harvest can make hundreds of requests).
+_RETRY_STATUSES = (500, 502, 503, 504)
+_RETRY_ATTEMPTS = 3
+_RETRY_BACKOFF_S = 2.0
 _MAX_BYTES = 8 * 1024 * 1024
 
 
@@ -56,6 +71,12 @@ class ScholarlyQuery:
     since: Optional[str] = None
     until: Optional[str] = None
     limit: int = DEFAULT_LIMIT
+    #: ``None`` = the API's default fields; ``"title_abstract"`` = restrict
+    #: matching to title and abstract (sources must support it explicitly).
+    scope: Optional[str] = None
+    #: ``None`` = the source's default order (usually newest first);
+    #: ``"relevance"`` = the API's relevance ranking (sources must support it).
+    order: Optional[str] = None
 
     @classmethod
     def coerce(cls, query: Union[str, Mapping[str, Any], "ScholarlyQuery", None]) -> Optional["ScholarlyQuery"]:
@@ -70,11 +91,19 @@ class ScholarlyQuery:
             if not topic:
                 return None
             limit = int(query.get("limit", DEFAULT_LIMIT) or DEFAULT_LIMIT)
+            scope = query.get("scope") or None
+            if scope is not None and scope not in SCOPES:
+                raise ValueError(f"unknown search scope {scope!r}; expected one of {SCOPES}")
+            order = query.get("order") or None
+            if order is not None and order not in ORDERS:
+                raise ValueError(f"unknown result order {order!r}; expected one of {ORDERS}")
             return cls(
                 topic=str(topic),
                 since=_norm_date(query.get("since") or query.get("from")),
                 until=_norm_date(query.get("until") or query.get("to")),
-                limit=max(1, min(limit, MAX_LIMIT)),
+                limit=max(1, min(limit, HARD_MAX_LIMIT)),
+                scope=scope,
+                order=order,
             )
         return None
 
@@ -116,6 +145,19 @@ class ScholarlySource:
     extra_headers: Mapping[str, str] = field(default_factory=dict)
     # Optional per-source hooks for APIs that don't fit the pure JSON-path model.
     transform_records: Optional[Callable[[Any], Sequence[Mapping[str, Any]]]] = None
+    #: Most records one query may return from this source. Non-paging sources
+    #: keep the one-request default; paging sources raise it.
+    max_limit: int = MAX_LIMIT
+    #: Dotted path to the API's total hit count, recorded on every document as
+    #: ``source_total_results`` so a truncated result set is always visible.
+    total_path: Optional[str] = None
+    #: ``next_page(query, body, url, fetched) -> next URL or None``; when set,
+    #: ``fetch`` follows pages until ``query.limit`` records or the end.
+    next_page: Optional[Callable[["ScholarlyQuery", Any, str, int], Optional[str]]] = None
+    #: Search scopes (see :data:`SCOPES`) this source can honour.
+    scopes: Tuple[str, ...] = ()
+    #: Result orders (see :data:`ORDERS`) this source can honour.
+    orders: Tuple[str, ...] = ()
 
 
 # --------------------------------------------------------------------------- #
@@ -166,6 +208,7 @@ def _to_millis(value: Any) -> Optional[int]:
     if not text:
         return None
     for fmt in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S",
+                "%Y/%m/%d %H:%M",  # PubMed esummary sortpubdate, e.g. "2019/01/01 00:00"
                 "%Y-%m-%d", "%Y/%m/%d", "%Y-%m", "%Y"):
         try:
             dt = datetime.strptime(text[:len(fmt) + 6], fmt) if "%z" in fmt else datetime.strptime(text[:len(text)], fmt)
@@ -237,6 +280,7 @@ class ScholarlyConnector(Connector):
         coerced = ScholarlyQuery.coerce(query)
         if coerced is None:
             return
+        coerced = _for_source(coerced, self.SOURCE)
         url = self.SOURCE.build_url(coerced)
         yield SourceRef(
             locator=url,
@@ -253,16 +297,51 @@ class ScholarlyConnector(Connector):
             raise PermanentFetchError(
                 f"{source.name} needs {source.requires_env}; skipping (set the key to enable)"
             )
-        url = ref.locator
         headers = {"Accept": "application/json", "User-Agent": _user_agent(), **dict(source.extra_headers)}
         if key and source.api_key_header:
             headers[source.api_key_header] = f"{source.api_key_prefix}{key}"
-        if key and source.api_key_query:
-            sep = "&" if "?" in url else "?"
-            url = f"{url}{sep}{source.api_key_query}={enc(key)}"
-        _assert_public_https(url, source.allowed_host, self._resolver)
-        payload = self._http_get(url, headers)
-        return RawDocument(ref=ref, content=payload, content_type="application/json")
+
+        def get(url: str) -> bytes:
+            if key and source.api_key_query:
+                sep = "&" if "?" in url else "?"
+                url = f"{url}{sep}{source.api_key_query}={enc(key)}"
+            _assert_public_https(url, source.allowed_host, self._resolver)
+            return get_with_retry(self._http_get, url, headers)
+
+        if source.next_page is None:
+            return RawDocument(ref=ref, content=get(ref.locator), content_type="application/json")
+
+        # Paging source: follow pages until the query limit or the end of results.
+        query = ScholarlyQuery.coerce((ref.metadata or {}).get("query") or {})
+        records: List[Any] = []
+        total = None
+        unretrieved = 0
+        url: Optional[str] = ref.locator
+        pages = 0
+
+        while url and len(records) < query.limit:
+            try:
+                body = json.loads(get(url).decode("utf-8", "replace"))
+            except urllib.error.HTTPError as exc:
+                # A later page that keeps failing after retries ends the query: keep
+                # what was read and record the shortfall, so the gap is visible in
+                # the search receipt instead of losing the whole result set.
+                if pages == 0 or exc.code not in _RETRY_STATUSES:
+                    raise
+                if total is not None:
+                    unretrieved = max(min(total, query.limit) - len(records), 0)
+                break
+            pages += 1
+            if total is None and source.total_path:
+                total = _as_int(_get(body, source.total_path))
+            batch = _page_records(source, body)
+            if not batch:
+                break
+            records.extend(batch)
+            url = source.next_page(query, body, url, len(records))
+        combined = {"__noesis_paged__": pages, "records": records[:query.limit], "total": total,
+                    "unretrieved": unretrieved}
+        return RawDocument(ref=ref, content=json.dumps(combined), content_type="application/json")
 
     def parse(self, raw: RawDocument) -> List[Document]:
         source = self.SOURCE
@@ -273,8 +352,13 @@ class ScholarlyConnector(Connector):
             body = json.loads(content)
         except json.JSONDecodeError:
             return []
-        records = (source.transform_records(body) if source.transform_records
-                   else _get(body, source.results_path, body if not source.results_path else []))
+        unretrieved = None
+        if isinstance(body, dict) and "__noesis_paged__" in body:
+            records, total = body.get("records") or [], _as_int(body.get("total"))
+            unretrieved = _as_int(body.get("unretrieved")) or None
+        else:
+            records = _page_records(source, body)
+            total = _as_int(_get(body, source.total_path)) if source.total_path else None
         if not isinstance(records, list):
             return []
 
@@ -286,11 +370,26 @@ class ScholarlyConnector(Connector):
             document = self._record_to_document(record, raw.fetched_at)
             if document is None:
                 continue
-            published = document.created_at
-            if lo is not None and (published is None or published < lo):
-                continue
-            if hi is not None and (published is None or published > hi):
-                continue
+            year = _year_only(_get(record, source.date_path))
+            if year is not None:
+                # A year-only date can't be placed inside the year, so the record is
+                # kept when its year overlaps the window and left for screening
+                # (e.g. a DOAJ "2022" record for a window starting 2022-11-30).
+                if lo is not None and year < _utc_year(lo):
+                    continue
+                if hi is not None and year > _utc_year(hi):
+                    continue
+            else:
+                published = document.created_at
+                if lo is not None and (published is None or published < lo):
+                    continue
+                if hi is not None and (published is None or published > hi):
+                    continue
+            extra = {"source_total_results": total, "search_scope": query.scope if query else None,
+                     "result_order": query.order if query else None,
+                     "publication_date_precision": "year" if year is not None else None,
+                     "source_unretrieved_records": unretrieved}
+            document.metadata = {**document.metadata, **{k: v for k, v in extra.items() if v is not None}}
             documents.append(document)
         return documents
 
@@ -379,8 +478,60 @@ def _document_id(source_name: str, raw_id: str, doi: Any) -> str:
     return "paper:" + hashlib.sha1(basis.encode("utf-8")).hexdigest()[:24]
 
 
+def get_with_retry(get: Callable[[str, Mapping[str, str]], bytes], url: str,
+                   headers: Mapping[str, str]) -> bytes:
+    """Call ``get``, retrying transient 5xx responses with exponential backoff."""
+    for attempt in range(_RETRY_ATTEMPTS):
+        try:
+            return get(url, headers)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in _RETRY_STATUSES or attempt == _RETRY_ATTEMPTS - 1:
+                raise
+            time.sleep(_RETRY_BACKOFF_S * (2 ** attempt))
+    raise AssertionError("unreachable")
+
+
 def _query_dict(query: ScholarlyQuery) -> dict:
-    return {"topic": query.topic, "since": query.since, "until": query.until, "limit": query.limit}
+    out = {"topic": query.topic, "since": query.since, "until": query.until, "limit": query.limit}
+    if query.scope:
+        out["scope"] = query.scope
+    if query.order:
+        out["order"] = query.order
+    return out
+
+
+def _for_source(query: ScholarlyQuery, source: "ScholarlySource") -> ScholarlyQuery:
+    """Clamp the limit to what ``source`` can return and refuse unsupported scopes."""
+    if query.scope and query.scope not in source.scopes:
+        raise ValueError(f"{source.name} does not support search scope {query.scope!r}")
+    if query.order and query.order not in source.orders:
+        raise ValueError(f"{source.name} does not support result order {query.order!r}")
+    return dataclasses.replace(query, limit=max(1, min(query.limit, source.max_limit)))
+
+
+def _page_records(source: "ScholarlySource", body: Any) -> List[Any]:
+    records = (source.transform_records(body) if source.transform_records
+               else _get(body, source.results_path, body if not source.results_path else []))
+    return records if isinstance(records, list) else []
+
+
+def _year_only(value: Any) -> Optional[int]:
+    """The year, if ``value`` is a bare year ("2022", 2022 or [2022]); else ``None``."""
+    if isinstance(value, (list, tuple)):
+        value = value[0] if len(value) == 1 else None
+    text = str(value).strip() if value is not None else ""
+    return int(text) if len(text) == 4 and text.isdigit() else None
+
+
+def _utc_year(millis: int) -> int:
+    return datetime.fromtimestamp(millis / 1000, tz=timezone.utc).year
+
+
+def _as_int(value: Any) -> Optional[int]:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 def _user_agent() -> str:
