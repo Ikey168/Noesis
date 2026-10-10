@@ -76,7 +76,12 @@ Scope and syntax:
   large queries in year slices, because deep offsets of a large result set can
   return HTTP 502.
 - `crossref` and `semantic_scholar` (`/paper/search`) have no Boolean syntax;
-  they can't execute a Boolean search expression.
+  they can't execute a Boolean search expression. For a supplementary keyword
+  search in Crossref, pass `"order": "relevance"` (otherwise results are newest
+  first) and register how many top-ranked records are screened.
+- Records that only carry a publication **year** (DOAJ, CORE's `yearPublished`,
+  some Crossref records) are kept when the year overlaps the window and marked
+  `metadata["publication_date_precision"] == "year"`; screening confirms the date.
 
 ## 2. Harvest, receipt, ingest
 

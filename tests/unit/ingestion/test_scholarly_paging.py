@@ -231,3 +231,51 @@ def test_failing_later_page_keeps_partial_results_and_counts_the_shortfall(monke
     conn = DoajConnector(http_get=first_page_fails, **RESOLVER)
     with pytest.raises(urllib.error.HTTPError):
         conn.fetch(next(iter(conn.discover({"topic": "x", **WINDOW}))))
+
+
+def test_year_only_dates_are_kept_when_the_year_overlaps_the_window():
+    """A DOAJ "2022" record may be from December 2022: keep it for a window that
+    starts 2022-11-30 (screening decides), but drop years outside the window."""
+    def handler(url, headers):
+        rows = [{"id": f"d{y}", "bibjson": {"title": f"D{y}", "year": str(y)}} for y in (2021, 2022, 2024, 2026)]
+        return json.dumps({"total": 4, "results": rows}).encode()
+    _, docs = _run(DoajConnector(http_get=handler, **RESOLVER), {"topic": "x", "since": "2022-11-30", "until": "2025-12-31"})
+    assert sorted(d.title for d in docs) == ["D2022", "D2024"]
+    assert all(d.metadata["publication_date_precision"] == "year" for d in docs)
+
+
+def test_crossref_relevance_order_and_order_validation():
+    rec = Recorder(lambda u: {"message": {"items": []}})
+    _run(CrossrefConnector(http_get=rec, **RESOLVER), {"topic": "online learning", "order": "relevance", **WINDOW})
+    assert _params(rec.urls[0])["sort"] == "score"
+    rec = Recorder(lambda u: {"message": {"items": []}})
+    _run(CrossrefConnector(http_get=rec, **RESOLVER), {"topic": "online learning", **WINDOW})
+    assert _params(rec.urls[0])["sort"] == "published"
+    with pytest.raises(ValueError):
+        ScholarlyQuery.coerce({"topic": "x", "order": "citations"})
+    with pytest.raises(ValueError):
+        next(iter(DoajConnector(**RESOLVER).discover({"topic": "x", "order": "relevance"})))
+
+
+def test_pubmed_pauses_between_summary_batches(monkeypatch):
+    from src.ingestion.connectors.scholarly import sources
+    pauses = []
+    monkeypatch.setattr(sources.time, "sleep", lambda s: pauses.append(s))
+    ids = [str(i) for i in range(1, 451)]
+
+    def handler(url):
+        if "esearch" in url:
+            return {"esearchresult": {"count": "450", "idlist": ids}}
+        batch = _params(url)["id"].split(",")
+        return {"result": {"uids": batch, **{i: {"title": f"P{i}", "sortpubdate": "2024/02/01 00:00"} for i in batch}}}
+    _run(PubmedConnector(http_get=Recorder(handler), **RESOLVER), {"topic": "x[tiab]", "limit": 450, **WINDOW})
+    assert pauses == [0.4, 0.4]  # 3 batches, keyless pacing between them
+
+
+def test_crossref_records_its_total_without_paging():
+    item = {"DOI": "10.1/x", "title": ["T"], "published": {"date-parts": [[2024, 1, 2]]}}
+    rec = Recorder(lambda u: {"message": {"total-results": 1234567, "items": [item]}})
+    _, docs = _run(CrossrefConnector(http_get=rec, **RESOLVER), {"topic": "x", "order": "relevance", "limit": 5000, **WINDOW})
+    assert docs[0].metadata["source_total_results"] == 1234567
+    assert docs[0].metadata["result_order"] == "relevance"
+    assert _params(rec.urls[0])["rows"] == "200"  # one request: truncation is visible from the total

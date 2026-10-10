@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterable, List, Mapping, Optional, Union
@@ -97,8 +98,10 @@ CROSSREF = ScholarlySource(
     build_url=lambda q: (
         "https://api.crossref.org/works?query=" + enc(q.topic)
         + "&filter=from-pub-date:%s,until-pub-date:%s,type:journal-article" % _win(q)
-        + "&rows=%d&sort=published&order=desc" % q.limit
+        + "&rows=%d&sort=%s&order=desc" % (q.limit, "score" if q.order == "relevance" else "published")
     ),
+    orders=("relevance",),
+    total_path="message.total-results",
     results_path="message.items",
     id_path="DOI",
     title_path="title",
@@ -368,6 +371,7 @@ class PubmedConnector(ScholarlyConnector):
                              build_url=lambda q: "",  # unused; custom fetch below
                              max_limit=HARD_MAX_LIMIT)  # esearch returns up to 10,000 ids
     SUMMARY_BATCH = 200  # ids per esummary request (keeps URLs short)
+    SUMMARY_PAUSE_S = {False: 0.4, True: 0.12}  # pause between batches, without / with NCBI_API_KEY
 
     _EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
@@ -405,6 +409,8 @@ class PubmedConnector(ScholarlyConnector):
             part = json.loads(get(esummary, headers).decode("utf-8", "replace")).get("result", {})
             result["uids"].extend(part.get("uids", []))
             result.update({k: v for k, v in part.items() if k != "uids"})
+            if i + self.SUMMARY_BATCH < len(ids):
+                time.sleep(self.SUMMARY_PAUSE_S[bool(self._key_param())])  # NCBI: 3 req/s keyless, 10 with key
         return RawDocument(ref=ref, content=json.dumps({"result": result, "total": total}),
                            content_type="application/json")
 

@@ -49,6 +49,8 @@ MAX_LIMIT = 200
 HARD_MAX_LIMIT = 10_000
 #: Search scopes a query may request; each source declares which it supports.
 SCOPES = ("title_abstract",)
+#: Result orderings a query may request instead of the source default.
+ORDERS = ("relevance",)
 _TIMEOUT_S = 30
 #: Transient server errors are retried with exponential backoff before a
 #: paged query is abandoned (a systematic harvest can make hundreds of requests).
@@ -72,6 +74,9 @@ class ScholarlyQuery:
     #: ``None`` = the API's default fields; ``"title_abstract"`` = restrict
     #: matching to title and abstract (sources must support it explicitly).
     scope: Optional[str] = None
+    #: ``None`` = the source's default order (usually newest first);
+    #: ``"relevance"`` = the API's relevance ranking (sources must support it).
+    order: Optional[str] = None
 
     @classmethod
     def coerce(cls, query: Union[str, Mapping[str, Any], "ScholarlyQuery", None]) -> Optional["ScholarlyQuery"]:
@@ -89,12 +94,16 @@ class ScholarlyQuery:
             scope = query.get("scope") or None
             if scope is not None and scope not in SCOPES:
                 raise ValueError(f"unknown search scope {scope!r}; expected one of {SCOPES}")
+            order = query.get("order") or None
+            if order is not None and order not in ORDERS:
+                raise ValueError(f"unknown result order {order!r}; expected one of {ORDERS}")
             return cls(
                 topic=str(topic),
                 since=_norm_date(query.get("since") or query.get("from")),
                 until=_norm_date(query.get("until") or query.get("to")),
                 limit=max(1, min(limit, HARD_MAX_LIMIT)),
                 scope=scope,
+                order=order,
             )
         return None
 
@@ -147,6 +156,8 @@ class ScholarlySource:
     next_page: Optional[Callable[["ScholarlyQuery", Any, str, int], Optional[str]]] = None
     #: Search scopes (see :data:`SCOPES`) this source can honour.
     scopes: Tuple[str, ...] = ()
+    #: Result orders (see :data:`ORDERS`) this source can honour.
+    orders: Tuple[str, ...] = ()
 
 
 # --------------------------------------------------------------------------- #
@@ -359,12 +370,24 @@ class ScholarlyConnector(Connector):
             document = self._record_to_document(record, raw.fetched_at)
             if document is None:
                 continue
-            published = document.created_at
-            if lo is not None and (published is None or published < lo):
-                continue
-            if hi is not None and (published is None or published > hi):
-                continue
+            year = _year_only(_get(record, source.date_path))
+            if year is not None:
+                # A year-only date can't be placed inside the year, so the record is
+                # kept when its year overlaps the window and left for screening
+                # (e.g. a DOAJ "2022" record for a window starting 2022-11-30).
+                if lo is not None and year < _utc_year(lo):
+                    continue
+                if hi is not None and year > _utc_year(hi):
+                    continue
+            else:
+                published = document.created_at
+                if lo is not None and (published is None or published < lo):
+                    continue
+                if hi is not None and (published is None or published > hi):
+                    continue
             extra = {"source_total_results": total, "search_scope": query.scope if query else None,
+                     "result_order": query.order if query else None,
+                     "publication_date_precision": "year" if year is not None else None,
                      "source_unretrieved_records": unretrieved}
             document.metadata = {**document.metadata, **{k: v for k, v in extra.items() if v is not None}}
             documents.append(document)
@@ -472,6 +495,8 @@ def _query_dict(query: ScholarlyQuery) -> dict:
     out = {"topic": query.topic, "since": query.since, "until": query.until, "limit": query.limit}
     if query.scope:
         out["scope"] = query.scope
+    if query.order:
+        out["order"] = query.order
     return out
 
 
@@ -479,6 +504,8 @@ def _for_source(query: ScholarlyQuery, source: "ScholarlySource") -> ScholarlyQu
     """Clamp the limit to what ``source`` can return and refuse unsupported scopes."""
     if query.scope and query.scope not in source.scopes:
         raise ValueError(f"{source.name} does not support search scope {query.scope!r}")
+    if query.order and query.order not in source.orders:
+        raise ValueError(f"{source.name} does not support result order {query.order!r}")
     return dataclasses.replace(query, limit=max(1, min(query.limit, source.max_limit)))
 
 
@@ -486,6 +513,18 @@ def _page_records(source: "ScholarlySource", body: Any) -> List[Any]:
     records = (source.transform_records(body) if source.transform_records
                else _get(body, source.results_path, body if not source.results_path else []))
     return records if isinstance(records, list) else []
+
+
+def _year_only(value: Any) -> Optional[int]:
+    """The year, if ``value`` is a bare year ("2022", 2022 or [2022]); else ``None``."""
+    if isinstance(value, (list, tuple)):
+        value = value[0] if len(value) == 1 else None
+    text = str(value).strip() if value is not None else ""
+    return int(text) if len(text) == 4 and text.isdigit() else None
+
+
+def _utc_year(millis: int) -> int:
+    return datetime.fromtimestamp(millis / 1000, tz=timezone.utc).year
 
 
 def _as_int(value: Any) -> Optional[int]:
