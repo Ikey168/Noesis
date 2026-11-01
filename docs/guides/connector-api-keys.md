@@ -86,7 +86,7 @@ figure. Sources are listed at the end.
 | `sam-opportunities` | Required: `NOESIS_SAM_API_KEY` | Free key, but non-federal users without a SAM role get about 10 calls/day (1,000/day with a role); keys expire after 90 days (secondary sources) | — | SAM.gov public Contract Opportunities data extract (download) |
 | `companies-house` | Required: `NOESIS_COMPANIES_HOUSE_API_KEY` | Free; 600 requests per 5 minutes per key | — | Companies House free bulk company data product (monthly snapshot) |
 | `ownership_providers` OpenCorporates | Required: `NOESIS_OPENCORPORATES_API_KEY` | Free share-alike key only for public-benefit users (journalists, NGOs, academics), with attribution and open contribution back; otherwise paid, API plans from £2,250/year | GLEIF LEI (`lei_sources`, free, no key); national registers such as `companies-house` | — |
-| `ownership_providers` Unternehmensregister (not implemented) | Account for some documents | Register information free without registration since August 2022; filed annual accounts cost €1 plus VAT | — | Free register extracts |
+| `ownership_providers` Handelsregister / Unternehmensregister (not implemented; FA20 audit #2859) | None for register information; account for some Unternehmensregister documents | Register information and documents free without registration since August 2022; filed annual accounts cost €1 plus VAT per document. No documented machine interface or bulk export; portal terms treat more than 60 retrievals per hour as misuse (_verify_), so it is not automatable through a permitted interface ([audit](../development/ownership-evidence/handelsregister-automation-audit.md)) | — | Manual official extract recorded with `record_register_document`; GLEIF LEI for the register pointer; re-check if an EU high-value-dataset company API for Germany appears |
 | optional integration `opensanctions` | Required: `NOESIS_OPENSANCTIONS_API_KEY` | API not free for general users (about €0.10 per call); free keys only via a public-interest grant (journalists, NGOs, academic researchers); business use needs a licence | Bulk data download, free for non-commercial use (CC BY-NC 4.0, no key) | — |
 | `sec-edgar-ownership` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key) | Free | — | — |
 | `sec-edgar` | Optional: `NOESIS_SEC_USER_AGENT` (contact string) | Free | — | — |
@@ -176,7 +176,7 @@ Implementing any of them would add a credential to this page.
 | GRDC river discharge (BfG) | water | registration; data on request for own use | not implemented |
 | Space-Track decay and TIP messages | astronomy | account | not implemented (redistribution terms) |
 | Copernicus Atmosphere Data Store (CAMS) | environment | ECMWF account + API key | not implemented |
-| Unternehmensregister | ownership | account for some documents | not implemented |
+| Handelsregister / Unternehmensregister | ownership | none for register data; account for some documents | not automatable via a permitted interface (FA20, #2859) |
 | Verisk Property Claim Services | insurance | paid subscription | excluded (licensed) |
 | Ethnologue | linguistics | paid subscription | excluded (licence forbids reuse) |
 | Ansys Granta, MatWeb | materials | licensed commercial databases | excluded (no redistribution rights) |
