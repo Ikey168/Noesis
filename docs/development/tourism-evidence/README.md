@@ -8,6 +8,13 @@ Evidence for the Economics bundle's `economics.tourism` provider
   bounded first coverage for Eurostat tourism occupancy and capacity; UN Tourism
   statistics recorded as `not-implemented` (no stable machine access). Written
   without network access; terms not re-verified live.
+- [depth-audit.md](depth-audit.md) - DT01 (#2826, wave 4 tracker #2825):
+  second-publisher audit under ADR-006. Recommends Destatis GENESIS (monthly
+  accommodation survey, statistic 45412) for `economics.tourism` with the
+  existing record shape; records that Destatis compiles the German figures
+  Eurostat publishes (depth, not independence); OECD tourism statistics and
+  Amt für Statistik Berlin-Brandenburg `not-implemented` this wave. Written
+  without network access (2026-11-01); terms marked _verify_, no source live.
 - Offline evidence: authored fixtures (fictional reference periods 2094-2097,
   release dates in 2024 so runtime retrievals never precede them; see the
   audit's deviation note): `tests/fixtures/source_packs/economic-tourism-*.json`
