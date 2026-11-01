@@ -125,7 +125,7 @@ figure. Sources are listed at the end.
 | `esa-discos-objects`, `esa-discos-reentries` | Required: `NOESIS_ESA_DISCOS_TOKEN` | Public DISCOSweb API with an ESA account; no fee found | — | — |
 | `astronomy_registration_sources` Space-Track decay/TIP (not implemented) | Account (email + password) | Free account; user agreement restricts redistribution | ESA DISCOS (`esa-discos-*`) | — |
 | `biodiversity_sources` IUCN Red List | Required: `NOESIS_IUCN_API_TOKEN` | Free token on application, non-commercial use; bulk use needs written permission | — | — |
-| `etherscan-v2-mainnet` | Required: `NOESIS_ETHERSCAN_API_KEY` | Free tier: 3 calls/s, 100,000/day, selected chains, attribution required; paid plans from $49/month | — | Free tier; Blockscout API or a public Ethereum RPC endpoint |
+| `etherscan-v2-mainnet` | Required for Etherscan: `NOESIS_ETHERSCAN_API_KEY`; optional `NOESIS_ONCHAIN_FALLBACK=off` disables the keyless fallback | Free tier: 3 calls/s, 100,000/day, selected chains, attribution required; paid plans from $49/month | — | Free tier; without a key, or once the free-tier budget in `config/source_quotas.json` is spent, Ethereum calls fall back to the keyless Blockscout API (`blockscout-ethereum`, `eth.blockscout.com/api`) for address transactions and funding; transaction-by-hash and contract origin then answer `unavailable`. Receipts name the provider that answered. Blockscout live behaviour and terms not yet verified |
 | `football-data-pl-*` (3 sources) | Required: `NOESIS_FOOTBALL_DATA_API_KEY` | Free tier: 12 competitions incl. the Premier League, 10 calls/min, delayed scores; paid €12–199/month | — | Free tier covers these sources |
 | `ddb-berlin-photographs` | Required: `NOESIS_DDB_API_KEY` | Free (account; metadata CC0) | — | — |
 | `europeana-berlin-images` | Required: `NOESIS_EUROPEANA_API_KEY` | Free (account) | — | — |
@@ -257,6 +257,7 @@ where a key comes from rather than which process uses it:
 - Materials Project: [secondary guide](https://mle4217-5219.matsci.dev/database/materials-project)
 - ESA DISCOS: [DISCOSweb API notice](https://discosweb-api.sdo.esoc.esa.int)
 - Etherscan: [rate limits](https://docs.etherscan.io/etherscan-v2/rate-limits)
+- Blockscout: [Etherscan-compatible RPC API](https://docs.blockscout.com/devs/apis/rpc) (keyless fallback; limits and hosted terms to verify)
 - football-data.org: [free tier limits 2026](https://www.thestatsapi.com/blog/football-data-org-free-tier-limits-2026)
 - Europeana: [get API](https://pro.europeana.eu/get-api); DDB: [OpenAPI](https://api.deutsche-digitale-bibliothek.de/OpenAPI)
 - NVD: [API key announcement](https://nvd.nist.gov/general/news/API-Key-Announcement)
