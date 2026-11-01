@@ -23,9 +23,15 @@ def main():
     parser.add_argument("--language", required=True)
     parser.add_argument("--requested-version")
     parser.add_argument("--anonymous", action="store_true")
+    parser.add_argument(
+        "--endpoint",
+        help="Self-hosted Context7 MCP URL (default: NOESIS_CONTEXT7_URL or hosted)",
+    )
     args = parser.parse_args()
     adapter = federation_adapter(
-        "context7", secret_resolver=(lambda _: None) if args.anonymous else None
+        "context7",
+        endpoint=args.endpoint,
+        secret_resolver=(lambda _: None) if args.anonymous else None,
     )
     conn = duckdb.connect(args.database)
     try:
@@ -48,6 +54,7 @@ def main():
         result = {
             "query_ms": query_ms,
             "server_version": adapter.client.version,
+            "endpoint": snippets["endpoint"],
             "library_id": snippets["library_id"],
             "requested_version": snippets["requested_version"],
             "resolved_version": snippets["resolved_version"],

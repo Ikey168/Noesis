@@ -514,6 +514,29 @@ Reproduce with `python -m scripts.probe_context7 --anonymous --database evidence
 --allowed-host pint.readthedocs.io --language en`. Provision `NOESIS_CONTEXT7_API_KEY`
 for account-backed use and omit `--anonymous`; this run did not use an account.
 
+### Hosted and self-hosted endpoints (#2860)
+
+Context7 is open source, so the preset runs in one of two modes:
+
+- **Hosted** (default): `https://mcp.context7.com/mcp`, optionally with
+  `NOESIS_CONTEXT7_API_KEY` (free tier is limited; anonymous use also works).
+- **Self-hosted**: set `NOESIS_CONTEXT7_URL` (or pass `--endpoint` to the probe,
+  or `endpoint=` to `federation_adapter("context7", ...)`) to the instance's MCP
+  URL. It must be HTTPS, or plain HTTP only on loopback (`127.0.0.1`, `::1`,
+  `localhost`), with no credentials, query or fragment in the URL. The hosted
+  key is never sent to a self-hosted endpoint; set
+  `NOESIS_CONTEXT7_SELF_HOSTED_API_KEY` only if the instance requires its own
+  key. Setting the URL to the hosted address keeps hosted mode.
+
+`describe()["endpoint"]` records `mode` (`hosted` or `self-hosted`), `url` and
+the credential variable used (`anonymous` when none; never the value). It is
+part of the capability hash, so result provenance distinguishes hosted from
+self-hosted answers, and `Context7Research.query` copies it into each
+`noesis-documentation-snippets-v1` receipt as `endpoint`. Offline coverage runs
+the research client against a loopback FastMCP fixture standing in for a
+self-hosted instance (`tests/unit/integrations/test_context7_endpoint.py`); no
+live self-hosted Context7 deployment was exercised.
+
 Decision: adopt opt-in discovery/query and original-source capture while retaining
 version uncertainty. Two focused tests additionally cover ambiguous names,
 version conflicts, missing citations, unavailable originals, immutable byte

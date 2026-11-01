@@ -83,6 +83,8 @@ class Context7Research:
         )
         return {
             "contract": "noesis-documentation-snippets-v1",
+            # Which Context7 answered: hosted or self-hosted (#2860).
+            "endpoint": self.adapter.describe().get("endpoint"),
             "library_id": library_id,
             "requested_version": requested_version,
             "resolved_version": None,

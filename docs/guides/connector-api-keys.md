@@ -152,7 +152,7 @@ figure. Sources are listed at the end.
 | Email alert / report channel | Required for that channel: `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` (+ `SMTP_FROM`, `SMTP_PORT`, `SMTP_TLS`) | Depends on the mail provider | — | — |
 | optional integration `github` | Required: `NOESIS_GITHUB_TOKEN` / `GITHUB_PERSONAL_ACCESS_TOKEN` / `GITHUB_TOKEN` | Free (personal access token) | — | — |
 | MCP integration `github` | Required: `NOESIS_GITHUB_MCP_TOKEN` | Free (personal access token) | — | — |
-| MCP integration `context7` | Required: `NOESIS_CONTEXT7_API_KEY` | Free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan | — | Self-hosted Context7 (open source) |
+| MCP integration `context7` | Hosted (default): optional `NOESIS_CONTEXT7_API_KEY` (anonymous use also works). Self-hosted: `NOESIS_CONTEXT7_URL` (HTTPS, or HTTP on loopback only) and, only if the instance needs one, `NOESIS_CONTEXT7_SELF_HOSTED_API_KEY`. The hosted key is never sent to a self-hosted URL | Hosted: free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan. Self-hosted: free (open source; you run the server) | — | Self-hosted Context7: set `NOESIS_CONTEXT7_URL`; `describe()["endpoint"]` and each snippets receipt record which mode and URL answered |
 
 ## Audited but not implemented (would need a credential)
 
@@ -187,6 +187,10 @@ Keys are environment variables of the process that runs the connector. Do not
 commit them, paste them into tickets or chat, or store them in `.env` files
 that are backed up unencrypted; inject them at start from a secret manager
 (e.g. OpenBao via a small wrapper) instead.
+
+`NOESIS_CONTEXT7_URL` is an endpoint, not a secret, but keep it in the same
+environment as the keys. When it is set, Context7 runs in self-hosted mode and
+`NOESIS_CONTEXT7_API_KEY` is never sent to that endpoint.
 
 The reference deployment keeps them in an OpenBao KV v2 mount, organised by
 where a key comes from rather than which process uses it:
