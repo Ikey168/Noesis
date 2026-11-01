@@ -19,16 +19,25 @@ def server(tmp_path):
         port = sock.getsockname()[1]
     path = tmp_path / "server.py"
     path.write_text("""import asyncio, sys
-from mcp.server.fastmcp import FastMCP, Context
-app = FastMCP("fixture", host="127.0.0.1", port=int(sys.argv[1]), json_response=True)
+try:  # mcp 2.x renamed FastMCP to MCPServer and moved transport options to run()
+    from mcp.server.mcpserver import MCPServer, Context
+except ImportError:  # mcp 1.x
+    from mcp.server.fastmcp import FastMCP, Context
+    app = FastMCP("fixture", host="127.0.0.1", port=int(sys.argv[1]), json_response=True)
+    run_options = {}
+else:
+    app = MCPServer("fixture")
+    run_options = {"host": "127.0.0.1", "port": int(sys.argv[1]), "json_response": True}
 @app.tool()
 def identity(ctx: Context) -> str:
-    return str(id(ctx.session))
+    # The transport session id; mcp 2 hands each request a new session wrapper.
+    headers = getattr(ctx.request_context.request, "headers", None) or {}
+    return headers.get("mcp-session-id") or str(id(ctx.session))
 @app.tool()
 async def slow() -> str:
     await asyncio.sleep(1)
     return "late"
-app.run(transport="streamable-http")
+app.run(transport="streamable-http", **run_options)
 """)
     process = subprocess.Popen(
         [sys.executable, str(path), str(port)],

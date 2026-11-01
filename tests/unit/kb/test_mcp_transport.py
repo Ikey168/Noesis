@@ -12,9 +12,16 @@ from src.kb.mcp_transport import MCPHTTPClient
 def test_actual_sdk_streamable_http_session_and_cleanup():
     uvicorn = pytest.importorskip("uvicorn")
     pytest.importorskip("mcp")
-    from mcp.server.fastmcp import FastMCP
+    try:  # mcp 2.x renamed FastMCP to MCPServer; json_response moved to the app
+        from mcp.server.mcpserver import MCPServer
+    except ImportError:  # mcp 1.x
+        from mcp.server.fastmcp import FastMCP
 
-    server = FastMCP("local-contract-fixture", json_response=True)
+        server = FastMCP("local-contract-fixture", json_response=True)
+        app_options = {}
+    else:
+        server = MCPServer("local-contract-fixture")
+        app_options = {"json_response": True}
 
     @server.tool()
     async def issue_read(owner: str, repo: str, issue_number: int, method: str):
@@ -35,7 +42,7 @@ def test_actual_sdk_streamable_http_session_and_cleanup():
     port = sock.getsockname()[1]
     instance = uvicorn.Server(
         uvicorn.Config(
-            server.streamable_http_app(), log_level="critical", lifespan="on"
+            server.streamable_http_app(**app_options), log_level="critical", lifespan="on"
         )
     )
     thread = threading.Thread(target=lambda: instance.run(sockets=[sock]), daemon=True)

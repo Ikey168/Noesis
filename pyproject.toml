@@ -102,6 +102,8 @@ bibliography = [
   "bibtexparser>=1.4.4,<2.0",
 ]
 minimal = []
+# mcp stays <2 with fastmcp 3: every fastmcp 3.x requires mcp<2, and mcp 2
+# needs fastmcp 4 (#2744). Raise both together, here and in `full`.
 server = [
   "fastapi>=0.109.1,<1.0",
   "fastmcp>=3.0,<4.0",
