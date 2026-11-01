@@ -17,11 +17,22 @@ from src.ingestion.describers.article_images import (
     extract_image_refs,
     image_upload_figure_document,
 )
-from src.ingestion.describers.vision import FigureDescription, VisionDescriber
+from src.ingestion.describers.vision import (
+    FigureDescription,
+    VisionDescriber,
+    VisionDescriberError,
+    VisionModelNotAvailable,
+    VisionProviderResponseError,
+    VisionProviderUnavailable,
+)
 
 __all__ = [
     "VisionDescriber",
     "FigureDescription",
+    "VisionDescriberError",
+    "VisionProviderUnavailable",
+    "VisionModelNotAvailable",
+    "VisionProviderResponseError",
     "FigureCandidate",
     "extract_figure_captions",
     "figure_document",
