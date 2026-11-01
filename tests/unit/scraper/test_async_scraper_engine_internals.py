@@ -209,7 +209,7 @@ class TestGetArticleLinksHttp:
         src = make_source()
         engine.captcha_solver = MagicMock()  # presence triggers captcha branch
         install_fake_session(
-            engine, response=_FakeResponse(200, "<html>please solve CAPTCHA</html>")
+            engine, response=_FakeResponse(200, '<html><div class="g-recaptcha"></div></html>')
         )
         assert await engine.get_article_links_http(src) == []
 
@@ -248,7 +248,7 @@ class TestScrapeArticleHttp:
         src = make_source()
         engine.captcha_solver = MagicMock()
         install_fake_session(
-            engine, response=_FakeResponse(200, "<html>captcha here</html>")
+            engine, response=_FakeResponse(200, '<html><div class="cf-turnstile"></div></html>')
         )
         sem = asyncio.Semaphore(1)
         assert await engine.scrape_article_http(sem, src, "https://example.com/x") is None
