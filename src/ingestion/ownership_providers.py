@@ -238,13 +238,15 @@ LIVE_VERIFICATION.update({
        for p in ("handelsregister", "unternehmensregister", "bris")},
 })
 
-# ------------------------------------------- further UK registers (#2885)
-# Reviewed in docs/development/ownership-register-audit.md. The PSC snapshot
-# emits the same companies-house records as the API path (provider
-# "companies-house").
+# ------------------------------------------- further UK registers (#2885, #2886)
+# Reviewed in docs/development/ownership-register-audit.md. The PSC snapshot and
+# the Register of Overseas Entities emit the same companies-house records as the
+# API path (provider "companies-house"); OCOD is recorded, not acquired.
 _AUDIT = "docs/development/ownership-register-audit.md"
 PROVIDER_HOSTS.update({
     "companies-house-psc-snapshot": {"download.companieshouse.gov.uk"},
+    "companies-house-roe": {"api.company-information.service.gov.uk"},
+    "hmlr-ocod": set(),
 })
 PROVIDER_CONTRACTS.update({
     "companies-house-psc-snapshot": {
@@ -276,12 +278,53 @@ PROVIDER_CONTRACTS.update({
         "audit": _AUDIT,
         "cost": "free",
     },
+    "companies-house-roe": {
+        "status": "implemented",
+        "connector": "companies-house (the public data API with OE company numbers; source companies-house-roe)",
+        "documentation": "https://developer-specs.company-information.service.gov.uk/companies-house-public-data-api/"
+                         "resources/individualbeneficialowner",
+        "access": "Register of Overseas Entities through the public data API: /company/{OE number} profile, "
+                  "/officers (managing officers), /persons-with-significant-control (registrable beneficial owners: "
+                  "individual, corporate entity, legal person e.g. government body, super-secure) and statements",
+        "authentication": "API key (required secret NOESIS_COMPANIES_HOUSE_API_KEY), as companies-house",
+        "rate_limits": "as companies-house",
+        "pagination": "as companies-house",
+        "cadence": "daily at most per selected overseas entity",
+        "terms": "as companies-house; trust details are not on the public register (available on application "
+                 "only, verify) and are therefore not acquired; is_sanctioned is kept as declared",
+        "personal_data": "individual beneficial owners and super-secure owners follow person-research mode: "
+                         "owner-scoped by default, super-secure details are withheld by the register itself",
+        "retained_evidence": "as companies-house",
+        "identifiers": ["gb-coh OE number", "foreign registration as stated in foreign_company_details"],
+        "coverage": "explicitly selected OE numbers only (1-25 per source)",
+        "unavailable_fallback": "as companies-house; exempt, super-secure and unverified statuses are kept as "
+                                "published, never inferred",
+        "audit": _AUDIT,
+        "cost": "free with registration",
+    },
+    "hmlr-ocod": {
+        "status": "not-implemented",
+        "documentation": "https://use-land-property-data.service.gov.uk/",
+        "access": "HM Land Registry 'Overseas companies that own property in England and Wales' (formerly OCOD), "
+                  "monthly CSV through the Use land and property data service",
+        "authentication": "account on the service, acceptance of the dataset licence, then an API key (verify)",
+        "terms": "free under a dataset licence accepted per account (verify the current licence text)",
+        "cost": "free with an account",
+        "reason": "access needs an account and a per-account licence acceptance that Noesis cannot give on the "
+                  "operator's behalf, and the geospatial.real-estate records carry no title numbers (INSPIRE ids and "
+                  "Price Paid transactions only), so there is no shared published identifier to join on; a spatial "
+                  "join is excluded by design. Overseas-entity dossiers therefore list no UK titles",
+    },
 })
 LIVE_VERIFICATION.update({
     "companies-house-psc-snapshot": {"status": "unverified-live", "result": "not-attempted",
                                      "failure_code": "host_not_allowed",
                                      "cause": "download.companieshouse.gov.uk not reachable from this runtime; "
                                               "offline authored snapshot only", "evidence": _AUDIT},
+    "companies-house-roe": {"status": "unverified-live", "result": "not-sent", "failure_code": "credential_missing",
+                            "cause": "NOESIS_COMPANIES_HOUSE_API_KEY not configured; offline authored fixtures only",
+                            "evidence": _AUDIT},
+    "hmlr-ocod": {"status": "not-implemented", "note": PROVIDER_CONTRACTS["hmlr-ocod"]["reason"]},
 })
 BENEFICIAL_OWNERSHIP_FORMS = frozenset({
     "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A", "SCHEDULE 13D", "SCHEDULE 13D/A", "SCHEDULE 13G",
@@ -310,6 +353,10 @@ _COUNTRY_NAMES = {
     "england": "GB", "wales": "GB", "scotland": "GB", "northern ireland": "GB", "united kingdom": "GB",
     "england and wales": "GB", "netherlands": "NL", "the netherlands": "NL", "germany": "DE", "ireland": "IE",
     "luxembourg": "LU", "france": "FR", "united states": "US", "usa": "US",
+    # Register of Overseas Entities origins and further BODS jurisdictions (#2886, #2887).
+    "jersey": "JE", "guernsey": "GG", "isle of man": "IM", "british virgin islands": "VG",
+    "virgin islands, british": "VG", "cayman islands": "KY", "cyprus": "CY", "switzerland": "CH",
+    "denmark": "DK", "slovakia": "SK", "latvia": "LV", "panama": "PA", "norway": "NO",
 }
 
 
@@ -443,13 +490,26 @@ def _ch_company(company: str) -> str:
     return company
 
 
+_CH_PROFILE_MAPPED = {"company_name", "company_number", "type", "company_status", "previous_company_names",
+                      "date_of_creation", "date_of_cessation", "registered_office_address", "jurisdiction", "etag",
+                      "links"}
+
+
 def parse_ch_profile(payload: Mapping[str, Any], *, company: str, raw_sha: str) -> list[dict[str, Any]]:
     if payload.get("company_number") != company or not payload.get("company_name"):
         raise SourcePackError("schema_drift", "Companies House profile lacks the requested company")
     key = f"companies-house:gb-coh:{company}"
     source = _ch_source(company, "profile", raw_sha, "", f"/company/{company}")
+    jurisdiction, native = "GB", {"jurisdiction": payload.get("jurisdiction"), "etag": payload.get("etag")}
+    if payload.get("type") == "registered-overseas-entity":
+        # An overseas entity (OE number) is incorporated abroad: its jurisdiction is the stated
+        # originating registry's country, else unknown; every other published field is kept verbatim (#2886).
+        foreign = dict(payload.get("foreign_company_details") or {})
+        country = str(dict(foreign.get("originating_registry") or {}).get("country") or "").strip().lower()
+        jurisdiction = _COUNTRY_NAMES.get(country)
+        native["overseas_entity"] = {k: v for k, v in sorted(payload.items()) if k not in _CH_PROFILE_MAPPED}
     records = [
-        record("legal_entity", key, source, name=payload["company_name"], jurisdiction="GB",
+        record("legal_entity", key, source, name=payload["company_name"], jurisdiction=jurisdiction,
                identifiers=[{"scheme": "gb-coh", "value": company, "authority": "Companies House"}],
                entity_type=payload.get("type"), status=payload.get("company_status"),
                other_names=[{"name": p.get("name"), "type": "previous", "effective_from": p.get("effective_from"),
@@ -457,7 +517,7 @@ def parse_ch_profile(payload: Mapping[str, Any], *, company: str, raw_sha: str) 
                founding_date=_date(payload.get("date_of_creation")),
                dissolution_date=_date(payload.get("date_of_cessation")),
                addresses=[{"type": "registered-office", **dict(payload.get("registered_office_address") or {})}],
-               native={"jurisdiction": payload.get("jurisdiction"), "etag": payload.get("etag")}),
+               native=native),
         record("registration", f"companies-house:registration:{company}", {**source, "locator": {"json_pointer": "/company_number"}},
                entity_key=key, register="Companies House", number=company, jurisdiction=payload.get("jurisdiction"),
                status=payload.get("company_status"), registered_on=_date(payload.get("date_of_creation")),

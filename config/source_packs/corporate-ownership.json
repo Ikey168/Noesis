@@ -1,7 +1,7 @@
 {
   "pack_id": "corporate-ownership",
-  "version": "1.1.0",
-  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment).",
+  "version": "1.2.0",
+  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment). From 1.2.0 the Register of Overseas Entities (OE numbers: registrable beneficial owners, managing officers and statements as published) is added; the daily Companies House PSC snapshot is acquired by the bulk runner (companies-house-psc-snapshot) and HM Land Registry OCOD is recorded as not implemented (see docs/development/ownership-register-audit.md).",
   "domains": [
     "corporate-ownership"
   ],
@@ -197,6 +197,53 @@
         "sha256": "a155a62afc7e2ee61a07e4a63b15ec12d71e51b7d7285b1e05548c69b4cbf86e",
         "expected_output_hash": "6fca1478d29ca91745044d27cf7a2682d3193a3f608213aadb05f2e64fb6aff1"
       }
+    },
+    {
+      "source_id": "companies-house-roe",
+      "connector": "companies-house",
+      "publisher": "Companies House (UK), Register of Overseas Entities",
+      "endpoint": "https://api.company-information.service.gov.uk",
+      "scope": "Explicitly selected overseas entity numbers (OE...): profile with foreign registration, managing officers, registrable beneficial owners (individuals, legal entities, government bodies, super-secure) and beneficial-owner statements as published; no trust details (not public) and no land titles",
+      "license": {
+        "id": "companies-house-public-data",
+        "terms_url": "https://developer.company-information.service.gov.uk/",
+        "redistribution": "public register data reused under the Companies House public data API terms; natural persons owner-scoped unless person-research mode is on"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COMPANIES_HOUSE_API_KEY"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "companies": [
+          "OE099901",
+          "OE099902"
+        ],
+        "parts": [
+          "profile",
+          "officers",
+          "psc",
+          "psc-statements"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/companies-house-roe.json",
+        "sha256": "bbcc14e3ac8ccfb46b68e0c19e6d1fac3ecc405d40161e24165a5266ecdc5fbc",
+        "expected_output_hash": "0663a5b727062d5a16cf489eb7d5e466e080e6d66407612edada8a920e44e198"
+      },
+      "update_cadence": "daily at most per selected overseas entity",
+      "temporal_semantics": "notified_on/ceased_on and appointment dates as filed; observation time recorded separately per record revision"
     },
     {
       "source_id": "ec-competition-cases",
