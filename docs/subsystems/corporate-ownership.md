@@ -189,6 +189,12 @@ record time. `build_dossier` assembles all of this for one identifier. A name
 lookup returns candidates and never picks one. `export_dossier` saves an
 authored report in which every sourced statement cites its record revision.
 
+`estimate_dividend_flows` (#2891) combines stated holdings in this graph with
+the Market pack's declared dividends. Its results are **derived** estimates,
+never reported figures, and each one cites its input revisions, carries an
+interval, and states its method and assumptions. See
+[dividend-flow estimates](dividend-flow-estimates.md).
+
 ## Composition (O11)
 
 `packs/corporate-ownership/manifest.json` binds `ownership.core` plus

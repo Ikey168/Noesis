@@ -51,11 +51,13 @@
         "version": "1.0.0"
       },
       "operations": [
-        "graph-query"
+        "graph-query",
+        "estimate-dividend-flows"
       ],
       "semantic_constraints": {
         "conflicts": "returned together with reasons, never resolved by rank",
-        "bounds": "explicit max_depth and cycle reporting"
+        "bounds": "explicit max_depth and cycle reporting",
+        "dividend_flows": "estimate-dividend-flows returns derived estimates (method noesis-dividend-flow-lookthrough), never reported figures: declared per-share cash dividends from the Market corporate actions or filed facts times holdings stated in force at the record date, looked through stated holdings, each with its cited input revisions, an interval for bands, timing gaps and threshold censoring, n and assumptions; holdings below publication thresholds are never estimated, unknown links stay unknown, nothing is summed across paths or netted across currencies (noesis-dividend-flow-estimate-v1, #2891)"
       }
     },
     {
@@ -254,6 +256,24 @@
       "readiness_probe": "records",
       "required_scopes": [
         "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "estimate-dividend-flows",
+      "tool": "noesis-knowledge-engine.estimate_dividend_flows",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "market:actions:read",
+        "market:financial-facts:read",
+        "market:instruments:read"
       ],
       "required_context": [
         "namespace"
