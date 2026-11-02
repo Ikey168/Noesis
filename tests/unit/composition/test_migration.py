@@ -281,7 +281,8 @@ def test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers(i
             stores.setdefault(store["record_type"], []).append(descriptor["id"])
     assert all(len(owners) == 1 for owners in stores.values())  # one authority per store
     owned = {s["store"] for d in provider_descriptors() if d["id"] == "ownership.core" for s in d["stores"]}
-    assert owned == {"src.kb.ownership_store", "src.kb.ownership_identity"}  # no second entity or LEI store
+    # No second entity or LEI store; holding-structure classifications (#2890) are their own reviewable decisions.
+    assert owned == {"src.kb.ownership_store", "src.kb.ownership_identity", "src.kb.ownership_structures"}
     assert ownership_bundle.BUNDLE["architecture"]["manifest"] == "packs/corporate-ownership/manifest.json"
 
 

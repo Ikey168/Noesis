@@ -57,6 +57,16 @@ BUNDLE = {
             "dividend_flows": {"reuses": ["MarketCorporateActionStore", "MarketFinancialFactStore",
                                           "MarketInstrumentStore"], "tools": ["estimate_dividend_flows"]},
             "dossier": {"reuses": ["AuthoredReportStore"], "tools": ["build_ownership_dossier", "export_ownership_dossier"]},
+            # Holding structures (#2890): stated classification plus a dossier composing the other record owners.
+            "structures": {"reuses": ["OwnershipGraph", "LobbyingQueries", "CampaignFinanceLinks", "PublicFinanceStore",
+                                      "competition_queries", "ProcurementIdentityService", "SanctionsQueries",
+                                      "BafinQueries", "EvidenceBundleBuilder"],
+                           "tools": ["propose_ownership_structure_classification",
+                                     "propose_ownership_structure_classifications_from_records",
+                                     "review_ownership_structure_classification",
+                                     "revert_ownership_structure_classification",
+                                     "list_ownership_structure_classifications",
+                                     "build_ownership_structure_dossier", "export_ownership_structure_dossier"]},
             # Optional competition feature (#2217, default off): cases, stages and state aid naming a company.
             "competition": {"feature": "competition", "tools": ["lookup_competition_cases",
                                                                 "competition_case_history",
