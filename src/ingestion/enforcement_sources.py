@@ -39,6 +39,17 @@ Nothing here scores risk or compliance, infers wrongdoing from an initiated
 action, turns a settled matter into a finding or profiles a named individual:
 natural persons are counted, never named (their published names are replaced
 by ``[individual]`` in any stored text).
+
+**Person-research mode** (``NOESIS_PERSON_RESEARCH``, off by default; see
+``docs/security/person-research-mode.md``): individual respondents are kept
+as respondent records with their published name and role, stored texts keep
+the published names, and releases, cases, notices and register entries whose
+only respondents are individuals (FCA notices addressed to individuals
+included) are acquired. Dates of birth, ages, home addresses and personal
+registration numbers (FCA IRN, FINRA CRD) are withheld from every stored text,
+and an individual respondent carries no identifier. Every record that differs
+from what the default minimisation would store carries the policy
+``enforcement-person-research-v1`` and is refused on write with the switch off.
 """
 
 from __future__ import annotations
@@ -52,6 +63,7 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlencode, urlsplit
 
+from src.config.env import person_research_enabled
 from src.ingestion.sec_user_agent import (
     SEC_USER_AGENT_ENV,
     SecUserAgentError,
@@ -113,7 +125,8 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
                      "removed_by_source revision",
         "licence": "US government work, public domain (17 U.S.C. § 105); credit the SEC",
         "attribution": "Source: U.S. Securities and Exchange Commission.",
-        "personal_data": "releases name individuals; names are not stored (MINIMISATION)",
+        "personal_data": "releases name individuals; names are not stored (MINIMISATION) unless person-research "
+                         "mode is on (names and roles kept; age, address and CRD withheld)",
         "access_decision": "unverified-live",
     },
     "uk-fca": {
@@ -133,7 +146,8 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
                    "accurately and not in a misleading context (verify; not the Open Government Licence)",
         "attribution": "Source: Financial Conduct Authority.",
         "personal_data": "notices addressed to individuals are declined; individuals named inside firm notices are "
-                         "never extracted",
+                         "never extracted (both kept in person-research mode, the IRN, date of birth and address "
+                         "withheld)",
         "access_decision": "unverified-live",
     },
     "us-epa-echo": {
@@ -150,7 +164,8 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
                      "recovery and compliance action cost are separate published fields",
         "licence": "US government work, public domain; ECHO data disclaimer applies (verify)",
         "attribution": "Source: U.S. EPA Enforcement and Compliance History Online (ECHO).",
-        "personal_data": "defendants may be individuals (counted, not named); facilities are organisations' sites",
+        "personal_data": "defendants may be individuals (counted, not named; named in person-research mode); "
+                         "facilities are organisations' sites",
         "access_decision": "unverified-live",
     },
     "edpb-art60": {
@@ -169,7 +184,7 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
                    "2011/833/EU applied by the EDPB; verify)",
         "attribution": "Source: European Data Protection Board, register of Article 60 final decisions.",
         "personal_data": "entries are often anonymised; the controller is stored only as published and only when "
-                         "it is an organisation",
+                         "it is an organisation (also an individual controller in person-research mode)",
         "access_decision": "unverified-live",
     },
 }
@@ -193,12 +208,25 @@ MINIMISATION = {
     "access": "any principal with knowledge:legal:read and namespace read access may query organisational "
               "records; nothing personal is stored, so there is nothing further to restrict",
     "matching": "individuals are never offered to identity matching (EN07)",
+    "person_research": {
+        "switch": "NOESIS_PERSON_RESEARCH (off by default; docs/security/person-research-mode.md)",
+        "policy": "enforcement-person-research-v1",
+        "stored": [("individual respondents: name and role as published (respondent_type natural_person, no "
+                    "identifier)"), "individuals' names in stored titles, captions, charges and outcome texts",
+                   "notices, releases, cases and register entries whose only respondents are individuals"],
+        "withheld": ["dates of birth and ages", "home addresses",
+                     "personal registration numbers (FCA IRN, FINRA CRD) and any identifier of an individual"],
+        "matching": "individual respondents are offered to identity review against ownership persons (name and "
+                    "country, low evidence); nothing is accepted automatically",
+        "write_guard": "records under the policy are refused on write while the switch is off",
+    },
 }
 DECLINED = {
     "sec-trading-suspensions": {"source": "SEC trading suspensions",
                                 "reason": "a suspension is not an enforcement action against a respondent"},
     "fca-individual-notices": {"source": "FCA final notices addressed to individuals",
-                               "reason": "EN01 minimisation: individuals are not profiled"},
+                               "reason": "EN01 minimisation: individuals are not profiled (acquired in "
+                                         "person-research mode, NOESIS_PERSON_RESEARCH)"},
     "fca-register-api": {"source": "FCA Financial Services Register API",
                          "reason": "registration-gated key; FRNs are taken as published in the notice"},
     "echo-bulk-downloads": {"source": "ECHO ICIS-FE&C bulk downloads",
@@ -220,7 +248,7 @@ BOUNDED_COVERAGE = {
             "entry, never crawled",
     "window": "actions published from 2020-01-01; the history of an in-window action is kept",
     "per_run": f"at most {MAX_UNITS} declared units per source",
-    "respondents": "actions with at least one organisational respondent",
+    "respondents": "actions with at least one organisational respondent (any respondent in person-research mode)",
 }
 EDPB_SA = {"dutch": "NL", "netherlands": "NL", "german": "DE", "germany": "DE", "french": "FR", "france": "FR",
            "irish": "IE", "ireland": "IE", "luxembourg": "LU", "spanish": "ES", "spain": "ES", "italian": "IT",
@@ -274,11 +302,42 @@ def party_type(name: Any) -> str:
     return "natural_person"
 
 
-def minimise(text: Any, individuals: Sequence[str]) -> str | None:
-    """Replace each individual's published name (and surname) in a stored text by ``[individual]``."""
+# Person-research mode withholds these from every stored text (the published names stay).
+_PERSONAL_TEXT = (
+    (re.compile(r"\b(?:Individual Reference Number|IRN)\b\s*(?:No\.?|number)?\s*[:#]?\s*[A-Z]{2,5}\d{3,8}\b",
+                re.IGNORECASE), "[IRN withheld]"),
+    (re.compile(r"\b(?:FINRA\s+)?CRD\b\s*(?:No\.?|number)?\s*[:#]?\s*\d{3,8}\b", re.IGNORECASE), "[CRD withheld]"),
+    (re.compile(r"\b(?:date of birth|born(?: on)?|DOB)\b\s*:?\s*(?:\d{1,2}(?:st|nd|rd|th)? [A-Z][a-z]+,? \d{4}|"
+                r"[A-Z][a-z]+ \d{1,2},? \d{4}|\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}|\d{4}-\d{2}-\d{2}|(?:in )?\d{4})",
+                re.IGNORECASE), "[date of birth withheld]"),
+    (re.compile(r"(?<=[A-Za-z]),\s*(?:age(?:d)?\s+)?\d{2}\s*,(?=\s*(?:of|a|an|who|resid)\b)"), ", [age withheld],"),
+    (re.compile(r"\b(?:residing at|resident at|who resides at|home address(?: is)?:?|address:)\s*\d{1,6}\s[^,;.]*"
+                r"(?:,\s*[^,;.]+){0,2}", re.IGNORECASE), "[home address withheld]"),
+    (re.compile(r"\b\d{1,6}\s+(?:[A-Z][a-z]+\s+){1,3}(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Way|Drive|Dr|Court|Ct|"
+                r"Place|Pl|Boulevard|Blvd)\b\.?"), "[home address withheld]"),
+)
+
+
+def withhold_personal(text: Any) -> str | None:
+    """Person-research mode: drop dates of birth, ages, home addresses and IRN/CRD numbers from a stored text."""
     out = _clean(text)
     if not out:
         return None
+    for pattern, replacement in _PERSONAL_TEXT:
+        out = pattern.sub(replacement, out)
+    return out
+
+
+def minimise(text: Any, individuals: Sequence[str], *, persons: bool = False) -> str | None:
+    """Replace each individual's published name (and surname) in a stored text by ``[individual]``.
+
+    In person-research mode (``persons``) names are kept and only personal attributes are withheld.
+    """
+    out = _clean(text)
+    if not out:
+        return None
+    if persons:
+        return withhold_personal(out)
     for name in sorted({n for n in individuals if n}, key=len, reverse=True):
         out = re.sub(re.escape(name), INDIVIDUAL, out, flags=re.IGNORECASE)
         parts = name.split()
@@ -290,8 +349,13 @@ def minimise(text: Any, individuals: Sequence[str]) -> str | None:
 _HONORIFIC = re.compile(r"\b(Mr|Ms|Mrs|Miss|Mx|Dr)\.?\s+[A-Z][a-z]+")
 
 
-def _organisational(sentences: Sequence[str], individuals: Sequence[str]) -> list[str]:
-    """Sentences that name no individual (by a listed name or an honorific), minimised."""
+def _organisational(sentences: Sequence[str], individuals: Sequence[str], persons: bool = False) -> list[str]:
+    """Sentences that name no individual (by a listed name or an honorific), minimised.
+
+    In person-research mode every sentence is kept, with personal attributes withheld.
+    """
+    if persons:
+        return [t for t in (withhold_personal(s) for s in sentences) if t]
     out = []
     for sentence in sentences:
         text = minimise(sentence, individuals)
@@ -374,8 +438,12 @@ def _child(kind: str, action: str, authority: str, number: str, provider: str, s
 
 
 def _respondents(action: str, authority: str, number: str, provider: str, url: str,
-                 names: Sequence[tuple[str, str, str, list[dict[str, Any]]]]) -> tuple[list[dict], list[str]]:
-    """(respondent records for organisations, individuals' names to redact) - individuals are never recorded."""
+                 names: Sequence[tuple[str, str, str, list[dict[str, Any]]]], persons: bool = False
+                 ) -> tuple[list[dict], list[str]]:
+    """(respondent records for organisations, individuals' names to redact) - individuals are never recorded.
+
+    In person-research mode an individual is recorded too: name and role as published, never an identifier.
+    """
     records, individuals = [], []
     for name, role, role_text, identifiers in names:
         text = _clean(name)
@@ -383,6 +451,10 @@ def _respondents(action: str, authority: str, number: str, provider: str, url: s
             continue
         if party_type(text) != "organisation":
             individuals.append(text)
+            if persons:
+                records.append(_child("respondent", action, authority, number, provider, url, [text, role],
+                                      name_as_published=text, respondent_type="natural_person", role=role,
+                                      role_as_published=role_text, identifiers=[], country=None))
             continue
         records.append(_child("respondent", action, authority, number, provider, url, [text, role],
                               name_as_published=text, respondent_type="organisation", role=role,
@@ -392,13 +464,33 @@ def _respondents(action: str, authority: str, number: str, provider: str, url: s
 
 def _penalty(action: str, authority: str, number: str, provider: str, url: str, penalty_type: str, label: str,
              text: str | None, currency: str | None, imposed_on: str | None = None,
-             note: str | None = None, ordinal: int = 0) -> dict[str, Any]:
+             note: str | None = None, ordinal: int = 0, respondent_key: str | None = None) -> dict[str, Any]:
     stated = bool(text)
     parts = [penalty_type, label] + ([ordinal] if ordinal else [])
     return _child("penalty", action, authority, number, provider, url, parts,
                   penalty_type=penalty_type, penalty_type_as_published=label,
                   amount_as_published=text if stated else None, currency=currency if stated else None,
-                  amount_status="stated" if stated else "not_published", imposed_on=imposed_on, note=note)
+                  amount_status="stated" if stated else "not_published", imposed_on=imposed_on, note=note,
+                  **({"respondent_key": respondent_key} if respondent_key else {}))
+
+
+def _named(sentence: str, name: str, *, surname: bool = False) -> bool:
+    """Whether a sentence names a respondent: the full published name, or (an individual) the surname, as minimise."""
+    if name.casefold() in sentence.casefold():
+        return True
+    parts = name.split()
+    return surname and len(parts) > 1 and len(parts[-1]) > 2 and bool(
+        re.search(r"\b(?:(?:Mr|Ms|Mrs|Miss|Mx|Dr)\.?\s+)?" + re.escape(parts[-1]) + r"\b", sentence))
+
+
+def _individual_key(sentence: str, respondents: Sequence[Mapping[str, Any]]) -> str | None:
+    """Person-research mode: the one individual respondent a sentence names (and no organisation), else ``None``."""
+    if any(r["respondent_type"] == "organisation" and _named(sentence, r["name_as_published"])
+           for r in respondents):
+        return None
+    named = [r["record_key"] for r in respondents
+             if r["respondent_type"] == "natural_person" and _named(sentence, r["name_as_published"], surname=True)]
+    return named[0] if len(named) == 1 else None
 
 
 def _document(action: str, authority: str, number: str, provider: str, url: str, *, doc_type: str, title: Any,
@@ -516,7 +608,8 @@ def sec_release_number(path: str) -> str:
     return str(path).rsplit("/", 1)[-1].upper()
 
 
-def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any], *, persons: bool = False
+                      ) -> list[dict[str, Any]]:
     from src.kb.enforcement_records import action_key
 
     raw = responses["page"]
@@ -541,7 +634,7 @@ def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -
     names = [(n, "respondent" if administrative else "defendant", "Respondent" if administrative else "Defendant",
               [{"scheme": "sec-cik", "value": ciks[n], "type_as_published": "CIK"}] if n in ciks else [])
              for n in (page.fields.get("field-respondents") or [])]
-    respondents, individuals = _respondents(action, authority, number, provider, url, names)
+    respondents, individuals = _respondents(action, authority, number, provider, url, names, persons)
     if not respondents:
         raise EnforcementFormatError("schema_drift", "declined: a release whose respondents are all individuals is "
                                                      "outside the bounded coverage (EN01)")
@@ -551,14 +644,16 @@ def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -
                              r"(?:\s*\(([^)]*?)\))?", body):
         court_cases.append({"docket_number": match.group(1),
                             "court": (_clean(match.group(2)) or "").split(",")[0] or None,
-                            "caption": minimise(page.title, individuals)})
+                            "caption": minimise(page.title, individuals, persons=persons)})
     # Sentences about an individual are left out altogether (EN01): no individual's charges, outcome or sanction.
-    charges = [s for s in _organisational(_sentences(body, "violations of", "charg", "alleg"), individuals)
+    # In person-research mode they are kept, and a sanction naming one individual is attributed to that respondent.
+    charges = [s for s in _organisational(_sentences(body, "violations of", "charg", "alleg"), individuals, persons)
                if "consented" not in s.lower()]
     outcome = _organisational(_sentences(body, "consented", "final judgment", "ordered", "imposes", "agreed to",
-                                         "dismiss"), individuals)
+                                         "dismiss"), individuals, persons)
     penalties = []
-    for sentence in _organisational(_sentences(body, "penalt", "disgorgement", "prejudgment interest"), individuals):
+    for sentence in _organisational(_sentences(body, "penalt", "disgorgement", "prejudgment interest"), individuals,
+                                    persons):
         lowered = sentence.lower()
         found = amounts(sentence)
         for kind, word in (("disgorgement", "disgorgement"), ("prejudgment_interest", "prejudgment interest"),
@@ -569,7 +664,8 @@ def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -
                 penalties.append(_penalty(action, authority, number, provider, url, kind, word,
                                           nearest[0][0] if nearest else None, nearest[0][1] if nearest else None,
                                           imposed_on=dated,
-                                          ordinal=sum(p["penalty_type"] == kind for p in penalties)))
+                                          ordinal=sum(p["penalty_type"] == kind for p in penalties),
+                                          respondent_key=_individual_key(sentence, respondents) if persons else None))
     action_type = "administrative_proceeding" if administrative else "civil_action"
     records = [
         _authority_record(authority, provider),
@@ -577,7 +673,8 @@ def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -
          "source": _source(provider, number, url, revision=revision), "authority": authority, "action_number": number,
          "action_type": action_type,
          "action_type_as_published": "Administrative Proceeding" if administrative else "Litigation Release",
-         "title": minimise(page.title, individuals), "status_as_published": None, "source_status": "published",
+         "title": minimise(page.title, individuals, persons=persons), "status_as_published": None,
+         "source_status": "published",
          "initiated_on": _day(_first(page.fields, "field-filed-date")), "decided_on": None, "published_on": dated,
          "legal_bases": _references(body), "charges_as_published": charges,
          "outcome_as_published": " ".join(o for o in outcome if o) or None, "settlement": _settlement(body),
@@ -589,7 +686,7 @@ def parse_sec_release(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -
          "native": {"release_number": release}},
         _document(action, authority, number, provider, url, doc_type=("Administrative Proceeding" if administrative
                                                                        else "Litigation Release"),
-                  title=minimise(page.title, individuals), date=dated, raw=raw),
+                  title=minimise(page.title, individuals, persons=persons), date=dated, raw=raw),
     ]
     return records + respondents + penalties
 
@@ -611,8 +708,8 @@ def _pdf_text(raw: bytes) -> str:
     return extract_text(BytesIO(raw))
 
 
-def parse_fca_notice(responses: Mapping[str, bytes], unit: Mapping[str, Any], *, content_type: str = "text/plain"
-                     ) -> list[dict[str, Any]]:
+def parse_fca_notice(responses: Mapping[str, bytes], unit: Mapping[str, Any], *, content_type: str = "text/plain",
+                     persons: bool = False) -> list[dict[str, Any]]:
     from src.kb.enforcement_records import action_key
 
     raw = responses["notice"]
@@ -620,14 +717,16 @@ def parse_fca_notice(responses: Mapping[str, bytes], unit: Mapping[str, Any], *,
     flat = " ".join(text.split())
     slug = str(unit["slug"])
     url = f"{FCA_SITE}/publication/final-notices/{slug}.pdf"
-    to = re.search(r"\bTo:\s*(.+?)\s+(?:Firm Reference Number|FRN|Reference Number|Address|Date):", flat)
+    to = re.search(r"\bTo:\s*(.+?)\s+(?:Firm Reference Number|FRN|Individual Reference Number|IRN|Reference Number|"
+                   r"Address|Date of birth|Date):", flat)
     if not to:
         raise EnforcementFormatError("schema_drift", "FCA notice has no 'To:' line")
     addressee = _clean(to.group(1)) or ""
-    if party_type(addressee) != "organisation":
+    individual = party_type(addressee) != "organisation"
+    if individual and not persons:
         raise EnforcementFormatError("schema_drift", "declined: FCA notices addressed to individuals are not acquired "
                                                      "(EN01 minimisation)")
-    frn = re.search(r"(?:Firm Reference Number|FRN):\s*(\d{6,7})", flat)
+    frn = None if individual else re.search(r"(?:Firm Reference Number|FRN):\s*(\d{6,7})", flat)
     dated = re.search(r"\bDate:\s*(\d{1,2} [A-Z][a-z]+ \d{4})", flat)
     amended = re.search(r"This Final Notice was amended on (\d{1,2} [A-Z][a-z]+ \d{4})([^.]*\.)?", flat)
     authority, provider, number = "uk-fca", "uk-fca", slug
@@ -667,11 +766,16 @@ def parse_fca_notice(responses: Mapping[str, bytes], unit: Mapping[str, Any], *,
             "appeal", action, authority, number, provider, url, [tribunal.group(2)], forum_as_published=tribunal.group(1),
             reference=tribunal.group(2), status_as_published=_clean(outcome.group(2)) if outcome else "referred",
             lodged_on=None, decided_on=_day(outcome.group(1)) if outcome else None, court_docket=None))
-    respondents = [_child("respondent", action, authority, number, provider, url, [addressee, "firm"],
-                          name_as_published=addressee, respondent_type="organisation", role="firm",
-                          role_as_published="To", identifiers=[{"scheme": "gb-fca-frn", "value": frn.group(1),
-                                                               "type_as_published": "Firm Reference Number"}]
-                          if frn else [], country="GB")]
+    if individual:  # person-research mode only: the notice names its addressee; the IRN is never kept
+        respondents = [_child("respondent", action, authority, number, provider, url, [addressee, "respondent"],
+                              name_as_published=addressee, respondent_type="natural_person", role="respondent",
+                              role_as_published="To", identifiers=[], country=None)]
+    else:
+        respondents = [_child("respondent", action, authority, number, provider, url, [addressee, "firm"],
+                              name_as_published=addressee, respondent_type="organisation", role="firm",
+                              role_as_published="To", identifiers=[{"scheme": "gb-fca-frn", "value": frn.group(1),
+                                                                   "type_as_published": "Firm Reference Number"}]
+                              if frn else [], country="GB")]
     settlement = _settlement(action_text)
     records = [
         _authority_record(authority, provider),
@@ -682,13 +786,14 @@ def parse_fca_notice(responses: Mapping[str, bytes], unit: Mapping[str, Any], *,
          "status_as_published": "Final Notice", "source_status": "corrected" if amended else "published",
          "initiated_on": None, "decided_on": decided, "published_on": decided,
          "legal_bases": _references(action_text, reasons_text), "charges_as_published":
-             _organisational(_sentences(reasons_text, "breach", "failed", "failing"), [])[:5],
+             _organisational(_sentences(reasons_text, "breach", "failed", "failing"), [], persons)[:5],
          "outcome_as_published": _clean(" ".join(_organisational(_sentences(
-             action_text, "imposes", "publish", "censure", "prohibit", "cancel", "tribunal"), []))) or None,
+             action_text, "imposes", "publish", "censure", "prohibit", "cancel", "tribunal"), [], persons))) or None,
          "settlement": settlement,
          "related_identifiers": [{"scheme": "gb-fca-frn", "value": frn.group(1),
                                   "type_as_published": "Firm Reference Number"}] if frn else [],
-         "court_cases": [], "related_references": _case_references(flat), "natural_person_respondents": 0,
+         "court_cases": [], "related_references": _case_references(flat),
+         "natural_person_respondents": 1 if individual else 0,
          "action_url": url},
         _document(action, authority, number, provider, url, doc_type="Final Notice", title=f"Final Notice: {addressee}",
                   date=dated.group(1) if dated else None, raw=raw, amended_on=amended.group(1) if amended else None,
@@ -712,7 +817,8 @@ ECHO_LAWS = {"CAA": "Clean Air Act", "CWA": "Clean Water Act", "RCRA": "Resource
              "EPCRA": "Emergency Planning and Community Right-to-Know Act"}
 
 
-def parse_echo_case(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+def parse_echo_case(responses: Mapping[str, bytes], unit: Mapping[str, Any], *, persons: bool = False
+                    ) -> list[dict[str, Any]]:
     from src.kb.enforcement_records import action_key
 
     try:
@@ -731,7 +837,7 @@ def parse_echo_case(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> 
     civil = str(results.get("CivilCriminal") or "").casefold()
     names = [(d.get("DefendantName"), "defendant", "Defendant", []) for d in results.get("Defendants") or []
              if isinstance(d, Mapping)]
-    respondents, individuals = _respondents(action, authority, number, provider, url, names)
+    respondents, individuals = _respondents(action, authority, number, provider, url, names, persons)
     if not respondents:
         raise EnforcementFormatError("schema_drift", "declined: a case whose defendants are all individuals is "
                                                      "outside the bounded coverage (EN01)")
@@ -762,7 +868,7 @@ def parse_echo_case(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> 
     court_cases = []
     if results.get("CourtDocketNumber"):
         court_cases.append({"docket_number": str(results["CourtDocketNumber"]), "court": _clean(results.get("Court")),
-                            "caption": minimise(results.get("CaseName"), individuals)})
+                            "caption": minimise(results.get("CaseName"), individuals, persons=persons)})
     outcome = _clean(results.get("EnforcementOutcome"))
     records = [
         _authority_record(authority, provider),
@@ -773,12 +879,12 @@ def parse_echo_case(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> 
              "civil_judicial" if "judicial" in str(results.get("CaseCategoryDesc") or "").casefold()
              else "administrative_formal"),
          "action_type_as_published": _clean(results.get("CaseCategoryDesc")) or "not published",
-         "title": minimise(results.get("CaseName"), individuals),
+         "title": minimise(results.get("CaseName"), individuals, persons=persons),
          "status_as_published": _clean(results.get("CaseStatusDesc")), "source_status": "published",
          "initiated_on": _day(results.get("FiledDate")), "decided_on": settled_on, "published_on": None,
-         "legal_bases": laws, "charges_as_published": [minimise(v, individuals) for v in
+         "legal_bases": laws, "charges_as_published": [minimise(v, individuals, persons=persons) for v in
                                                       [results.get("ViolationDescription")] if v],
-         "outcome_as_published": minimise(outcome, individuals), "settlement": _settlement(outcome),
+         "outcome_as_published": minimise(outcome, individuals, persons=persons), "settlement": _settlement(outcome),
          "related_identifiers": [{"scheme": "frs", "value": f["frs_id"], "type_as_published": "FRS Registry ID"}
                                  for f in facilities if f["frs_id"]],
          "court_cases": court_cases, "related_references": [], "natural_person_respondents": len(individuals),
@@ -803,7 +909,8 @@ def _sa(text: Any) -> dict[str, Any] | None:
             "code": f"eu-dpa-{country.lower()}" if country else None}
 
 
-def parse_edpb_entry(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+def parse_edpb_entry(responses: Mapping[str, bytes], unit: Mapping[str, Any], *, persons: bool = False
+                     ) -> list[dict[str, Any]]:
     from src.kb.enforcement_records import action_key
 
     raw = responses["entry"]
@@ -821,7 +928,7 @@ def parse_edpb_entry(responses: Mapping[str, bytes], unit: Mapping[str, Any]) ->
     controller = _clean(pairs.get("controller/processor") or pairs.get("controller"))
     names = [(controller, "controller", "Controller/processor", [])] if controller and \
         controller.casefold() not in {"not published", "anonymised", "n/a"} else []
-    respondents, individuals = _respondents(action, authority, number, provider, url, names)
+    respondents, individuals = _respondents(action, authority, number, provider, url, names, persons)
     measures = [m.strip() for m in re.split(r";|,", pairs.get("decision") or pairs.get("corrective measures") or "")
                 if m.strip()]
     fine_text = _clean(pairs.get("fine"))
@@ -841,7 +948,7 @@ def parse_edpb_entry(responses: Mapping[str, bytes], unit: Mapping[str, Any]) ->
          "source": _source(provider, number, url, revision=hashlib.sha256(raw).hexdigest()[:16]),
          "authority": authority, "action_number": number, "action_type": "art60_final_decision",
          "action_type_as_published": "Article 60 final decision",
-         "title": minimise(page.title, individuals), "status_as_published": "Final decision",
+         "title": minimise(page.title, individuals, persons=persons), "status_as_published": "Final decision",
          "source_status": "published", "initiated_on": None, "decided_on": decided, "published_on": None,
          "legal_bases": _references(legal, context="gdpr") or [x.strip() for x in legal.split(";") if x.strip()],
          "charges_as_published": [], "outcome_as_published": "; ".join(measures) or None,
@@ -914,15 +1021,42 @@ _PARSERS: dict[str, Callable[..., list[dict[str, Any]]]] = {
 }
 
 
+def _parse(fmt: str, responses: Mapping[str, bytes], unit: Mapping[str, Any],
+           content_types: Mapping[str, str] | None, persons: bool) -> list[dict[str, Any]]:
+    if fmt == "fca-final-notice-text":
+        return parse_fca_notice(responses, unit, content_type=(content_types or {}).get("notice", "text/plain"),
+                                persons=persons)
+    return _PARSERS[fmt](responses, unit, persons=persons)
+
+
 def parse_unit(fmt: str, responses: Mapping[str, bytes], unit: Mapping[str, Any], *,
                content_types: Mapping[str, str] | None = None) -> list[dict[str, Any]]:
+    """Parse one unit under the EN01 minimisation, or under person-research mode when ``NOESIS_PERSON_RESEARCH`` is on.
+
+    In person-research mode the unit is also parsed under the default minimisation; every record that differs from
+    (or is absent in) that default reading carries the ``enforcement-person-research-v1`` policy, so records naming no
+    individual are stored exactly as with the switch off.
+    """
     if fmt not in _PARSERS:
         raise EnforcementFormatError("schema_drift", f"unknown enforcement format {fmt!r}")
-    if fmt == "fca-final-notice-text":
-        records = parse_fca_notice(responses, unit, content_type=(content_types or {}).get("notice", "text/plain"))
-    else:
-        records = _PARSERS[fmt](responses, unit)
-    from src.kb.enforcement_records import EnforcementRecordError, validate_record
+    persons = person_research_enabled()
+    records = _parse(fmt, responses, unit, content_types, persons)
+    from src.kb.enforcement_records import (
+        PERSON_RESEARCH_POLICY,
+        PERSON_RESEARCH_WITHHELD,
+        EnforcementRecordError,
+        canonical,
+        validate_record,
+    )
+
+    if persons:
+        try:
+            default = {r["record_key"]: canonical(r) for r in _parse(fmt, responses, unit, content_types, False)}
+        except EnforcementFormatError:
+            default = {}  # outside the default coverage (an individual-only unit): every record is person research
+        policy = {"policy": PERSON_RESEARCH_POLICY, "withheld": list(PERSON_RESEARCH_WITHHELD)}
+        records = [r if default.get(r["record_key"]) == canonical(r) else {**r, "minimisation": dict(policy)}
+                   for r in records]
 
     try:
         return [validate_record(r) for r in records]
@@ -1142,5 +1276,5 @@ __all__ = [
     "ADAPTERS", "BOUNDED_COVERAGE", "CONNECTOR", "DECLINED", "FIXTURE_SECRET", "FORMATS", "IDENTIFIERS",
     "LIVE_VERIFICATION", "MINIMISATION", "PROVIDER_CONTRACTS", "RECORD_CONTRACT", "REVIEW_BOUNDARY",
     "EnforcementAdapter", "EnforcementFormatError", "amounts", "enforcement_declaration", "fixture_transport",
-    "minimise", "parse_unit", "party_type", "replay_native_fixture", "requests_for",
+    "minimise", "parse_unit", "party_type", "replay_native_fixture", "requests_for", "withhold_personal",
 ]

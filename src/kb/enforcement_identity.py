@@ -26,6 +26,14 @@ A respondent without an accepted match stays as published and is reported as
 Authorities are **source identities**: each ``authority`` record is keyed by
 the regulator's code and cited by every action; they are listed, never
 matched against companies.
+
+**Person-research mode** (``NOESIS_PERSON_RESEARCH``, off by default): the
+individual respondents stored under ``enforcement-person-research-v1`` are
+subjects too, proposed only against the **person** records of the ownership
+namespace (``name-jurisdiction``: equal normalized names; low evidence, never
+accepted automatically). Organisational respondents are never offered to
+persons, nor individuals to legal entities. With the switch off individuals
+are not subjects, even when stored earlier in the mode.
 """
 
 from __future__ import annotations
@@ -34,6 +42,7 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.kb.enforcement import (
     READ_SCOPE,
     EnforcementError,
@@ -91,12 +100,16 @@ class EnforcementIdentity:
                 for v in self.store.views(namespace, ("authority",))]
 
     def subjects(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Organisational respondents of the current revisions, as published."""
+        """Organisational respondents of the current revisions, as published (individuals in person-research mode)."""
         authorize(namespace, scopes, READ_SCOPE)
+        persons = person_research_enabled()
         out = []
         for view in self.store.views(namespace, ("respondent",)):
             body = view["record"]
-            out.append({"key": body["record_key"], "action_key": body["action_key"], "authority": body["authority"],
+            natural = body.get("respondent_type") == "natural_person"
+            if natural and not persons:
+                continue  # stored under the person-research policy; not a subject with the switch off
+            out.append({**({"respondent_type": "natural_person"} if natural else {}),"key": body["record_key"], "action_key": body["action_key"], "authority": body["authority"],
                         "name_as_published": body["name_as_published"], "role_as_published": body["role_as_published"],
                         "country": body.get("country"), "identifiers": body.get("identifiers") or [],
                         "revision_id": view["revision_id"]})
@@ -111,11 +124,15 @@ class EnforcementIdentity:
         authorize(namespace, scopes, READ_SCOPE)
         entities = self.service._entities(ownership_namespace, principal_id, scopes) \
             if table_exists(self.conn, "ownership_records") else []
+        people = self._persons(ownership_namespace, principal_id, scopes)
         offered = []
         for subject in self.subjects(namespace, scopes=scopes):
             left = {"record_key": subject["key"], "name_as_published": subject["name_as_published"],
                     "role_as_published": subject["role_as_published"], "revision_id": subject["revision_id"],
                     "ownership_namespace": ownership_namespace}
+            if subject.get("respondent_type") == "natural_person":
+                offered += self._propose_person(namespace, subject, left, people, principal_id, scopes)
+                continue
             published = {(scheme, _value(i["value"])) for i in subject["identifiers"]
                          for scheme in _scheme_set(i["scheme"])}
             for entity in entities:
@@ -148,6 +165,36 @@ class EnforcementIdentity:
                 "candidates": self.candidates(namespace, scopes=scopes),
                 "unmatched": self.unmatched(namespace, scopes=scopes),
                 "authorities": self.authorities(namespace, scopes=scopes)}
+
+    def _persons(self, ownership_namespace: str, principal_id: str, scopes: set[str]) -> list[dict[str, Any]]:
+        """Ownership person records (person-research mode only; owner-scoped ones stay redacted and are skipped)."""
+        if not person_research_enabled() or not table_exists(self.conn, "ownership_records"):
+            return []
+        from src.kb.ownership_store import OwnershipStore
+
+        return [v for v in OwnershipStore(self.conn, initialize=False).records(
+            ownership_namespace, principal_id=principal_id, scopes=scopes, kinds=("person",)) if not v.get("redacted")]
+
+    def _propose_person(self, namespace, subject, left, people, principal_id, scopes) -> list[dict[str, Any]]:
+        """An individual respondent against ownership persons by equal normalized name: low evidence, reviewable."""
+        offered = []
+        for person in people:
+            body = person["record"]
+            if _name(body.get("name")) != _name(subject["name_as_published"]):
+                continue
+            countries = sorted({str(c).split("-")[0].upper() for c in [body.get("country_of_residence"),
+                                                                       *(body.get("nationalities") or [])] if c})
+            right = {"record_key": body["record_key"], "provider": body["source"]["provider"],
+                     "revision": person["revision"], "kind": "person"}
+            offered.append(self._offer(
+                namespace, subject, body["record_key"],
+                body.get("canonical_entity_id") or entity_for(body["record_key"]), "name-jurisdiction", {
+                    "normalized_name": _name(body.get("name")), "country": countries[0] if countries else None,
+                    "country_basis": "stated by the register" if countries else "not stated by the register",
+                    "left": left, "right": right, "low_evidence": True, "person_research": True,
+                    "note": "an individual respondent matched by name (person-research mode); a name is low evidence "
+                            "and never accepted automatically; a reviewer decides"}, principal_id, scopes))
+        return offered
 
     def _offer(self, namespace, subject, right_key, right_entity, basis, evidence, principal_id, scopes):
         return self.service.offer(namespace, left_key=subject["key"], right_key=right_key,

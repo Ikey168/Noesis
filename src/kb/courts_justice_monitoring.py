@@ -15,7 +15,9 @@ and outbox paths.
 Notices cite the new and the previous revision: ``new_docket_entry``,
 ``docket_revised``, ``new_opinion``, ``new_citing_decision``,
 ``new_citing_entry``, ``new_vintage``, ``revised_observation`` and
-``observation_recorded``. Natural persons cannot be monitored. A revision
+``observation_recorded``. Natural persons cannot be monitored (in
+person-research mode, ``NOESIS_PERSON_RESEARCH``, they can: by an accepted
+match with their ownership person or by their published name). A revision
 acquired *live* from a provider whose access is still ``unverified-live`` is
 withheld until a dated live run verifies it; fixture replays are notified and
 marked as fixture evidence. :meth:`CourtsJusticeMonitor.refresh` re-reads one
@@ -30,6 +32,7 @@ import re
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.ingestion.courts_justice_sources import LIVE_VERIFICATION
 from src.kb.courts_justice import (
     READ_SCOPE,
@@ -69,8 +72,8 @@ class CourtsJusticeMonitor:
             raise CourtsJusticeError("invalid_watch", f"watch one of {WATCH_KINDS} with a key")
         if watch == "docket" and not key.startswith("courts:docket:"):
             raise CourtsJusticeError("invalid_watch", "a docket is watched by its record key (courts:docket:...)")
-        if watch == "party" and (key.startswith("natural person") or re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z.]+)+",
-                                                                                 key)):
+        if watch == "party" and (key.startswith("natural person") or (
+                not person_research_enabled() and re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z.]+)+", key))):
             raise CourtsJusticeError("natural_person_not_a_target", "natural persons cannot be monitored; watch an "
                                                                     "organisation's entity id")
         if watch == "provision":
@@ -151,8 +154,11 @@ class CourtsJusticeMonitor:
         elif watch == "party":
             from src.kb.courts_justice_identity import CourtsIdentity
 
-            links = CourtsIdentity(self.conn, initialize=False, now=self.now).accepted_parties(namespace, key,
-                                                                                               scopes=scopes)
+            identity = CourtsIdentity(self.conn, initialize=False, now=self.now)
+            links = identity.accepted_parties(namespace, key, scopes=scopes)
+            if person_research_enabled():  # a natural person by published name (person-research mode)
+                links += identity.parties_named(namespace, key, scopes=scopes,
+                                                exclude={link["party_key"] for link in links})
             keys = [link["docket_key"] for link in links]
             self._docket_items(namespace, keys, items, withheld)
             for docket_key in keys:

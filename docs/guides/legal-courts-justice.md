@@ -38,7 +38,10 @@ Every provider is `unverified-live` until a dated live run is recorded (#2434).
    `propose_court_party_matches` then `review_court_party_match` (a reviewer
    accepts) and `lookup_dockets(entity_id=...)`. Natural persons are
    pseudonymised (`natural person 1 (Defendant)`), never matched, queried or
-   monitored.
+   monitored - unless the operator turns on person-research mode
+   (`NOESIS_PERSON_RESEARCH`, [details](../security/person-research-mode.md)),
+   where they keep their published name and can be matched to ownership
+   persons, queried and monitored.
 3. **Place to statistics.** `justice_statistics_for_place(place="eurostat-geo:DE")`
    (or a geospatial `place_id` after `resolve_justice_places`) returns each
    source's series with definition, unit, flags, suppressed values, gaps,

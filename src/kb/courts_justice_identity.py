@@ -13,7 +13,12 @@
   against a canonical entity alias (shown, never acceptable). Nothing is
   accepted automatically.
 * **Natural persons** have no party key and are never proposed, matched or
-  aggregated across dockets.
+  aggregated across dockets. In person-research mode (``NOESIS_PERSON_RESEARCH``)
+  the natural-person parties stored under ``courts-person-research-v1`` are
+  listed with their name and party key and proposed against the **person**
+  records of an ownership namespace (``name-jurisdiction``, equal normalized
+  name; low evidence), never against legal entities; organisational parties
+  are never proposed against persons.
 * **Reporting areas** (FBI state and agency ORI, police.uk force
   neighbourhoods, Eurostat GEO codes) resolve to :mod:`src.kb.geospatial`
   places only by an exact published code in a place's ``source_ids``; one
@@ -29,6 +34,7 @@ import time
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.kb.courts_justice import (
     READ_SCOPE,
     REVIEW_SCOPE,
@@ -90,31 +96,62 @@ class CourtsIdentity:
                 for court_id in sorted(ids)]
 
     def parties(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Organisational parties of the current docket revisions (natural persons are never listed)."""
+        """Organisational parties of the current docket revisions (natural persons are never listed).
+
+        In person-research mode the named natural-person parties are listed too (``party_type`` natural_person).
+        """
         authorize(namespace, scopes, READ_SCOPE)
         if not table_exists(self.conn, "legal_docket_parties"):
             return []
+        persons = person_research_enabled()
         rows = self.conn.execute(
-            "SELECT r.record_key, p.party_key, p.name_as_published, p.roles_json, r.revision_id FROM "
+            "SELECT r.record_key, p.party_key, p.name_as_published, p.roles_json, r.revision_id, p.party_type FROM "
             "legal_docket_parties p JOIN legal_docket_revisions r USING(revision_id) WHERE r.namespace=? AND "
-            "p.party_type='organisation' AND r.revision_no=(SELECT max(revision_no) FROM legal_docket_revisions x "
+            "(p.party_type='organisation' OR (? AND p.party_type='natural_person' AND p.party_key IS NOT NULL)) AND "
+            "r.revision_no=(SELECT max(revision_no) FROM legal_docket_revisions x "
             "WHERE x.namespace=r.namespace AND x.record_key=r.record_key) ORDER BY p.party_key",
-            [namespace]).fetchall()
+            [namespace, persons]).fetchall()
         return [{"party_key": r[1], "docket_key": r[0], "name_as_published": r[2], "roles": load(r[3], []),
-                 "revision_id": r[4], "entity_id": entity_for(r[1]), "identifiers": []} for r in rows]
+                 "revision_id": r[4], "entity_id": entity_for(r[1]), "identifiers": [],
+                 **({"party_type": "natural_person"} if r[5] == "natural_person" else {})} for r in rows]
+
+    def parties_named(self, namespace: str, name: str, *, scopes: Iterable[str],
+                      exclude: Iterable[str] = ()) -> list[dict[str, Any]]:
+        """Person-research mode: natural-person parties whose published name equals ``name`` (normalized).
+
+        A published-name link is not an identity decision: it carries no candidate, reviewer or decision.
+        """
+        if not person_research_enabled():
+            return []
+        wanted, skip = _norm(name), set(exclude)
+        return [{"candidate_id": None, "party_key": p["party_key"], "docket_key": p["docket_key"],
+                 "method": "published-name", "reviewer": None, "decision_id": None,
+                 "name_as_published": p["name_as_published"]}
+                for p in self.parties(namespace, scopes=scopes)
+                if p.get("party_type") == "natural_person" and wanted and _norm(p["name_as_published"]) == wanted
+                and p["party_key"] not in skip]
 
     def propose(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
                 ownership_namespace: str | None = None, canonical_names: bool = True) -> dict[str, Any]:
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
         offered = []
-        entities = []
+        entities, people = [], []
         if ownership_namespace and table_exists(self.conn, "ownership_records"):
             entities = self.service._entities(ownership_namespace, principal_id, scopes)
+            if person_research_enabled():
+                from src.kb.ownership_store import OwnershipStore
+
+                people = [v for v in OwnershipStore(self.conn, initialize=False).records(
+                    ownership_namespace, principal_id=principal_id, scopes=scopes, kinds=("person",))
+                    if not v.get("redacted")]
         for party in self.parties(namespace, scopes=scopes):
             evidence_left = {"record_key": party["party_key"], "name_as_published": party["name_as_published"],
                              "roles": party["roles"], "docket": party["docket_key"],
                              "revision_id": party["revision_id"]}
+            if party.get("party_type") == "natural_person":
+                offered += self._propose_person(namespace, party, evidence_left, people, principal_id, scopes)
+                continue
             for entity in entities:
                 body = entity["record"]
                 right = {"record_key": body["record_key"], "provider": body["source"]["provider"],
@@ -143,7 +180,25 @@ class CourtsIdentity:
                         "note": "a name alone is never an identity"}, principal_id, scopes))
         return {"proposed": sorted({o["candidate_id"] for o in offered if o["created"] or o.get("change")}),
                 "candidates": self.candidates(namespace, scopes=scopes),
-                "natural_persons": "never proposed, matched or aggregated (CJ01 minimisation decision)"}
+                "natural_persons": "proposed against ownership persons by name, low evidence (person-research mode)"
+                if person_research_enabled() else "never proposed, matched or aggregated (CJ01 minimisation decision)"}
+
+    def _propose_person(self, namespace, party, evidence_left, people, principal_id, scopes) -> list[dict[str, Any]]:
+        """A natural-person party against ownership persons by equal normalized name: low evidence, reviewable."""
+        offered = []
+        for person in people:
+            body = person["record"]
+            if not _norm(party["name_as_published"]) or _norm(body.get("name")) != _norm(party["name_as_published"]):
+                continue
+            right = {"record_key": body["record_key"], "provider": body["source"]["provider"],
+                     "revision": person["revision"], "kind": "person"}
+            offered.append(self._offer(namespace, party, body["record_key"], body.get(
+                "canonical_entity_id") or entity_for(body["record_key"]), "name-jurisdiction", {
+                "normalized_name": _norm(body.get("name")), "country": body.get("country_of_residence"),
+                "left": evidence_left, "right": right, "person_research": True,
+                "note": "a natural-person party matched by name (person-research mode); a name alone is low "
+                        "evidence; a reviewer decides"}, principal_id, scopes))
+        return offered
 
     def _offer(self, namespace, party, right_key, right_entity, basis, evidence, principal_id, scopes):
         return self.service.offer(namespace, left_key=party["party_key"], right_key=right_key,
@@ -160,7 +215,9 @@ class CourtsIdentity:
                 "decision_id": candidate["decision_id"],
                 "reviewer": last.get("by") if candidate["state"] != "proposed" else None,
                 "reason": last.get("reason"), "evidence": candidate["evidence"], "history": candidate["history"],
-                "notice": "a reviewable identity decision for an organisational party; records are never merged"}
+                "notice": "a reviewable identity decision for a natural-person party (person-research mode); records "
+                          "are never merged" if any(e.get("person_research") for e in candidate["evidence"] or [])
+                else "a reviewable identity decision for an organisational party; records are never merged"}
 
     def candidates(self, namespace: str, *, scopes: Iterable[str], party_key: str | None = None
                    ) -> list[dict[str, Any]]:

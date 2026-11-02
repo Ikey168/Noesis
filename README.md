@@ -476,7 +476,7 @@ credentials or model weights.
 | Flag | Enables |
 |---|---|
 | `NOESIS_OSINT_GATED_TOOLS` | Sensitive OSINT tools |
-| `NOESIS_PERSON_RESEARCH` | Person-level research: lifts the natural-person limits in movements, on-chain, campaign finance, BaFin, extractives and the OSINT dossier ([details](docs/security/person-research-mode.md)) |
+| `NOESIS_PERSON_RESEARCH` | Person-level research: lifts the natural-person limits in movements, on-chain, campaign finance, BaFin, extractives, enforcement, courts and the OSINT dossier ([details](docs/security/person-research-mode.md)) |
 | `NOESIS_AGENT_API` | Analyst and investigator agent routes |
 | `NOESIS_AGENT_TRANSPORT` | `local` (in-process) or `live` (real MCP host) for agent runs |
 | `NOESIS_PACKS_ADMIN` | Routes for installing and publishing packs |
