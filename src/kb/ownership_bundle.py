@@ -59,6 +59,12 @@ BUNDLE = {
                                                                 "competition_case_history",
                                                                 "state_aid_awards_for_beneficiary",
                                                                 "build_competition_dossier"]},
+            # Optional offshore-leaks feature (#2888, default off): ICIJ Offshore Leaks links, quoted with caveat.
+            "offshore_leaks": {"feature": "offshore-leaks", "tools": [],
+                               "reuses": ["bulk-release runner (icij-offshore-leaks)", "ownership dossier"],
+                               "functions": ["src.kb.offshore_leaks.project_bulk_subset",
+                                             "src.kb.offshore_leaks.propose_identity",
+                                             "src.kb.offshore_leaks.build_dossier_with_offshore_leaks"]},
         },
     },
     "never": ["infer beneficial ownership", "make sanctions or AML determinations",
@@ -189,6 +195,11 @@ def acquire(conn, namespace: str, *, run_key: str, principal_id: str, scopes: It
     manifest, _ = runtime._manifest(SOURCE_PACK_ID)
     selected = [s for s in manifest["sources"] if (s["source_id"] in source_ids if source_ids else
                                                    s["connector"] != "competition" or _competition_on(conn))]
+    if not source_ids:
+        # Optional offshore-leaks feature (#2888, default off): ICIJ extracts run only when it is selected.
+        from src.kb.offshore_leaks import feature_enabled as _offshore_leaks_on
+
+        selected = [s for s in selected if s["connector"] != "icij-offshore-leaks" or _offshore_leaks_on(conn)]
     if any(dict(s.get("ownership") or {}).get("namespace", namespace) != namespace for s in selected):
         raise OwnershipError("invalid_request", "the installed source pack projects into a different namespace")
     receipts = {}

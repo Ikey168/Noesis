@@ -139,7 +139,8 @@
       "infer beneficial ownership",
       "make sanctions or AML determinations",
       "merge entities automatically",
-      "scrape registers whose terms or access forbid it"
+      "scrape registers whose terms or access forbid it",
+      "treat presence in a leak dataset as evidence of wrongdoing"
     ]
   },
   "optional_features": [
@@ -222,7 +223,38 @@
           "reason": "cases and awards are acquired through the corporate-ownership source pack runtime"
         }
       ]
+    },
+    {
+      "id": "offshore-leaks",
+      "default": false,
+      "description": "ICIJ Offshore Leaks Database (Offshore Leaks, Panama, Paradise, Pandora Papers, Bahamas Leaks) as Corporate Ownership records: bounded selections of entity, officer and intermediary nodes with officer and intermediary roles quoting ICIJ's relationship labels verbatim, cited to the leak dataset and node id. Natural persons stay owner-scoped unless person-research mode is on; ICIJ's own same_as/similar links and registry matches are reviewable identity candidates only. Every record and dossier section carries ICIJ's caveat that inclusion does not imply illegal or improper conduct. Leak roles are never ownership or control assertions, and no wrongdoing, AML or sanctions verdict is produced.",
+      "requires": [
+        {
+          "capability": "ownership.records",
+          "contract": "noesis-ownership-record",
+          "range": "^1.0.0",
+          "reason": "leak-dataset records are written through the one ownership record owner"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "ICIJ links and registry matches are offered to the reviewable identity state machine"
+        },
+        {
+          "capability": "ownership.dossier",
+          "contract": "noesis-ownership-dossier",
+          "range": "^1.0.0",
+          "reason": "the offshore-links section is part of the ownership dossier"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "extracts are acquired through the corporate-ownership source pack runtime and the bulk runner"
+        }
+      ]
     }
   ],
-  "content_hash": "sha256:f15fe7b9f255db747f01325dff014c99103d8333b47018d2fcbf5f34d8524867"
+  "content_hash": "sha256:254754298227a45ebefea7c0034b4ab5caf5105df8370cc04d27e026b06ffe3c"
 }

@@ -480,6 +480,63 @@
         "sha256": "f4f5f4d499bd38b75182779ba81e2f615acf4bcd74e8d20fc776dce3ee34525f",
         "expected_output_hash": "a165fe4cfa78f9646db75dd45d661090de2f2a97eec67178790454a8279fe7bc"
       }
+    },
+    {
+      "source_id": "icij-offshore-leaks",
+      "connector": "icij-offshore-leaks",
+      "publisher": "International Consortium of Investigative Journalists (ICIJ)",
+      "endpoint": "https://offshoreleaks-data.icij.org",
+      "scope": "Optional offshore-leaks feature (default off): a bounded ICIJ Offshore Leaks Database extract - explicitly selected seed nodes, the relationships touching them and their other ends - as legal entities, owner-scoped persons and officer/intermediary roles with ICIJ's relationship labels verbatim; same_as/similar links quoted, never accepted. Inclusion in a leak dataset does not imply wrongdoing; no wrongdoing, AML or sanctions verdict is derived",
+      "update_cadence": "per ICIJ database release (irregular); bounded declared selection per run",
+      "temporal_semantics": "node incorporation dates and relationship start/end dates as published (partial or unparsed dates stay unknown, the text is kept); valid_until per dataset kept verbatim; acquisition time recorded separately",
+      "license": {
+        "id": "odbl-1.0-database-cc-by-sa-contents",
+        "terms_url": "https://offshoreleaks.icij.org/pages/database",
+        "redistribution": "ICIJ Offshore Leaks Database under the Open Database License, contents under Creative Commons Attribution-ShareAlike; cite ICIJ; share-alike applies to derived databases; ICIJ's caveat travels with every record"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "offshore-leaks:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "ownership": {
+        "namespace": "ownership",
+        "extract": "/fixtures/offshore-leaks/extract-2026-11",
+        "release": "fixture-2026-11",
+        "offshore_leaks": {
+          "node_ids": [
+            "9990000101",
+            "9990000103",
+            "9990000201"
+          ],
+          "hops": 1,
+          "max_nodes": 50
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/icij-offshore-leaks.json",
+        "sha256": "0986473897f09ddadcdaeebf507a77a6bd79de0054865620add19d20a31bb04a",
+        "expected_output_hash": "fb9a17bbb71b573095fcb05e66c27c0bc9a6bebbc029d82be7e82294aaa0f1bc"
+      }
     }
   ]
 }

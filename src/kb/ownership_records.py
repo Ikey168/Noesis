@@ -47,6 +47,8 @@ PROVIDERS = (
     "gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
     "handelsregister", "unternehmensregister", "bris", "market-instruments", "bafin",
 )
+# ICIJ Offshore Leaks Database (#2888): leak-dataset records, quoted with ICIJ's caveat; never a verdict.
+PROVIDERS = PROVIDERS + ("icij-offshore-leaks",)
 KINDS = (
     "legal_entity", "person", "registration", "officer_role", "ownership_assertion",
     "corporate_event", "filing_reference",

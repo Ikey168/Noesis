@@ -231,6 +231,12 @@ LIVE_VERIFICATION.update({
     **{p: {"status": "not-implemented", "note": PROVIDER_CONTRACTS[p]["reason"]}
        for p in ("handelsregister", "unternehmensregister", "bris")},
 })
+# ICIJ Offshore Leaks Database (#2888): contract and live state live with the adapter module.
+from src.ingestion import offshore_leaks as _offshore_leaks
+
+PROVIDER_CONTRACTS[_offshore_leaks.PROVIDER] = _offshore_leaks.PROVIDER_CONTRACT
+LIVE_VERIFICATION[_offshore_leaks.PROVIDER] = _offshore_leaks.LIVE_VERIFICATION
+PROVIDER_HOSTS[_offshore_leaks.PROVIDER] = {"offshoreleaks-data.icij.org"}
 BENEFICIAL_OWNERSHIP_FORMS = frozenset({
     "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A", "SCHEDULE 13D", "SCHEDULE 13D/A", "SCHEDULE 13G",
     "SCHEDULE 13G/A", "3", "3/A", "4", "4/A", "5", "5/A",

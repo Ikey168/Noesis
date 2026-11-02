@@ -57,7 +57,8 @@ def drain(ad, operation="ownership"):
 
 def test_every_provider_has_a_recorded_contract_and_no_invented_access():
     assert set(PROVIDER_CONTRACTS) == {"gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
-                                       "handelsregister", "unternehmensregister", "bris"}
+                                       "handelsregister", "unternehmensregister", "bris",
+                                       "icij-offshore-leaks"}  # the offshore-leaks feature (#2888)
     for provider, contract in PROVIDER_CONTRACTS.items():
         assert REQUIRED <= set(contract), provider
         if contract["status"] == "implemented":
@@ -91,13 +92,14 @@ def test_live_verification_is_honest_and_the_pack_declares_it_per_source():
         "gleif-level2": "unverified-live", "companies-house": "unverified-live",
         "sec-edgar-ownership": "unverified-live", "open-ownership-bods": "unverified-live",
         "ec-competition-cases": "unverified-live", "eu-state-aid-tam": "unverified-live",
-        "uk-cma-cases": "unverified-live", "us-ftc-cases": "unverified-live", "us-doj-atr-cases": "unverified-live"}
+        "uk-cma-cases": "unverified-live", "us-ftc-cases": "unverified-live", "us-doj-atr-cases": "unverified-live",
+        "icij-offshore-leaks": "unverified-live"}
 
 
 def test_offline_conformance_of_every_pinned_fixture():
     result = SourcePackConformance(ROOT).offline(load_source_pack())
-    # Four registry sources plus the competition feature's five (#2217).
-    assert result["valid"] and result["coverage"] == {"configured": 9, "verified": 9}
+    # Four registry sources plus the competition feature's five (#2217) and the ICIJ extract (#2888).
+    assert result["valid"] and result["coverage"] == {"configured": 10, "verified": 10}
     for name in ("gleif-level2.json", "companies-house.json", "sec-edgar.json", "open-ownership-bods.json"):
         assert harness.load(name)["authored"] is True
 

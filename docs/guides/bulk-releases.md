@@ -76,6 +76,7 @@ per-adapter host allowlist, public addresses only, contact User-Agent.
 | `pubmed-baseline` (documents) | baseline year + last update file | `pmids` / `mesh` / `journals` / `keywords`, `year_from`/`_to`, `include_baseline`, `include_updates` |
 | `s2-datasets` | S2AG release (or diff range) | `dataset` (abstracts/papers), `corpus_ids` / `dois` / `all_records`, `release`, `since_release` — needs `SEMANTIC_SCHOLAR_API_KEY` |
 | `openaq-archive` | listing date | `location_ids` (required), `date_from`, `date_to` (≤ 24 months), `parameters` |
+| `icij-offshore-leaks` | archive Last-Modified (or ETag) | `node_ids` (1-200 seeds), or `datasets` / `jurisdictions` with `max_nodes` (≤ 1000); `hops` 0/1, `node_kinds` (ODbL / CC BY-SA; project with `src.kb.offshore_leaks.project_bulk_subset`; see the [offshore leaks guide](corporate-ownership-offshore-leaks.md)) |
 
 ### Large dumps: what to expect
 

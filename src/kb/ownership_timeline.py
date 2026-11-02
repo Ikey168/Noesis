@@ -41,12 +41,12 @@ def _record_entries(graph: OwnershipGraph, keys: set[str]) -> list[dict[str, Any
         kind = body["kind"]
         if view.get("redacted"):
             continue
-        if kind == "registration" and body["entity_key"] in keys:
+        if kind == "registration" and body.get("entity_key") in keys:
             entries.append(_entry(view, "registration", f"Registered with {body['register']} as {body['number']}",
                                   body.get("registered_on"), "stated"))
             if body.get("dissolved_on"):
                 entries.append(_entry(view, "registration", f"Dissolved ({body['register']})", body["dissolved_on"], "stated"))
-        elif kind == "officer_role" and body["entity_key"] in keys:
+        elif kind == "officer_role" and body.get("entity_key") in keys:
             entries.append(_entry(view, "officer", f"{body['officer']['name']} appointed {body['role']}"
                                   + (" (appointed before this date)" if body["appointed_status"] == "before" else ""),
                                   body.get("appointed_on"), body["appointed_status"]))
@@ -64,10 +64,10 @@ def _record_entries(graph: OwnershipGraph, keys: set[str]) -> list[dict[str, Any
             entries.append(_entry(view, "ownership", f"Stated from: {what}", validity.get("from"), "stated"))
             if validity["to_status"] == "stated":
                 entries.append(_entry(view, "ownership", f"Stated ended: {what}", validity["to"], "stated"))
-        elif kind == "corporate_event" and (body["entity_key"] in keys or body.get("related_entity_key") in keys):
+        elif kind == "corporate_event" and (body.get("entity_key") in keys or body.get("related_entity_key") in keys):
             entries.append(_entry(view, "event", f"{body['event_type']}: {body.get('description') or ''}".strip(": "),
                                   body.get("event_date"), body["date_status"]))
-        elif kind == "filing_reference" and body["entity_key"] in keys:
+        elif kind == "filing_reference" and body.get("entity_key") in keys:
             entries.append(_entry(view, "filing", f"{body['form_type']} filed ({body['accession_number']})"
                                   + ("" if body["parsed"] else ", reference only"), body.get("filing_date"), "stated"))
     return entries
@@ -152,14 +152,14 @@ def state_as_of(conn: Any, namespace: str, entity: str, date: str, *, principal_
     for view in graph.views:
         body = view["record"]
         cite = {"record_id": view["record_id"], "revision": view["revision"], "provider": body["source"]["provider"]}
-        if body["kind"] == "registration" and body["entity_key"] in keys:
+        if body["kind"] == "registration" and body.get("entity_key") in keys:
             status = as_of_status({"from": body.get("registered_on"), "to": body.get("dissolved_on"),
                                    "from_status": "stated" if body.get("registered_on") else "unknown",
                                    "to_status": "stated" if body.get("dissolved_on") else "open"}, date)
             if status in {"valid", "undetermined"}:
                 registrations.append({**cite, "register": body["register"], "number": body["number"],
                                       "status_as_recorded": body.get("status"), "as_of_status": status})
-        elif body["kind"] == "officer_role" and body["entity_key"] in keys:
+        elif body["kind"] == "officer_role" and body.get("entity_key") in keys:
             if body["appointed_status"] == "unknown":
                 unknown_tenure.append({**cite, "officer": body["officer"]["name"], "role": body["role"],
                                        "why": "appointment date unknown"})

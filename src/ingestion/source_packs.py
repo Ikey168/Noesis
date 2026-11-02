@@ -441,6 +441,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 # Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
 NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
+# Corporate Ownership offshore leaks: bounded ICIJ Offshore Leaks Database extracts (#2888).
+NATIVE_CONNECTOR_MODULES["icij-offshore-leaks"] = "src.ingestion.offshore_leaks"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"icij-offshore-leaks"})
 
 
 def native_connector_module(connector: str) -> Any:
