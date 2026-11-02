@@ -77,7 +77,7 @@ def test_classify_build_and_export_through_mcp(mcp_env):
                                                             as_of="2099-06-01", sections=h.SECTIONS)
     assert dossier["structure"]["structure_types"] == ["holding_company"]
     assert {dossier["coverage"][n] for n in ("lobbying", "political_donations", "public_payments")} == {"assembled"}
-    assert dossier["coverage"]["offshore_leaks"] == "not_available"
+    assert dossier["coverage"]["offshore_leaks"] == "not_requested"
     bundle = tools["export_ownership_structure_dossier"].fn(namespace=h.OWN_NS, scheme="gb-coh", value="09990002",
                                                             as_of="2099-06-01", sections=h.SECTIONS)
     assert verify_bundle(bundle).errors == []

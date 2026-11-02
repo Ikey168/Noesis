@@ -326,3 +326,31 @@ def test_feature_resolves_against_existing_providers_only():
     result = resolve([root], list(bundles.values()), provider_descriptors())
     assert result.ok, result.failure
     assert result.plan["features"]["corporate-ownership"] == ["offshore-leaks"]
+
+
+def test_structure_dossier_offshore_leaks_section_is_cited_and_gated(monkeypatch):
+    """The holding-structure dossier (#2890) picks up the ICIJ section through its extension point."""
+    from src.kb import offshore_leaks_links
+    from src.kb.ownership_structure_dossier import build_structure_dossier
+
+    env, service = acquired_env()
+    env.acquire("icij", source_ids=["icij-offshore-leaks"])
+    propose_identity(env.conn, NS, principal_id=harness.PRINCIPAL, scopes=SCOPES, now=env.now)
+    match = next(c for c in service.candidates(NS, scopes=SCOPES)
+                 if {c["left_key"], c["right_key"]} == {E3, UK_KEYS["ch"]})
+    service.review(NS, match["candidate_id"], "accept", "registry number and name agree; reviewed",
+                   principal_id=harness.REVIEWER, scopes=harness.REVIEW_SCOPES)
+
+    def build():
+        return build_structure_dossier(env.conn, NS, "lei", harness.UK, principal_id=harness.PRINCIPAL,
+                                       scopes=SCOPES, as_of="2025-06-01", include=("offshore_leaks",),
+                                       sections={"offshore_leaks": {"namespace": NS}})
+
+    assert build()["sections"]["offshore_leaks"]["status"] == "inert"  # the feature is off by default
+    monkeypatch.setattr(offshore_leaks_links, "feature_enabled", lambda conn: True)
+    section = build()["sections"]["offshore_leaks"]
+    assert section["status"] == "assembled" and section["caveat"] == ol.CAVEAT
+    assert any("9990000103" in line["statement"] for line in section["lines"])
+    assert all(line["citation"]["dataset"] == "Paradise Papers - Fixture Registry" for line in section["lines"])
+    assert all(line["data"]["caveat"] == ol.CAVEAT for line in section["lines"])
+    assert ol.forbidden_keys(section) == []

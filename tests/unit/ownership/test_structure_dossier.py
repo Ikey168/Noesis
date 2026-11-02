@@ -54,7 +54,7 @@ def test_acceptance_every_section_is_cited_and_the_bundle_verifies(world, monkey
         "classification": "assembled", "ownership": "assembled", "sec_holdings": "none_on_record",
         "bafin_holdings": "inert", "lobbying": "assembled", "political_donations": "assembled",
         "public_payments": "assembled", "competition": "inert", "procurement": "not_requested",
-        "sanctions": "inert", "offshore_leaks": "not_available"}
+        "sanctions": "inert", "offshore_leaks": "not_requested"}
     sections = dossier["sections"]
     for name in ("classification", "ownership") + LINKED:
         section = sections[name]
@@ -139,7 +139,8 @@ def test_an_unclassified_structure_stays_unclassified(monkeypatch):
 def test_offshore_leaks_extension_point(world, restore_sections, monkeypatch):
     dossier = build(world, include=("offshore_leaks",))
     section = dossier["sections"]["offshore_leaks"]
-    assert section["status"] == "not_available" and SECTIONS["offshore_leaks"].provider == \
+    # #2888 installed the provider, so without a namespace the section is not requested (not "not_available").
+    assert section["status"] == "not_requested" and SECTIONS["offshore_leaks"].provider == \
         dossiers.OFFSHORE_LEAKS_PROVIDER
 
     # #2888 only has to provide the function at the declared path; it is picked up lazily.

@@ -275,11 +275,12 @@ Sections that are not assembled are bundle omissions, so verification
 reports `incomplete`. A tampered dossier fails its hash check, and ownership
 citations are re-read at their pinned revision.
 
-The Offshore Leaks extension point works as follows. The `offshore_leaks`
-section names the provider path `src.kb.offshore_leaks_links:structure_section`
-and imports it lazily. Until that function exists, the section reports
-`not_available`. Wiring #2888 means defining that function; `register_section`
-installs a provider explicitly.
+The `offshore_leaks` section imports its provider lazily from
+`src.kb.offshore_leaks_links:structure_section` (#2888). It reads the ICIJ
+records joined to the structure through accepted identity decisions, cites
+each line to its record revision, leak dataset and node id with ICIJ's caveat,
+and is `inert` while the `offshore-leaks` feature is off. `register_section`
+installs a different provider explicitly.
 
 Tools (gated by the bundle's enablement):
 

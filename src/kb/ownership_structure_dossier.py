@@ -20,7 +20,7 @@ section                   record owner composed                                 
 ``competition``           :mod:`src.kb.competition_queries` (cases, state aid)   accepted identity decisions
 ``procurement``           :meth:`ProcurementIdentityService.award_history`       reviewed party links (exact ids)
 ``sanctions``             :meth:`SanctionsQueries.statement_as_of`               accepted identity decisions
-``offshore_leaks``        extension point for #2888 (ICIJ Offshore Leaks)        provider not yet installed
+``offshore_leaks``        :mod:`src.kb.offshore_leaks_links` (ICIJ, #2888)      accepted ownership identity
 ========================  =====================================================  ===============================
 
 Each section reports a status: ``assembled`` (cited lines), ``none_on_record``
@@ -39,8 +39,9 @@ line carrying ``statement``, ``reached_by`` and a ``citation`` with ``id``,
 ``namespace``, ``record`` and ``revision``. A provider may also be given as a
 ``"module:function"`` path that is imported lazily: the ``offshore_leaks``
 section points at :data:`OFFSHORE_LEAKS_PROVIDER` and reports
-``not_available`` until that function exists (#2888 adds it; nothing else
-changes here).
+``not_available`` until that function exists; #2888 provides it in
+:mod:`src.kb.offshore_leaks_links` (``inert`` while the offshore-leaks
+feature is off).
 
 Excluded by construction (:data:`FORBIDDEN_KEYS` is checked on every dossier):
 no influence score, no wrongdoing verdict, no risk rating and no cross-source
@@ -592,7 +593,7 @@ register_section(SectionSpec("procurement", "Procurement awards", "src.kb.procur
                              feature="public procurement bundle"))
 register_section(SectionSpec("sanctions", "Sanctions designations", "src.kb.sanctions_queries", _sanctions_section,
                              _gate("src.kb.sanctions"), feature="legal: sanctions"))
-# Extension point for the ICIJ Offshore Leaks import (#2888): resolved lazily, ``not_available`` until it exists.
+# ICIJ Offshore Leaks (#2888): resolved lazily from src.kb.offshore_leaks_links; ``not_available`` without it.
 register_section(SectionSpec("offshore_leaks", "Offshore Leaks (ICIJ)", "src.kb.offshore_leaks_links",
                              OFFSHORE_LEAKS_PROVIDER, feature="offshore leaks (#2888)"))
 

@@ -111,7 +111,7 @@ lobbying, political donations and public money.
    | `competition` | `cases_for_company`, `awards_for_beneficiary` | accepted identity decisions |
    | `procurement` | `ProcurementIdentityService.award_history` | reviewed party links (canonical id or LEI) |
    | `sanctions` | `SanctionsQueries.statement_as_of` | accepted identity decisions |
-   | `offshore_leaks` | extension point for #2888 | not yet installed |
+   | `offshore_leaks` | ICIJ Offshore Leaks (#2888), `src.kb.offshore_leaks_links` | `inert` while the offshore-leaks feature is off |
 
    - Every line cites its owner's record revision and says how it was reached.
      Proposed candidates are listed under `pending` and never joined.
@@ -137,10 +137,14 @@ lobbying, political donations and public money.
    longer matches its hash, and it re-reads ownership citations at their
    pinned revision.
 
-**Offshore Leaks extension point.** The `offshore_leaks` section resolves the
-provider path `src.kb.offshore_leaks_links:structure_section` lazily, and
-reports `not_available` until that path exists. The ICIJ import (#2888) only
-needs to define that function. Its signature is
+**Offshore Leaks section.** The `offshore_leaks` section resolves the
+provider path `src.kb.offshore_leaks_links:structure_section` lazily, which the
+ICIJ import (#2888) provides. Pass the ownership namespace holding the ICIJ
+records as `sections={"offshore_leaks": {"namespace": ...}}`. It lists the ICIJ
+entity records and officer/intermediary roles joined to the structure through
+accepted identity decisions, each cited to its record revision, leak dataset
+and node id with ICIJ's caveat, and is `inert` while the `offshore-leaks`
+feature is off. Any other provider uses the same interface:
 `structure_section(ctx: SectionContext) -> {"lines": [...], "pending": [...], "notice": ...}`,
 and each line carries `statement`, `reached_by` and a `citation` (`id`,
 `namespace`, `record`, `revision`). A provider can also be installed with
