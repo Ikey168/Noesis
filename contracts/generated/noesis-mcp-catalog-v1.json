@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1918,
+      "tool_count": 1942,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1418,12 +1418,14 @@
         "noesis-knowledge-engine.export_space_registration_evidence",
         "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
+        "noesis-knowledge-engine.export_tax_evidence_bundle",
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_tourism_evidence_bundle",
         "noesis-knowledge-engine.export_trade_evidence_bundle",
         "noesis-knowledge-engine.export_treaty_evidence_bundle",
         "noesis-knowledge-engine.export_waste_bundle",
         "noesis-knowledge-engine.export_water_bundle",
+        "noesis-knowledge-engine.export_wealth_profile",
         "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_math_text_objects",
         "noesis-knowledge-engine.extract_methodology_statements",
@@ -1894,6 +1896,9 @@
         "noesis-knowledge-engine.list_substance_links",
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
+        "noesis-knowledge-engine.list_tax_company_matches",
+        "noesis-knowledge-engine.list_tax_company_reports",
+        "noesis-knowledge-engine.list_tax_series",
         "noesis-knowledge-engine.list_taxon_identity_matches",
         "noesis-knowledge-engine.list_tourism_identity_assertions",
         "noesis-knowledge-engine.list_tourism_links",
@@ -1914,6 +1919,7 @@
         "noesis-knowledge-engine.list_waste_series",
         "noesis-knowledge-engine.list_water_identity_matches",
         "noesis-knowledge-engine.list_water_links",
+        "noesis-knowledge-engine.list_wealth_series",
         "noesis-knowledge-engine.list_weather_station_matches",
         "noesis-knowledge-engine.list_web_archive_captures",
         "noesis-knowledge-engine.list_world_bank_project_links",
@@ -2201,6 +2207,7 @@
         "noesis-knowledge-engine.propose_sports_identity_matches",
         "noesis-knowledge-engine.propose_substance_identities",
         "noesis-knowledge-engine.propose_substance_identity_manual",
+        "noesis-knowledge-engine.propose_tax_company_matches",
         "noesis-knowledge-engine.propose_taxon_identity_matches",
         "noesis-knowledge-engine.propose_tourism_nuts_links",
         "noesis-knowledge-engine.propose_tourism_place_matches",
@@ -2282,9 +2289,11 @@
         "noesis-knowledge-engine.record_sports_decision",
         "noesis-knowledge-engine.record_sports_table_rule",
         "noesis-knowledge-engine.record_sports_transfer",
+        "noesis-knowledge-engine.record_tax_company_reports",
         "noesis-knowledge-engine.record_tourism_comparability",
         "noesis-knowledge-engine.record_trade_comparability",
         "noesis-knowledge-engine.record_translation",
+        "noesis-knowledge-engine.record_wealth_comparability",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
         "noesis-knowledge-engine.reentry_record",
@@ -2338,6 +2347,7 @@
         "noesis-knowledge-engine.register_sports_forecast",
         "noesis-knowledge-engine.register_waste_schemas",
         "noesis-knowledge-engine.register_water_schemas",
+        "noesis-knowledge-engine.register_wealth_schemas",
         "noesis-knowledge-engine.register_weather_schemas",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
@@ -2473,6 +2483,7 @@
         "noesis-knowledge-engine.revert_sports_identity_match",
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_substance_identity",
+        "noesis-knowledge-engine.revert_tax_company_match",
         "noesis-knowledge-engine.revert_taxon_identity_match",
         "noesis-knowledge-engine.revert_tourism_identity_match",
         "noesis-knowledge-engine.revert_trade_identity_match",
@@ -2575,6 +2586,7 @@
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_substance_identity",
         "noesis-knowledge-engine.review_surveillance_resolution",
+        "noesis-knowledge-engine.review_tax_company_match",
         "noesis-knowledge-engine.review_taxon_identity_match",
         "noesis-knowledge-engine.review_tourism_comparability",
         "noesis-knowledge-engine.review_tourism_identity_match",
@@ -2585,6 +2597,7 @@
         "noesis-knowledge-engine.review_vulnerability_component_match",
         "noesis-knowledge-engine.review_waste_identity_match",
         "noesis-knowledge-engine.review_water_identity_match",
+        "noesis-knowledge-engine.review_wealth_comparability",
         "noesis-knowledge-engine.review_weather_evidence_link",
         "noesis-knowledge-engine.review_weather_station_match",
         "noesis-knowledge-engine.review_web_archive_match",
@@ -2821,6 +2834,11 @@
         "noesis-knowledge-engine.surveillance_series_values",
         "noesis-knowledge-engine.sync_control_list_entries",
         "noesis-knowledge-engine.sync_zotero_library",
+        "noesis-knowledge-engine.tax_company_reports_for_entity",
+        "noesis-knowledge-engine.tax_indicator_for_jurisdiction",
+        "noesis-knowledge-engine.tax_readiness",
+        "noesis-knowledge-engine.tax_series_history",
+        "noesis-knowledge-engine.tax_source_contracts",
         "noesis-knowledge-engine.tourism_comparability_notes",
         "noesis-knowledge-engine.tourism_indicator_for_place",
         "noesis-knowledge-engine.tourism_readiness",
@@ -2878,6 +2896,12 @@
         "noesis-knowledge-engine.water_series",
         "noesis-knowledge-engine.water_source_contracts",
         "noesis-knowledge-engine.water_value_at",
+        "noesis-knowledge-engine.wealth_comparability_notes",
+        "noesis-knowledge-engine.wealth_indicator_for_place",
+        "noesis-knowledge-engine.wealth_profile",
+        "noesis-knowledge-engine.wealth_readiness",
+        "noesis-knowledge-engine.wealth_series_history",
+        "noesis-knowledge-engine.wealth_source_contracts",
         "noesis-knowledge-engine.weather_observations",
         "noesis-knowledge-engine.weather_source_contracts",
         "noesis-knowledge-engine.web_archive_contracts",
@@ -2891,7 +2915,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1918
+      "visible_tool_count": 1942
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2902,11 +2926,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 168,
+      "available": 170,
       "degraded": 174,
-      "unauthorized": 1914
+      "unauthorized": 1936
     },
-    "tools": 2256
+    "tools": 2280
   },
   "tools": [
     {
@@ -48137,6 +48161,69 @@
     },
     {
       "cost_class": "low",
+      "description": "An evidence bundle for a jurisdiction's tax figures: every item cites its source, edition, record revision\n(vintage) and as-of time; model estimates are labelled with method and edition.\nExclusions: no own effective tax rate, ratio, share, rank or score, no blending of sources, no model estimate\npresented as an observation, no filled jurisdiction or year, no currency conversion, no company-level CbCR\nfigure and no forecast.",
+      "id": "noesis-knowledge-engine.export_tax_evidence_bundle",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "jurisdiction"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_tax_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export cited findings plus compatible project and authored-report references.",
       "id": "noesis-knowledge-engine.export_technical_impact_report",
       "input_schema": {
@@ -48509,6 +48596,56 @@
       ],
       "required_scopes": [
         "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The profile as a noesis-evidence-bundle-v1: every item cited with source, record revision and as-of\ntime; exclusions and the minimisation decision in its root receipt.",
+      "id": "noesis-knowledge-engine.export_wealth_profile",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "area"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_wealth_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -71982,6 +72119,168 @@
     },
     {
       "cost_class": "low",
+      "description": "Identity candidates between public CbCR references and ownership entities (proposed, accepted, rejected,\nreverted), each with method, evidence and reviewer, plus the references still unmatched.",
+      "id": "noesis-knowledge-engine.list_tax_company_matches",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tax_company_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Link-only public CbCR references (Directive (EU) 2021/2101): company name as published, identifiers,\nfinancial year, report URL, publication date and channel; never a figure.",
+      "id": "noesis-knowledge-engine.list_tax_company_reports",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reference_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tax_company_reports",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Tax series with dataset, nature (published statistic or model estimate), indicator, jurisdiction, partner\ngrouping, unit and the editions held.",
+      "id": "noesis-knowledge-engine.list_tax_series",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "nature": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tax_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Taxon identity proposals and decisions with basis, evidence class and conflicts.",
       "id": "noesis-knowledge-engine.list_taxon_identity_matches",
       "input_schema": {
@@ -73103,6 +73402,88 @@
       ],
       "required_scopes": [
         "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Series with source, dataset, indicator, wealth concept, group, unit, population, method (model-based\nestimates say so), place and frequency.",
+      "id": "noesis-knowledge-engine.list_wealth_series",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_wealth_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -76768,7 +77149,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain as of a date.",
+      "description": "direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain / holders / holdings as of a date.",
       "id": "noesis-knowledge-engine.ownership_graph",
       "input_schema": {
         "additionalProperties": false,
@@ -86420,6 +86801,46 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose identity candidates between public CbCR references and ownership legal entities: published\nidentifiers first, equal names as low evidence; nothing is accepted automatically.",
+      "id": "noesis-knowledge-engine.propose_tax_company_matches",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_tax_company_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:write",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Offer taxon identity candidates across CoL, GBIF and IUCN for review (none accepted); split/lump conflicts\nare surfaced, never resolved.",
       "id": "noesis-knowledge-engine.propose_taxon_identity_matches",
       "input_schema": {
@@ -91231,6 +91652,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record operator-declared public CbCR report references (link-only: company name as published, identifiers,\nfinancial year, https report URL, publication date, channel). A changed reference is a new revision; a\nreference carrying a figure is refused.",
+      "id": "noesis-knowledge-engine.record_tax_company_reports",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "references": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "references"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_tax_company_reports",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose a typed, cited comparability note on a series or between two series; notes never merge series.",
       "id": "noesis-knowledge-engine.record_tourism_comparability",
       "input_schema": {
@@ -91439,6 +91902,85 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a cited comparability note for a series or a pair; nothing is harmonised or merged.",
+      "id": "noesis-knowledge-engine.record_wealth_comparability",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cited": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "other_series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "relation",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_wealth_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -95586,6 +96128,41 @@
       ],
       "required_scopes": [
         "knowledge:environment:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-wealth-distribution-record-v2 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_wealth_schemas",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_wealth_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:write",
         "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
@@ -101402,6 +101979,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected public CbCR company decision with a reason; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_tax_company_match",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_tax_company_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:review",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed taxon identity decision (the entity identity decision is undone).",
       "id": "noesis-knowledge-engine.revert_taxon_identity_match",
       "input_schema": {
@@ -106319,6 +106939,53 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a public CbCR company candidate with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_tax_company_match",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_tax_company_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:review",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a taxon identity proposal with a reason; records reviewer, time and checklist versions.",
       "id": "noesis-knowledge-engine.review_taxon_identity_match",
       "input_schema": {
@@ -106801,6 +107468,52 @@
       "required_scopes": [
         "knowledge:environment:review",
         "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a recorded comparability note (another principal reviews).",
+      "id": "noesis-knowledge-engine.review_wealth_comparability",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_wealth_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -119974,6 +120687,223 @@
     },
     {
       "cost_class": "low",
+      "description": "Public CbCR references of an ownership record or entity reached through accepted identity decisions only;\npending candidates are listed, never used.\nExclusions: no own effective tax rate, ratio, share, rank or score, no blending of sources, no model estimate\npresented as an observation, no filled jurisdiction or year, no currency conversion, no company-level CbCR\nfigure and no forecast.",
+      "id": "noesis-knowledge-engine.tax_company_reports_for_entity",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tax_company_reports_for_entity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A jurisdiction's (ISO 3166 alpha-3) tax figures from the edition published by a date: published\nstatistics and model estimates in separate sections, each row with edition, definition, status letters,\nconfidential cells as their status, vintage and citation; estimates with method and 'not an observation';\nTax Justice Network indices reported not-implemented.\nExclusions: no own effective tax rate, ratio, share, rank or score, no blending of sources, no model estimate\npresented as an observation, no filled jurisdiction or year, no currency conversion, no company-level CbCR\nfigure and no forecast.",
+      "id": "noesis-knowledge-engine.tax_indicator_for_jurisdiction",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "jurisdiction"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tax_indicator_for_jurisdiction",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which tax features (one per source) are selected, the stores, per-source editions and staleness.",
+      "id": "noesis-knowledge-engine.tax_readiness",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tax_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained edition of a tax series with what each edition added, revised or dropped (values and status\nletters before and after), method and definition changes and removals, each edition cited.\nExclusions: no own effective tax rate, ratio, share, rank or score, no blending of sources, no model estimate\npresented as an observation, no filled jurisdiction or year, no currency conversion, no company-level CbCR\nfigure and no forecast.",
+      "id": "noesis-knowledge-engine.tax_series_history",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tax_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (OECD Corporate Tax Statistics CbCR aggregates and rates, EU Tax Observatory\noffshore wealth and billionaire effective tax rates: unverified-live; Tax Justice Network indices:\nnot-implemented, licence; public CbCR: reference-only), licences, revision models, caps and bounded coverage.\nExclusions: no own effective tax rate, ratio, share, rank or score, no blending of sources, no model estimate\npresented as an observation, no filled jurisdiction or year, no currency conversion, no company-level CbCR\nfigure and no forecast.",
+      "id": "noesis-knowledge-engine.tax_source_contracts",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tax_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Comparability notes of a series: source-stated breaks, provisional periods and definition differences,\nand reviewer notes; notes never merge series.",
       "id": "noesis-knowledge-engine.tourism_comparability_notes",
       "input_schema": {
@@ -122801,6 +123731,279 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Source-stated scope notes and reviewer-recorded notes for a series or its pairs.",
+      "id": "noesis-knowledge-engine.wealth_comparability_notes",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "WID, ECB DWA and Fed DFA values for a place ({scheme: iso3166-1-alpha2, code}) released by a date, side by\nside with definitions, groups, units, populations, methods, flags and cited vintages; pairs from different\nsources state their notes or comparability_unknown.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "id": "noesis-knowledge-engine.wealth_indicator_for_place",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reference_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "area"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A place's wealth figures from each selected source side by side as of a date.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "id": "noesis-knowledge-engine.wealth_profile",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "area"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "ready / fixture-only / stale / unavailable / feature-disabled / not-implemented per source; live\nverification reported separately.",
+      "id": "noesis-knowledge-engine.wealth_readiness",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every vintage of a series with new, revised and dropped periods, model estimates the source replaced,\nmethod and definition changes, removals and the notes per release pair (comparability_unknown when none\napplies).\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "id": "noesis-knowledge-engine.wealth_series_history",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (WID, ECB DWA, Fed DFA unverified-live; ECB HFCS tables and Bundesbank PHF\nnot-implemented), licences, limits, revision models, methods, caps, bounded coverage and the minimisation\ndecision.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "id": "noesis-knowledge-engine.wealth_source_contracts",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "wealth_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
