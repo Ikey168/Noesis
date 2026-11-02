@@ -8,8 +8,8 @@
   "panels": [],
   "planner_keywords": {
     "trend": ["indicator", "observation", "revision", "vintage"],
-    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index", "extractive payments", "mineral production", "mineral reserves", "revenue stream", "payment discrepancy", "industrial production", "production index", "business demography", "enterprise births", "enterprise deaths", "active enterprises", "establishments", "county business patterns", "annual payroll", "tourism", "nights spent", "arrivals", "tourist accommodation", "bed places", "hotel capacity"],
-    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport", "eiti summary data", "usgs mineral commodity summaries", "bgs world mineral statistics", "eurostat short-term business statistics", "eurostat business demography", "census county business patterns", "eurostat tourism", "tour_occ_nim", "tour_cap_nuts2"]
+    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index", "extractive payments", "mineral production", "mineral reserves", "revenue stream", "payment discrepancy", "industrial production", "production index", "business demography", "enterprise births", "enterprise deaths", "active enterprises", "establishments", "county business patterns", "annual payroll", "tourism", "nights spent", "arrivals", "tourist accommodation", "bed places", "hotel capacity", "corporate tax", "country-by-country reporting", "cbcr", "statutory tax rate", "effective tax rate", "offshore wealth", "tax evasion", "tax haven"],
+    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport", "eiti summary data", "usgs mineral commodity summaries", "bgs world mineral statistics", "eurostat short-term business statistics", "eurostat business demography", "census county business patterns", "eurostat tourism", "tour_occ_nim", "tour_cap_nuts2", "oecd corporate tax statistics", "eu tax observatory", "atlas of the offshore world", "global tax evasion report"]
   },
   "enrichers": [
     {
@@ -75,7 +75,12 @@
     "tourism-reviewable-identity",
     "tourism-citation-links",
     "tourism-evidence-bundle",
-    "tourism-monitoring"
+    "tourism-monitoring",
+    "tax-edition-vintages",
+    "tax-model-estimates-with-method",
+    "tax-public-cbcr-references",
+    "tax-reviewable-company-identity",
+    "tax-evidence-bundle"
   ],
   "schema_versions": {
     "dataset-series": "1.0.0",
@@ -121,7 +126,12 @@
     "tourism-evidence-bundle": "1.0.0",
     "tourism-identity": "1.0.0",
     "tourism-link": "1.0.0",
-    "tourism-notification": "1.0.0"
+    "tourism-notification": "1.0.0",
+    "tax-transparency-record": "2.0.0",
+    "tax-transparency-answer": "1.0.0",
+    "tax-transparency-history": "1.0.0",
+    "tax-evidence-bundle": "1.0.0",
+    "tax-company-match": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -133,7 +143,7 @@
       "definition_revision", "geography_level", "series_break", "comparability_note", "trade_series",
       "trade_vintage", "classification_concordance", "trade_identity_assertion", "labour_series",
       "labour_definition", "labour_vintage", "port", "logistics_series", "port_match",
-      "eiti_report", "revenue_stream", "extractive_payment", "extractive_project", "commodity_series", "business_series", "business_vintage", "classification_candidate_link", "tourism_series", "tourism_vintage", "nuts_place_key", "nuts_correspondence_link"
+      "eiti_report", "revenue_stream", "extractive_payment", "extractive_project", "commodity_series", "business_series", "business_vintage", "classification_candidate_link", "tourism_series", "tourism_vintage", "nuts_place_key", "nuts_correspondence_link", "tax_series", "tax_edition", "model_estimate", "public_cbcr_reference"
     ],
     "relation_types": [
       "applies_to", "associated_with", "challenges", "issued_by", "measures",
@@ -175,6 +185,11 @@
     "filled tourism months or regions",
     "own occupancy rates, averages, per-capita or per-bed tourism figures",
     "blended Eurostat and UN Tourism statistics",
-    "annual tourism totals computed from months"
+    "annual tourism totals computed from months",
+    "own effective tax rates, profit-shifting or tax-gap estimates",
+    "model estimates presented as observations",
+    "blended OECD, EU Tax Observatory or company tax figures",
+    "jurisdiction or company tax rankings and risk scores",
+    "company-level figures from public CbCR reports"
   ]
 }

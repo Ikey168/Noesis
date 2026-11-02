@@ -7,7 +7,11 @@ import json
 
 import pytest
 
-from src.ingestion.source_packs import SourcePackConformance, SourcePackError, validate_source_pack
+from src.ingestion.source_packs import (
+    SourcePackConformance,
+    SourcePackError,
+    validate_source_pack,
+)
 from src.ingestion.tax_sources import (
     CAPS,
     DATASETS,

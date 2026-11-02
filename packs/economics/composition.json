@@ -72,6 +72,14 @@
           "name": "noesis-tourism-statistics-record",
           "version": "2.0.0"
         }
+      },
+      {
+        "id": "economics.tax",
+        "provider": "economics.tax",
+        "contract": {
+          "name": "noesis-tax-transparency-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -110,6 +118,10 @@
       {
         "id": "economics.tourism",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.tax",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -125,6 +137,11 @@
       },
       {
         "pack_id": "economic-extractives",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      },
+      {
+        "pack_id": "economic-tax-transparency",
         "version": "1.0.0",
         "range": "^1.0.0"
       }
@@ -303,6 +320,30 @@
         },
         "source_packs": [
           "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.tax",
+        "description": "Tax transparency: a jurisdiction's OECD CbCR aggregates and statutory corporate tax rates as published statistics, and OECD forward-looking effective tax rates and EU Tax Observatory offshore-wealth and billionaire tax-rate figures as model estimates with method and edition, each from the edition published by a date; public CbCR reports as link-only references reached through reviewed identity",
+        "workflow_defaults": {
+          "as_of": "the edition published on or before the requested date, cited per value; every edition on request",
+          "estimates": "model estimates keep their method and edition, are answered in a separate section and are never presented as observations or blended with published statistics",
+          "cells": "confidential cells are shown as their status and carry no value; status letters verbatim",
+          "identity": "public CbCR references reach ownership entities only through accepted identity decisions; unmatched references stay visible",
+          "sources": "OECD Corporate Tax Statistics and EU Tax Observatory (unverified-live); Tax Justice Network indices are not-implemented and reported as such; public CbCR reference-only"
+        },
+        "vocabulary": {
+          "CbCR aggregates": "anonymised and aggregated country-by-country reporting statistics by ultimate parent jurisdiction and partner grouping, as the OECD compiles them; never a company",
+          "partner grouping": "the domestic or foreign sub-group (or total) a CbCR aggregate covers, as published",
+          "statutory rate": "the corporate income tax rate in force by law, combined central and sub-central, as published",
+          "forward-looking effective tax rate": "an OECD model estimate for a hypothetical investment; not an observed tax payment",
+          "model estimate": "a figure computed by its publisher with a stated method; shown with method and edition, never as an observation",
+          "edition": "one publication of a dataset (a database edition, an Atlas update, a report); a later edition is a new vintage",
+          "public CbCR reference": "a link to a company's income tax information report under Directive (EU) 2021/2101; no figure is stored",
+          "confidential": "a cell the source does not publish; a status, never a value"
+        },
+        "source_packs": [
+          "economic-tax-transparency"
         ]
       }
     ]
@@ -781,6 +822,113 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "tourism series are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tax-oecd-cbcr",
+      "default": false,
+      "description": "Tax OECD CbCR aggregates (source oecd-cts-cbcr): OECD Corporate Tax Statistics anonymised and aggregated country-by-country reporting statistics (profit before income tax, income tax accrued, employees) by ultimate parent jurisdiction and partner grouping, edition by edition, as published statistics in the Economics series storage with status letters, confidential cells as their status, OECD caveats, as-of answers, edition history and evidence bundles. Model estimates keep their method and edition and are never presented as observations. No own effective tax rate, ratio, share, rank or score, no blending of sources, no filled jurisdiction or year, no currency conversion and no forecast; Tax Justice Network indices are not-implemented (licence).",
+      "requires": [
+        {
+          "capability": "economics.tax",
+          "contract": "noesis-tax-transparency-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "published tax statistics and their vintages live in the Economics series storage"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tax editions are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tax-oecd-rates",
+      "default": false,
+      "description": "Tax OECD corporate tax rates (source oecd-cts-rates): statutory combined corporate income tax rates as published statistics in the Economics series storage and OECD forward-looking effective average and marginal tax rates as model estimates, edition by edition, with as-of answers, edition history and evidence bundles. Model estimates keep their method and edition and are never presented as observations. No own effective tax rate, ratio, share, rank or score, no blending of sources, no filled jurisdiction or year, no currency conversion and no forecast; Tax Justice Network indices are not-implemented (licence).",
+      "requires": [
+        {
+          "capability": "economics.tax",
+          "contract": "noesis-tax-transparency-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "published tax statistics and their vintages live in the Economics series storage"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tax editions are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tax-eutax-offshore-wealth",
+      "default": false,
+      "description": "Tax EU Tax Observatory offshore wealth (source eutax-offshore-wealth): Atlas of the Offshore World estimates of offshore financial wealth per country (amount and share of GDP) as model estimates per edition; the licence is not established, so a live run needs operator licence acceptance; as-of answers, edition history and evidence bundles. Model estimates keep their method and edition and are never presented as observations. No own effective tax rate, ratio, share, rank or score, no blending of sources, no filled jurisdiction or year, no currency conversion and no forecast; Tax Justice Network indices are not-implemented (licence).",
+      "requires": [
+        {
+          "capability": "economics.tax",
+          "contract": "noesis-tax-transparency-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tax editions are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tax-eutax-billionaire-etr",
+      "default": false,
+      "description": "Tax EU Tax Observatory billionaire effective tax rates (source eutax-billionaire-etr): Global Tax Evasion Report estimates of billionaires' effective tax rates per country as model estimates per report edition, country figures only; the licence is not established, so a live run needs operator licence acceptance; as-of answers and evidence bundles. Model estimates keep their method and edition and are never presented as observations. No own effective tax rate, ratio, share, rank or score, no blending of sources, no filled jurisdiction or year, no currency conversion and no forecast; Tax Justice Network indices are not-implemented (licence).",
+      "requires": [
+        {
+          "capability": "economics.tax",
+          "contract": "noesis-tax-transparency-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "tax editions are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "tax-public-cbcr",
+      "default": false,
+      "description": "Tax public CbCR references (source public-cbcr): link-only references to company income tax information reports under Directive (EU) 2021/2101 (company name as published, identifiers, financial year, report URL, publication date and channel), revisioned and matched to ownership entities only through reviewed identity decisions; no company-level figure is stored until a machine-readable source exists; matches degrade to ownership_absent when ownership records are not held. Model estimates keep their method and edition and are never presented as observations. No own effective tax rate, ratio, share, rank or score, no blending of sources, no filled jurisdiction or year, no currency conversion and no forecast; Tax Justice Network indices are not-implemented (licence).",
+      "requires": [
+        {
+          "capability": "economics.tax",
+          "contract": "noesis-tax-transparency-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted company matches are entity identity decisions"
         }
       ]
     }

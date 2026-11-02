@@ -9524,6 +9524,12 @@ from tools.knowledge_engine_mcp.internet_infrastructure import (
 
 register_internet_infrastructure_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.tax import (
+    register as register_tax_tools,
+)
+
+register_tax_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

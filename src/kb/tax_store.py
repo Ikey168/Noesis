@@ -29,7 +29,12 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from decimal import Decimal
 from typing import Any
 
-from src.ingestion.tax_sources import FORMATS, LIVE_VERIFICATION, REFERENCE_CAP, series_key
+from src.ingestion.tax_sources import (
+    FORMATS,
+    LIVE_VERIFICATION,
+    REFERENCE_CAP,
+    series_key,
+)
 from src.kb.tax_records import (
     ANSWER_CONTRACT,
     CONTRACT,

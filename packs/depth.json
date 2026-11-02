@@ -1429,6 +1429,14 @@
         "eurostat-government-finance"
       ]
     },
+    "economics.tax": {
+      "sources": [
+        "oecd-cts-cbcr",
+        "oecd-cts-rates",
+        "eutax-offshore-wealth",
+        "eutax-billionaire-etr"
+      ]
+    },
     "economics.tourism": {
       "sources": [
         "eurostat-tourism-occupancy",

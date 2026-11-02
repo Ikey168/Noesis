@@ -32,7 +32,7 @@ def test_as_of_selects_the_edition_published_by_that_date_and_keeps_estimates_ap
                    for v in r["values"])
         assert forbidden_paths(answer) == [] and personal_data_paths(answer) == []
         assert answer["not_implemented"][0]["status"] == "not-implemented"
-    eatr = lambda a: next(r for r in a["model_estimates"] if r["indicator"]["code"] == "EATR")  # noqa: E731
+    eatr = lambda a: next(r for r in a["model_estimates"] if r["indicator"]["code"] == "EATR")
     assert eatr(early)["edition"].startswith("Corporate Tax Statistics 2024")
     assert {v["period"]: v["value"] for v in eatr(early)["values"]} == {"2091": "22.4", "2092": "22.1"}
     assert eatr(late)["edition"].startswith("Corporate Tax Statistics 2025")
