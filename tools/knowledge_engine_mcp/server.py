@@ -9529,6 +9529,11 @@ from tools.knowledge_engine_mcp.tax import (
 )
 
 register_tax_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.wealth import (
+    register as register_wealth_tools,
+)
+
+register_wealth_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

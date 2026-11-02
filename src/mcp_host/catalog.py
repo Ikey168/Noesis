@@ -430,6 +430,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.social_protection import SOCIAL_PROTECTION_WRITES
     if name in SOCIAL_PROTECTION_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.wealth import WEALTH_WRITES
+    if name in WEALTH_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.tourism import TOURISM_WRITES
     if name in TOURISM_WRITES:
         return "write"
@@ -1201,6 +1204,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in SOCIAL_PROTECTION_TOOLS:
         return social_protection_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.wealth import WEALTH_TOOLS
+    from tools.knowledge_engine_mcp.wealth import required_scopes as wealth_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in WEALTH_TOOLS:
+        return wealth_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.tourism import TOURISM_TOOLS
     from tools.knowledge_engine_mcp.tourism import required_scopes as tourism_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TOURISM_TOOLS:

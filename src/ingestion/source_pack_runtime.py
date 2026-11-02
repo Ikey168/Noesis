@@ -610,6 +610,16 @@ def _social_protection_projector(conn: Any) -> Any:
 PROJECTORS["noesis-social-protection-record-v2"] = _social_protection_projector
 
 
+def _wealth_projector(conn: Any) -> Any:
+    from src.kb.wealth_distribution_store import WealthProjector
+
+    return WealthProjector(conn)
+
+
+# Society wealth distribution (society.wealth, #2882).
+PROJECTORS["noesis-wealth-distribution-record-v2"] = _wealth_projector
+
+
 def _tourism_statistics_projector(conn: Any) -> Any:
     from src.kb.tourism_store import TourismProjector
 

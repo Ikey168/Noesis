@@ -133,6 +133,11 @@ MATRIX = {
     "Country to cited social protection figures":
         "tests/unit/domains/test_social_protection_acceptance.py::"
         "test_country_to_cited_esspros_socx_and_ilo_figures_side_by_side",
+    # The Society wealth features' offline journey (#2882) composes society.wealth (WID, ECB DWA, Fed DFA) with the
+    # source-pack runtime.
+    "Country to cited wealth distribution figures":
+        "tests/unit/domains/test_wealth_distribution_acceptance.py::"
+        "test_country_to_cited_wid_dwa_and_dfa_wealth_figures_side_by_side_with_vintages",
     # The Economics tourism-statistics feature's offline journey (#2739) composes economics (Eurostat tourism
     # occupancy and capacity, Labour links), geospatial identity and boundaries, subscriptions and the source-pack
     # runtime.

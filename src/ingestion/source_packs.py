@@ -450,6 +450,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tax-transparency"})
 # Corporate Ownership: SEC 13F information tables and structured Schedule 13D/13G (#2883).
 NATIVE_CONNECTOR_MODULES["sec-edgar-holdings"] = "src.ingestion.ownership_sec_holdings"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sec-edgar-holdings"})
+# Society wealth distribution: WID, ECB Distributional Wealth Accounts and Fed DFA (#2882).
+NATIVE_CONNECTOR_MODULES["wealth-distribution"] = "src.ingestion.wealth_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"wealth-distribution"})
 
 
 def native_connector_module(connector: str) -> Any:
