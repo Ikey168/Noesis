@@ -15,7 +15,9 @@
   natural persons) are keyed within their issuer. No candidate is ever proposed
   automatically for a person, and a person candidate across issuers exists only
   when a reviewer proposes it with evidence, and even then it stays ``proposed``
-  until reviewed.
+  until reviewed. In person-research mode (``NOESIS_PERSON_RESEARCH``) equal
+  normalised person names under different issuers are proposed automatically
+  as cross-issuer candidates; they still stay ``proposed`` until reviewed.
 
 One equivalence (:func:`src.domains.market.bafin_notices.party_key`) is used by
 candidate generation, lookups, queries and monitors.
@@ -26,6 +28,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.domains.market.bafin_notices import (
     READ_SCOPE,
     BafinError,
@@ -493,6 +496,39 @@ class BafinIdentity:
                             "note": "a warning names a string; it is never attributed without a reviewed match",
                         },
                     )
+        if person_research_enabled():
+            # Person-research mode (NOESIS_PERSON_RESEARCH): the same normalised
+            # natural-person name under different issuers is offered as a
+            # cross-issuer candidate, so one person's holdings, chains and
+            # managers' transactions can be read together once a reviewer accepts.
+            persons = sorted(
+                (p for p in parties.values() if p["kind"] == "natural_person"),
+                key=lambda p: p["record_key"],
+            )
+            for index, party in enumerate(persons):
+                names = {party_key(n, kind="natural_person") for n in party["names"]}
+                for other in persons[index + 1 :]:
+                    if party["issuers"] == other["issuers"]:
+                        continue
+                    same = names & {
+                        party_key(n, kind="natural_person") for n in other["names"]
+                    }
+                    if not same:
+                        continue
+                    offer(
+                        party,
+                        other["record_key"],
+                        _entity_id(other["record_key"]),
+                        "similar-name",
+                        {
+                            "kind": "name",
+                            "names": sorted(same),
+                            "fields": ["name"],
+                            "cross_issuer": True,
+                            "note": "person-research mode: the same natural-person name under "
+                            "different issuers; a reviewer decides",
+                        },
+                    )
         if ownership_namespace:
             offered += self._ownership(
                 namespace, ownership_namespace, parties, principal_id, scopes
@@ -503,7 +539,8 @@ class BafinIdentity:
             ),
             "candidates": self.candidates(namespace, scopes=scopes),
             "parties": len(parties),
-            "notice": "candidates stay proposed until reviewed; natural persons are never proposed automatically",
+            "notice": "candidates stay proposed until reviewed; natural persons are proposed automatically "
+            "only in person-research mode",
         }
 
     def _ownership(

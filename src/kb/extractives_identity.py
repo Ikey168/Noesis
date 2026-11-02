@@ -30,6 +30,8 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
+from src.ingestion.extractives_sources import WITHHELD_NAME
 from src.kb.extractives_records import (
     MATCH_CONTRACT,
     READ_SCOPE,
@@ -118,7 +120,8 @@ class ExtractivesIdentity:
         out = []
         for view in self.store.records(namespace, record_types=("company",)):
             body = view["record"]
-            if body.get("natural_person"):
+            if body.get("natural_person") and (not person_research_enabled()
+                                               or body["name_as_published"] == WITHHELD_NAME):
                 continue
             out.append({"key": body["record_key"], "name_as_published": body["name_as_published"],
                         "identifiers": body.get("identifiers") or [], "country": body.get("country"),

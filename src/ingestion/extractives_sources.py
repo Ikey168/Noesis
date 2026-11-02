@@ -39,6 +39,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
+from src.config.env import person_research_enabled
 from src.ingestion.source_packs import SourcePackError
 
 CONNECTOR = "extractives"
@@ -494,12 +495,14 @@ def parse_eiti(raw: bytes, *, document: Mapping[str, Any], max_records: int = 50
         key = company_key(iso2, period_key, entry, report_key)
         companies[str(entry.get("id"))] = key
         individual = _individual(entry)
+        # Person-research mode (NOESIS_PERSON_RESEARCH): an individual payer keeps its published name and identifiers.
+        withhold = individual and not person_research_enabled()
         records.append({"record_type": "company", "record_key": key, "report_key": report_key,
                         "company_id_as_published": text(entry.get("id")),
-                        "name_as_published": WITHHELD_NAME if individual else text(entry.get("name")),
+                        "name_as_published": WITHHELD_NAME if withhold else text(entry.get("name")),
                         "entity_type_as_published": text(entry.get("type")) or "company",
                         "natural_person": individual,
-                        "identifiers": [] if individual else _identifiers(entry.get("identification")),
+                        "identifiers": [] if withhold else _identifiers(entry.get("identification")),
                         "sector": text(entry.get("sector")),
                         "commodities": [str(c) for c in entry.get("commodities") or []],
                         "country": iso2})

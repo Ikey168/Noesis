@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.ingestion.campaign_finance_sources import committee_key, ukec_entity_key
 from src.kb.campaign_finance_identity import CampaignFinanceIdentity, donor_key
 from src.kb.campaign_finance_records import (
@@ -191,7 +192,7 @@ class CampaignFinanceQueries:
         committee's report, not the payee, is its subject.
         """
         if (row["individual"] and row["record_kind"] == "contribution" and INDIVIDUAL_SCOPE not in scopes
-                and "operator" not in scopes):
+                and "operator" not in scopes and not person_research_enabled()):
             return None
         fields = row["record"]["fields"]
         keep = ("schedule", "file_number", "sub_id", "transaction_id", "ec_ref", "amount_as_reported", "currency",
@@ -263,12 +264,12 @@ class CampaignFinanceQueries:
         items_by_donor: dict[str, list[dict[str, Any]]] = {}
         for row in self.store.records(namespace, scopes=scopes, kinds=["contribution"]):
             key = donor_key(row["record"])
-            if key:  # natural persons have no donor key and are never expanded (CF01)
+            if key:  # natural persons have a donor key only in person-research mode (CF01 otherwise)
                 items_by_donor.setdefault(key, []).append(row)
         subjects = {s["record_key"]: s for s in self.identity.subjects(namespace, scopes=scopes)}
         results, seen = [], set()
         for subject in subjects.values():
-            if subject["kind"] not in {"donor-organisation", "connected-organisation"}:
+            if subject["kind"] not in {"donor-organisation", "connected-organisation", "donor-person"}:
                 continue
             for match in self.identity.accepted(namespace, subject["record_key"], scopes=scopes):
                 if match["record_key"] not in reached:

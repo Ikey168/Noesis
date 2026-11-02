@@ -48,6 +48,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from src.config.env import person_research_enabled
+
 CONTRACT = "noesis-osint-movement-record-v1"
 ANSWER_CONTRACT = "noesis-osint-movement-answer-v1"
 LINK_CONTRACT = "noesis-osint-movement-link-v1"
@@ -700,6 +702,12 @@ class MovementStore:
 
 
 def natural_person_registrant(revision: Mapping[str, Any] | None) -> bool:
+    """True when the registry record names a natural person, which triggers the MV01 refusals.
+
+    Always False in person-research mode (``NOESIS_PERSON_RESEARCH``): a privately registered aircraft is then
+    answered like any other."""
+    if person_research_enabled():
+        return False
     if revision is None or revision["event"] == "deregistered":
         return False
     return bool(((revision["statement"]["as_published"].get("registrant") or {}).get("natural_person")))
@@ -961,6 +969,8 @@ def derive_calls(conn: Any, namespace: str, *, facilities_namespace: str, princi
 IDENTITY_PREFIX = "movements:"
 ORG_PREFIX = "movements:org:"
 ORGANISATION_TYPES = ("organization", "organisation", "org", "company", "corporation")
+# Canonical entity types a registrant may match in person-research mode (NOESIS_PERSON_RESEARCH).
+PERSON_ENTITY_TYPES = frozenset({"person", "natural_person", "individual"})
 
 
 def movement_key(subject: str) -> str:
@@ -1121,8 +1131,10 @@ class MovementIdentity:
         for record in self.store.records(namespace, record_type="registry_record"):
             revision = self.store.latest(namespace, record["record_id"])
             registrant = revision["statement"]["as_published"].get("registrant") or {}
-            if registrant.get("natural_person") or not registrant.get("name"):
-                continue  # natural persons are never matched or resolved
+            if not registrant.get("name"):
+                continue
+            if registrant.get("natural_person") and not person_research_enabled():
+                continue  # natural persons are never matched or resolved outside person-research mode
             for name in str(registrant["name"]).split(";"):
                 if not name.strip():
                     continue
@@ -1138,9 +1150,11 @@ class MovementIdentity:
 
         if not table_exists(self.conn, "canonical_entities"):
             return []
+        types = sorted(ORGANISATION_TYPES | PERSON_ENTITY_TYPES) if person_research_enabled() \
+            else list(ORGANISATION_TYPES)
         entities = self.conn.execute(
             "SELECT canonical_id, preferred_name FROM canonical_entities WHERE lower(coalesce(entity_type, '')) IN ("
-            + ",".join("?" * len(ORGANISATION_TYPES)) + ") ORDER BY canonical_id", list(ORGANISATION_TYPES)).fetchall()
+            + ",".join("?" * len(types)) + ") ORDER BY canonical_id", types).fetchall()
         offered = []
         for organisation in self.organisations(namespace):
             mine = organisation["key"].removeprefix(ORG_PREFIX)
@@ -1155,7 +1169,7 @@ class MovementIdentity:
                     evidence=[{"method": basis, "names_as_published": organisation["names"],
                                "records": organisation["records"],
                                "right": {"canonical_id": canonical_id, "preferred_name": preferred},
-                               "policy": "an organisation registrant as published; a reviewer decides"}],
+                               "policy": "a registrant as published; a reviewer decides"}],
                     principal_id=principal_id, scopes=scopes))
         return offered
 
@@ -1459,7 +1473,7 @@ def _cite(record: Mapping[str, Any], revision: Mapping[str, Any]) -> dict[str, A
 def _withhold(published: Mapping[str, Any]) -> dict[str, Any]:
     value = dict(published)
     registrant = dict(value.get("registrant") or {})
-    if registrant.get("natural_person"):
+    if registrant.get("natural_person") and not person_research_enabled():
         registrant["name"] = "withheld: a natural person"
     if registrant:
         value["registrant"] = registrant

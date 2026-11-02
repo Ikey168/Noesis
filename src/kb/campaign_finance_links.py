@@ -283,7 +283,7 @@ class CampaignFinanceLinks:
         items = self._items_by_donor(namespace, scopes)
         links, created, missing = [], 0, []
         for subject in self.identity.subjects(namespace, scopes=scopes):
-            if subject["kind"] not in {"donor-organisation", "connected-organisation"}:
+            if subject["kind"] not in {"donor-organisation", "connected-organisation", "donor-person"}:
                 continue
             for match in self.identity.accepted(namespace, subject["record_key"], scopes=scopes):
                 if match["record_key"].startswith(("lobbying:", "elections:", "campaign-finance:")):

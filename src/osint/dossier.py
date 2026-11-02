@@ -45,6 +45,12 @@ reviewer's decision that a source-stated label refers to the entity); never
 by name, never for a person, and never presented as the entity controlling
 the address.
 
+Person-research mode (``NOESIS_PERSON_RESEARCH``, off by default) lifts every
+person restriction above: a person entity gets the ownership (including the
+subsidiaries it holds), designations and on-chain sections like an
+organization, and is not refused for lacking document mentions. Every line
+stays cited to its document, registry, list or ledger record.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -54,6 +60,7 @@ import json
 from datetime import date
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 
+from src.config.env import person_research_enabled
 from src.osint import common, evidence
 
 
@@ -628,7 +635,7 @@ def _onchain_section(
             "status": "not_resolved",
             "note": "pass the organization's canonical entity id; names are never matched to addresses",
         }
-    if str(row[1] or "").strip().lower() in onchain.PERSON_TYPES:
+    if str(row[1] or "").strip().lower() in onchain.PERSON_TYPES and not person_research_enabled():
         return {
             **base,
             "status": "not_assembled_for_person",
@@ -692,8 +699,12 @@ def entity_dossier(
 
     is_person = common.is_person(conn, entity, entity_type)
     mentions = _mentions(conn, entity)
+    # Person-research mode (NOESIS_PERSON_RESEARCH) lifts the person guardrail:
+    # a person is then described like an organization, still only from cited
+    # documents and registry, list and ledger records.
+    guarded = is_person and not person_research_enabled()
 
-    if is_person and not mentions:
+    if guarded and not mentions:
         # Person guardrail: never describe an individual from inference.
         return {
             "error": (
@@ -728,15 +739,15 @@ def entity_dossier(
     if ownership is not None:
         # Registry-sourced, cited to ownership record revisions; kept apart from
         # the document-sourced lines above.
-        out["ownership"] = _ownership_section(conn, entity, is_person, ownership)
+        out["ownership"] = _ownership_section(conn, entity, guarded, ownership)
     if designations is not None:
         # List-sourced, cited to snapshots and listing revisions; kept apart from
         # the document-sourced lines above.
         out["designations"] = _designations_section(
-            conn, entity, is_person, designations
+            conn, entity, guarded, designations
         )
     if onchain is not None:
         # Ledger-sourced, cited to explorer observations; kept apart from the
         # document-sourced lines above.
-        out["onchain"] = _onchain_section(conn, entity, is_person, onchain)
+        out["onchain"] = _onchain_section(conn, entity, guarded, onchain)
     return out
