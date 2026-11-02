@@ -1,7 +1,7 @@
 {
   "pack_id": "corporate-ownership",
   "version": "1.2.0",
-  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment).",
+  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment). From 1.2.0 the Register of Overseas Entities (OE numbers: registrable beneficial owners, managing officers and statements as published), Open Ownership BODS statements from the Danish CVR and the Slovak public sector partners register (each publisher its own source) and OpenCorporates company identity and officers for explicitly selected registrations (aggregator, never a register substitute) are added; the daily Companies House PSC snapshot is acquired by the bulk runner (companies-house-psc-snapshot) and HM Land Registry OCOD is recorded as not implemented (see docs/development/ownership-register-audit.md); SEC Form 13F-HR information tables and XML Schedule 13D/13G cover pages are parsed into noesis-ownership-record-v2 assertions (sec-edgar-holdings).",
   "domains": [
     "corporate-ownership"
   ],
@@ -280,12 +280,195 @@
         "files": [
           "/fixtures/exampla/gb-psc-statements.json"
         ],
-        "live_verification": "unverified-live"
+        "live_verification": "unverified-live",
+        "publishers": [
+          "GB Persons Of Significant Control Register"
+        ]
       },
       "fixture": {
         "path": "tests/fixtures/ownership/open-ownership-bods.json",
         "sha256": "a155a62afc7e2ee61a07e4a63b15ec12d71e51b7d7285b1e05548c69b4cbf86e",
-        "expected_output_hash": "6fca1478d29ca91745044d27cf7a2682d3193a3f608213aadb05f2e64fb6aff1"
+        "expected_output_hash": "e2210fe0978804965e5581651bbd6a7a2d1f1b88cb4fd7e830a1ff305665b399"
+      }
+    },
+    {
+      "source_id": "companies-house-roe",
+      "connector": "companies-house",
+      "publisher": "Companies House (UK), Register of Overseas Entities",
+      "endpoint": "https://api.company-information.service.gov.uk",
+      "scope": "Explicitly selected overseas entity numbers (OE...): profile with foreign registration, managing officers, registrable beneficial owners (individuals, legal entities, government bodies, super-secure) and beneficial-owner statements as published; no trust details (not public) and no land titles",
+      "license": {
+        "id": "companies-house-public-data",
+        "terms_url": "https://developer.company-information.service.gov.uk/",
+        "redistribution": "public register data reused under the Companies House public data API terms; natural persons owner-scoped unless person-research mode is on"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COMPANIES_HOUSE_API_KEY"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "companies": [
+          "OE099901",
+          "OE099902"
+        ],
+        "parts": [
+          "profile",
+          "officers",
+          "psc",
+          "psc-statements"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/companies-house-roe.json",
+        "sha256": "bbcc14e3ac8ccfb46b68e0c19e6d1fac3ecc405d40161e24165a5266ecdc5fbc",
+        "expected_output_hash": "0663a5b727062d5a16cf489eb7d5e466e080e6d66407612edada8a920e44e198"
+      },
+      "update_cadence": "daily at most per selected overseas entity",
+      "temporal_semantics": "notified_on/ceased_on and appointment dates as filed; observation time recorded separately per record revision"
+    },
+    {
+      "source_id": "open-ownership-bods-dk",
+      "connector": "bods",
+      "publisher": "Open Ownership (Danish Central Business Register, CVR)",
+      "endpoint": "https://bods-data.openownership.org",
+      "scope": "Explicitly selected BODS 0.2 statement files republishing the Danish Central Business Register, CVR; only statements whose source is that register are projected (DK)",
+      "license": {
+        "id": "bods-per-statement-license",
+        "terms_url": "https://www.openownership.org/en/topics/beneficial-ownership-data-standard/",
+        "redistribution": "licence as stated per statement in publicationDetails.license; person statements stay owner-scoped"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "files": [
+          "/fixtures/exampla/dk-cvr-statements.json"
+        ],
+        "publishers": [
+          "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/open-ownership-bods-dk.json",
+        "sha256": "949e764c5dec00a167dbaa646f53983e4c914a4de5b534f65ef2031c0d87fb31",
+        "expected_output_hash": "70bd49cd775f6075f8aafa5977f7c85b4f5ee33ec1316c08fe969daf54e1fd1b"
+      },
+      "update_cadence": "per published dataset release; no more than weekly"
+    },
+    {
+      "source_id": "open-ownership-bods-sk",
+      "connector": "bods",
+      "publisher": "Open Ownership (Slovak Register of Public Sector Partners, RPVS)",
+      "endpoint": "https://bods-data.openownership.org",
+      "scope": "Explicitly selected BODS 0.2 statement files republishing the Slovak Register of Public Sector Partners, RPVS; only statements whose source is that register are projected (SK)",
+      "license": {
+        "id": "bods-per-statement-license",
+        "terms_url": "https://www.openownership.org/en/topics/beneficial-ownership-data-standard/",
+        "redistribution": "licence as stated per statement in publicationDetails.license; person statements stay owner-scoped"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "files": [
+          "/fixtures/exampla/sk-rpvs-statements.json"
+        ],
+        "publishers": [
+          "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/open-ownership-bods-sk.json",
+        "sha256": "553afa28f2d3f70a9239a67c938bff26d49c43cb54664fe2791e34ff07f4fed0",
+        "expected_output_hash": "74ef494d66a9910dbe80c1d30729ff417f56f1b75c29b386067e0fed5d324775"
+      },
+      "update_cadence": "per published dataset release; no more than weekly"
+    },
+    {
+      "source_id": "opencorporates-companies",
+      "connector": "opencorporates",
+      "publisher": "OpenCorporates",
+      "endpoint": "https://api.opencorporates.com/v0.4",
+      "scope": "Explicitly selected registrations (jurisdiction_code + company_number): company identity and embedded officers as aggregated by OpenCorporates; enrichment and identity evidence, never a register substitute",
+      "update_cadence": "weekly at most per selected registration",
+      "temporal_semantics": "incorporation, officer start and end dates as aggregated; observation time recorded separately per record revision",
+      "license": {
+        "id": "odbl-1.0-opencorporates",
+        "terms_url": "https://opencorporates.com/terms-of-use-2/",
+        "redistribution": "ODbL 1.0 with attribution to OpenCorporates (verify against the key's plan); each record names OpenCorporates and links its company page"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_OPENCORPORATES_API_KEY"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "registrations": [
+          {
+            "jurisdiction_code": "dk",
+            "company_number": "99990011"
+          },
+          {
+            "jurisdiction_code": "gb",
+            "company_number": "09990001"
+          },
+          {
+            "jurisdiction_code": "sk",
+            "company_number": "99990099"
+          }
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/opencorporates.json",
+        "sha256": "3a10c8380e3d9e140e14e8ad8707022c49ccd6852266f0167e99959eb9e2f19a",
+        "expected_output_hash": "44368ceb670de8f1cbe870a5992c6ecde7f5c0a3a3bddd1f71976c0dab596660"
       }
     },
     {

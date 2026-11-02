@@ -82,7 +82,11 @@ def test_reporting_exceptions_and_minority_holdings_are_visible(reviewed):
 def test_subsidiaries_control_chain_and_successor_chain(reviewed):
     g = graph(reviewed)
     subs = g.subsidiaries(HOLD_KEYS["gleif"], "2025-06-01")
-    assert {s["subject"] for s in subs["subsidiaries"]} == {g.cluster(UK_KEYS["gleif"]), g.cluster(harness.INT_KEYS["gleif"])}
+    # The overseas entity names the holding company as a beneficial owner (ROE, #2886) and the Danish
+    # register states it as the Danish company's holder (BODS DK, #2887); both resolve by company number.
+    assert {s["subject"] for s in subs["subsidiaries"]} == {
+        g.cluster(UK_KEYS["gleif"]), g.cluster(harness.INT_KEYS["gleif"]), g.cluster("companies-house:gb-coh:OE099901"),
+        g.cluster("open-ownership:statement:oo-fixture-dk-ent-1")}
     assert subs["minority_holdings_as_stated"] == []
     chain = g.control_chain(UK_KEYS["gleif"], "2025-06-01", max_depth=5)
     assert sorted(len(p["entities"]) for p in chain["paths"]) == [2, 3] and chain["cycles"] == []

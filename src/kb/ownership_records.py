@@ -47,6 +47,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
+from src.config.env import person_research_enabled
+
 CONTRACT = "noesis-ownership-record-v1"
 PART_CONTRACT = "noesis-ownership-part-v1"
 DOSSIER_CONTRACT = "noesis-ownership-dossier-v1"
@@ -96,6 +98,12 @@ _KIND_FIELDS = {
 _COMMON = {"contract", "kind", "record_key", "source", "owner_scoped", "unknowns", "native"}
 _SOURCE_FIELDS = {"provider", "provider_record_id", "url", "locator", "statement_id", "publisher", "source_type",
                   "retrieved_at_ms", "raw_sha256", "license", "revision", "note"}
+# Natural persons named by a register (PSC individuals, ROE beneficial owners,
+# BODS person statements) are owner-scoped by default. With the opt-in
+# person-research mode (NOESIS_PERSON_RESEARCH, docs/security/person-research-mode.md)
+# they are stored unscoped and carry this policy; writing such a record with the
+# switch off is refused (``minimisation_violation``).
+PERSON_RESEARCH_POLICY = "ownership-person-research-v1"
 SCHEMA_DIR = Path(__file__).resolve().parents[2] / "contracts/schemas/jsonschema"
 SCHEMAS = {
     "ownership-record": "noesis-ownership-record-v1",
@@ -299,6 +307,10 @@ def validate_record(record: Any) -> dict[str, Any]:
     _source(record.get("source"))
     if record.get("owner_scoped") not in (None, True, False):
         _fail("owner_scoped is a boolean")
+    native = record.get("native")
+    if isinstance(native, dict) and native.get("policy") == PERSON_RESEARCH_POLICY and not person_research_enabled():
+        _fail("this record was produced under person-research mode (NOESIS_PERSON_RESEARCH); it is refused while "
+              "the switch is off", "minimisation_violation")
     result = json.loads(canonical(record))
     if result.get("native") is not None and not isinstance(result["native"], dict):
         _fail("native preserves the source's original wording as an object")

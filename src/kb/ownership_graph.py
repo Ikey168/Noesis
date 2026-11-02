@@ -65,7 +65,9 @@ def control_basis(edge: Mapping[str, Any]) -> str:
     Consolidation parents and board-appointment / influence / other-control
     statements are control as stated. A shareholding or voting-rights figure
     counts only when its stated lower bound is above half; a smaller stated
-    figure is a minority holding, and an unstated figure stays ``share-not-stated``.
+    figure is a minority holding, and an unstated figure stays ``share-not-stated``; a band
+    straddling one half (e.g. "more than 25 percent") is ``band-spans-majority`` and stays in the
+    parent slot like an unstated share.
     """
     kind = edge["assertion_kind"]
     if kind in {"direct_parent", "ultimate_parent"}:
@@ -76,6 +78,11 @@ def control_basis(edge: Mapping[str, Any]) -> str:
     low = share.get("exact") if "exact" in share else (share.get("band") or {}).get("min")
     if low is None:
         return "share-not-stated"
+    band = share.get("band") if "band" in share else None
+    if band and not (float(low) > 50 or (float(low) == 50 and band.get("min_inclusive") is False)) and (
+            band.get("max") is None or float(band["max"]) > 50):
+        # e.g. the ROE's "more than 25 percent": the stated band does not settle majority or minority.
+        return "band-spans-majority"
     return "majority-as-stated" if float(low) > 50 or (float(low) == 50 and "band" in share and share["band"].get(
         "min_inclusive") is False) else "minority-as-stated"
 
