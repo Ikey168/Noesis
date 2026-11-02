@@ -10,3 +10,6 @@ or downloaded data, and none of it is evidence of live coverage.
 The dated file names give the order in which the tests observe them: a later
 voting-rights export carries a correction, a later dealings export no longer
 lists one transaction, and later short-position lists drop positions.
+`voting_rights_2026-05-20.csv` is read with both fictional issuers in scope
+(`acquire_cross_issuer` in `tests/unit/bafin_harness.py`): one organisation and
+one fictional natural person notify in both issuers (#2884).

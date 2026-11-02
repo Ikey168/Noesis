@@ -21,6 +21,7 @@ BAFIN_WRITES = {
 }
 BAFIN_READS = {
     "bafin_holders_as_of",
+    "bafin_holdings_of_holder",
     "bafin_managers_transactions",
     "bafin_net_short_positions",
     "bafin_warnings_for_entity",
@@ -72,6 +73,16 @@ QUERY_EXAMPLES = {
         },
         "semantics": "the latest voting-rights notification per notifier published by the end of 2026-04-14 (UTC), "
         "corrections collapsed, with the thresholds each stated percentage reaches; never summed",
+    },
+    "bafin_holdings_of_holder": {
+        "arguments": {
+            "namespace": "market-bafin",
+            "name": "Fiktiva Holding SE",
+            "as_of": "2026-05-01",
+        },
+        "semantics": "per issuer, the holder's latest voting-rights notification published by the end of 2026-05-01 "
+        "(UTC), as notifier or chain member, each percentage beside its WpHG basis; never summed across issuers or "
+        "bases; other records join only through accepted identity decisions, proposed ones are listed unjoined",
     },
     "bafin_net_short_positions": {
         "arguments": {
@@ -157,6 +168,51 @@ def register(mcp, safe, context):
             ),
             required_scope=READ,
         )
+
+    @mcp.tool()
+    def bafin_holdings_of_holder(
+        namespace: str,
+        as_of: str,
+        party: str | None = None,
+        name: str | None = None,
+        kind: str = "organisation",
+        isin: str | None = None,
+        acquired_by_ms: int | None = None,
+        export_bundle: bool = False,
+    ) -> dict:
+        """What one holder holds across issuers as of a date (YYYY-MM-DD, end of day UTC): per issuer, its latest
+        voting-rights notification published by the cutoff (and acquired by acquired_by_ms when given), as notifier
+        or chain member, with the chain, corrections and each percentage beside its WpHG basis (§ 33/§ 38/§ 39).
+
+        Name the holder by party record key (bafin:party:... or bafin:person:...), by organisation name, or as
+        kind="natural_person" with a name and the ISIN of an issuer whose notice names the person (persons are
+        keyed per issuer). Other records join only through accepted, unreverted identity decisions; natural
+        persons join across issuers only in person-research mode (NOESIS_PERSON_RESEARCH). Proposed candidates are
+        listed apart as unjoined. Never summed across issuers or bases; nothing below a threshold is inferred.
+        export_bundle returns a noesis-evidence-bundle-v1. No advice or signal.
+        """
+
+        def run(conn):
+            from src.domains.market.bafin_queries import export_holdings_bundle
+
+            answer = queries(conn).holdings_of_holder(
+                namespace,
+                as_of,
+                scopes=who()[1],
+                party=party,
+                name=name,
+                kind=kind,
+                isin=isin,
+                acquired_by_ms=acquired_by_ms,
+            )
+            if export_bundle:
+                return {
+                    "answer": answer,
+                    "bundle": export_holdings_bundle(conn, answer),
+                }
+            return answer
+
+        return safe(checked("bafin_holdings_of_holder", run), required_scope=READ)
 
     @mcp.tool()
     def bafin_managers_transactions(
@@ -391,10 +447,12 @@ def register(mcp, safe, context):
         kind: str,
         value: str,
         target_entity: str | None = None,
+        attributes: list[dict] | None = None,
     ) -> dict:
         """A reviewer-proposed candidate for one party, resting on what a notice states (kind lei, bafin-id or
         name) and where the target states it. A person link across issuers is flagged and stays proposed until
-        reviewed."""
+        reviewed. attributes: further evidence the reviewer checked beside a name (each with kind, value and
+        source); a name alone stays similar-name, which is never accepted."""
 
         def run(conn):
             from src.domains.market.bafin_identity import BafinIdentity
@@ -404,7 +462,12 @@ def register(mcp, safe, context):
                 party,
                 target_key=target_key,
                 target_entity=target_entity,
-                evidence={"kind": kind, "value": value, "target_source": target_source},
+                evidence={
+                    "kind": kind,
+                    "value": value,
+                    "target_source": target_source,
+                    "attributes": attributes or [],
+                },
                 principal_id=who()[0],
                 scopes=who()[1],
             )

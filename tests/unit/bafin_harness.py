@@ -87,6 +87,16 @@ STAGES = {
 FICTIONAL_ISSUERS = [
     {"isin": ISSUER, "name": "Musterwerke AG"},
 ]
+# Holdings across issuers (#2884): the voting-rights exports read with both fictional issuers in scope, so one
+# organisation (Fiktiva Holding SE) and one natural person (Erika Musterfrau) are holders in both.
+CROSS_ISSUERS = FICTIONAL_ISSUERS + [
+    {"isin": OTHER_ISSUER, "name": "Beispiel Maschinenbau SE"}
+]
+CROSS_ISSUER_STAGES = {
+    "2026-03-10": ["voting_rights_2026-03-10.csv"],
+    "2026-04-20": ["voting_rights_2026-04-20.csv"],
+    "2026-05-20": ["voting_rights_2026-05-20.csv"],
+}
 
 
 def ms(day: str, hour: int = 12) -> int:
@@ -134,13 +144,13 @@ def _document(key: str, name: str) -> dict:
     return document
 
 
-def fictional(key: str, files: list[str]) -> dict:
+def fictional(key: str, files: list[str], *, issuers: list[dict] | None = None) -> dict:
     """The production source with the fictional issuer set, UTF-8 fixture documents and complete listings."""
     source = production(key)
     declared = source["bafin"]
     declared["encoding"] = "utf-8"
     if "issuers" in declared:
-        declared["issuers"] = copy.deepcopy(FICTIONAL_ISSUERS)
+        declared["issuers"] = copy.deepcopy(issuers or FICTIONAL_ISSUERS)
     if key == "company":
         declared["bafin_ids"] = ["123456"]
     declared["documents"] = [_document(key, name) for name in files]
@@ -159,10 +169,16 @@ def pages(files: list[str]) -> list[dict]:
 
 
 def acquire(
-    conn, key: str, day: str, *, run_id: str | None = None, source: dict | None = None
+    conn,
+    key: str,
+    day: str,
+    *,
+    run_id: str | None = None,
+    source: dict | None = None,
+    files: list[str] | None = None,
 ) -> list[dict]:
     """Run one stage's documents through the adapter and the runtime projector at a simulated observation time."""
-    files = STAGES[key][day]
+    files = files or STAGES[key][day]
     source = source or fictional(key, files)
     adapter = BafinNoticeAdapter(source, transport=fixture_transport(pages(files)))
     projector = BafinNoticeProjector(conn)
@@ -194,6 +210,20 @@ def acquire_all(conn, *, until: str | None = None) -> None:
     for day, key in steps:
         if until is None or day <= until:
             acquire(conn, key, day)
+
+
+def acquire_cross_issuer(conn, *, until: str | None = None) -> None:
+    """The voting-rights exports with both fictional issuers in scope, in observation-date order."""
+    for day, files in sorted(CROSS_ISSUER_STAGES.items()):
+        if until is None or day <= until:
+            acquire(
+                conn,
+                "voting",
+                day,
+                files=files,
+                run_id=f"run:voting-cross-issuer:{day}",
+                source=fictional("voting", files, issuers=CROSS_ISSUERS),
+            )
 
 
 def connection():
