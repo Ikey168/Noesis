@@ -294,6 +294,11 @@ For the project overview and local setup, start with the
   comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
   blend, re-classification, COFOG combination, derived figure or forecast; offline only;
   [source audit](development/social-protection-evidence/source-audit.md)
+- [Society wealth distribution guide](guides/society-wealth.md) — World Inequality Database, ECB Distributional
+  Wealth Accounts and Fed Distributional Financial Accounts for a country as of a release, side by side with
+  wealth concepts, groups, populations, methods, vintages and comparability notes; no blend, re-harmonisation,
+  derived share or correction of model-based estimates; offline only;
+  [source audit](development/wealth-distribution-evidence/source-audit.md)
 - [Economics tourism guide](guides/economics-tourism.md) — Eurostat tourism occupancy and capacity for a place as
   of a release, monthly and annual series kept apart with residence, accommodation type, NUTS version, flags and
   vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
