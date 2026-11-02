@@ -389,6 +389,12 @@
         "Etherscan"
       ]
     },
+    "european-central-bank": {
+      "name": "European Central Bank (ECB)",
+      "match": [
+        "European Central Bank"
+      ]
+    },
     "european-commission": {
       "name": "European Commission",
       "match": [
@@ -469,6 +475,12 @@
       "name": "Office of the Federal Register",
       "match": [
         "Office of the Federal Register"
+      ]
+    },
+    "federal-reserve-board": {
+      "name": "Board of Governors of the Federal Reserve System",
+      "match": [
+        "Board of Governors of the Federal Reserve System"
       ]
     },
     "first": {
@@ -1248,6 +1260,12 @@
       "name": "World Bank",
       "match": [
         "World Bank"
+      ]
+    },
+    "world-inequality-lab": {
+      "name": "World Inequality Lab (WID.world)",
+      "match": [
+        "World Inequality Lab"
       ]
     },
     "wri": {
@@ -2037,6 +2055,13 @@
         "eurostat-esspros",
         "oecd-socx",
         "ilo-social-protection-coverage"
+      ]
+    },
+    "society.wealth": {
+      "sources": [
+        "wid-wealth-distribution",
+        "ecb-distributional-wealth-accounts",
+        "fed-distributional-financial-accounts"
       ]
     },
     "sports.football": {

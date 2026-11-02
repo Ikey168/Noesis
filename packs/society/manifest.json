@@ -1,7 +1,7 @@
 {
   "pack_format": "noesis-pack-composition-v1",
   "id": "society",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Society and population: from a country or region to cited income, poverty and inequality figures (World Bank PIP, Eurostat EU-SILC, OECD IDD) side by side with definitions, release vintages, PPP rounds and comparability notes, as of a date, over shared Geospatial, entity-identity, subscription and source-acquisition providers; Demographics denominators and Labour series linked by citation when present. Figures are quoted as each source released them; nothing is nowcast, filled, blended or re-harmonised.",
   "contributes": {
     "capabilities": [
@@ -68,6 +68,14 @@
           "name": "noesis-social-protection-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "society.wealth-series",
+        "provider": "society.wealth",
+        "contract": {
+          "name": "noesis-wealth-distribution-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -77,6 +85,10 @@
       },
       {
         "id": "society.social-protection",
+        "version": "1.0.0"
+      },
+      {
+        "id": "society.wealth",
         "version": "1.0.0"
       }
     ],
@@ -88,6 +100,11 @@
       },
       {
         "pack_id": "society-social-protection",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      },
+      {
+        "pack_id": "society-wealth-distribution",
         "version": "1.0.0",
         "range": "^1.0.0"
       }
@@ -111,6 +128,16 @@
           "measure": "expenditure, beneficiaries or coverage; never presented as measuring the same thing",
           "COFOG": "general-government expenditure by function in economics.public-finance; a third, distinct concept",
           "edition": "a World Social Protection Report edition; a restating edition is a new vintage",
+          "comparability_unknown": "two vintages or rows with no stated or recorded note"
+        }
+      },
+      {
+        "id": "society.wealth",
+        "description": "Place-centred wealth distribution per source (World Inequality Database, ECB Distributional Wealth Accounts, Federal Reserve Distributional Financial Accounts), as of a release, side by side and never blended",
+        "vocabulary": {
+          "wealth concept": "net personal wealth, household net wealth or net worth as the source defines it; never re-harmonised",
+          "group": "the wealth group as published (WID percentile, DWA decile or half, DFA percentile group)",
+          "method": "the publisher's estimation method; WID, DWA and DFA are model-based and keep their flags",
           "comparability_unknown": "two vintages or rows with no stated or recorded note"
         }
       }
@@ -370,6 +397,63 @@
           "reason": "the ilo-social-protection-coverage entry of the society-social-protection source pack"
         }
       ]
+    },
+    {
+      "id": "wid",
+      "default": false,
+      "description": "World Inequality Database top 1%, 0.1% and 0.01% net personal wealth shares and wealth-income ratios (Germany, France, United States) with WID's DINA method and extrapolation flags; needs the NOESIS_WID_API_KEY secret; unverified-live",
+      "requires": [
+        {
+          "capability": "society.wealth-series",
+          "contract": "noesis-wealth-distribution-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the wid-wealth-distribution entry of the society-wealth-distribution source pack"
+        }
+      ]
+    },
+    {
+      "id": "dwa",
+      "default": false,
+      "description": "ECB Distributional Wealth Accounts household net wealth shares (top 10%, bottom 50%) and median (Germany, France), quarterly, experimental model-based statistics with OBS_STATUS and OBS_CONF; unverified-live",
+      "requires": [
+        {
+          "capability": "society.wealth-series",
+          "contract": "noesis-wealth-distribution-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the ecb-distributional-wealth-accounts entry of the society-wealth-distribution source pack"
+        }
+      ]
+    },
+    {
+      "id": "dfa",
+      "default": false,
+      "description": "Federal Reserve Distributional Financial Accounts net worth shares by wealth percentile group (United States), quarterly, model-based; unverified-live",
+      "requires": [
+        {
+          "capability": "society.wealth-series",
+          "contract": "noesis-wealth-distribution-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the fed-distributional-financial-accounts entry of the society-wealth-distribution source pack"
+        }
+      ]
     }
   ],
   "compatibility_aliases": {
@@ -412,8 +496,18 @@
         "intent": "How did this social protection series change across releases",
         "tool": "noesis-knowledge-engine.social_protection_series_history",
         "semantics": "every vintage with revisions, estimates replaced, restatements and comparability notes"
+      },
+      {
+        "intent": "Top wealth shares for this country as of a date",
+        "tool": "noesis-knowledge-engine.wealth_indicator_for_place",
+        "semantics": "WID, DWA and DFA vintages released by the date, side by side; never combined"
+      },
+      {
+        "intent": "How did this wealth series change across releases",
+        "tool": "noesis-knowledge-engine.wealth_series_history",
+        "semantics": "every vintage with revisions, model estimates replaced, method changes and comparability notes"
       }
     ]
   },
-  "content_hash": "sha256:025a02a8d25c463524d69c0b1c7634a9456319d629f9688167fd4070643b189e"
+  "content_hash": "sha256:56a0547ae11c499c49d610982dda018e6c55127a5525a708952fe7d977867da2"
 }
