@@ -34,7 +34,7 @@ optional-sources = ["httpx==0.28.1", "defusedxml==0.7.1", "beautifulsoup4>=4.12,
 optional-linkage = ["splink==4.0.17", "rapidfuzz==3.14.3", "datasketch==2.0.0"]
 optional-language = ["lingua-language-detector==2.2.0"]
 optional-ragas = ["ragas==0.4.3", "langchain-community==0.3.31"]
-optional-tracing = ["opentelemetry-sdk==1.44.0", "opentelemetry-exporter-otlp-proto-http==1.44.0"]
+optional-tracing = ["opentelemetry-sdk==1.44.0", "opentelemetry-exporter-otlp-proto-http==1.45.1"]
 optional-conversion = ["markitdown==0.1.7", "mammoth==1.11.0", "python-docx==1.2.0", "python-pptx==1.0.2", "openpyxl==3.1.5"]
 optional-redaction = ["presidio-analyzer==2.2.364", "spacy==3.8.16"]
 optional-bge = ["FlagEmbedding==1.4.2", "transformers>=4.44.2,<6"]
