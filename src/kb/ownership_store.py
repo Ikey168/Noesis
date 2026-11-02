@@ -90,6 +90,10 @@ def redact(view: dict[str, Any]) -> dict[str, Any]:
     if body["kind"] == "ownership_assertion":
         kept.update({k: body.get(k) for k in ("subject_key", "assertion_kind", "share", "validity", "statement_date")})
         kept["holder"] = {"key": None, "name": None, "kind": (body.get("holder") or {}).get("kind")}
+        if body.get("filing"):
+            # v2 (#2883): the public filing stays citable; its amendment chain key may name the person and is dropped.
+            kept["filing"] = {k: body["filing"].get(k) for k in (
+                "accession_number", "form_type", "filing_date", "period_of_report", "event_date", "document_url")}
     kept["source"] = {k: body["source"].get(k) for k in ("provider", "publisher", "license")}
     kept["source"]["provider_record_id"] = "[owner-scoped]"
     return {**view, "record": kept, "redacted": True,

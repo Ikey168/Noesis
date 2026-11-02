@@ -344,8 +344,13 @@ def query(conn: Any, namespace: str, name: str, entity: str, *, principal_id: st
         return graph.control_chain(entity, as_of, max_depth=max_depth)
     if name == "successor_chain":
         return graph.successor_chain(entity, max_depth=max_depth)
-    raise OwnershipError("invalid_request", "query is direct_parents, ultimate_parents, subsidiaries, control_chain "
-                                            "or successor_chain")
+    if name in {"holders", "holdings"}:
+        # Parsed SEC 13F and Schedule 13D/13G filings (#2883): holders of an issuer, holdings of a filer, as of a date.
+        from src.kb.ownership_holdings import holders, holdings
+
+        return (holders if name == "holders" else holdings)(graph, entity, as_of)
+    raise OwnershipError("invalid_request", "query is direct_parents, ultimate_parents, subsidiaries, control_chain, "
+                                            "successor_chain, holders or holdings")
 
 
 def replay(conn: Any, namespace: str, result: Mapping[str, Any], *, principal_id: str | None,
