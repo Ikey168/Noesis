@@ -244,6 +244,7 @@
     "noesis-knowledge-engine.energy_source_contracts",
     "noesis-knowledge-engine.engineering_safety_dossier",
     "noesis-knowledge-engine.environment_provider_contracts",
+    "noesis-knowledge-engine.estimate_dividend_flows",
     "noesis-knowledge-engine.exoplanet_status_as_of",
     "noesis-knowledge-engine.expand_clinical_question",
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
@@ -2664,6 +2665,28 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.build_ownership_structure_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.estimate_dividend_flows"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.estimate_dividend_flows"
       },
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
