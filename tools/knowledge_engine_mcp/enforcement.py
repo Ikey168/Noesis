@@ -11,8 +11,9 @@ tools); acquisition runs through the shared source-pack tools with the
 Exclusions: no risk or compliance scoring, no inference of wrongdoing from an
 initiated action, no merging of settled "neither admit nor deny" outcomes into
 findings, no profiling of named individuals and no legal advice. Every output
-passes the EN01 minimisation guard: individuals are counted, never named, and
-an answer carrying a score or personal attribute is refused.
+passes the EN01 minimisation guard: individuals are counted, never named
+(named only in person-research mode, NOESIS_PERSON_RESEARCH), and an answer
+carrying a score or personal attribute is refused.
 """
 
 ENFORCEMENT_WRITES = {
@@ -192,7 +193,7 @@ def register(mcp, safe, context):
     def propose_enforcement_identity_matches(namespace: str, ownership_namespace: str) -> dict:
         """Propose organisational respondents against ownership entities: published identifiers (CIK, FRN, LEI,
         company number) first, names as low evidence; nothing is accepted automatically or merged; individuals are
-        never proposed."""
+        proposed (against ownership persons) only in person-research mode."""
         return safe(lambda conn: guarded(identity(conn, True).propose(
             namespace, ownership_namespace=ownership_namespace, principal_id=who()[0], scopes=who()[1])),
             write=True, required_scope="knowledge:ownership:write")

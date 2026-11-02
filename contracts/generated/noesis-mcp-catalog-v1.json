@@ -42441,7 +42441,7 @@
     },
     {
       "cost_class": "low",
-      "description": "One docket's revision current at a date: entries filed by then (verbatim, documents linked), parties\nminimised (organisations by name, natural persons pseudonymised) and the cited revision.",
+      "description": "One docket's revision current at a date: entries filed by then (verbatim, documents linked), parties\nminimised (organisations by name, natural persons pseudonymised unless person-research mode is on) and the\ncited revision.",
       "id": "noesis-knowledge-engine.docket_as_of",
       "input_schema": {
         "additionalProperties": false,
@@ -83386,7 +83386,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Propose organisational parties against ownership entities and canonical aliases (identifiers first;\nnames are low evidence and never auto-accepted). Natural persons are never proposed.",
+      "description": "Propose organisational parties against ownership entities and canonical aliases (identifiers first;\nnames are low evidence and never auto-accepted). Natural persons are proposed (against ownership persons)\nonly in person-research mode.",
       "id": "noesis-knowledge-engine.propose_court_party_matches",
       "input_schema": {
         "additionalProperties": false,
@@ -83680,7 +83680,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Propose organisational respondents against ownership entities: published identifiers (CIK, FRN, LEI,\ncompany number) first, names as low evidence; nothing is accepted automatically or merged; individuals are\nnever proposed.",
+      "description": "Propose organisational respondents against ownership entities: published identifiers (CIK, FRN, LEI,\ncompany number) first, names as low evidence; nothing is accepted automatically or merged; individuals are\nproposed (against ownership persons) only in person-research mode.",
       "id": "noesis-knowledge-engine.propose_enforcement_identity_matches",
       "input_schema": {
         "additionalProperties": false,
