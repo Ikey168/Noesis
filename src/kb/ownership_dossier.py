@@ -63,12 +63,12 @@ def build_dossier(conn: Any, namespace: str, scheme: str, value: str, *, princip
     officers, filings = [], {}
     for view in graph.views:
         body = view["record"]
-        if body["kind"] == "officer_role" and body["entity_key"] in keys:
+        if body["kind"] == "officer_role" and body.get("entity_key") in keys:
             officers.append({"record_id": view["record_id"], "revision": view["revision"], "officer": body["officer"],
                              "role": body["role"], "appointed_on": body.get("appointed_on"),
                              "appointed_status": body["appointed_status"], "resigned_on": body.get("resigned_on"),
                              "company": body["entity_key"], "source": body["source"]})
-        elif body["kind"] == "filing_reference" and body["entity_key"] in keys:
+        elif body["kind"] == "filing_reference" and body.get("entity_key") in keys:
             entry = filings.setdefault(body["accession_number"], {"accession_number": body["accession_number"],
                                                                    "form_type": body["form_type"], "statements": []})
             entry["statements"].append({"record_id": view["record_id"], "revision": view["revision"],
@@ -112,6 +112,11 @@ def build_dossier(conn: Any, namespace: str, scheme: str, value: str, *, princip
         "notice": NOTICE, "evidence": {"kind": evidence_kind,
                                        "runs": sorted({v["run_id"] for v in graph.views})},
     }
+    if any(v["record"]["source"].get("provider") == "icij-offshore-leaks" for v in graph.views):
+        # ICIJ Offshore Leaks (#2888): inclusion in a leak dataset does not imply wrongdoing.
+        from src.ingestion.offshore_leaks import CAVEAT
+
+        dossier["source_caveats"] = {"icij-offshore-leaks": CAVEAT}
     dossier["dossier_hash"] = digest({k: v for k, v in dossier.items() if k not in {"pins", "dossier_hash"}})
     return dossier
 
@@ -187,6 +192,15 @@ def export_dossier(conn: Any, dossier: Mapping[str, Any], request_key: str, *, p
                    [cite(s["record_id"], s["revision"]) for s in f["statements"]], namespace)
         for f in dossier["filings"]] or [
         {"id": "filings:none", "text": "No filings acquired.", "kind": "commentary", "dependencies": [], "citations": []}]})
+    limitations = []
+    if dossier.get("offshore_leaks") or dossier.get("source_caveats"):
+        # ICIJ Offshore Leaks section (#2888): every line cites its record revision, dataset and node id.
+        from src.ingestion.offshore_leaks import CAVEAT
+        from src.kb.offshore_leaks import report_section
+
+        if dossier.get("offshore_leaks"):
+            sections.append(report_section(dossier["offshore_leaks"], cite, _statement, namespace))
+        limitations.append(CAVEAT)
     conflict_text = [{"id": f"conflict:{i}", "kind": "commentary", "dependencies": [], "citations": [],
                       "text": f"{c['slot']}: {', '.join(c['holders'])} — {', '.join(c['reasons'])}; not resolved."}
                      for i, c in enumerate(dossier["conflicts"])]
@@ -201,7 +215,8 @@ def export_dossier(conn: Any, dossier: Mapping[str, Any], request_key: str, *, p
                             "generations": {namespace: len(dossier["pins"]["records"])}},
                "bibliography": sorted(bibliography.values(), key=lambda b: b["id"]),
                "limitations": [NOTICE, f"Evidence kind: {dossier['evidence']['kind']}.",
-                               "Coverage is bounded to the explicitly selected sources and identifiers."]}
+                               "Coverage is bounded to the explicitly selected sources and identifiers."]
+               + limitations}
     report = AuthoredReportStore(conn).create(namespace, "ownership-dossier:" + request_key, content,
                                               principal_id=principal_id, scopes=set(scopes))
     return {"report_id": report["report_id"], "revision": report["revision"], "dossier_hash": dossier["dossier_hash"],

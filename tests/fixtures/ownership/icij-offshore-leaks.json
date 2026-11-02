@@ -1,0 +1,79 @@
+{
+ "authored": true,
+ "provider": "ICIJ Offshore Leaks Database (CSV bulk download shape)",
+ "note": "Authored, fictional nodes and relationships in the shape of the ICIJ Offshore Leaks CSV download (file and column names as read for the adapter; verify against a real release). No real leak data: every name, address, registry number and node id (10-digit ids outside ICIJ's range) is invented. Dataset labels name the leak shape only. Inclusion in a leak dataset does not imply wrongdoing.",
+ "scenarios": [
+  "bounded-seed-selection",
+  "one-hop-neighbours",
+  "unselected-nodes-not-imported",
+  "officer-roles-verbatim",
+  "intermediary-roles",
+  "person-officer-owner-scoped",
+  "legal-form-token-entity-officer",
+  "person-address-withheld",
+  "entity-registered-address",
+  "icij-same-as-quoted",
+  "icij-similar-quoted",
+  "connected-to-quoted",
+  "partial-and-unparsed-dates",
+  "registry-number-as-leaked",
+  "undetermined-jurisdiction-unknown",
+  "absent-others-file"
+ ],
+ "native_pages": [
+  {
+   "request": "/fixtures/offshore-leaks/extract-2026-11/nodes-entities.csv",
+   "body": [
+    "node_id,name,original_name,former_name,jurisdiction,jurisdiction_description,company_type,address,internal_id,incorporation_date,inactivation_date,struck_off_date,dorm_date,status,service_provider,ibcRUC,country_codes,countries,sourceID,valid_until,note",
+    "9990000101,EXAMPLA OFFSHORE HOLDINGS LIMITED,,,BVI,British Virgin Islands,Business Company Limited by Shares,\"PO Box 0001, Fixture Chambers, Road Town, Tortola\",FX1001,12-MAR-2009,,,,Active,Northwind Corporate Services,1999001,VGB,British Virgin Islands,Panama Papers,The Panama Papers data is current through 2015,",
+    "9990000102,NORTHWIND TRADING S.A.,,,PMA,Panama,,,FX1002,2011-06-01,15-JAN-2014,15-JAN-2014,,Defaulted,Northwind Corporate Services,88001,PAN,Panama,Panama Papers,The Panama Papers data is current through 2015,",
+    "9990000103,EXAMPLA UK LIMITED,,EXAMPLA TRADING LIMITED,XXX,Undetermined,,,,sometime in 2014,,,,,,09990002,GBR,United Kingdom,Paradise Papers - Fixture Registry,Fixture registry data is current through 2016,",
+    "9990000104,EXAMPLA OFFSHORE HOLDINGS LTD,,,SEY,Seychelles,,,,2018,,,,Active,,,,,Pandora Papers - Fixture Provider,Fixture provider data is current through 2020,",
+    "9990000199,UNRELATED FIXTURE CORP,,,BAH,Bahamas,,,,,,,,Active,,,,,Bahamas Leaks,Bahamas Leaks data is current through early 2016,"
+   ]
+  },
+  {
+   "request": "/fixtures/offshore-leaks/extract-2026-11/nodes-officers.csv",
+   "body": [
+    "node_id,name,countries,country_codes,sourceID,valid_until,note",
+    "9990000201,\"DOE, Jordan\",Fixtureland,XFX,Panama Papers,The Panama Papers data is current through 2015,",
+    "9990000202,EXAMPLA NOMINEES LIMITED,Jersey,JEY,Paradise Papers - Fixture Registry,Fixture registry data is current through 2016,",
+    "9990000204,\"ROE, Taylor\",Fixtureland,XFX,Paradise Papers - Fixture Registry,Fixture registry data is current through 2016,"
+   ]
+  },
+  {
+   "request": "/fixtures/offshore-leaks/extract-2026-11/nodes-intermediaries.csv",
+   "body": [
+    "node_id,name,status,internal_id,address,countries,country_codes,sourceID,valid_until,note",
+    "9990000301,NORTHWIND CORPORATE SERVICES LTD,ACTIVE,FX3001,\"2 Fixture Quay, Road Town, Tortola\",British Virgin Islands,VGB,Panama Papers,The Panama Papers data is current through 2015,",
+    "9990000302,Kim Poe,,,,Fixtureland,XFX,Pandora Papers - Fixture Provider,Fixture provider data is current through 2020,"
+   ]
+  },
+  {
+   "request": "/fixtures/offshore-leaks/extract-2026-11/nodes-addresses.csv",
+   "body": [
+    "node_id,address,name,countries,country_codes,sourceID,valid_until,note",
+    "9990000401,\"1 Fixture Lane, Road Town, Tortola\",,British Virgin Islands,VGB,Panama Papers,,",
+    "9990000402,\"5 Example Street, Fixture City\",,Fixtureland,XFX,Panama Papers,,"
+   ]
+  },
+  {
+   "request": "/fixtures/offshore-leaks/extract-2026-11/relationships.csv",
+   "body": [
+    "node_id_start,node_id_end,rel_type,link,status,start_date,end_date,sourceID",
+    "9990000201,9990000101,officer_of,shareholder of,,12-MAR-2009,,Panama Papers",
+    "9990000201,9990000102,officer_of,director of,,01-JUN-2011,15-JAN-2014,Panama Papers",
+    "9990000301,9990000101,intermediary_of,intermediary of,,,,Panama Papers",
+    "9990000301,9990000102,intermediary_of,intermediary of,,,,Panama Papers",
+    "9990000101,9990000401,registered_address,registered address,,,,Panama Papers",
+    "9990000201,9990000402,registered_address,registered address,,,,Panama Papers",
+    "9990000202,9990000103,officer_of,Nominee Shareholder of,,2014-05-02,,Paradise Papers - Fixture Registry",
+    "9990000204,9990000103,officer_of,Director,,,,Paradise Papers - Fixture Registry",
+    "9990000101,9990000104,same_as,same name and registration date as,,,,Pandora Papers - Fixture Provider",
+    "9990000102,9990000103,connected_to,connected to,,,,Paradise Papers - Fixture Registry",
+    "9990000201,9990000204,similar,similar name and address as,,,,Paradise Papers - Fixture Registry",
+    "9990000302,9990000104,intermediary_of,intermediary of,,,,Pandora Papers - Fixture Provider"
+   ]
+  }
+ ]
+}

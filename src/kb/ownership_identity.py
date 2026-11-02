@@ -27,6 +27,9 @@ Bases, strongest first:
   resembles this record's name, with no corroborating attribute. It is shown
   as a candidate but can never be accepted: a similar name alone is not an
   identity.
+* ``source-stated-link`` - a link one source states between two of its own
+  records (ICIJ Offshore Leaks ``same_as`` and kin), quoted as evidence; a
+  reviewer must corroborate it before accepting.
 
 Other record owners (the Legal sanctions, Political lobbying and elections, Economics public-finance,
 Funding development-finance and Market BaFin-notices features, and the Materials pack, whose
@@ -51,6 +54,8 @@ CONTRACT = "noesis-ownership-identity-candidate-v1"
 CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8,
               "unqualified-identifier": 0.5, "structure-similarity": 0.45, "name-jurisdiction": 0.35,
               "similar-name": 0.1}
+# A link a source states between two of its own records (ICIJ same_as and kin, #2888): quoted, reviewable.
+CONFIDENCE["source-stated-link"] = 0.3
 NEVER_ACCEPTED = frozenset({"similar-name"})
 # Record keys owned by other bundles that share this state machine through ``offer``.
 FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:",

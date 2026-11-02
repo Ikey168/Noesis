@@ -202,6 +202,11 @@ For the project overview and local setup, start with the
   matched to ownership entities through reviewed identity: company or group to cited cases as of a date, stage history
   and aid for a beneficiary; no outcome prediction, market-power or aid-compatibility assessment;
   [source audit](development/competition-evidence/source-audit.md)
+- [Corporate Ownership offshore leaks guide](guides/corporate-ownership-offshore-leaks.md) — bounded ICIJ Offshore
+  Leaks Database selections (bulk runner) as entities, owner-scoped persons and officer/intermediary roles quoting
+  ICIJ's labels, cited to the leak dataset and node id; ICIJ links and registry matches are reviewable candidates
+  only; ICIJ's caveat on every line; no wrongdoing, AML or sanctions verdict;
+  [source audit](development/offshore-leaks-evidence/source-audit.md)
 - [Political campaign finance guide](guides/political-campaign-finance.md) — FEC committees, filing versions with
   amendment chains, itemised receipts, disbursements and independent expenditures and UK Electoral Commission
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest

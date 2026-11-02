@@ -29,6 +29,7 @@ ADAPTERS: Dict[str, str] = {
     "pubmed-baseline": "src.ingestion.bulk.adapters.pubmed_baseline:PubMedBaseline",
     "s2-datasets": "src.ingestion.bulk.adapters.s2_datasets:SemanticScholarDatasets",
     "openaq-archive": "src.ingestion.bulk.adapters.openaq_archive:OpenAqArchive",
+    "icij-offshore-leaks": "src.ingestion.bulk.adapters.icij_offshore_leaks:IcijOffshoreLeaks",
 }
 
 

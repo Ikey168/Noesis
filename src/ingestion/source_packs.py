@@ -453,6 +453,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sec-edgar-holdings"})
 # Society wealth distribution: WID, ECB Distributional Wealth Accounts and Fed DFA (#2882).
 NATIVE_CONNECTOR_MODULES["wealth-distribution"] = "src.ingestion.wealth_distribution_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"wealth-distribution"})
+# Corporate Ownership offshore leaks: bounded ICIJ Offshore Leaks Database extracts (#2888).
+NATIVE_CONNECTOR_MODULES["icij-offshore-leaks"] = "src.ingestion.offshore_leaks"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"icij-offshore-leaks"})
 
 
 def native_connector_module(connector: str) -> Any:

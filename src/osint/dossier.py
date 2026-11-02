@@ -384,6 +384,12 @@ def _ownership_section(
                 "jurisdiction": _jurisdiction(graph, body.get("entity_key")),
                 "citation": _cite_ownership({**view, "source": body.get("source")}),
                 "note": "as stated in the ownership record; not profiled further",
+                # ICIJ Offshore Leaks roles (#2888) carry ICIJ's caveat: inclusion does not imply wrongdoing.
+                **(
+                    {"caveat": (body.get("source") or {}).get("note")}
+                    if (body.get("source") or {}).get("provider") == "icij-offshore-leaks"
+                    else {}
+                ),
             }
         )
     conflicts = [{"slot": "direct_parents", **c} for c in parents["conflicts"]] + [

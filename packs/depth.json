@@ -640,6 +640,12 @@
         "Icecat"
       ]
     },
+    "icij": {
+      "name": "International Consortium of Investigative Journalists (ICIJ)",
+      "match": [
+        "International Consortium of Investigative Journalists"
+      ]
+    },
     "ifcn": {
       "name": "International Fact-Checking Network (Poynter)",
       "match": [
@@ -1858,7 +1864,8 @@
         "gleif-level2",
         "companies-house",
         "sec-edgar-ownership",
-        "open-ownership-bods"
+        "open-ownership-bods",
+        "icij-offshore-leaks"
       ]
     },
     "platform.web-archives": {
