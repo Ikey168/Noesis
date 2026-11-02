@@ -15,6 +15,7 @@ minimisation decision listed below stays in force exactly as before.
 | Campaign finance (`src/ingestion/campaign_finance_sources.py`, `src/kb/campaign_finance_*`) | Individual donors stored with no name, employer, occupation, city or id (CF01); never subjects; contributions hidden without the individual-items scope; never notified | Stored with name, employer, occupation, city, state and the regulator's donor id under policy `campaign-finance-person-research-v1`; `donor-person` identity subjects matchable to ownership persons; returned and notified with the read scope |
 | BaFin notices (`src/domains/market/bafin_identity.py`) | Natural persons keyed per issuer; never proposed automatically | Same normalised person name under different issuers proposed as a cross-issuer candidate |
 | Extractives (`src/ingestion/extractives_sources.py`, `src/kb/extractives_*`) | Individual payers' names and identifiers withheld | Kept as published and offered to identity matching |
+| Corporate ownership SEC schedules (`src/ingestion/ownership_sec_holdings.py`, `src/kb/ownership_records.py`) | Schedule 13D/13G reporting persons of type `IN` stored owner-scoped (`ownership-person-owner-scoped-v1`): visible to the acquiring principal and ownership reviewers, redacted for others; names withheld from group-member and filer lists | Stored unscoped under `ownership-person-research-v1` with name and CIK, listed by name in group members and filers |
 
 ## What stays the same
 

@@ -89,6 +89,7 @@ figure. Sources are listed at the end.
 | `ownership_providers` Unternehmensregister (not implemented) | Account for some documents | Register information free without registration since August 2022; filed annual accounts cost €1 plus VAT | — | Free register extracts |
 | optional integration `opensanctions` | Required: `NOESIS_OPENSANCTIONS_API_KEY` | API not free for general users (about €0.10 per call); free keys only via a public-interest grant (journalists, NGOs, academic researchers); business use needs a licence | Bulk data download, free for non-commercial use (CC BY-NC 4.0, no key) | — |
 | `sec-edgar-ownership` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key) | Free | — | — |
+| `sec-edgar-holdings` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key; same secret as `sec-edgar-ownership`) | Free; fair access, at most 10 requests per second | — | — |
 | `sec-edgar` | Optional: `NOESIS_SEC_USER_AGENT` (contact string) | Free | — | — |
 
 ## OSINT, news, humanitarian, platforms

@@ -109,6 +109,30 @@ skipped. For Handelsregister, Unternehmensregister and BRIS a user-obtained
 official document can be recorded as a registration with its document
 reference and digest (`record_register_document`); nothing is fetched.
 
+### SEC 13F, 13D and 13G holdings (#2883)
+
+The `sec-edgar-holdings` connector (`src/ingestion/ownership_sec_holdings.py`)
+parses explicitly selected Form 13F-HR information tables and XML Schedule
+13D/13G filings and their amendments into `noesis-ownership-record-v2`
+records. v2 is a new contract version and v1 is unchanged.
+
+- A 13F row is a `reported_holding`: the position as reported, with no
+  percentage and no control, so it never enters the parent slots.
+- A schedule cover page gives one `shareholding` per reporting person, with
+  percent of class, voting and dispositive powers and group members as stated.
+- Every assertion carries its `filing` and amendment chain. Amendments are new
+  records on the chain, never overwrites.
+
+The graph queries `holders` and `holdings` (`src/kb/ownership_holdings.py`)
+select the statement in force as of a date and cite each line's accession
+number. Issuers, managers and reporting persons are per-filing records that
+resolve only through reviewable CIK and CUSIP-issuer identity candidates.
+Natural-person reporting persons are owner-scoped unless
+`NOESIS_PERSON_RESEARCH` is on.
+
+Source audit:
+`docs/development/ownership-evidence/sec-holdings-source-audit.md`.
+
 ## Identity, graph, timeline, dossier (O08–O10)
 
 `OwnershipIdentityService.propose` offers candidates with basis, evidence and
