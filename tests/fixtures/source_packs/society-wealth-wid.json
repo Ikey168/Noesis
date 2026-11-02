@@ -1,0 +1,476 @@
+{
+ "native_pages": [
+  {
+   "request": "/prod/countries-variables?countries=DE%2CFR%2CUS&variables=shweal_p99p100_992_j%2Cshweal_p99.9p100_992_j%2Cshweal_p99.99p100_992_j%2Cwwealn_p0p100_999_i%2Cwwealp_p0p100_999_i",
+   "status": 200,
+   "body": {
+    "shweal_p99p100_992_j": [
+     {
+      "DE": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.29
+        },
+        {
+         "y": 2094,
+         "v": 0.293
+        },
+        {
+         "y": 2095,
+         "v": 0.296
+        },
+        {
+         "y": 2096,
+         "v": 0.299
+        },
+        {
+         "y": 2097,
+         "v": 0.302
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "FR": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.251
+        },
+        {
+         "y": 2094,
+         "v": 0.254
+        },
+        {
+         "y": 2095,
+         "v": 0.257
+        },
+        {
+         "y": 2096,
+         "v": 0.26
+        },
+        {
+         "y": 2097,
+         "v": 0.263
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "US": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.342
+        },
+        {
+         "y": 2094,
+         "v": 0.345
+        },
+        {
+         "y": 2095,
+         "v": 0.348
+        },
+        {
+         "y": 2096,
+         "v": 0.351
+        },
+        {
+         "y": 2097,
+         "v": 0.354
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     }
+    ],
+    "shweal_p99.9p100_992_j": [
+     {
+      "DE": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.145
+        },
+        {
+         "y": 2094,
+         "v": 0.148
+        },
+        {
+         "y": 2095,
+         "v": 0.151
+        },
+        {
+         "y": 2096,
+         "v": 0.154
+        },
+        {
+         "y": 2097,
+         "v": 0.157
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "FR": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.126
+        },
+        {
+         "y": 2094,
+         "v": 0.129
+        },
+        {
+         "y": 2095,
+         "v": 0.132
+        },
+        {
+         "y": 2096,
+         "v": 0.135
+        },
+        {
+         "y": 2097,
+         "v": 0.138
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "US": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.172
+        },
+        {
+         "y": 2094,
+         "v": 0.175
+        },
+        {
+         "y": 2095,
+         "v": 0.178
+        },
+        {
+         "y": 2096,
+         "v": 0.181
+        },
+        {
+         "y": 2097,
+         "v": 0.184
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     }
+    ],
+    "shweal_p99.99p100_992_j": [
+     {
+      "DE": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.058
+        },
+        {
+         "y": 2094,
+         "v": 0.061
+        },
+        {
+         "y": 2095,
+         "v": 0.064
+        },
+        {
+         "y": 2096,
+         "v": 0.067
+        },
+        {
+         "y": 2097,
+         "v": 0.07
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "FR": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.051
+        },
+        {
+         "y": 2094,
+         "v": 0.054
+        },
+        {
+         "y": 2095,
+         "v": 0.057
+        },
+        {
+         "y": 2096,
+         "v": 0.06
+        },
+        {
+         "y": 2097,
+         "v": 0.063
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     },
+     {
+      "US": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 0.07
+        },
+        {
+         "y": 2094,
+         "v": 0.073
+        },
+        {
+         "y": 2095,
+         "v": 0.076
+        },
+        {
+         "y": 2096,
+         "v": 0.079
+        },
+        {
+         "y": 2097,
+         "v": 0.082
+        }
+       ],
+       "meta": {
+        "method": "DINA method, fixture version 1 (synthetic label)",
+        "extrapolation": "[[2096, 2097]]"
+       }
+      }
+     }
+    ],
+    "wwealn_p0p100_999_i": [
+     {
+      "DE": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 5.9
+        },
+        {
+         "y": 2094,
+         "v": 5.95
+        },
+        {
+         "y": 2095,
+         "v": 6.0
+        },
+        {
+         "y": 2096,
+         "v": 6.05
+        },
+        {
+         "y": 2097,
+         "v": 6.1
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     },
+     {
+      "FR": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 6.2
+        },
+        {
+         "y": 2094,
+         "v": 6.25
+        },
+        {
+         "y": 2095,
+         "v": 6.3
+        },
+        {
+         "y": 2096,
+         "v": 6.35
+        },
+        {
+         "y": 2097,
+         "v": 6.4
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     },
+     {
+      "US": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 6.5
+        },
+        {
+         "y": 2094,
+         "v": 6.55
+        },
+        {
+         "y": 2095,
+         "v": 6.6
+        },
+        {
+         "y": 2096,
+         "v": 6.65
+        },
+        {
+         "y": 2097,
+         "v": 6.7
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     }
+    ],
+    "wwealp_p0p100_999_i": [
+     {
+      "DE": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 6.5
+        },
+        {
+         "y": 2094,
+         "v": 6.55
+        },
+        {
+         "y": 2095,
+         "v": 6.6
+        },
+        {
+         "y": 2096,
+         "v": 6.65
+        },
+        {
+         "y": 2097,
+         "v": 6.7
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     },
+     {
+      "FR": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 6.8
+        },
+        {
+         "y": 2094,
+         "v": 6.85
+        },
+        {
+         "y": 2095,
+         "v": 6.9
+        },
+        {
+         "y": 2096,
+         "v": 6.95
+        },
+        {
+         "y": 2097,
+         "v": 7.0
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     },
+     {
+      "US": {
+       "values": [
+        {
+         "y": 2093,
+         "v": 7.1
+        },
+        {
+         "y": 2094,
+         "v": 7.15
+        },
+        {
+         "y": 2095,
+         "v": 7.2
+        },
+        {
+         "y": 2096,
+         "v": 7.25
+        },
+        {
+         "y": 2097,
+         "v": 7.3
+        }
+       ],
+       "meta": {
+        "method": "national balance sheets, fixture version 1 (synthetic label)",
+        "extrapolation": ""
+       }
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "scenarios": [
+  "first-release",
+  "model-based-dina",
+  "extrapolated-years",
+  "api-key-header"
+ ]
+}

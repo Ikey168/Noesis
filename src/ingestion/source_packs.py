@@ -441,6 +441,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 # Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
 NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
+# Society wealth distribution: WID, ECB Distributional Wealth Accounts and Fed DFA (#2882).
+NATIVE_CONNECTOR_MODULES["wealth-distribution"] = "src.ingestion.wealth_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"wealth-distribution"})
 
 
 def native_connector_module(connector: str) -> Any:
