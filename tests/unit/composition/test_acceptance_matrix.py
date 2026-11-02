@@ -139,6 +139,11 @@ MATRIX = {
     "Place to tourism statistics":
         "tests/unit/domains/test_tourism_acceptance.py::"
         "test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags",
+    # The Economics tax features' offline journey (#2889) composes economics (OECD Corporate Tax Statistics, EU Tax
+    # Observatory estimates, public CbCR references), Corporate Ownership identity and the source-pack runtime.
+    "Jurisdiction to tax figures by edition":
+        "tests/unit/domains/test_tax_acceptance.py::"
+        "test_jurisdiction_to_cited_tax_figures_by_edition_and_company_to_public_cbcr_through_review",
     # The Technology internet-infrastructure features' offline journey (#2743) composes technology (RIPEstat,
     # PeeringDB, RDAP, crt.sh, CT log list), OSINT source identities, subscriptions and the source-pack runtime.
     "ASN and domain to network registry records":
