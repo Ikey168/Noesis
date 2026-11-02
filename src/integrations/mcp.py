@@ -5,6 +5,7 @@ records the mcp 2 redirect, session-expiry and OAuth-issuer review.
 """
 
 import asyncio
+import ipaddress
 import json
 import os
 from contextlib import ExitStack, suppress
@@ -29,6 +30,11 @@ PRESETS = {
     "context7": {
         "endpoint": "https://mcp.context7.com/mcp",
         "secret_env": "NOESIS_CONTEXT7_API_KEY",
+        # Self-hosted Context7 (open source, #2860): an explicitly configured
+        # endpoint replaces the hosted one. It never receives the hosted key;
+        # it gets only its own, separately configured, optional key.
+        "endpoint_env": "NOESIS_CONTEXT7_URL",
+        "self_hosted_secret_env": "NOESIS_CONTEXT7_SELF_HOSTED_API_KEY",
         "tools": ["resolve-library-id", "query-docs"],
     },
     "playwright": {
@@ -37,6 +43,51 @@ PRESETS = {
         "tools": ["browser_navigate", "browser_snapshot", "browser_wait_for"],
     },
 }
+
+
+def _is_loopback_host(host):
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def _self_hosted_endpoint(url):
+    """Validate an explicitly configured self-hosted MCP endpoint URL.
+
+    HTTPS is required; plain HTTP is accepted only for a loopback server, the
+    same rule as the other operator-started MCP endpoints. Credentials, query
+    strings and fragments are rejected so the recorded endpoint is exact.
+    """
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except ValueError:
+        raise IntegrationError(
+            "invalid_endpoint", "Self-hosted MCP endpoint is not a valid URL"
+        ) from None
+    host = (parts.hostname or "").strip("[]")
+    if (
+        not host
+        or parts.username
+        or parts.password
+        or parts.query
+        or parts.fragment
+        or port == 0
+        or not (
+            parts.scheme == "https"
+            or parts.scheme == "http"
+            and _is_loopback_host(host)
+        )
+    ):
+        raise IntegrationError(
+            "invalid_endpoint",
+            "Self-hosted MCP endpoint must be HTTPS (or HTTP on loopback) "
+            "without credentials, query or fragment",
+        )
+    return url
 
 
 class StreamableMCPClient:
@@ -207,15 +258,32 @@ class StreamableMCPClient:
 
 
 def federation_adapter(
-    name, *, endpoint=None, secret_resolver=None, navigation_origins=()
+    name,
+    *,
+    endpoint=None,
+    secret_resolver=None,
+    navigation_origins=(),
+    endpoint_resolver=None,
 ):
-    from src.kb.federation import RemoteMCPAdapter
+    """Build an allowlisted federated adapter for a known MCP preset.
+
+    ``secret_resolver`` resolves credentials (default ``os.environ.get``);
+    ``endpoint_resolver`` resolves a preset's endpoint override variable
+    (``NOESIS_CONTEXT7_URL``), also defaulting to ``os.environ.get``. An
+    explicit ``endpoint`` argument wins over the environment.
+    """
+    from src.kb.federation import RemoteMCPAdapter, _digest
 
     if name not in PRESETS:
         raise IntegrationError("unknown_preset", "Unknown MCP preset")
     preset = PRESETS[name]
+    if endpoint is None and preset.get("endpoint_env"):
+        endpoint = (endpoint_resolver or os.environ.get)(preset["endpoint_env"])
+        endpoint = (endpoint or "").strip() or None
     target = endpoint or preset["endpoint"]
     headers = {}
+    mode = "hosted" if preset["endpoint"] else "operator-started"
+    secret_env = preset["secret_env"]
     if name == "playwright":
         parts = urlsplit(target or "")
         if parts.scheme != "http" or parts.hostname not in {
@@ -248,11 +316,16 @@ def federation_adapter(
                     "Navigation origins must be HTTP(S) origins without paths",
                 )
     elif target != preset["endpoint"]:
-        raise IntegrationError(
-            "invalid_endpoint", "Hosted MCP preset endpoint is fixed"
-        )
+        if not preset.get("endpoint_env"):
+            raise IntegrationError(
+                "invalid_endpoint", "Hosted MCP preset endpoint is fixed"
+            )
+        target = _self_hosted_endpoint(target)
+        # The hosted key must never reach another origin: a self-hosted
+        # endpoint only gets its own explicitly configured key (or none).
+        mode, secret_env = "self-hosted", preset["self_hosted_secret_env"]
     resolver = secret_resolver or os.environ.get
-    secret = resolver(preset["secret_env"]) if preset["secret_env"] else None
+    secret = resolver(secret_env) if secret_env else None
     if name == "github" and not secret:
         raise IntegrationError(
             "credential_unavailable", "Configure NOESIS_GITHUB_MCP_TOKEN"
@@ -263,7 +336,7 @@ def federation_adapter(
         )
     if name == "github":
         headers["X-MCP-Readonly"] = "true"
-    return RemoteMCPAdapter(
+    adapter = RemoteMCPAdapter(
         name + "-mcp",
         StreamableMCPClient(
             target,
@@ -275,3 +348,19 @@ def federation_adapter(
         tools=preset["tools"],
         limits={"max_results": 100, "timeout_ms": 30000, "max_bytes": 1_000_000},
     )
+    # Record which endpoint/mode answers (#2860) in describe(); it is part of
+    # the capability hash, so every result's provenance distinguishes hosted
+    # from self-hosted answers. Names the credential variable, never its value.
+    definition = {
+        key: value
+        for key, value in adapter.definition.items()
+        if key != "capability_hash"
+    }
+    definition["endpoint"] = {
+        "mode": mode,
+        "url": target,
+        "credential": secret_env if secret else "anonymous",
+    }
+    definition["capability_hash"] = _digest(definition)
+    adapter.definition = definition
+    return adapter

@@ -234,12 +234,12 @@ class AsyncNewsScraperEngine:
         self.escalation = FetchEscalationPolicy()
         self.adaptive_rate = AdaptiveRateLimiter()
 
-        # CAPTCHA solver
-        self.captcha_solver = None
-        if captcha_api_key:
-            from .captcha_solver import CaptchaSolver
+        # CAPTCHA solver (#2858): the paid 2Captcha solver exists only when a
+        # key is explicitly configured. Without one, CAPTCHA pages are skipped
+        # with reason ``captcha-required`` and never retried.
+        from .captcha_solver import build_captcha_solver
 
-            self.captcha_solver = CaptchaSolver(captcha_api_key)
+        self.captcha_solver = build_captcha_solver(captcha_api_key)
 
         # Browser management
         self.playwright = None
@@ -261,6 +261,11 @@ class AsyncNewsScraperEngine:
         self.url_states = {}
         self.url_attempts = set()
         self.discovery_failures = {}
+        # CAPTCHA skip run record (#2858): one entry per skipped URL, plus the
+        # sources that are skipped for the rest of this run.
+        self.captcha_skips: list[dict[str, Any]] = []
+        self.captcha_blocked_sources: dict[str, str] = {}
+        self.captcha_skipped_urls: set[str] = set()
 
         # Setup logging
         self.logger = logging.getLogger(__name__)
@@ -474,6 +479,12 @@ class AsyncNewsScraperEngine:
 
         async with rate_limiter:
             try:
+                if source.name in self.captcha_blocked_sources:
+                    self.logger.info(
+                        "Skipping %s: %s, skipped (#2858)",
+                        source.name, self.captcha_blocked_sources[source.name],
+                    )
+                    return []
                 use_js = self.escalation.should_use_js(source.name, source.requires_js)
                 self.logger.info(
                     f"Scraping {source.name} ({'JS' if use_js else 'HTTP'})"
@@ -490,6 +501,9 @@ class AsyncNewsScraperEngine:
                 if (
                     self.escalation.assess(source.name, len(articles)) == ESCALATE
                     and self.browser is not None
+                    # A CAPTCHA wall is not an extraction miss: re-fetching
+                    # through Playwright is a retry and cannot pass it (#2858).
+                    and source.name not in self.captcha_blocked_sources
                 ):
                     self.logger.warning(
                         "HTTP pass for %s extracted nothing; escalating to "
@@ -516,6 +530,8 @@ class AsyncNewsScraperEngine:
             if isinstance(article, Article):
                 self.seen_urls.add(link)
                 self.url_states[link] = 'succeeded'
+            elif link in self.captcha_skipped_urls:
+                self.url_states[link] = 'captcha-skipped'
             else:
                 self.url_states[link] = 'retryable-failed'
             return article
@@ -537,7 +553,7 @@ class AsyncNewsScraperEngine:
             tasks = []
 
             for link in links:
-                if link not in self.seen_urls and ("http", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
+                if link not in self.seen_urls and link not in self.captcha_skipped_urls and ("http", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
                     self.url_attempts.add(("http", link))
                     task = asyncio.create_task(
                         self._attempt_article("http", source, link, semaphore)
@@ -586,15 +602,9 @@ class AsyncNewsScraperEngine:
             ) as response:
                 if response.status == 200:
                     html = await response.text()
-                    # CAPTCHA detection (simple placeholder)
-                    if "captcha" in html.lower() and self.captcha_solver:
-                        self.logger.warning(
-                            "CAPTCHA detected on {0}, attempting to solve...".format(
-                                source.base_url
-                            )
-                        )
-                        # Here you would extract sitekey and call self.captcha_solver.solve_recaptcha_v2(...)
-                        # For now, just log and skip
+                    if self._skip_if_captcha(
+                        html, source, source.base_url, stage="discovery", backend="http"
+                    ):
                         return []
                     # Use thread pool for CPU-intensive parsing
                     loop = asyncio.get_event_loop()
@@ -647,15 +657,9 @@ class AsyncNewsScraperEngine:
                     )
                     if response.status == 200:
                         html = await response.text()
-                        # CAPTCHA detection (simple placeholder)
-                        if "captcha" in html.lower() and self.captcha_solver:
-                            self.logger.warning(
-                                "CAPTCHA detected on {0}, attempting to solve...".format(
-                                    url
-                                )
-                            )
-                            # Here you would extract sitekey and call self.captcha_solver.solve_recaptcha_v2(...)
-                            # For now, just log and skip
+                        if self._skip_if_captcha(
+                            html, source, url, stage="article", backend="http"
+                        ):
                             return None
                         # Use thread pool for parsing
                         loop = asyncio.get_event_loop()
@@ -672,6 +676,64 @@ class AsyncNewsScraperEngine:
                 self.adaptive_rate.record(source.name, error=True)
                 self.logger.error("Error scraping article {0}: {1}".format(url, e))
                 return None
+
+    def _skip_if_captcha(
+        self, html: Any, source: NewsSource, url: str, *, stage: str, backend: str
+    ) -> bool:
+        """Record a ``captcha-required, skipped`` outcome when ``html`` is a
+        CAPTCHA page (#2858). Returns True when the caller must skip.
+
+        No solver is called here: without an explicitly configured key none
+        exists, and with one this engine has no automated solve step wired, so
+        the page is skipped either way and the record says which case applied.
+        The URL and (for discovery pages, or any page without a solver) the
+        source are excluded from further attempts in this run: no retry, no
+        Playwright escalation.
+        """
+        from .captcha_solver import CaptchaSkip, detect_captcha_marker
+
+        marker = detect_captcha_marker(html)
+        if marker is None:
+            return False
+        record = CaptchaSkip(
+            source=source.name,
+            url=url,
+            marker=marker,
+            stage=stage,
+            backend=backend,
+            solver_configured=self.captcha_solver is not None,
+        )
+        self.captcha_skips.append(record.to_dict())
+        self.captcha_skipped_urls.add(url)
+        if stage == "discovery" or self.captcha_solver is None:
+            self.captcha_blocked_sources[source.name] = (
+                f"{record.reason}, {record.outcome}"
+            )
+        if stage == "discovery":
+            self.discovery_failures[source.name] = record.reason
+        self.logger.warning(
+            "CAPTCHA (%s) on %s for %s: %s, %s%s",
+            marker, url, source.name, record.reason, record.outcome,
+            "" if self.captcha_solver is not None else " (no solver configured)",
+        )
+        return True
+
+    async def _page_html(self, page) -> str | None:
+        """Best-effort rendered HTML of a Playwright page for CAPTCHA checks."""
+        try:
+            html = await page.content()
+        except Exception:  # noqa: BLE001 - detection must never fail a fetch
+            return None
+        return html if isinstance(html, str) else None
+
+    def get_captcha_report(self) -> dict[str, Any]:
+        """CAPTCHA skip section of the run record (#2858)."""
+        return {
+            "solver_configured": self.captcha_solver is not None,
+            "skipped_sources": dict(self.captcha_blocked_sources),
+            "skipped_urls": len(self.captcha_skipped_urls),
+            "skips": [dict(entry) for entry in self.captcha_skips],
+        }
 
     def parse_article_html(
         self, html: str, url: str, source: NewsSource
@@ -767,7 +829,7 @@ class AsyncNewsScraperEngine:
 
             tasks = []
             for link in links[:20]:  # Limit for JS scraping
-                if link not in self.seen_urls and ("browser", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
+                if link not in self.seen_urls and link not in self.captcha_skipped_urls and ("browser", link) not in self.url_attempts and self.url_states.get(link) != "in-flight":
                     self.url_attempts.add(("browser", link))
                     task = asyncio.create_task(
                         self._attempt_article("browser", source, link, semaphore, context)
@@ -804,6 +866,12 @@ class AsyncNewsScraperEngine:
 
             # Wait for content to load
             await page.wait_for_timeout(3000)
+
+            if self._skip_if_captcha(
+                await self._page_html(page), source, source.base_url,
+                stage="discovery", backend="browser",
+            ):
+                return []
 
             # Extract links
             links = await page.evaluate(
@@ -845,6 +913,12 @@ class AsyncNewsScraperEngine:
 
                 # Wait for content
                 await page.wait_for_timeout(2000)
+
+                if self._skip_if_captcha(
+                    await self._page_html(page), source, url,
+                    stage="article", backend="browser",
+                ):
+                    return None
 
                 # Extract article data using JavaScript
                 article_data = await page.evaluate(
@@ -975,8 +1049,10 @@ class AsyncNewsScraperEngine:
         self.logger.info("Saved {0} articles to {1}".format(len(articles), output_file))
 
     def get_performance_stats(self) -> Dict[str, Any]:
-        """Get current performance statistics."""
-        return self.monitor.get_stats()
+        """Get current performance statistics (with the CAPTCHA skip record)."""
+        stats = self.monitor.get_stats()
+        stats["captcha"] = self.get_captcha_report()
+        return stats
 
 
 # Pre-configured news sources — built from config_async.json, the single

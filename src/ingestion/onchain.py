@@ -6,8 +6,18 @@ Consumes the sources declared in ``config/source_packs/onchain.json``:
   ``module``/``action`` interface) for Ethereum mainnet (``chainid=1``). It needs
   an API key (``NOESIS_ETHERSCAN_API_KEY``), sent only as the provider's
   documented ``apikey`` query parameter and never stored in a receipt,
-  locator or error. Without a key every Ethereum operation is inert and
-  returns ``no_provider_configured``.
+  locator or error.
+* ``blockscout-ethereum`` - the keyless Etherscan-compatible RPC API of the
+  hosted Blockscout explorer (``eth.blockscout.com/api``), declared in
+  :data:`FALLBACKS` as the fallback of ``etherscan-v2-mainnet`` (FA22, #2861). Ethereum calls are
+  routed to it when ``NOESIS_ETHERSCAN_API_KEY`` is not configured or the
+  Etherscan free-tier budget in ``config/source_quotas.json`` (FA02,
+  :mod:`src.ingestion.quota`) is exhausted. Only the actions it is declared to
+  serve (:data:`PROVIDER_ACTIONS`) are sent; an operation it cannot serve is an
+  explicit ``unavailable`` answer, never an empty one. Every receipt and
+  observation names the ``provider`` that answered and the ``fallback`` reason.
+  ``NOESIS_ONCHAIN_FALLBACK=off`` disables the fallback; without a key Ethereum
+  operations then return ``no_provider_configured``.
 * ``blockstream-esplora-bitcoin`` - the Esplora REST API on blockstream.info
   for Bitcoin mainnet (no key).
 * ``ethereum-lists-tokens`` - the MIT-licensed MyEtherWallet ``ethereum-lists``
@@ -69,6 +79,9 @@ ADAPTER_VERSION = "onchain-observations-v1"
 ETHERSCAN = "etherscan-v2-mainnet"
 ESPLORA = "blockstream-esplora-bitcoin"
 TOKEN_LABELS = "ethereum-lists-tokens"
+BLOCKSCOUT = "blockscout-ethereum"
+# "off" disables the declared fallback provider (FA22).
+FALLBACK_SWITCH = "NOESIS_ONCHAIN_FALLBACK"
 SOURCE_FOR_CHAIN = {ETHEREUM: ETHERSCAN, BITCOIN: ESPLORA}
 READ_RPC_METHODS = frozenset(
     {
@@ -80,6 +93,18 @@ READ_RPC_METHODS = frozenset(
 )
 # The provider's documented credential parameter; the key is added to the request only, never logged.
 KEY_PARAMS = {ETHERSCAN: "apikey"}
+# FA22: the Etherscan module/action pairs a fallback provider is declared to serve, mapped to its own
+# Etherscan-compatible module/action. A pair that is absent is unsupported: the request is never sent and
+# the answer is ``unavailable`` (never an empty result). Blockscout instances serve one chain, so ``chainid``
+# is not sent. Not verified live (no network from the build environment); see LIVE_VERIFICATION.
+PROVIDER_ACTIONS: dict[str, dict[tuple[str, str], tuple[str, str]]] = {
+    BLOCKSCOUT: {
+        ("account", "txlist"): ("account", "txlist"),
+        ("account", "tokentx"): ("account", "tokentx"),
+        ("proxy", "eth_blockNumber"): ("block", "eth_block_number"),
+    }
+}
+SINGLE_CHAIN_PROVIDERS = frozenset({BLOCKSCOUT})
 ESPLORA_PAGE = 25  # Esplora returns 25 confirmed transactions per chain page
 FUNDING_INBOUND = 3  # first inbound value transfers kept per funding record
 
@@ -111,21 +136,39 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
             "chain id (chainid=1 -> eip155:1)",
         ],
         "coverage": "one explicit address, transaction or contract per call; Ethereum mainnet only",
-        "unavailable_fallback": "no key: no_provider_configured and nothing is written; a provider failure is a "
-        "failed receipt and earlier observations stay current",
+        "unavailable_fallback": "no key or an exhausted free-tier budget (config/source_quotas.json): the "
+        "declared fallback blockscout-ethereum answers the operations it serves; with NOESIS_ONCHAIN_FALLBACK=off "
+        "and no key: no_provider_configured and nothing is written; a provider failure is a failed receipt and "
+        "earlier observations stay current",
     },
-    "blockscout-ethereum": {
-        "status": "audited-not-selected",
+    BLOCKSCOUT: {
+        "status": "fallback",
+        "fallback_for": ETHERSCAN,
         "kind": "explorer",
         "documentation": "https://docs.blockscout.com/devs/apis/rpc",
-        "access": "Etherscan-compatible RPC API (same module/action shape) on eth.blockscout.com/api",
-        "authentication": "optional API key",
+        "access": "Etherscan-compatible RPC API on eth.blockscout.com/api: module=account action=txlist|tokentx "
+        "and module=block action=eth_block_number (chain head); no chainid parameter (single-chain instance)",
+        "unsupported": "module=contract action=getcontractcreation and the module=proxy transaction/receipt/block "
+        "reads are not sent: contract-origin and transaction answer unavailable/unsupported_by_provider until "
+        "an equivalent is verified live",
+        "authentication": "none (keyless; an optional key exists but is not used)",
         "rate_limits": "documented per-instance limits without a key (" + _VERIFY + ")",
+        "pagination": "page/offset with sort=asc as for Etherscan; bounded by the declared source's max_pages",
         "terms": "open-source explorer (GPL-3.0 code); hosted-instance terms apply to the service ("
         + _VERIFY
         + ")",
-        "decision": "same response format as the selected source, so the Etherscan parsers accept it; kept as a "
-        "documented alternative and not declared in the source pack until its hosted terms are verified",
+        "stored": "parsed ledger facts only, as for Etherscan; receipts and observations name provider "
+        "blockscout-ethereum and the fallback reason",
+        "identifiers": ["address", "tx hash", "chain id (eip155:1 instance)"],
+        "coverage": "one explicit address per call; Ethereum mainnet only; address-transactions and "
+        "address-funding",
+        "decision": "same response format as the selected source, so the Etherscan parsers accept it; declared "
+        "as the fallback of etherscan-v2-mainnet in FALLBACKS (FA22, #2861; the source-pack contract has no "
+        "fallback field) and used only when the "
+        "Etherscan key is missing or its free-tier budget is exhausted; live behaviour and hosted terms still to "
+        "be verified",
+        "unavailable_fallback": "an operation it does not serve is unavailable (unsupported_by_provider), never "
+        "empty; a provider failure is a failed receipt; NOESIS_ONCHAIN_FALLBACK=off disables it",
     },
     ESPLORA: {
         "status": "selected",
@@ -193,6 +236,13 @@ LIVE_VERIFICATION = {
         "failure_code": "credential_missing",
         "cause": "NOESIS_ETHERSCAN_API_KEY not configured; " + _BLOCKED,
     },
+    BLOCKSCOUT: {
+        "status": "unverified-live",
+        "last_run": None,
+        "result": "not-sent",
+        "cause": "keyless fallback; response shapes and the eth_block_number, txlist and tokentx actions are "
+        "assumed from the provider documentation; " + _BLOCKED,
+    },
     ESPLORA: {
         "status": "unverified-live",
         "last_run": None,
@@ -230,6 +280,101 @@ def load_source(source_id: str, path: Path = SOURCE_PACK_PATH) -> dict[str, Any]
         "undeclared_source",
         f"{source_id!r} is not declared in the on-chain source pack",
     )
+
+
+# FA22 (#2861): fallback providers per declared source. Kept here rather than in the source pack because the
+# noesis-source-pack-v1 contract has no fallback field; the declared source's pack entry (host, budgets, mapping,
+# policy) still governs, and only these fields are replaced.
+FALLBACKS: dict[str, dict[str, Any]] = {
+    ETHERSCAN: {
+        "source_id": BLOCKSCOUT,
+        "endpoint": "https://eth.blockscout.com/api",
+        "publisher": "Blockscout",
+        "scope": "Ethereum mainnet through the keyless Etherscan-compatible RPC API of the hosted Blockscout "
+        "instance: transactions and token transfers of one explicit address in a bounded block range and one "
+        "address's first inbound funding; transaction-by-hash and contract-origin are not served (unavailable, "
+        "never empty)",
+        "when": ["credential_missing", "budget_exhausted"],
+        "license": {
+            "id": "blockscout-hosted-terms",
+            "terms_url": "https://www.blockscout.com/",
+            "redistribution": "facts-with-citation; public ledger data; hosted-instance service terms apply "
+            "(verify against the live terms)",
+        },
+        "auth": {"kind": "none"},
+        "operations": ["address-transactions", "address-funding"],
+        "policy": {"attribution": "Data from Blockscout (eth.blockscout.com)"},
+        "live_status": "unverified-live",
+    }
+}
+
+
+def fallback_source(source: Mapping[str, Any]) -> dict[str, Any] | None:
+    """The fallback provider of a loaded source (:data:`FALLBACKS`) as a source of its own, or ``None``.
+
+    It inherits the declared source's budgets, mapping and policy; its own endpoint, publisher, licence,
+    authentication, attribution and the operations it serves replace the declared source's.
+    """
+    declared = FALLBACKS.get(str(source.get("source_id")))
+    if not declared:
+        return None
+    merged = {k: v for k, v in source.items() if k != "fixture"}
+    merged.update(
+        {k: v for k, v in declared.items() if k not in {"policy", "auth", "when"}}
+    )
+    merged["policy"] = {
+        **(source.get("policy") or {}),
+        **(declared.get("policy") or {}),
+    }
+    merged["auth"] = dict(declared.get("auth") or {"kind": "none"})
+    merged["fallback_for"] = source["source_id"]
+    return merged
+
+
+def _fallback_enabled() -> bool:
+    return os.environ.get(FALLBACK_SWITCH, "").strip().lower() not in {
+        "off",
+        "0",
+        "false",
+        "no",
+    }
+
+
+def _quota_ledger() -> Any:
+    """The shared free-tier ledger (FA02), or ``None`` when quotas are disabled."""
+    from src.ingestion import quota
+
+    return quota.default_ledger()
+
+
+def budget_exhausted(endpoint: str, needed: int) -> str | None:
+    """Why the host's declared free-tier budget cannot take ``needed`` more requests now, or ``None``.
+
+    Only a window that does not reopen within the ledger's short wait counts (the per-second limit
+    is waited out by the transport; the daily limit or a provider ``Retry-After`` block is not).
+    """
+    ledger = _quota_ledger()
+    if ledger is None:
+        return None
+    host = (urlsplit(endpoint).hostname or "").lower()
+    now = ledger.clock()
+
+    def wait(stamp: str) -> float:
+        when = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+        return when.timestamp() - now
+
+    state = ledger.status(host)["hosts"][0]
+    if state["blocked_until"] and wait(state["blocked_until"]) > ledger.max_wait_s:
+        return f"provider asked to retry later ({state['blocked_reason']}) until {state['blocked_until']}"
+    for window in state["windows"]:
+        limit = window["limit_requests"]
+        if (
+            limit is not None
+            and window["used_requests"] + needed > limit
+            and wait(window["resets_at"]) > ledger.max_wait_s
+        ):
+            return f"{limit} requests per {window['window']} spent; resets at {window['resets_at']}"
+    return None
 
 
 @dataclass
@@ -328,6 +473,34 @@ class Session:
                 "provider_unavailable", f"provider returned HTTP {status}"
             )
         return raw
+
+
+# ---------------------------------------------------------------------- Etherscan-compatible requests
+
+
+def explorer_get(
+    session: Session, endpoint: str, params: Mapping[str, Any]
+) -> bytes | None:
+    """Send one Etherscan-shaped request to the session's provider, translated to its own action names.
+
+    A provider listed in :data:`PROVIDER_ACTIONS` is sent only the actions declared for it; any other
+    action raises ``unsupported_by_provider`` before a request is made.
+    """
+    provider = str(session.source["source_id"])
+    actions = PROVIDER_ACTIONS.get(provider)
+    if actions is None:
+        return session.get(endpoint, params)
+    wanted = (str(params.get("module")), str(params.get("action")))
+    if wanted not in actions:
+        raise AcquisitionError(
+            "unsupported_by_provider",
+            f"{provider} does not serve module={wanted[0]} action={wanted[1]}",
+        )
+    sent = dict(params)
+    if provider in SINGLE_CHAIN_PROVIDERS:
+        sent.pop("chainid", None)
+    sent["module"], sent["action"] = actions[wanted]
+    return session.get(endpoint, sent)
 
 
 # ---------------------------------------------------------------------- Etherscan-compatible parsing
@@ -623,7 +796,45 @@ def _acquire(
     authorize(namespace, scopes, WRITE_SCOPE)
     source = load_source(source_id)
     secret = _secret(source, api_key)
-    if source["auth"].get("kind") == "required-secret" and not secret:
+    missing_key = source["auth"].get("kind") == "required-secret" and not secret
+    fallback = fallback_source(source) if _fallback_enabled() else None
+    routed: dict[str, Any] | None = None
+    if fallback is not None:
+        # FA22: route to the declared fallback when the key is missing or the free-tier budget is spent.
+        when = set(FALLBACKS[source_id].get("when") or ())
+        exhausted = (
+            None
+            if missing_key
+            else budget_exhausted(str(source["endpoint"]), max_requests)
+        )
+        if missing_key and "credential_missing" in when:
+            routed = {
+                "from": source_id,
+                "to": fallback["source_id"],
+                "reason": "credential_missing",
+                "detail": f"{source['auth'].get('secret_ref')} not configured",
+            }
+        elif exhausted and "budget_exhausted" in when:
+            routed = {
+                "from": source_id,
+                "to": fallback["source_id"],
+                "reason": "budget_exhausted",
+                "detail": exhausted,
+            }
+    if routed is not None and fallback is not None:
+        if operation not in (fallback.get("operations") or ()):
+            return {
+                "status": "unavailable",
+                "failure_type": "unsupported_by_provider",
+                "source_id": source_id,
+                "provider": fallback["source_id"],
+                "operation": operation,
+                "fallback": routed,
+                "note": f"{fallback['source_id']} does not serve {operation}; it needs "
+                f"{source_id} ({routed['reason']}: {routed['detail']}); nothing was requested or written",
+            }
+        source, secret = fallback, None
+    elif missing_key:
         return {
             "status": "no_provider_configured",
             "source_id": source_id,
@@ -631,6 +842,7 @@ def _acquire(
             "note": f"set {source['auth'].get('secret_ref')} to enable this source; nothing was requested or "
             "written",
         }
+    provider = str(source["source_id"])
     budgets = source["budgets"]
     max_bytes = int(max_bytes or budgets["max_bytes"])
     timeout_s = float(timeout_s or budgets["timeout_ms"] / 1000)
@@ -686,6 +898,8 @@ def _acquire(
         "input_hash": key,
         "namespace": namespace,
         "source_id": source_id,
+        "provider": provider,
+        "fallback": routed,
         "operation": operation,
         "chain_id": chain,
         "subject": dict(subject),
@@ -723,7 +937,9 @@ def _acquire(
             "contract": CONTRACT,
             "observation_id": observation_id,
             "namespace": namespace,
-            "provider": source_id,
+            "provider": provider,
+            "requested_source": source_id,
+            "fallback": routed,
             "publisher": source.get("publisher"),
             "dataset": (source.get("policy") or {}).get("dataset"),
             "attribution": (source.get("policy") or {}).get("attribution"),
@@ -772,7 +988,8 @@ def _acquire(
             raise
     except (OnchainError, IdentifierError) as exc:
         receipt.update(
-            status="failed",
+            # An action the answering provider does not serve is unavailable, never an empty answer.
+            status="unavailable" if exc.code == "unsupported_by_provider" else "failed",
             failure_type=exc.code,
             requests=budget.used,
             bytes=budget.bytes,
@@ -810,6 +1027,8 @@ def record_in_investigation(
         for k in (
             "request_id",
             "source_id",
+            "provider",
+            "fallback",
             "operation",
             "chain_id",
             "subject",
@@ -847,8 +1066,10 @@ def _rpc(session: Session, endpoint: str, method: str, **params: Any) -> Any:
             "method_refused", "only read-only JSON-RPC methods are sent"
         )
     return etherscan_result(
-        session.get(
-            endpoint, {"chainid": 1, "module": "proxy", "action": method, **params}
+        explorer_get(
+            session,
+            endpoint,
+            {"chainid": 1, "module": "proxy", "action": method, **params},
         )
     )
 
@@ -884,7 +1105,7 @@ def _etherscan_list(
             "offset": size,
             "sort": "asc",
         }
-        result = etherscan_result(session.get(endpoint, params))
+        result = etherscan_result(explorer_get(session, endpoint, params))
         batch = parse(result)
         rows += batch
         if len(result) < size:
@@ -1201,7 +1422,7 @@ def _funding_fact(
         "offset": size,
         "sort": "asc",
     }
-    result = etherscan_result(session.get(endpoint, params))
+    result = etherscan_result(explorer_get(session, endpoint, params))
     rows = parse_etherscan_txlist(result)
     first = first_inbound(address, rows)
     full = len(result) >= size
@@ -1371,7 +1592,8 @@ def acquire_contract_origin(
         head = _eth_head(session, endpoint)
         created = parse_etherscan_creation(
             etherscan_result(
-                session.get(
+                explorer_get(
+                    session,
                     endpoint,
                     {
                         "chainid": 1,

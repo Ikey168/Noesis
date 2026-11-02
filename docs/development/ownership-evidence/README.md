@@ -4,6 +4,15 @@ Live checks only. Offline fixture evidence lives in `tests/unit/ownership` and
 `tests/unit/domains/test_corporate_ownership_acceptance.py` and is never
 recorded here.
 
+- [handelsregister-automation-audit.md](handelsregister-automation-audit.md) -
+  FA20 (#2859, tracker #2839): automated retrieval of free Handelsregister and
+  Unternehmensregister extracts recorded as **not automatable through a
+  permitted interface** (no documented machine interface or bulk export, portal
+  retrieval limit, €1 plus VAT per filed annual account, no BRIS third-party
+  API, only third-party harvests as bulk). Names the EU high-value-dataset
+  company API as the route to re-check. Written without network access
+  (2026-11-01); terms marked _verify_.
+
 `live-check-<date>.json` is written by `scripts/ownership_live_check.py`. It
 runs one bounded acquisition per provider through the real `SourcePackRuntime`
 with `network=live` (GLEIF and SEC EDGAR for Apple Inc., Companies House for

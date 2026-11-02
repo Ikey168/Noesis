@@ -76,15 +76,22 @@ def test_provider_audit_covers_two_explorers_and_two_label_datasets_and_live_is_
     selected = {
         p for p, c in acq.PROVIDER_CONTRACTS.items() if c["status"] == "selected"
     }
-    assert selected == set(acq.LIVE_VERIFICATION) == set(fb.RAW_FILES)
+    fallbacks = {
+        p for p, c in acq.PROVIDER_CONTRACTS.items() if c["status"] == "fallback"
+    }
+    assert selected == set(fb.RAW_FILES) and fallbacks == {acq.BLOCKSCOUT}
+    assert set(acq.LIVE_VERIFICATION) == selected | fallbacks
     assert all(v["status"] == "unverified-live" for v in acq.LIVE_VERIFICATION.values())
     doc = (ROOT / "docs/security/onchain-source-access.md").read_text()
     for provider in acq.PROVIDER_CONTRACTS:
         assert provider in doc
 
 
-def test_without_a_key_ethereum_is_inert_and_writes_nothing(conn, monkeypatch):
+def test_without_a_key_and_with_the_fallback_off_ethereum_is_inert_and_writes_nothing(
+    conn, monkeypatch
+):
     monkeypatch.delenv("NOESIS_ETHERSCAN_API_KEY", raising=False)
+    monkeypatch.setenv(acq.FALLBACK_SWITCH, "off")
     sent = []
     result = call(conn, api_key=None, transport=lambda **kw: sent.append(kw))
     assert result["status"] == "no_provider_configured" and not sent
@@ -101,6 +108,7 @@ def test_the_key_goes_only_in_the_documented_parameter_and_never_into_storage(co
 
     receipt = call(conn, transport=spy)
     assert receipt["status"] == "acquired" and receipt["credential"] == "configured"
+    assert receipt["provider"] == acq.ETHERSCAN and receipt["fallback"] is None
     assert all(kw["params"].get("apikey") == KEY for kw in seen)
     assert all(KEY not in json.dumps(kw["headers"]) for kw in seen)
     for table in onchain.TABLES:

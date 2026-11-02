@@ -2,7 +2,11 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 tracks listed under "Wave 2" covered offline, not live; wave 3 planned.
+wave 2 tracks listed under "Wave 2" covered offline, not live; wave 3 source
+audits recorded offline, 2026-11-01
+([#2814](https://github.com/Ikey168/Noesis/issues/2814)); culture bundle
+accepted ([ADR-007](../architecture/decisions/ADR-007-culture-bundle.md), CU01
+[#2815](https://github.com/Ikey168/Noesis/issues/2815)).
 Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
@@ -40,7 +44,10 @@ Each track follows the existing domain-track pattern:
 
 Two domains had no bundle suited to their gaps, so two new bundles were
 proposed: `society` (Society and population), created by wave 1, and `culture`
-(Culture and leisure), still proposed. Every other gap becomes a provider in an existing bundle. Existing
+(Culture and leisure), accepted by
+[ADR-007](../architecture/decisions/ADR-007-culture-bundle.md); its
+`packs/culture/` directory and taxonomy entry arrive with the first culture
+provider, as `society`'s did. Every other gap becomes a provider in an existing bundle. Existing
 providers stay where they are; their ids are preserved.
 
 ## Waves
@@ -114,6 +121,33 @@ until a tracker's live validation passes; a tracker may open only on the
 conditions in the audit's "Conclusion of the amendment". AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
+## Wave 3 source audits
+
+Tracker: [#2814](https://github.com/Ikey168/Noesis/issues/2814). Bundle
+decision for FB, PA, GM, AR and RB:
+[ADR-007](../architecture/decisions/ADR-007-culture-bundle.md) (CU01). All nine
+audits were written without network access (publisher hosts blocked by the
+egress proxy, 2026-11-01), so unchecked terms are marked _verify_ and no source
+is live. Wikidata sources are "what Wikidata states", never a register, through
+one shared reader on the existing `wikidata` connector.
+
+| Code | Subdomain | Audit dir | Sources kept (`unverified-live`) | Not implemented or gated |
+| --- | --- | --- | --- | --- |
+| DF01 | defence and security | `defence` | NATO defence expenditure tables (spreadsheet, conditional); UN Register national reports (file export, conditional) | SIPRI Milex and Arms Transfers (terms restrict redistribution) |
+| PO01 | public opinion and wellbeing | `public-opinion` | OECD How's Life (OECD SDMX path); Eurobarometer topline tables (tabular file, conditional) | GESIS Eurobarometer and ESS microdata (gated); ESS aggregates (no machine access) |
+| PR01 | physical sciences reference | `physical-reference` | NIST CODATA; NIST ASD; IAEA LiveChart; PDG summary tables (licence, conditional) | none at the source level |
+| TC01 | telecommunications and spectrum | `telecommunications` | FCC ULS (company licensees only); FCC BDC summaries (account-free download, conditional) | BDC API (gated); BDC location data and Fabric; Bundesnetzagentur (no machine access); ITU DataHub (terms) |
+| FB01 | film and broadcast | `film-broadcast` | Wikidata statements | LUMIERE, MAVISE (MO01 finding), TMDB (terms) |
+| PA01 | performing arts and events | `performing-arts` | Wikidata statements; Eurostat cultural participation | Deutscher Bühnenverein Theaterstatistik (priced); no source for performances |
+| GM01 | games | `games` | Wikidata statements | MobyGames API, IGDB (retention terms) |
+| AR01 | archives and genealogy | `archives` | Archivportal-D via the DDB connector (descriptions above file level) | Archives Portal Europe, NARA Catalog API (`gated-not-granted`) |
+| RB01 | religion and belief | `religion` | ONS Census 2021 via Nomis; Zensus 2022 (precondition) | Pew (terms), ARDA (per-dataset terms) |
+
+Every audit leaves at least one source, so each track may open its per-track
+tracker. FB, GM and AR would each cover their gap with one publisher and add a
+thin row (ADR-006) in their delivering change. No subdomain leaves the gap
+table until its provider is classified.
+
 ## Gap table
 
 | Subdomain | Domain | Proposed home | Candidate sources (unaudited) | Links to | Wave |
@@ -129,11 +163,11 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
 | `telecommunications-spectrum` | Technology | `technology.telecommunications` | FCC ULS and broadband data; Bundesnetzagentur data; ITU DataHub (terms) | infrastructure, competition | 3 |
 | `cyber-incidents` | Technology | `technology.cyber-incidents` | SEC 8-K Item 1.05 disclosures; HHS OCR breach portal; state breach-notification registers | vulnerabilities, market filings | 2 |
-| `film-broadcast` | Culture and leisure | `culture.film-broadcast` (new bundle) | Wikidata; European Audiovisual Observatory LUMIERE and MAVISE; TMDB (API terms) | media metadata | 3 |
-| `performing-arts-events` | Culture and leisure | `culture.performing-arts` (new bundle) | Wikidata; Eurostat cultural participation statistics | cultural heritage | 3 |
-| `games` | Culture and leisure | `culture.games` (new bundle) | Wikidata; MobyGames API; IGDB (platform terms) | media metadata | 3 |
-| `archives-genealogy` | Culture and leisure | `culture.archives` (new bundle) | Archives Portal Europe; Archivportal-D; US National Archives catalog API | cultural heritage, legal | 3 |
-| `religion-belief` | Culture and leisure | `culture.religion` (new bundle) | Census religion tables; Pew Research religious composition data; ARDA | demographics | 3 |
+| `film-broadcast` | Culture and leisure | `culture.film-broadcast` (`culture` bundle, ADR-007) | Wikidata; European Audiovisual Observatory LUMIERE and MAVISE; TMDB (API terms) | media metadata | 3 |
+| `performing-arts-events` | Culture and leisure | `culture.performing-arts` (`culture` bundle, ADR-007) | Wikidata; Eurostat cultural participation statistics | cultural heritage | 3 |
+| `games` | Culture and leisure | `culture.games` (`culture` bundle, ADR-007) | Wikidata; MobyGames API; IGDB (platform terms) | media metadata | 3 |
+| `archives-genealogy` | Culture and leisure | `culture.archives` (`culture` bundle, ADR-007) | Archives Portal Europe; Archivportal-D; US National Archives catalog API | cultural heritage, legal | 3 |
+| `religion-belief` | Culture and leisure | `culture.religion` (`culture` bundle, ADR-007) | Census religion tables; Pew Research religious composition data; ARDA | demographics | 3 |
 | `media-outlets-ownership` | Information and investigation | `news.outlets` | Media Ownership Monitor; MAVISE; KEK media database | news, ownership | 2 |
 
 Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows

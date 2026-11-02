@@ -1,6 +1,7 @@
 # Source depth program
 
-Status: wave 4 planned, 2026-10-07. Tracker:
+Status: wave 4 audited offline, 2026-11-01 (DT01, DP01, DS01, DG01; no source
+live). Tracker:
 [#2825](https://github.com/Ikey168/Noesis/issues/2825). Decision:
 [ADR-006](../architecture/decisions/ADR-006-source-depth.md). Overlay:
 [`packs/depth.json`](../../packs/depth.json). Coverage program:
@@ -63,12 +64,12 @@ implemented, and the subdomain stays thin.
 
 ## Wave 4: thin table
 
-| Subdomain | Domain | Provider | Only publisher | Candidate second publishers (unaudited) | Audit |
+| Subdomain | Domain | Provider | Only publisher | Audit outcome (offline, 2026-11-01) | Audit |
 | --- | --- | --- | --- | --- | --- |
-| `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat | Destatis GENESIS accommodation survey; OECD tourism statistics; Amt für Statistik Berlin-Brandenburg | [#2826](https://github.com/Ikey168/Noesis/issues/2826) DT01 |
-| `patents` | Technology | `technology.patents` | European Patent Office | USPTO (PatentsView / Open Data Portal); DPMAregister; WIPO PATENTSCOPE | [#2827](https://github.com/Ikey168/Noesis/issues/2827) DP01 |
-| `standards-certification` | Technology | `technology.standards` | ISO | European Commission NANDO; RFC Editor (IETF); W3C Technical Reports; ETSI deliverables | [#2828](https://github.com/Ikey168/Noesis/issues/2828) DS01 |
-| `places-geometry` | Earth and environment | `geospatial.core` | Land Berlin | Eurostat GISCO boundaries; BKG VG250; OpenStreetMap | [#2829](https://github.com/Ikey168/Noesis/issues/2829) DG01 |
+| `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat | Destatis GENESIS 45412 recommended (same origin chain as Eurostat: depth, not independence); OECD, AfS not implemented | [#2826](https://github.com/Ikey168/Noesis/issues/2826) DT01, [audit](../development/tourism-evidence/depth-audit.md) |
+| `patents` | Technology | `technology.patents` | European Patent Office | USPTO (PatentsView / Open Data Portal) recommended after a patent-part provider widening; DPMAregister, WIPO PATENTSCOPE not implemented | [#2827](https://github.com/Ikey168/Noesis/issues/2827) DP01, [audit](../development/patents-evidence/depth-audit.md) |
+| `standards-certification` | Technology | `technology.standards` | ISO | W3C TR API recommended (RFC Editor index as alternative) after a catalogue provider widening; NANDO not implemented (new record shape needs a decision record), ETSI not implemented | [#2828](https://github.com/Ikey168/Noesis/issues/2828) DS01, [audit](../development/standards-evidence/depth-audit.md) |
+| `places-geometry` | Earth and environment | `geospatial.core` | Land Berlin | BKG VG250 recommended (Berlin outline; shares Land Berlin's origin chain; needs a Land Berlin state-boundary layer, _verify_); GISCO not implemented pending licence clause; OSM not implemented (ODbL share-alike, ring assembly) | [#2829](https://github.com/Ikey168/Noesis/issues/2829) DG01, [audit](../development/geospatial-evidence/depth-audit.md) |
 
 Track risks:
 - **Tourism:** Destatis transmits the German figures that Eurostat publishes, so
@@ -81,6 +82,10 @@ Track risks:
   catalogue shape.
 - **Places:** the second publisher must cover Berlin, so one place gets two
   geometries with their own vintages. They are never merged.
+- **All four:** each recommended second publisher raises depth without an
+  independent origin for the same figure or boundary (Destatis→Eurostat;
+  USPTO/DPMA records republished in DOCDB; BKG/GISCO compiled from Länder data).
+  When a row leaves the thin table, its watchlist note says so.
 
 ## Depth-two watchlist
 

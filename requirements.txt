@@ -83,7 +83,10 @@ duckdb>=1.0.0,<2.0.0
 # MCP host runtime (src/mcp_host): client SDK used to supervise the repo's
 # tools/*_mcp stdio servers from the API process. Optional at runtime: the
 # host reports itself unavailable when this is missing.
-mcp>=1.28.1
+# mcp stays below 2: every fastmcp 3.x release (through 3.4.11) requires
+# mcp>=1.24,<2, and mcp 2 needs fastmcp 4 (#2744). The HTTP clients in
+# src/integrations/mcp_sdk.py already run on both mcp majors.
+mcp>=1.28.1,<2.0
 fastmcp>=3.0,<4.0
 
 # Article-extraction cascade (#877) — both optional; src/ingestion/extract.py

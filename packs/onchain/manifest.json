@@ -71,7 +71,7 @@
     {
       "id": "acquisition",
       "default": false,
-      "description": "Bounded, receipted acquisition of explorer observations for one explicit identifier per request; Ethereum stays inert (no_provider_configured) until NOESIS_ETHERSCAN_API_KEY is set",
+      "description": "Bounded, receipted acquisition of explorer observations for one explicit identifier per request; Ethereum runs on Etherscan when NOESIS_ETHERSCAN_API_KEY is set and its free-tier budget has room, otherwise on the declared keyless Blockscout fallback for the operations it serves (each receipt names the provider that answered); with NOESIS_ONCHAIN_FALLBACK=off and no key Ethereum stays inert (no_provider_configured)",
       "requires": [
         {
           "capability": "platform.source-acquisition",
@@ -118,5 +118,5 @@
       }
     ]
   },
-  "content_hash": "sha256:110bfaeaa32bcc2fcb34fcf8566969f5d36dadb56ce197354836e16a9a626610"
+  "content_hash": "sha256:527da4261e9ac56fd8b9ca5980b81a53eb93572b393dfacf28b0c905d7c7eca2"
 }
