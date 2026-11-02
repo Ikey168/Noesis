@@ -41,10 +41,17 @@ module map: `docs/subsystems/corporate-ownership.md`.
    its basis (exact identifier, cross-referenced identifier, or
    name + jurisdiction), its evidence and a confidence.
 5. **Query** (`ownership_graph` with `direct_parents`, `ultimate_parents`,
-   `subsidiaries`, `control_chain` or `successor_chain`, plus an `as_of` date).
+   `subsidiaries`, `control_chain`, `successor_chain`, `holders` or `holdings`,
+   plus an `as_of` date).
    Each edge carries its source, kind, validity and as-of status. Results
    include conflicts with reasons, reporting exceptions, minority and person
    holdings kept apart from parents, and the pins needed to replay them.
+   `holders` (of an issuer) and `holdings` (of a filer, across issuers) answer
+   from parsed SEC filings (the `sec-edgar-holdings` source). They return 13F
+   positions and Schedule 13D/13G beneficial ownership in separate lists, never
+   summed. Each line cites its accession number. Amendments are applied along
+   their chain, and statements no longer in force are listed as `superseded`.
+   See `docs/development/ownership-evidence/sec-holdings-source-audit.md`.
 6. **Timeline** (`ownership_timeline`, `ownership_state_as_of`): cited entries
    with event time and record time; undated entries are listed as unknown.
    Market corporate actions are included when you pass the market namespace and

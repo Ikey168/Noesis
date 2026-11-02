@@ -4,6 +4,10 @@ Live checks only. Offline fixture evidence lives in `tests/unit/ownership` and
 `tests/unit/domains/test_corporate_ownership_acceptance.py` and is never
 recorded here.
 
+Source audit for SEC 13F information tables and structured Schedule 13D/13G
+filings (#2883, `sec-edgar-holdings`, `unverified-live`):
+[`sec-holdings-source-audit.md`](sec-holdings-source-audit.md).
+
 `live-check-<date>.json` is written by `scripts/ownership_live_check.py`. It
 runs one bounded acquisition per provider through the real `SourcePackRuntime`
 with `network=live` (GLEIF and SEC EDGAR for Apple Inc., Companies House for

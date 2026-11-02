@@ -35,7 +35,7 @@ def test_audit_decisions_are_machine_readable_and_every_source_is_unverified_liv
     sources = [s for s in h.manifest()["sources"] if s["connector"] == "competition"]
     assert {s["source_id"] for s in sources} == set(h.SOURCES)
     assert all(s["competition"]["live_verification"] == "unverified-live" for s in sources)
-    assert h.manifest()["version"] == "1.1.0"
+    assert h.manifest()["version"] == "1.2.0"  # 1.1.0 added competition; 1.2.0 the SEC holdings source (#2883)
 
 
 def test_pinned_fixtures_replay_deterministically():

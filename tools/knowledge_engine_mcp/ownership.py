@@ -169,7 +169,7 @@ def register(mcp, safe, context):
     @mcp.tool()
     def ownership_graph(namespace: str, query: str, entity: str, as_of: str | None = None, max_depth: int = 10,
                         known_at_ms: int | None = None) -> dict:
-        """direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain as of a date."""
+        """direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain / holders / holdings as of a date."""
         from src.kb.ownership_graph import query as run_query
         return gated(namespace, lambda conn: run_query(conn, namespace, query, entity, principal_id=who()[0],
                                                        scopes=who()[1], as_of=as_of, max_depth=max_depth,

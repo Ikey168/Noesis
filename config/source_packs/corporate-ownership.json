@@ -1,6 +1,6 @@
 {
   "pack_id": "corporate-ownership",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment).",
   "domains": [
     "corporate-ownership"
@@ -159,6 +159,96 @@
         "path": "tests/fixtures/ownership/sec-edgar.json",
         "sha256": "e04fa94bdfc35a90d3d2465389019b35da30d3188f536bbf3bd4313d06654f26",
         "expected_output_hash": "c0877c706cac7754d0c80c30b67d3af64f31d47cde950cf35af16b854fce6087"
+      }
+    },
+    {
+      "source_id": "sec-edgar-holdings",
+      "connector": "sec-edgar-holdings",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "endpoint": "https://www.sec.gov",
+      "scope": "Explicitly selected Form 13F-HR filings (cover page and information table) and structured XML Schedule 13D/13G filings and amendments, parsed into ownership assertions with the filing's accession as source",
+      "license": {
+        "id": "us-government-public-data",
+        "terms_url": "https://www.sec.gov/os/accessing-edgar-data",
+        "redistribution": "public-data under the SEC fair-access policy"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-sec-holdings:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_SEC_CONTACT"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "filings": [
+          {
+            "cik": "0009999501",
+            "accession": "0009999501-25-000001",
+            "document": "primary_doc.xml",
+            "information_table": "infotable.xml",
+            "form": "13F-HR",
+            "filing_date": "2025-05-12"
+          },
+          {
+            "cik": "0009999501",
+            "accession": "0009999501-25-000002",
+            "document": "primary_doc.xml",
+            "information_table": "infotable.xml",
+            "form": "13F-HR/A",
+            "filing_date": "2025-06-02"
+          },
+          {
+            "cik": "0009999501",
+            "accession": "0009999501-25-000003",
+            "document": "primary_doc.xml",
+            "information_table": "infotable.xml",
+            "form": "13F-HR",
+            "filing_date": "2025-08-11"
+          },
+          {
+            "cik": "0009999501",
+            "accession": "0009999501-25-000004",
+            "document": "primary_doc.xml",
+            "information_table": "infotable.xml",
+            "form": "13F-HR/A",
+            "filing_date": "2025-08-20"
+          },
+          {
+            "cik": "0009999601",
+            "accession": "0009999601-25-000001",
+            "document": "primary_doc.xml",
+            "form": "SCHEDULE 13D",
+            "filing_date": "2025-04-07"
+          },
+          {
+            "cik": "0009999401",
+            "accession": "0009999701-25-000001",
+            "document": "primary_doc.xml",
+            "form": "SCHEDULE 13G",
+            "filing_date": "2025-02-10"
+          },
+          {
+            "cik": "0009999401",
+            "accession": "0009999701-25-000002",
+            "document": "primary_doc.xml",
+            "form": "SCHEDULE 13G/A",
+            "filing_date": "2025-08-14"
+          }
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/sec-edgar-holdings.json",
+        "sha256": "3e98b3594c4a5383a65f71ee75cef791a2e89f13a7cc11af968eb2c19cf028c4",
+        "expected_output_hash": "30e57854083287ff5e02995a3d54e4df6fecda095872ec771229b6ea04638bca"
       }
     },
     {

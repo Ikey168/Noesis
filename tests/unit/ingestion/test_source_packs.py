@@ -147,8 +147,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
     # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739),
     # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743),
-    # plus the Economics tax-transparency OECD CbCR, OECD rates and two EU Tax Observatory sources (#2889).
-    assert sum(len(pack["sources"]) for pack in packs) == 357
+    # plus the Economics tax-transparency OECD CbCR, OECD rates and two EU Tax Observatory sources (#2889),
+    # plus the Corporate Ownership SEC 13F and Schedule 13D/13G holdings source (#2883).
+    assert sum(len(pack["sources"]) for pack in packs) == 358
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

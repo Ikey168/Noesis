@@ -98,7 +98,9 @@ def test_schemas_are_registered_in_the_schema_registry_and_fixture_records_valid
     views = OwnershipStore(env.conn).records(harness.NS, principal_id=harness.PRINCIPAL, scopes=harness.SCOPES)
     kinds = set()
     for view in views:
-        checked = registry.validate_instance({"kind": "schema", "name": "ownership-record", "version": "1.0.0"},
+        # Each record validates against its own contract version (v2: SEC holdings, #2883).
+        version = "2.0.0" if view["record"]["contract"] == "noesis-ownership-record-v2" else "1.0.0"
+        checked = registry.validate_instance({"kind": "schema", "name": "ownership-record", "version": version},
                                              view["record"], scopes=scopes)
         assert checked["valid"], (view["record"]["record_key"], checked["errors"])
         kinds.add(view["record"]["kind"])

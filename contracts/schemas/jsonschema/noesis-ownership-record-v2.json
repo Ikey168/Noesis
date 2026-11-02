@@ -1,0 +1,808 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-ownership-record-v2",
+  "title": "Source-stated corporate-ownership record (v2: structured SEC holdings and beneficial-ownership filings)",
+  "description": "What one registry or filing states: a legal entity, person, registration, officer role, ownership or control assertion, corporate event or filing reference. Direct/ultimate consolidation parents, control assertions and reporting exceptions are distinct kinds. Percentages are exact or explicit bands. Unknown values stay null and are listed in unknowns. No beneficial-ownership, sanctions or AML determination is ever stored. Version 2 keeps every v1 kind and field and adds what structured SEC filings state: a reported_holding assertion kind (a Form 13F information-table position: CUSIP, class, shares or principal, value, put/call, investment discretion, sole/shared/none voting authority; no percentage and no control), Schedule 13D/13G sole/shared voting and dispositive power and group membership as stated, the filing each assertion comes from (accession, form, dates) and its place on the amendment chain (amendments are new records on the chain, never overwrites), and the natural-person policy a person-level record was stored under.",
+  "type": "object",
+  "required": [
+    "contract",
+    "kind",
+    "record_key",
+    "source",
+    "unknowns"
+  ],
+  "definitions": {
+    "date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d{4}(-\\d{2}(-\\d{2})?)?$"
+    },
+    "percent": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d{1,3}(\\.\\d+)?$"
+    },
+    "identifier": {
+      "type": "object",
+      "required": [
+        "scheme",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "scheme": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "authority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "provider",
+        "provider_record_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "enum": [
+            "gleif",
+            "companies-house",
+            "sec-edgar",
+            "open-ownership",
+            "opencorporates",
+            "handelsregister",
+            "unternehmensregister",
+            "bris",
+            "market-instruments",
+            "bafin"
+          ]
+        },
+        "provider_record_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^https://"
+        },
+        "locator": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "statement_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "publisher": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "retrieved_at_ms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "raw_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "share": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "exact": {
+          "$ref": "#/definitions/percent"
+        },
+        "band": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": {
+              "$ref": "#/definitions/percent"
+            },
+            "max": {
+              "$ref": "#/definitions/percent"
+            },
+            "min_inclusive": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "max_inclusive": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        },
+        "native": {},
+        "shares": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "decimal": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d+(\\.\\d+)?$"
+    },
+    "amendment": {
+      "type": "object",
+      "required": [
+        "is_amendment",
+        "chain_key"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "is_amendment": {
+          "type": "boolean"
+        },
+        "number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\d+$"
+        },
+        "type": {
+          "enum": [
+            "restatement",
+            "new_holdings",
+            null
+          ]
+        },
+        "amends_accession": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^\\d{10}-\\d{2}-\\d{6}$"
+        },
+        "chain_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "chain_basis": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "filing": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "accession_number",
+        "form_type",
+        "amendment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "accession_number": {
+          "type": "string",
+          "pattern": "^\\d{10}-\\d{2}-\\d{6}$"
+        },
+        "form_type": {
+          "type": "string"
+        },
+        "filing_date": {
+          "$ref": "#/definitions/date"
+        },
+        "period_of_report": {
+          "$ref": "#/definitions/date"
+        },
+        "event_date": {
+          "$ref": "#/definitions/date"
+        },
+        "document_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^https://"
+        },
+        "amendment": {
+          "$ref": "#/definitions/amendment"
+        }
+      }
+    },
+    "position": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "cusip",
+        "amount",
+        "amount_type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "issuer_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title_of_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cusip": {
+          "type": "string",
+          "pattern": "^[0-9A-Z*@#]{9}$"
+        },
+        "figi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "amount": {
+          "$ref": "#/definitions/decimal"
+        },
+        "amount_type": {
+          "enum": [
+            "SH",
+            "PRN"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/decimal"
+        },
+        "value_unit": {
+          "enum": [
+            "USD",
+            "USD-thousands",
+            null
+          ]
+        },
+        "put_call": {
+          "enum": [
+            "Put",
+            "Call",
+            null
+          ]
+        },
+        "investment_discretion": {
+          "enum": [
+            "SOLE",
+            "DFND",
+            "OTR",
+            null
+          ]
+        },
+        "other_managers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "voting_authority": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sole": {
+              "$ref": "#/definitions/decimal"
+            },
+            "shared": {
+              "$ref": "#/definitions/decimal"
+            },
+            "none": {
+              "$ref": "#/definitions/decimal"
+            }
+          }
+        }
+      }
+    },
+    "powers": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sole_voting": {
+          "$ref": "#/definitions/decimal"
+        },
+        "shared_voting": {
+          "$ref": "#/definitions/decimal"
+        },
+        "sole_dispositive": {
+          "$ref": "#/definitions/decimal"
+        },
+        "shared_dispositive": {
+          "$ref": "#/definitions/decimal"
+        },
+        "aggregate_amount": {
+          "$ref": "#/definitions/decimal"
+        }
+      }
+    },
+    "group": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "member_of_group": {
+          "enum": [
+            "a",
+            "b",
+            null
+          ]
+        },
+        "basis": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "kind": {
+                "enum": [
+                  "entity",
+                  "person",
+                  "unknown"
+                ]
+              },
+              "withheld": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "contract": {
+      "const": "noesis-ownership-record-v2"
+    },
+    "kind": {
+      "enum": [
+        "legal_entity",
+        "person",
+        "registration",
+        "officer_role",
+        "ownership_assertion",
+        "corporate_event",
+        "filing_reference"
+      ]
+    },
+    "record_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "$ref": "#/definitions/source"
+    },
+    "owner_scoped": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "name": {
+      "type": "string"
+    },
+    "jurisdiction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "identifiers": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/identifier"
+      }
+    },
+    "entity_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "other_names": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "founding_date": {
+      "$ref": "#/definitions/date"
+    },
+    "dissolution_date": {
+      "$ref": "#/definitions/date"
+    },
+    "addresses": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "canonical_entity_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nationalities": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "country_of_residence": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "native_kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entity_key": {
+      "type": "string"
+    },
+    "register": {
+      "type": "string"
+    },
+    "number": {
+      "type": "string"
+    },
+    "registered_on": {
+      "$ref": "#/definitions/date"
+    },
+    "dissolved_on": {
+      "$ref": "#/definitions/date"
+    },
+    "document_reference": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "reference"
+      ]
+    },
+    "officer": {
+      "type": "object",
+      "required": [
+        "name"
+      ]
+    },
+    "role": {
+      "type": "string"
+    },
+    "appointed_on": {
+      "$ref": "#/definitions/date"
+    },
+    "resigned_on": {
+      "$ref": "#/definitions/date"
+    },
+    "appointed_status": {
+      "enum": [
+        "stated",
+        "before",
+        "unknown"
+      ]
+    },
+    "subject_key": {
+      "type": "string"
+    },
+    "holder": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "entity",
+            "person",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "assertion_kind": {
+      "enum": [
+        "direct_parent",
+        "ultimate_parent",
+        "shareholding",
+        "voting_rights",
+        "appoint_directors",
+        "significant_influence",
+        "other_control",
+        "reporting_exception",
+        "reported_holding"
+      ]
+    },
+    "share": {
+      "$ref": "#/definitions/share"
+    },
+    "native": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "validity": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "from_status",
+        "to_status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "$ref": "#/definitions/date"
+        },
+        "to": {
+          "$ref": "#/definitions/date"
+        },
+        "from_status": {
+          "enum": [
+            "stated",
+            "unknown"
+          ]
+        },
+        "to_status": {
+          "enum": [
+            "stated",
+            "open",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "reporting_exception": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "level",
+        "category"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "direct",
+            "ultimate",
+            "psc",
+            "any"
+          ]
+        },
+        "category": {
+          "type": "string"
+        }
+      }
+    },
+    "relationship_status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "basis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "statement_date": {
+      "$ref": "#/definitions/date"
+    },
+    "event_type": {
+      "enum": [
+        "incorporation",
+        "registration",
+        "dissolution",
+        "name_change",
+        "merger",
+        "succession",
+        "re_registration",
+        "status_change",
+        "other"
+      ]
+    },
+    "related_entity_key": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "event_date": {
+      "$ref": "#/definitions/date"
+    },
+    "date_status": {
+      "enum": [
+        "stated",
+        "before",
+        "unknown"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "form_type": {
+      "type": "string"
+    },
+    "accession_number": {
+      "type": "string"
+    },
+    "filing_date": {
+      "$ref": "#/definitions/date"
+    },
+    "document_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^https://"
+    },
+    "parsed": {
+      "type": "boolean"
+    },
+    "filers": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
+    "period_of_report": {
+      "$ref": "#/definitions/date"
+    },
+    "filing": {
+      "$ref": "#/definitions/filing"
+    },
+    "position": {
+      "$ref": "#/definitions/position"
+    },
+    "powers": {
+      "$ref": "#/definitions/powers"
+    },
+    "group": {
+      "$ref": "#/definitions/group"
+    },
+    "amendment": {
+      "$ref": "#/definitions/amendment"
+    },
+    "person_policy": {
+      "enum": [
+        "ownership-person-owner-scoped-v1",
+        "ownership-person-research-v1"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

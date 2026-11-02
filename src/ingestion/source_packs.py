@@ -444,6 +444,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructur
 # Economics tax transparency: OECD Corporate Tax Statistics and EU Tax Observatory estimates (#2889).
 NATIVE_CONNECTOR_MODULES["tax-transparency"] = "src.ingestion.tax_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tax-transparency"})
+# Corporate Ownership: SEC 13F information tables and structured Schedule 13D/13G (#2883).
+NATIVE_CONNECTOR_MODULES["sec-edgar-holdings"] = "src.ingestion.ownership_sec_holdings"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sec-edgar-holdings"})
 
 
 def native_connector_module(connector: str) -> Any:
