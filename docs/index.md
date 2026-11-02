@@ -299,6 +299,12 @@ For the project overview and local setup, start with the
   vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
   UN Tourism not-implemented; no nowcast, filled month, blended or derived figure;
   [source audit](development/tourism-evidence/source-audit.md)
+- [Economics tax transparency guide](guides/economics-tax.md) — OECD Corporate Tax Statistics CbCR aggregates and
+  statutory rates as published statistics, OECD forward-looking effective tax rates and EU Tax Observatory offshore
+  wealth and billionaire tax-rate figures as model estimates with method and edition, each as of the edition
+  published by a date; link-only public CbCR references matched to ownership entities through reviewed identity;
+  Tax Justice Network indices not-implemented (licence); no own tax rate, rank, blend or forecast; offline only;
+  [source audit](development/tax-transparency-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

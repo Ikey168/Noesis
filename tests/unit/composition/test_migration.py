@@ -94,6 +94,7 @@ PROJECTOR_OWNERS = {
     "noesis-waste-record-v2": "src.kb.waste_store",  # Climate and Environment waste (#2740)
     "noesis-social-protection-record-v2": "src.kb.social_protection_store",  # Society social protection (#2741)
     "noesis-tourism-statistics-record-v2": "src.kb.tourism_store",  # Economics tourism (#2739)
+    "noesis-tax-transparency-record-v2": "src.kb.tax_store",  # Economics tax transparency (#2889)
     # Technology internet infrastructure (#2743)
     "noesis-internet-infrastructure-record-v2": "src.kb.internet_infrastructure_store",
 }

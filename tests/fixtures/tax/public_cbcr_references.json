@@ -1,0 +1,49 @@
+{
+ "note": "authored link-only public CbCR references for fictional companies; URLs are example.org placeholders",
+ "references": [
+  {
+   "channel": "company-website",
+   "company_name": "Exampla Holdings plc",
+   "fiscal_year": {
+    "end": "2025-12-31",
+    "start": "2025-01-01"
+   },
+   "identifiers": [
+    {
+     "scheme": "lei",
+     "value": "213800EXAMPLAHOLDS95"
+    }
+   ],
+   "language": "en",
+   "published_on": "2026-06-30",
+   "report_url": "https://www.example.org/exampla-holdings/income-tax-information-report-2025.pdf",
+   "template": "eu-common-template (verify)"
+  },
+  {
+   "channel": "business-register",
+   "company_name": "Exampla Intermediate B.V.",
+   "fiscal_year": {
+    "end": "2025-12-31",
+    "start": "2025-01-01"
+   },
+   "identifiers": [],
+   "language": "nl",
+   "published_on": "2026-09-15",
+   "report_url": "https://www.example.org/exampla-intermediate/public-cbcr-2025.html",
+   "template": "not stated"
+  },
+  {
+   "channel": "company-website",
+   "company_name": "Northwind Industrie SE (fictional)",
+   "fiscal_year": {
+    "end": "2025-06-30",
+    "start": "2024-07-01"
+   },
+   "identifiers": [],
+   "language": "de",
+   "published_on": "2026-03-31",
+   "report_url": "https://www.example.org/northwind/income-tax-information-2024-2025.pdf",
+   "template": "not stated"
+  }
+ ]
+}

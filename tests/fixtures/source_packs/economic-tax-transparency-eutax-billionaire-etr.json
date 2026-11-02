@@ -1,0 +1,18 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "iso3,country,year,etr_wealth_pct,etr_income_pct\nFRA,France,2091,0.4,26.3\nNLD,Netherlands,2091,0.2,\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/data/gter-2024-billionaire-effective-tax-rates.csv",
+   "status": 200
+  }
+ ],
+ "note": "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)",
+ "scenarios": [
+  "model-estimate",
+  "unpublished-cell"
+ ]
+}

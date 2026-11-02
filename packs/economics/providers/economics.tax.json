@@ -1,0 +1,204 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.tax",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.tax_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.tax",
+      "contract": {
+        "name": "noesis-tax-transparency-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "list-series",
+        "indicator-for-jurisdiction",
+        "series-history",
+        "evidence-bundle",
+        "company-reports",
+        "company-matches",
+        "company-reports-for-entity"
+      ],
+      "semantic_constraints": {
+        "series": "a tax series is keyed by dataset, indicator, jurisdiction (ISO 3166 alpha-3), CbCR partner grouping, unit with its multiplier, annual frequency and nature (published_statistic or model_estimate); the edition is never part of the key; published statistics also live in the Economics series storage (economic_vintages, dataset_observations)",
+        "editions": "each edition (an OECD Corporate Tax Statistics edition, an Atlas of the Offshore World update, a Global Tax Evasion Report) is a release vintage dated by its declared publication date; a changed value is a new vintage, never an overwrite; a series a complete later edition no longer states gets a removed_by_source vintage; as-of answers select the edition published by the date and cite source, edition, record revision and as-of time",
+        "estimates": "model estimates (OECD forward-looking effective tax rates, EU Tax Observatory offshore wealth and billionaire effective tax rates) keep their method and edition, have status estimated, are answered in a separate section from published statistics, are never written to the Economics observation storage and are never presented as observations",
+        "status": "OBS_STATUS and CONF_STATUS letters are kept verbatim per value; a confidential cell is a status and carries no value",
+        "identity": "public CbCR references reach ownership entities only through reviewed identity decisions (published identifiers first, names as low evidence); nothing is auto-merged, decisions are revertible and unmatched references stay visible",
+        "sources": "OECD and EU Tax Observatory sources are unverified-live until a dated live run (EU Tax Observatory licence not established); Tax Justice Network indices are not-implemented (licence) and reported as such, never as an empty answer; public CbCR reports under Directive (EU) 2021/2101 are reference-only",
+        "minimisation": "published aggregates and estimates per jurisdiction only; public CbCR references are link-only and never carry a figure; person-, taxpayer- and wealth-holder-level fields are refused at write time",
+        "exclusions": "no own effective tax rate, profit-shifting or tax-gap estimate, no ratio, share, per-capita or per-employee figure, no blending of sources, no model estimate presented as an observation, no ranking or risk score, no filled jurisdiction or year, no currency conversion, no forecasts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.tax_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.tax_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_tax_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-jurisdiction",
+      "tool": "noesis-knowledge-engine.tax_indicator_for_jurisdiction",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.tax_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_tax_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "company-reports",
+      "tool": "noesis-knowledge-engine.list_tax_company_reports",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "company-matches",
+      "tool": "noesis-knowledge-engine.list_tax_company_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "company-reports-for-entity",
+      "tool": "noesis-knowledge-engine.tax_company_reports_for_entity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tax:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "tax-transparency-record",
+      "store": "src.kb.tax_store",
+      "tables": [
+        "tax_releases",
+        "tax_series",
+        "tax_vintages",
+        "tax_observations",
+        "tax_release_members",
+        "tax_receipts",
+        "tax_company_reports"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "tax_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-tax-transparency",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

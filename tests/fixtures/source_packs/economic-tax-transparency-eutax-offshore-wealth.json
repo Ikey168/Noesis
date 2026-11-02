@@ -1,0 +1,18 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "iso3,country,year,offshore_wealth_usd_bn,offshore_wealth_pct_gdp\nDEU,Germany,2091,512.3,12.1\nDEU,Germany,2092,498.7,11.6\nNLD,Netherlands,2091,140.2,13.9\nNLD,Netherlands,2092,138.8,13.2\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/data/offshore-financial-wealth-2024.csv",
+   "status": 200
+  }
+ ],
+ "note": "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)",
+ "scenarios": [
+  "model-estimate",
+  "wide-table"
+ ]
+}
