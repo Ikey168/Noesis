@@ -882,6 +882,12 @@
         "Open Ownership"
       ]
     },
+    "opencorporates": {
+      "name": "OpenCorporates",
+      "match": [
+        "OpenCorporates"
+      ]
+    },
     "open-source-vulnerabilities": {
       "name": "Open Source Vulnerabilities (OSV)",
       "match": [
