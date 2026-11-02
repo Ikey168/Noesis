@@ -53,6 +53,9 @@ BUNDLE = {
                          "tools": ["propose_ownership_identity_matches", "review_ownership_identity_match",
                                    "revert_ownership_identity_match", "list_ownership_identity_candidates"]},
             "graph_and_timeline": {"tools": ["ownership_graph", "ownership_timeline", "ownership_state_as_of"]},
+            # Derived dividend-flow estimates along stated holdings (#2891): reads, never writes, Market inputs.
+            "dividend_flows": {"reuses": ["MarketCorporateActionStore", "MarketFinancialFactStore",
+                                          "MarketInstrumentStore"], "tools": ["estimate_dividend_flows"]},
             "dossier": {"reuses": ["AuthoredReportStore"], "tools": ["build_ownership_dossier", "export_ownership_dossier"]},
             # Optional competition feature (#2217, default off): cases, stages and state aid naming a company.
             "competition": {"feature": "competition", "tools": ["lookup_competition_cases",

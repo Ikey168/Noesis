@@ -207,6 +207,11 @@ For the project overview and local setup, start with the
   ICIJ's labels, cited to the leak dataset and node id; ICIJ links and registry matches are reviewable candidates
   only; ICIJ's caveat on every line; no wrongdoing, AML or sanctions verdict;
   [source audit](development/offshore-leaks-evidence/source-audit.md)
+- [Dividend-flow estimates](subsystems/dividend-flow-estimates.md) — derived, never reported: declared per-share
+  dividends times holdings stated in force at the record date, looked through stated holdings with an explicit
+  `max_depth`, each estimate with its cited input revisions, an interval for bands, timing gaps and threshold
+  censoring, `n`, method and assumptions; per currency, never summed or netted;
+  [source audit](development/dividend-flow-evidence/source-audit.md)
 - [Political campaign finance guide](guides/political-campaign-finance.md) — FEC committees, filing versions with
   amendment chains, itemised receipts, disbursements and independent expenditures and UK Electoral Commission
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
