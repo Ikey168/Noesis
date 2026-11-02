@@ -17,6 +17,7 @@ from src.ingestion.bulk.base import BulkAdapter
 ADAPTERS: Dict[str, str] = {
     "bls-flat-files": "src.ingestion.bulk.adapters.bls:BlsFlatFiles",
     "companies-house-snapshot": "src.ingestion.bulk.adapters.companies_house:CompaniesHouseSnapshot",
+    "companies-house-psc-snapshot": "src.ingestion.bulk.adapters.companies_house_psc:CompaniesHousePscSnapshot",
     "eia-bulk": "src.ingestion.bulk.adapters.eia:EiaBulk",
     "ember-generation": "src.ingestion.bulk.adapters.ember:EmberGeneration",
     "fas-psd": "src.ingestion.bulk.adapters.fas_psd:FasPsd",

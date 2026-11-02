@@ -15,6 +15,7 @@ minimisation decision listed below stays in force exactly as before.
 | Campaign finance (`src/ingestion/campaign_finance_sources.py`, `src/kb/campaign_finance_*`) | Individual donors stored with no name, employer, occupation, city or id (CF01); never subjects; contributions hidden without the individual-items scope; never notified | Stored with name, employer, occupation, city, state and the regulator's donor id under policy `campaign-finance-person-research-v1`; `donor-person` identity subjects matchable to ownership persons; returned and notified with the read scope |
 | BaFin notices (`src/domains/market/bafin_identity.py`) | Natural persons keyed per issuer; never proposed automatically; `bafin_holdings_of_holder` reads a person within its issuer only | Same normalised person name under different issuers proposed as a cross-issuer candidate; once a reviewer accepts it, `bafin_holdings_of_holder` reads the person's holdings across issuers |
 | Extractives (`src/ingestion/extractives_sources.py`, `src/kb/extractives_*`) | Individual payers' names and identifiers withheld | Kept as published and offered to identity matching |
+| Corporate Ownership (`src/ingestion/ownership_providers.py`, `ownership_psc_snapshot.py`; #2885–#2887) | Individual PSCs, ROE individual beneficial owners and BODS person statements stored owner-scoped (name, nationality, country of residence); no date of birth | Stored unscoped with the published month/year of birth under policy `ownership-person-research-v1`; addresses still never stored |
 
 ## What stays the same
 

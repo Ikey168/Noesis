@@ -42,7 +42,13 @@ from urllib.parse import urlsplit
 from xml.etree import ElementTree
 
 from src.ingestion.source_packs import SourcePackError
-from src.kb.ownership_records import PART_CONTRACT, OwnershipRecordError, record
+from src.kb.ownership_records import (
+    PART_CONTRACT,
+    PERSON_RESEARCH_POLICY,
+    OwnershipRecordError,
+    person_research_enabled,
+    record,
+)
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
 FIXTURE_SECRET = "fixture-secret-not-a-credential"
@@ -230,6 +236,52 @@ LIVE_VERIFICATION.update({
     "opencorporates": {"status": "reused", "note": "verified (or not) by the existing regional provider"},
     **{p: {"status": "not-implemented", "note": PROVIDER_CONTRACTS[p]["reason"]}
        for p in ("handelsregister", "unternehmensregister", "bris")},
+})
+
+# ------------------------------------------- further UK registers (#2885)
+# Reviewed in docs/development/ownership-register-audit.md. The PSC snapshot
+# emits the same companies-house records as the API path (provider
+# "companies-house").
+_AUDIT = "docs/development/ownership-register-audit.md"
+PROVIDER_HOSTS.update({
+    "companies-house-psc-snapshot": {"download.companieshouse.gov.uk"},
+})
+PROVIDER_CONTRACTS.update({
+    "companies-house-psc-snapshot": {
+        "status": "implemented",
+        "connector": "bulk adapter companies-house-psc-snapshot (src/ingestion/bulk/adapters/companies_house_psc.py) "
+                     "with the ownership sink (src/ingestion/bulk/ownership_sink.py)",
+        "documentation": "https://download.companieshouse.gov.uk/en_pscdata.html",
+        "access": "daily People with significant control snapshot: ZIP files of JSON lines "
+                  "({company_number, data}), one file or split parts (file layout unverified from this runtime)",
+        "authentication": "none",
+        "rate_limits": "bulk download through the shared quota ledger; one release per run with byte/file/time budgets",
+        "pagination": "file by file; resumable per file; lines filtered by the declared selection",
+        "cadence": "daily snapshot (stated as updated every morning before 10am); a run reuses an already "
+                   "processed release",
+        "terms": "provided free of charge and not supported (data.gov.uk listing). Reuse terms: Companies House "
+                 "public task and Crown copyright statement; Companies House has stated that the free data "
+                 "products are not released under the Open Government Licence while third parties describe them "
+                 "as OGL v3 (conflicting; verify). Personal data is published under the Companies Act 2006 and its "
+                 "reuse remains subject to UK GDPR",
+        "personal_data": "individual PSCs: name, nationality and country of residence stored owner-scoped; month/year "
+                         "of birth only under person-research mode; service addresses never stored",
+        "retained_evidence": "release manifest, per-file digests and the filtered subset (gzipped JSONL) in the bulk "
+                             "state directory; each record carries the SHA-256 of its snapshot line",
+        "identifiers": ["gb-coh company number", "PSC id (links.self)"],
+        "coverage": "explicitly selected company numbers or a declared company-number prefix only (e.g. OE for "
+                    "overseas entities); never the whole register",
+        "unavailable_fallback": "a failed listing or download fails the run receipt; ceased or changed entries are "
+                                "new revisions; entries missing from a later snapshot are never deleted",
+        "audit": _AUDIT,
+        "cost": "free",
+    },
+})
+LIVE_VERIFICATION.update({
+    "companies-house-psc-snapshot": {"status": "unverified-live", "result": "not-attempted",
+                                     "failure_code": "host_not_allowed",
+                                     "cause": "download.companieshouse.gov.uk not reachable from this runtime; "
+                                              "offline authored snapshot only", "evidence": _AUDIT},
 })
 BENEFICIAL_OWNERSHIP_FORMS = frozenset({
     "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A", "SCHEDULE 13D", "SCHEDULE 13D/A", "SCHEDULE 13G",
@@ -467,6 +519,8 @@ def _psc_holder(item: Mapping[str, Any], company: str) -> tuple[dict[str, Any], 
         number = str(ident.get("registration_number") or "").replace(" ", "").upper()
         uk = re.search(r"companies house|england|wales|scotland|united kingdom", " ".join(
             str(ident.get(k) or "") for k in ("place_registered", "country_registered", "legal_authority")), re.I)
+        if uk and number.isdigit() and len(number) < 8:
+            number = number.zfill(8)  # registers often state England and Wales numbers without leading zeros
         if number and uk and re.fullmatch(r"[A-Z0-9]{8}", number):
             return {"key": f"companies-house:gb-coh:{number}", "name": item.get("name"), "kind": "entity"}, [], psc_id
         holder_key = f"companies-house:psc:{company}:{psc_id}"
@@ -482,8 +536,8 @@ def _psc_holder(item: Mapping[str, Any], company: str) -> tuple[dict[str, Any], 
 
 def ch_nature(nature: str) -> tuple[str, dict[str, Any] | None]:
     """Map a PSC nature of control to an assertion kind; bands stay bands."""
-    base = re.sub(r"-as-(trust|firm)$", "", nature)
-    base = re.sub(r"-registered-overseas-entity$", "", base)
+    base = re.sub(r"-registered-overseas-entity$", "", nature)
+    base = re.sub(r"-as-(trust|firm)$", "", base)
     for prefix, kind in (("ownership-of-shares-", "shareholding"), ("voting-rights-", "voting_rights")):
         if base.startswith(prefix):
             band = _CH_BANDS.get(base[len(prefix):])
@@ -495,11 +549,55 @@ def ch_nature(nature: str) -> tuple[str, dict[str, Any] | None]:
     return "other_control", None
 
 
+def _psc_person(item: Mapping[str, Any], holder: Mapping[str, Any], source: dict[str, Any], *,
+                research: bool) -> dict[str, Any]:
+    """The natural person a PSC or ROE beneficial-owner entry names.
+
+    Owner-scoped by default (visible to the acquiring principal and ownership
+    reviewers only). Under person-research mode it is stored unscoped with the
+    published month and year of birth and carries the person-research policy.
+    Addresses are never stored.
+    """
+    native: dict[str, Any] = {"psc_kind": item.get("kind")}
+    if research:
+        native.update({"policy": PERSON_RESEARCH_POLICY, "date_of_birth": item.get("date_of_birth"),
+                       "name_elements": item.get("name_elements")})
+    else:
+        native["minimisation"] = "owner-scoped; date of birth and addresses are not stored"
+    return record("person", holder["key"], source, owner_scoped=None if research else True,
+                  name=item.get("name") or "unnamed person",
+                  nationalities=[n.strip() for n in str(item.get("nationality") or "").split(",") if n.strip()],
+                  country_of_residence=item.get("country_of_residence"), native_kind=item.get("kind"), native=native)
+
+
+def _beneficial_owner_native(item: Mapping[str, Any], nature: str) -> dict[str, Any]:
+    """Register of Overseas Entities fields kept as published (#2886)."""
+    held_as = re.search(r"-as-(trust|firm)(?:-registered-overseas-entity)?$", nature)
+    return {"register": "Register of Overseas Entities", "is_sanctioned_as_declared": item.get("is_sanctioned"),
+            "held_as": held_as[1] if held_as else None}
+
+
 def parse_ch_psc(payload: Mapping[str, Any], *, company: str, raw_sha: str, offset: int = 0) -> list[dict[str, Any]]:
     if not isinstance(payload.get("items"), list):
         raise SourcePackError("schema_drift", "PSC list has no items")
     key, records = f"companies-house:gb-coh:{company}", []
+    research = person_research_enabled()
+    page = f"/company/{company}/persons-with-significant-control"
     for index, item in enumerate(payload["items"]):
+        kind = str(item.get("kind") or "")
+        if kind.startswith("super-secure"):
+            # The register states that a protected person exists and withholds their details.
+            records.append(record(
+                "ownership_assertion", f"companies-house:psc:{company}:{_psc_holder(item, company)[2]}:super-secure",
+                _ch_source(company, "psc", raw_sha, f"/items/{index}", page), subject_key=key,
+                assertion_kind="reporting_exception", holder=None,
+                reporting_exception={"level": "psc", "category": kind,
+                                     "reason": "details withheld by the register (protected person)",
+                                     "native_text": item.get("description")},
+                validity=_validity(item.get("notified_on"), item.get("ceased_on"), open_when_missing=False),
+                statement_date=_date(item.get("notified_on")),
+                native={"psc_kind": kind, "ceased": item.get("ceased"), "page_offset": offset}))
+            continue
         natures = item.get("natures_of_control")
         if not isinstance(natures, list) or not natures:
             raise SourcePackError("schema_drift", "PSC item lacks natures_of_control")
@@ -508,16 +606,25 @@ def parse_ch_psc(payload: Mapping[str, Any], *, company: str, raw_sha: str, offs
             entity["source"]["raw_sha256"] = raw_sha
             entity["source"]["locator"] = {"json_pointer": f"/items/{index}/identification"}
             records.append(entity)
+        person = holder["kind"] == "person"
+        if person:
+            records.append(_psc_person(item, holder, _ch_source(company, "psc", raw_sha, f"/items/{index}", page),
+                                       research=research))
         for nature in natures:
-            kind, share = ch_nature(str(nature))
+            kind_, share = ch_nature(str(nature))
+            native = {"nature_of_control": nature, "psc_kind": item.get("kind"), "page_offset": offset}
+            if "beneficial-owner" in kind:
+                native.update(_beneficial_owner_native(item, str(nature)))
             records.append(record(
                 "ownership_assertion", f"companies-house:psc:{company}:{psc_id}:{nature}",
-                _ch_source(company, "psc", raw_sha, f"/items/{index}/natures_of_control",
-                           f"/company/{company}/persons-with-significant-control"),
-                subject_key=key, assertion_kind=kind, holder=holder, share=share,
+                _ch_source(company, "psc", raw_sha, f"/items/{index}/natures_of_control", page),
+                **({"owner_scoped": True} if person and not research else {}),
+                subject_key=key, assertion_kind=kind_, holder=holder, share=share,
                 validity=_validity(item.get("notified_on"), item.get("ceased_on"), open_when_missing=True),
-                statement_date=_date(item.get("notified_on")), basis="PSC register entry as filed with Companies House",
-                native={"nature_of_control": nature, "psc_kind": item.get("kind"), "page_offset": offset},
+                statement_date=_date(item.get("notified_on")),
+                basis=("Register of Overseas Entities beneficial-owner entry as filed with Companies House"
+                       if "beneficial-owner" in kind else "PSC register entry as filed with Companies House"),
+                native=native,
             ))
     return records
 
