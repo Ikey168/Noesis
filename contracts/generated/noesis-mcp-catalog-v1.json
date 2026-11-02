@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1942,
+      "tool_count": 1943,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1342,6 +1342,7 @@
         "noesis-knowledge-engine.enforcement_source_contracts",
         "noesis-knowledge-engine.engineering_safety_dossier",
         "noesis-knowledge-engine.environment_provider_contracts",
+        "noesis-knowledge-engine.estimate_dividend_flows",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
         "noesis-knowledge-engine.evaluate_knowledge_query",
         "noesis-knowledge-engine.evaluate_quantitative_formula",
@@ -2915,7 +2916,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1942
+      "visible_tool_count": 1943
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2928,9 +2929,9 @@
     "states": {
       "available": 170,
       "degraded": 174,
-      "unauthorized": 1936
+      "unauthorized": 1937
     },
-    "tools": 2280
+    "tools": 2281
   },
   "tools": [
     {
@@ -44172,6 +44173,123 @@
       "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "DERIVED dividend-flow estimates, never reported figures: declared cash dividends per share (Market\ncorporate actions, else filed per-share facts) whose record date falls in the window_days up to as_of\n(YYYY-MM-DD), times the holding stated in force at that date, looked through stated holdings up to\nmax_depth links. Name exactly one of holder (what flows to it) or issuer (what flows from it), as an\nownership record key or record id. Each estimate carries label \"derived\", method id/version, every cited\ninput revision, an interval (holding bands, regime timing rules, threshold censoring), n and assumptions.\nHoldings below publication thresholds are never estimated; unknown links, cycles and truncation are\nlisted; natural persons are withheld unless person-research mode is on; nothing is summed across paths or\nnetted across currencies. links: {ownership record_key: {\"issuer_id\", \"security_id\"?}} when no exact CIK\nor LEI links the entity to a Market issuer. verify recomputes each estimate from its cited revisions;\nexport_bundle returns a noesis-evidence-bundle-v1. Not investment, tax or ownership advice.",
+      "id": "noesis-knowledge-engine.estimate_dividend_flows",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "export_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "holder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "issuer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "known_at_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "links": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "market_namespace": {
+            "type": "string"
+          },
+          "max_depth": {
+            "default": 3,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "verify": {
+            "default": false,
+            "type": "boolean"
+          },
+          "window_days": {
+            "default": 365,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "market_namespace",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "estimate_dividend_flows",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "market:actions:read",
+        "market:financial-facts:read",
+        "market:instruments:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
