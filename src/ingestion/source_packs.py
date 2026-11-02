@@ -215,6 +215,9 @@ NATIVE_CONNECTOR_MODULES = {
     "bods": "src.ingestion.ownership_providers",
     "environment": "src.ingestion.environment_providers",
 }
+# Corporate Ownership: OpenCorporates company identity and officers (#2887).
+NATIVE_CONNECTOR_MODULES["opencorporates"] = "src.ingestion.ownership_opencorporates"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"opencorporates"})
 NATIVE_CONNECTOR_MODULES.update({
     connector: "src.ingestion.clinical_providers"
     for connector in ("ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines")

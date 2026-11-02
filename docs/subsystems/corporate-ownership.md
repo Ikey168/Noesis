@@ -51,7 +51,10 @@ companies that share a name never converge.
 | UK Companies House | implemented (`companies-house`) | public data API: profile, officers, PSC, PSC statements, exemptions, filing history | API key (HTTP Basic), `NOESIS_COMPANIES_HOUSE_API_KEY` | documented 600 requests / 5 min; live requests spaced; 429 honoured | `items_per_page`/`start_index` within the page budget | ≤ daily | each JSON response retained as the runtime document with SHA-256 | company number, officer id, PSC id |
 | SEC EDGAR | implemented (`sec-edgar-ownership`) | data.sec.gov submissions and companyfacts; selected Schedule 13D/13G primary documents on www.sec.gov | declared User-Agent contact, `NOESIS_SEC_CONTACT` | fair access: ≤ 10 requests/s; live requests spaced | submissions `recent` block, bounded by `max_filings` | ≤ daily | JSON and XML responses with SHA-256 | CIK, ticker (as listed), LEI when present |
 | Open Ownership BODS | implemented (`bods`) | selected BODS 0.2/0.3 statement files (JSON array or JSON Lines) | none | byte and page budget | statement offset per file | per dataset release, ≤ weekly | the page's statements with the file SHA-256 | statementID, GB-COH, XI-LEI, other org-id schemes |
-| OpenCorporates | reused (#1483 regional provider) | existing provider | API token | per plan | — | — | existing documents | jurisdiction + company number |
+| OpenCorporates | implemented (`opencorporates`, #2887; search stays with the #1483 regional provider) | API v0.4 company lookup for selected registrations, embedded officers | API token, `NOESIS_OPENCORPORATES_API_KEY` | per plan; live requests spaced; 429 honoured | one company per page | ≤ weekly | each JSON response with SHA-256 (token never stored) | jurisdiction + company number; gb-coh / dk-cvr where configured |
+| Companies House PSC snapshot | implemented (bulk `companies-house-psc-snapshot`, #2885) | daily ZIP of JSON lines, filtered to declared company numbers or a prefix | none | bulk quota ledger and run budgets | file by file, resumable | daily | manifest, file digests, filtered subset; per-line SHA-256 on each record | company number, PSC id |
+| Register of Overseas Entities | implemented (`companies-house-roe`, #2886) | public data API with OE numbers: profile, managing officers, registrable beneficial owners, statements | as Companies House | as Companies House | as Companies House | ≤ daily | as Companies House | OE number; foreign registration as stated |
+| HM Land Registry OCOD | not implemented (#2886) | Use land and property data service | account + per-account licence + API key | — | — | monthly | — | title number (no counterpart in geospatial.real-estate) |
 | Handelsregister | not implemented | interactive portal of the federal states | — | portal terms restrict automated and bulk retrieval | — | — | — | register court + HRA/HRB number |
 | Unternehmensregister | not implemented | interactive portal | account for some documents | no API | — | — | — | — |
 | BRIS | not implemented | e-Justice portal search | — | no public third-party API | — | — | — | — |
@@ -108,6 +111,28 @@ sources not listed as implemented and BODS 0.4 records are counted and
 skipped. For Handelsregister, Unternehmensregister and BRIS a user-obtained
 official document can be recorded as a registration with its document
 reference and digest (`record_register_document`); nothing is fetched.
+
+### Further registers (#2885–#2887)
+
+Audit: `docs/development/ownership-register-audit.md`.
+
+- **PSC snapshot** — `python -m src.ingestion.bulk run companies-house-psc-snapshot --params '{"company_numbers": ["09990002"]}' --sink ownership --namespace ownership --principal <id>` runs the
+  daily snapshot through the same PSC parsers as the API path; records are keyed
+  `companies-house:psc-snapshot...` (company identity stays `companies-house:gb-coh:<number>`), carry the
+  hash of their snapshot line, and become revisions only when an entry changes or ceases. Nothing is deleted.
+- **Register of Overseas Entities** — source `companies-house-roe`; beneficial owners of every kind,
+  managing officers and statements as published (`is_sanctioned` as declared, super-secure owners as a
+  reporting exception, trust-held interests as stated; trust details are not public). OCOD is not
+  implemented, so dossiers list no UK titles.
+- **BODS publishers** — Denmark CVR (`open-ownership-bods-dk`) and Slovakia RPVS (`open-ownership-bods-sk`)
+  each select their own register source (`ownership.publishers`); other implemented sources in a file are
+  counted as `not_selected`. Latvia is recorded as not implemented.
+- **OpenCorporates** — `opencorporates-companies`: aggregator identity and officers; register numbers only
+  for configured jurisdictions, so identity review proposes cross-referenced (never exact) matches.
+- **Natural persons** — individual PSCs, individual beneficial owners and BODS person statements are
+  owner-scoped unless person-research mode (`NOESIS_PERSON_RESEARCH`) is on; addresses are never stored.
+- **Graph** — a band straddling one half (the ROE's "more than 25 percent") is `band-spans-majority` and
+  stays in the parent slot rather than being read as a minority holding.
 
 ## Identity, graph, timeline, dossier (O08–O10)
 

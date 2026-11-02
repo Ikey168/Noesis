@@ -146,8 +146,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
     # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739),
     # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743),
-    # plus the Corporate Ownership Register of Overseas Entities source (#2886).
-    assert sum(len(pack["sources"]) for pack in packs) == 354
+    # plus the Corporate Ownership Register of Overseas Entities, Danish and Slovak BODS and OpenCorporates sources
+    # (#2886, #2887).
+    assert sum(len(pack["sources"]) for pack in packs) == 357
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

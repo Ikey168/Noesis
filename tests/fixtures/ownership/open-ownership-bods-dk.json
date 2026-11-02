@@ -1,0 +1,230 @@
+{
+ "authored": true,
+ "provider": "Open Ownership (BODS 0.2 statements, Danish CVR)",
+ "note": "Authored BODS 0.2 statements for fictional Danish companies and a fictional person, shaped like Open Ownership's republication of the Danish CVR. Includes one statement from another implemented source (counted as not selected).",
+ "scenarios": [
+  "publisher-own-source",
+  "cross-jurisdiction-holder",
+  "person-owner-scoped",
+  "not-selected-publisher"
+ ],
+ "native_pages": [
+  {
+   "request": "/fixtures/exampla/dk-cvr-statements.json",
+   "body": [
+    {
+     "statementID": "oo-fixture-dk-ent-1",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "Eksempel Holding ApS (fictional)",
+     "incorporatedInJurisdiction": {
+      "name": "Denmark",
+      "code": "DK"
+     },
+     "identifiers": [
+      {
+       "scheme": "DK-CVR",
+       "id": "99990011"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-dk-ent-gb",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "EXAMPLA HOLDINGS PLC",
+     "incorporatedInJurisdiction": {
+      "name": "United Kingdom",
+      "code": "GB"
+     },
+     "identifiers": [
+      {
+       "scheme": "GB-COH",
+       "id": "09990001"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-dk-per-1",
+     "statementType": "personStatement",
+     "statementDate": "2026-10-01",
+     "personType": "knownPerson",
+     "names": [
+      {
+       "type": "individual",
+       "fullName": "Mette Eksempel (fictional)"
+      }
+     ],
+     "nationalities": [
+      {
+       "code": "DK"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-dk-ooc-1",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2026-10-01",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-dk-ent-1"
+     },
+     "interestedParty": {
+      "describedByEntityStatement": "oo-fixture-dk-ent-gb"
+     },
+     "interests": [
+      {
+       "type": "shareholding",
+       "interestLevel": "direct",
+       "beneficialOwnershipOrControl": false,
+       "share": {
+        "exact": 100
+       },
+       "startDate": "2019-01-01"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-dk-ooc-2",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2026-10-01",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-dk-ent-1"
+     },
+     "interestedParty": {
+      "describedByPersonStatement": "oo-fixture-dk-per-1"
+     },
+     "interests": [
+      {
+       "type": "senior-managing-official",
+       "interestLevel": "unknown",
+       "beneficialOwnershipOrControl": true,
+       "startDate": "2019-01-01",
+       "details": "legal owner without a natural-person beneficial owner"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-dk-ent-gbsrc",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "EXAMPLA UK LIMITED",
+     "incorporatedInJurisdiction": {
+      "name": "United Kingdom",
+      "code": "GB"
+     },
+     "identifiers": [
+      {
+       "scheme": "GB-COH",
+       "id": "09990002"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "https://datacvr.virk.dk/",
+      "retrievedAt": "2026-10-01"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -23,7 +23,7 @@ from src.ingestion.ownership_providers import (
 )
 from src.ingestion.source_packs import SourcePackConformance, SourcePackError
 from src.kb.ownership_bundle import load_source_pack
-from src.kb.ownership_store import OwnershipError, OwnershipStore
+from src.kb.ownership_store import OwnershipError, OwnershipStore, record_id
 from tests.unit.ownership import harness
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -57,7 +57,8 @@ def drain(ad, operation="ownership"):
 
 def test_every_provider_has_a_recorded_contract_and_no_invented_access():
     assert set(PROVIDER_CONTRACTS) == {"gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
-                                       "handelsregister", "unternehmensregister", "bris"}
+                                       "handelsregister", "unternehmensregister", "bris",
+                                       "companies-house-psc-snapshot", "companies-house-roe", "hmlr-ocod"}
     for provider, contract in PROVIDER_CONTRACTS.items():
         assert REQUIRED <= set(contract), provider
         if contract["status"] == "implemented":
@@ -82,22 +83,26 @@ def test_identifier_overlap_names_the_existing_owners():
 
 
 def test_live_verification_is_honest_and_the_pack_declares_it_per_source():
-    for provider in ("gleif", "companies-house", "sec-edgar", "open-ownership"):
+    for provider in ("gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
+                     "companies-house-psc-snapshot", "companies-house-roe"):
         assert LIVE_VERIFICATION[provider]["status"] == "unverified-live"
+    assert LIVE_VERIFICATION["hmlr-ocod"]["status"] == "not-implemented"
     pack = load_source_pack()
     # The optional competition feature's five sources (#2217) state theirs under "competition".
     assert {s["source_id"]: (s.get("ownership") or s["competition"])["live_verification"]
             for s in pack["sources"]} == {
         "gleif-level2": "unverified-live", "companies-house": "unverified-live",
         "sec-edgar-ownership": "unverified-live", "open-ownership-bods": "unverified-live",
+        "companies-house-roe": "unverified-live", "open-ownership-bods-dk": "unverified-live",
+        "open-ownership-bods-sk": "unverified-live", "opencorporates-companies": "unverified-live",
         "ec-competition-cases": "unverified-live", "eu-state-aid-tam": "unverified-live",
         "uk-cma-cases": "unverified-live", "us-ftc-cases": "unverified-live", "us-doj-atr-cases": "unverified-live"}
 
 
 def test_offline_conformance_of_every_pinned_fixture():
     result = SourcePackConformance(ROOT).offline(load_source_pack())
-    # Four registry sources plus the competition feature's five (#2217).
-    assert result["valid"] and result["coverage"] == {"configured": 9, "verified": 9}
+    # Four registry sources, the competition feature's five (#2217) and the further registers' four (#2886, #2887).
+    assert result["valid"] and result["coverage"] == {"configured": 13, "verified": 13}
     for name in ("gleif-level2.json", "companies-house.json", "sec-edgar.json", "open-ownership-bods.json"):
         assert harness.load(name)["authored"] is True
 
@@ -242,9 +247,12 @@ def test_schedule_13g_cover_page_becomes_assertions_with_the_filing_as_source():
 
 def test_bods_statements_keep_ids_publisher_source_type_and_annotations():
     statements = load_bods(json.dumps(harness.load("open-ownership-bods.json")["native_pages"][0]["body"]).encode())
-    records, coverage = parse_bods(statements, url="https://bods-data.openownership.org/f.json", raw_sha="a" * 64)
+    records, coverage = parse_bods(statements, url="https://bods-data.openownership.org/f.json", raw_sha="a" * 64,
+                                   publishers=["GB Persons Of Significant Control Register"])
     assert coverage["publishers"] == {"Open Ownership Register": {"GB Persons Of Significant Control Register": 8}}
-    assert coverage["not_implemented"] == {"Denmark Central Business Register (Centrale Virksomhedsregister [CVR])": 1}
+    # Denmark is implemented since #2887 but belongs to its own source, so this source does not project it.
+    assert coverage["not_selected"] == {"Denmark Central Business Register (Centrale Virksomhedsregister [CVR])": 1}
+    assert coverage["not_implemented"] == {}
     assert coverage["unsupported_version"] == 1
     by_key = {r["record_key"]: r for r in records}
     stake = by_key["open-ownership:statement:oo-fixture-ooc-1:interest:0"]
@@ -267,17 +275,26 @@ def test_bods_statements_keep_ids_publisher_source_type_and_annotations():
 
 def test_bods_publisher_coverage_is_on_the_contract_and_person_statements_stay_owner_scoped():
     coverage = PROVIDER_CONTRACTS["open-ownership"]["publisher_coverage"]
-    assert coverage["GB Persons Of Significant Control Register"]["status"] == "implemented"
-    assert {v["status"] for k, v in coverage.items() if k != "GB Persons Of Significant Control Register"} == {"not-implemented"}
+    implemented = {k for k, v in coverage.items() if v["status"] == "implemented"}
+    assert implemented == {"GB Persons Of Significant Control Register",
+                           "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])",
+                           "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)"}
+    assert all(v["reason"] for k, v in coverage.items() if k not in implemented)
     assert all("update_cadence" in v and "license" in v for v in coverage.values() if v["status"] == "implemented")
     env = harness.Env().ready()
     store = OwnershipStore(env.conn)
-    mine = store.records(harness.NS, principal_id=harness.PRINCIPAL, scopes=harness.SCOPES, kinds=("person",))
-    theirs = store.records(harness.NS, principal_id="someone-else", scopes=harness.SCOPES, kinds=("person",))
-    assert mine[0]["record"]["name"] == "Jordan Example (fictional)"
-    assert theirs[0]["redacted"] is True and "name" not in theirs[0]["record"]
-    reviewer = store.records(harness.NS, principal_id="someone-else", scopes=harness.REVIEW_SCOPES, kinds=("person",))
-    assert reviewer[0]["record"]["name"] == "Jordan Example (fictional)"
+    key = "open-ownership:statement:oo-fixture-per-1"
+
+    def person(principal, scopes):
+        views = store.records(harness.NS, principal_id=principal, scopes=scopes, kinds=("person",))
+        # Every person statement (GB, DK, SK and ROE beneficial owners) is owner-scoped by default.
+        assert all(v.get("redacted") or v["record"]["owner_scoped"] is True for v in views)
+        return next(v for v in views if v["record_id"] == record_id(harness.NS, key, harness.PRINCIPAL))
+
+    assert person(harness.PRINCIPAL, harness.SCOPES)["record"]["name"] == "Jordan Example (fictional)"
+    theirs = person("someone-else", harness.SCOPES)
+    assert theirs["redacted"] is True and "name" not in theirs["record"]
+    assert person("someone-else", harness.REVIEW_SCOPES)["record"]["name"] == "Jordan Example (fictional)"
 
 
 # ------------------------------------------------------------------ O07

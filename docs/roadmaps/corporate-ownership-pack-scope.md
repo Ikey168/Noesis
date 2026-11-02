@@ -33,6 +33,9 @@ its source, jurisdiction, validity interval and reporting exceptions.
 - [x] [#1860](https://github.com/Ikey168/Noesis/issues/1860) — O11 Compose the Corporate Ownership bundle over market.lei, entity and source providers.
 - [x] [#1861](https://github.com/Ikey168/Noesis/issues/1861) — O12 Add offline identifier-to-ownership-dossier acceptance coverage.
 - [ ] [#1862](https://github.com/Ikey168/Noesis/issues/1862) — O13 Validate live registry coverage and publish an explained ownership-dossier demo (harness, dated blocked run and offline demo delivered; live coverage not validated).
+- [x] [#2885](https://github.com/Ikey168/Noesis/issues/2885) — Acquire the UK PSC bulk snapshot (bulk adapter `companies-house-psc-snapshot`, offline; audit `docs/development/ownership-register-audit.md`).
+- [x] [#2886](https://github.com/Ikey168/Noesis/issues/2886) — Acquire the UK Register of Overseas Entities (source `companies-house-roe`, offline); HM Land Registry OCOD recorded as not implemented.
+- [x] [#2887](https://github.com/Ikey168/Noesis/issues/2887) — Further BODS registers (Denmark CVR, Slovakia RPVS; Latvia recorded as not implemented) and OpenCorporates (`opencorporates`, offline).
 
 Each issue contains acceptance criteria and prerequisite issue references.
 

@@ -60,5 +60,6 @@ def test_lookup_by_identifier_and_name_never_picks():
     assert {m["record"]["source"]["provider"] for m in by_number["matches"]} == {"gleif", "companies-house", "open-ownership"}
     assert store.lookup(harness.NS, "cik", "9999101", principal_id="p", scopes=harness.SCOPES)["status"] == "found"
     by_name = store.lookup(harness.NS, "name", "Exampla Holdings|GB", principal_id="p", scopes=harness.SCOPES)
-    assert by_name["status"] == "candidates" and len(by_name["matches"]) == 4 and "never" in by_name["note"]
+    # Six: the original four plus the Danish register's statement and the OpenCorporates record (#2887).
+    assert by_name["status"] == "candidates" and len(by_name["matches"]) == 6 and "never" in by_name["note"]
     assert store.lookup(harness.NS, "lei", "529900NOTHERE0000000", principal_id="p", scopes=harness.SCOPES)["status"] == "not_found"

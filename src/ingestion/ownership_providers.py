@@ -145,10 +145,23 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
             "GB Persons Of Significant Control Register": {
                 "status": "implemented", "jurisdiction": "GB", "update_cadence": "as republished by Open Ownership",
                 "license": "as stated per statement (publicationDetails.license)"},
+            # Reviewed in docs/development/ownership-register-audit.md (#2887); each publisher is acquired by
+            # its own source (ownership.publishers) so its statements keep their own revision chains.
             "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])": {
-                "status": "not-implemented", "reason": "licence and personal-data terms not reviewed for reuse"},
+                "status": "implemented", "jurisdiction": "DK", "update_cadence": "as republished by Open Ownership",
+                "license": "as stated per statement (publicationDetails.license); CVR data reused under the "
+                           "Danish Business Authority's terms for free public data (verify)",
+                "personal_data": "person statements owner-scoped unless person-research mode is on"},
             "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)": {
-                "status": "not-implemented", "reason": "licence and personal-data terms not reviewed for reuse"},
+                "status": "implemented", "jurisdiction": "SK", "update_cadence": "as republished by Open Ownership",
+                "license": "as stated per statement (publicationDetails.license); RPVS is public by statute "
+                           "(Act No. 315/2016 Coll.) (verify reuse terms)",
+                "personal_data": "person statements owner-scoped unless person-research mode is on"},
+            "Latvia Register of Enterprises beneficial owners": {
+                "status": "not-implemented",
+                "reason": "the Register of Enterprises publishes its own BODS release on data.gov.lv (CC0 per "
+                          "secondary sources, verify); the statement source description and BODS version of the "
+                          "current files are unverified, so no statement can be attributed to it safely"},
         },
         "host_note": "host and dataset path layout are declared for bounded selection and are unverified from "
                      "this runtime (egress blocked); verify before any live run",
@@ -156,16 +169,30 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
         "cost": "free",
     },
     "opencorporates": {
-        "status": "reused",
-        "connector": "existing regional provider (#1483, src/ingestion/regional_providers.py)",
+        "status": "implemented",
+        "connector": "opencorporates (src/ingestion/ownership_opencorporates.py, #2887); search and document "
+                     "enrichment stay with the existing regional provider (#1483, src/ingestion/regional_providers.py)",
         "documentation": "https://api.opencorporates.com/documentation/API-Reference",
-        "access": "company search/lookup through the existing regional provider",
-        "authentication": "API token",
+        "access": "API v0.4 company lookup /companies/{jurisdiction_code}/{company_number} for explicitly selected "
+                  "registrations; officers as embedded in the company response",
+        "authentication": "API token sent as api_token (required secret NOESIS_OPENCORPORATES_API_KEY)",
+        "rate_limits": "per the key's plan; the adapter spaces live requests (min_interval_s) and honours HTTP 429",
+        "pagination": "one company per runtime page; embedded officer lists are not paged",
+        "cadence": "weekly at most per selected company",
+        "terms": "OpenCorporates data is open data under ODbL 1.0 with attribution (verify against the key's plan "
+                 "and https://opencorporates.com/terms-of-use-2/); every record names OpenCorporates as publisher "
+                 "and links the company page",
+        "retained_evidence": "each API response retained as the runtime document (native JSON) with its SHA-256; "
+                             "the token is never stored",
         "role": "aggregator; enrichment and identity evidence only, never an authoritative substitute for a "
                 "national register",
-        "identifiers": ["opencorporates jurisdiction_code + company_number"],
-        "coverage": "whatever the existing regional provider acquired; not re-acquired here",
-        "cost": "per OpenCorporates plan",
+        "identifiers": ["opencorporates jurisdiction_code + company_number",
+                        "national register number for configured jurisdictions (gb-coh, dk-cvr)"],
+        "coverage": "explicitly selected registrations only (1-25 per source); no search or bulk use",
+        "unavailable_fallback": "401/403 fails the source as authentication_failed; 404 is 'none reported'; earlier "
+                                "revisions stay current",
+        "audit": "docs/development/ownership-register-audit.md",
+        "cost": "per OpenCorporates plan; free share-alike keys for public-benefit users",
     },
     "handelsregister": {
         "status": "not-implemented",
@@ -233,7 +260,8 @@ LIVE_VERIFICATION = {
                        "failure_code": "no_verified_dataset_path", "cause": _BLOCKED, "evidence": _LIVE_RUN},
 }
 LIVE_VERIFICATION.update({
-    "opencorporates": {"status": "reused", "note": "verified (or not) by the existing regional provider"},
+    "opencorporates": {"status": "unverified-live", "result": "not-attempted", "failure_code": "credential_missing",
+                       "cause": "no NOESIS_OPENCORPORATES_API_KEY configured; offline authored fixtures only"},
     **{p: {"status": "not-implemented", "note": PROVIDER_CONTRACTS[p]["reason"]}
        for p in ("handelsregister", "unternehmensregister", "bris")},
 })
@@ -966,11 +994,22 @@ def _bods_share(share: Any) -> dict[str, Any] | None:
                      "max_inclusive": None if high is None else "maximum" in share}, "native": share}
 
 
-def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: str, offset: int = 0) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Project BODS 0.2/0.3 statements; unsupported sources and versions are counted, not guessed."""
+def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: str, offset: int = 0,
+               publishers: Sequence[str] | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Project BODS 0.2/0.3 statements; unsupported sources and versions are counted, not guessed.
+
+    ``publishers`` (a source's declared ``ownership.publishers``) limits the
+    projection to those implemented register sources, so each publisher is
+    acquired by its own source; other implemented sources are counted under
+    ``not_selected``. Person statements are owner-scoped unless person-research
+    mode is on.
+    """
     publisher_coverage = PROVIDER_CONTRACTS["open-ownership"]["publisher_coverage"]
+    research = person_research_enabled()
     records: list[dict[str, Any]] = []
     coverage: dict[str, Any] = {"publishers": {}, "not_implemented": {}, "unsupported_version": 0, "statements": 0}
+    if publishers is not None:
+        coverage["not_selected"] = {}
     for position, statement in enumerate(statements):
         index = offset + position
         coverage["statements"] += 1
@@ -983,6 +1022,9 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
         support = publisher_coverage.get(description, {"status": "not-implemented", "reason": "source not reviewed"})
         if support["status"] != "implemented":
             coverage["not_implemented"][description] = coverage["not_implemented"].get(description, 0) + 1
+            continue
+        if publishers is not None and description not in publishers:
+            coverage["not_selected"][description] = coverage["not_selected"].get(description, 0) + 1
             continue
         tally = coverage["publishers"].setdefault(publisher, {})
         tally[description] = tally.get(description, 0) + 1
@@ -1004,11 +1046,13 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
             elif kind == "personStatement":
                 names = statement.get("names") or [{}]
                 records.append(record(
-                    "person", key, source, owner_scoped=True, name=names[0].get("fullName") or "unnamed person",
+                    "person", key, source, owner_scoped=None if research else True,
+                    name=names[0].get("fullName") or "unnamed person",
                     identifiers=[i for i in (_bods_scheme(x) for x in statement.get("identifiers") or []) if i],
                     nationalities=[n.get("code") for n in statement.get("nationalities") or []],
                     native_kind=statement.get("personType"),
-                    native={"statement_date": statement.get("statementDate"), "annotations": annotations}))
+                    native={"statement_date": statement.get("statementDate"), "annotations": annotations,
+                            **({"policy": PERSON_RESEARCH_POLICY} if research else {})}))
             elif kind == "ownershipOrControlStatement":
                 subject = dict(statement.get("subject") or {}).get("describedByEntityStatement")
                 party = dict(statement.get("interestedParty") or {})
@@ -1034,7 +1078,8 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
                 for number, interest in enumerate(statement.get("interests") or [{}]):
                     itype = str(interest.get("type") or "unknown-interest")
                     records.append(record(
-                        "ownership_assertion", f"{key}:interest:{number}", source, owner_scoped=bool(person) or None,
+                        "ownership_assertion", f"{key}:interest:{number}", source,
+                        owner_scoped=(bool(person) and not research) or None,
                         subject_key=subject_key, assertion_kind=_BODS_INTERESTS.get(itype, "other_control"),
                         holder=holder, share=_bods_share(interest.get("share")),
                         validity=_validity(interest.get("startDate"), interest.get("endDate"), open_when_missing=False),
@@ -1302,6 +1347,11 @@ class BodsAdapter(_WorkAdapter):
         files = list(self.selection.get("files") or [])
         if len(files) > 10 or any(not re.fullmatch(r"/[A-Za-z0-9._/-]{1,300}", str(f)) or ".." in str(f) for f in files):
             raise SourcePackError("unbounded_source", "bods sources select 1-10 statement files by path")
+        coverage = PROVIDER_CONTRACTS["open-ownership"]["publisher_coverage"]
+        declared = self.selection.get("publishers")
+        if declared is not None and (not isinstance(declared, list) or not declared or any(
+                dict(coverage.get(str(p)) or {}).get("status") != "implemented" for p in declared)):
+            raise SourcePackError("invalid_mapping", "bods publishers name implemented register sources only")
         return [(str(f),) for f in files]
 
     def _fetch(self, item, *, start, limit):
@@ -1312,7 +1362,9 @@ class BodsAdapter(_WorkAdapter):
             return self._envelope(path, "statements", raw, None, [], outcome="none_reported"), len(raw), None, status
         statements = load_bods(raw)
         page = statements[start:start + limit]
-        records, coverage = parse_bods(page, url=url, raw_sha=_sha(raw), offset=start)
+        selected = self.selection.get("publishers")
+        records, coverage = parse_bods(page, url=url, raw_sha=_sha(raw), offset=start,
+                                       publishers=None if selected is None else [str(p) for p in selected])
         coverage.update({"offset": start, "total": len(statements)})
         next_start = start + len(page) if start + len(page) < len(statements) else None
         return (self._envelope(f"{path}#{start}", "statements", raw, page, records, coverage=coverage),

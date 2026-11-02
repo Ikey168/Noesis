@@ -1,0 +1,99 @@
+{
+ "authored": true,
+ "provider": "opencorporates",
+ "note": "Authored API v0.4 company responses for fictional registrations dk/99990011 and gb/09990001 (field names as read from the v0.4 reference; unverified against live responses). sk/99990099 is not listed and replays as HTTP 404.",
+ "scenarios": [
+  "company-identity",
+  "register-number-cross-reference",
+  "embedded-officers",
+  "previous-name",
+  "none-reported"
+ ],
+ "native_pages": [
+  {
+   "request": "/v0.4/companies/dk/99990011",
+   "body": {
+    "api_version": "0.4",
+    "results": {
+     "company": {
+      "name": "EKSEMPEL HOLDING APS",
+      "company_number": "99990011",
+      "jurisdiction_code": "dk",
+      "incorporation_date": "2010-06-01",
+      "dissolution_date": null,
+      "company_type": "Anpartsselskab",
+      "current_status": "Normal",
+      "inactive": false,
+      "branch": null,
+      "registry_url": "https://datacvr.virk.dk/enhed/virksomhed/99990011",
+      "opencorporates_url": "https://opencorporates.com/companies/dk/99990011",
+      "registered_address_in_full": "Fiktivvej 1, 2100 København Ø",
+      "previous_names": [
+       {
+        "company_name": "EKSEMPEL INVEST APS",
+        "start_date": "2010-06-01",
+        "end_date": "2015-03-31"
+       }
+      ],
+      "source": {
+       "publisher": "Erhvervsstyrelsen",
+       "url": "https://datacvr.virk.dk/",
+       "retrieved_at": "2026-09-30"
+      },
+      "retrieved_at": "2026-09-30T00:00:00+00:00",
+      "updated_at": "2026-09-30T00:00:00+00:00",
+      "officers": [
+       {
+        "officer": {
+         "id": 999000111,
+         "name": "METTE EKSEMPEL",
+         "position": "direktør",
+         "start_date": "2015-04-01",
+         "end_date": null,
+         "inactive": false,
+         "opencorporates_url": "https://opencorporates.com/officers/999000111"
+        }
+       },
+       {
+        "officer": {
+         "id": 999000112,
+         "name": "SØREN FIKTIV",
+         "position": "bestyrelsesmedlem",
+         "start_date": null,
+         "end_date": "2022-12-31",
+         "inactive": true,
+         "opencorporates_url": "https://opencorporates.com/officers/999000112"
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "request": "/v0.4/companies/gb/09990001",
+   "body": {
+    "api_version": "0.4",
+    "results": {
+     "company": {
+      "name": "EXAMPLA HOLDINGS PLC",
+      "company_number": "09990001",
+      "jurisdiction_code": "gb",
+      "incorporation_date": "2011-01-10",
+      "company_type": "Public Limited Company",
+      "current_status": "Active",
+      "inactive": false,
+      "registry_url": "https://find-and-update.company-information.service.gov.uk/company/09990001",
+      "opencorporates_url": "https://opencorporates.com/companies/gb/09990001",
+      "source": {
+       "publisher": "UK Companies House",
+       "url": "https://find-and-update.company-information.service.gov.uk/",
+       "retrieved_at": "2026-09-30"
+      },
+      "officers": []
+     }
+    }
+   }
+  }
+ ]
+}

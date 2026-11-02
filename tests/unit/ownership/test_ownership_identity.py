@@ -95,7 +95,7 @@ def test_opencorporates_links_are_aggregator_evidence(proposed):
     LeiStore(env.conn).link_identity(NS, harness.UK, "opencorporates", "opencorporates:gb/09990002",
                                      "fixture enrichment record", scopes=lei_scopes, principal_id="p")
     result = service.propose(NS, principal_id=harness.PRINCIPAL, scopes=SCOPES, lei_namespace=NS)
-    link = next(c for c in result["candidates"] if c["right_key"].startswith("opencorporates:") or
-                c["left_key"].startswith("opencorporates:"))
+    link = next(c for c in result["candidates"] if "opencorporates:opencorporates:gb/09990002" in
+                (c["left_key"], c["right_key"]))
     assert link["basis"] == "cross-referenced-identifier"
     assert "not an authoritative substitute" in link["evidence"][0]["note"]
