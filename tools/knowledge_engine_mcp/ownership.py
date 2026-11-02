@@ -40,6 +40,20 @@ OWNERSHIP_WRITES = OWNERSHIP_WRITES | COMPETITION_WRITES
 OWNERSHIP_TOOLS = OWNERSHIP_TOOLS | COMPETITION_TOOLS
 OWNERSHIP_SCOPES = {**OWNERSHIP_SCOPES, **COMPETITION_SCOPES}
 
+# Holding structures (#2890): stated classification and the structure dossier, registered here.
+from tools.knowledge_engine_mcp.ownership_structures import (
+    STRUCTURE_SCOPES,
+    STRUCTURE_TOOLS,
+    STRUCTURE_WRITES,
+)
+from tools.knowledge_engine_mcp.ownership_structures import (
+    register as register_structures,
+)
+
+OWNERSHIP_WRITES = OWNERSHIP_WRITES | STRUCTURE_WRITES
+OWNERSHIP_TOOLS = OWNERSHIP_TOOLS | STRUCTURE_TOOLS
+OWNERSHIP_SCOPES = {**OWNERSHIP_SCOPES, **STRUCTURE_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return OWNERSHIP_SCOPES.get(
@@ -48,6 +62,7 @@ def required_scopes(tool_name, mutability):
 
 def register(mcp, safe, context):
     register_competition(mcp, safe, context)
+    register_structures(mcp, safe, context)
 
     def who():
         return context()[0], context()[1]

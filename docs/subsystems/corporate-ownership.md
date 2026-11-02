@@ -189,6 +189,105 @@ record time. `build_dossier` assembles all of this for one identifier. A name
 lookup returns candidates and never picks one. `export_dossier` saves an
 authored report in which every sourced statement cites its record revision.
 
+## Holding structures (#2890)
+
+`src/kb/ownership_structures.py` adds `StructureClassifications`, which marks
+an ownership entity as a `family_office`, `private_foundation`, `trust`,
+`trustee`, `holding_company` or `special_purpose_vehicle`. It does so only
+where a source states the type.
+
+- **Contract and storage.** Each classification is a
+  `noesis-ownership-structure-classification-v1` record in the
+  `ownership_structure_classifications` table. This is a new contract beside
+  the ownership record contracts; record v1 and v2 are unchanged.
+- **Basis.** The basis is `register-legal-form`, `self-description` or
+  `declared-category`. There is no name basis.
+- **Citation.** A classification cites one of two things:
+  - an ownership record revision plus the dotted field that states the value.
+    The value at that field must equal the stated value, or the proposal is
+    refused with `not_stated`.
+  - an official document (reference, SHA-256, locator and a quote containing
+    the value).
+- **No names.** A citation of a name field is refused with
+  `name_inference_refused`.
+- **Review.** A classification starts `proposed`. Accept and reject need
+  `knowledge:ownership:review` and a reason, and revert undoes either. Every
+  step is kept in the history. Only accepted classifications classify an
+  entity. An entity with none is `unclassified`, and disagreeing accepted
+  types are returned side by side.
+- **Proposals from records.** `propose_from_records` proposes types only
+  from exact `STATED_FORMS` entries, such as the BODS 0.4 arrangement subtype
+  `trust`.
+- **Persons.** `person` records are classified only in person-research mode.
+
+`src/kb/ownership_structure_dossier.py`
+(`noesis-ownership-structure-dossier-v1`) builds one view of a structure. It
+starts from an exact identifier and composes the existing record owners
+section by section, in a registry (`SECTIONS`):
+
+- `classification`
+- `ownership`: up and down, from `OwnershipGraph`
+- `sec_holdings`: `ownership_holdings`
+- `bafin_holdings`: `BafinQueries.holdings_of_holder`
+- `lobbying`: `LobbyingQueries`
+- `political_donations`: `CampaignFinanceLinks` ownership links
+- `public_payments`: `PublicFinanceStore.payments`
+- `competition`: cases and state aid
+- `procurement`: award history of reviewed party links
+- `sanctions`: `SanctionsQueries.statement_as_of`
+- `offshore_leaks`
+
+Nothing is copied into a new store. Each linked section reads the shared
+identity state machine in the other owner's namespace. Only `accepted`
+candidates join; `proposed` ones are listed under `pending`.
+
+Each line must carry a citation (`id`, `namespace`, `record`, `revision`) and
+its `reached_by` basis, or the dossier is refused with `uncited_line`. Each
+section reports one status:
+
+| Status | Meaning |
+| --- | --- |
+| `assembled` | The section has cited lines. |
+| `none_on_record` | Nothing is linked. This does not mean nothing exists. |
+| `inert` | The owning optional feature is not selected. |
+| `not_available` | No provider is installed. |
+| `not_requested` | No namespace was given for the section. |
+| Owner's refusal code | The owner refused, for example `unauthorized`. |
+
+Amounts are never summed across rows or sources, and the competition
+owner's computed totals are left out. `forbidden_keys` refuses influence
+scores, wrongdoing verdicts, risk ratings and cross-source totals. A dossier
+for a natural person needs person-research mode.
+
+`export_structure_bundle` writes a `noesis-evidence-bundle-v1` with these
+objects:
+
+- the dossier, as the root receipt;
+- one claim per section;
+- one evidence object per cited revision, with `locator.cited` set.
+
+Sections that are not assembled are bundle omissions, so verification
+reports `incomplete`. A tampered dossier fails its hash check, and ownership
+citations are re-read at their pinned revision.
+
+The Offshore Leaks extension point works as follows. The `offshore_leaks`
+section names the provider path `src.kb.offshore_leaks_links:structure_section`
+and imports it lazily. Until that function exists, the section reports
+`not_available`. Wiring #2888 means defining that function; `register_section`
+installs a provider explicitly.
+
+Tools (gated by the bundle's enablement):
+
+- `propose_ownership_structure_classification`
+- `propose_ownership_structure_classifications_from_records`
+- `review_ownership_structure_classification`
+- `revert_ownership_structure_classification`
+- `list_ownership_structure_classifications`
+- `build_ownership_structure_dossier`
+- `export_ownership_structure_dossier`
+
+The `ownership.core` descriptor binds them under `ownership.dossier`.
+
 ## Composition (O11)
 
 `packs/corporate-ownership/manifest.json` binds `ownership.core` plus

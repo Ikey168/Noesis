@@ -80,10 +80,19 @@
       },
       "operations": [
         "build-dossier",
-        "export-dossier"
+        "export-dossier",
+        "propose-structure-classification",
+        "propose-structure-classifications-from-records",
+        "review-structure-classification",
+        "revert-structure-classification",
+        "list-structure-classifications",
+        "build-structure-dossier",
+        "export-structure-dossier"
       ],
       "semantic_constraints": {
-        "determination": "never a beneficial-ownership, sanctions or AML determination"
+        "determination": "never a beneficial-ownership, sanctions or AML determination",
+        "structure_classification": "a holding-structure type only as a source states it (legal form, self-description or declared category), cited and accepted by a reviewer; never inferred from names; unclassified stays unclassified",
+        "structure_dossier": "sections composed from the existing record owners, each cited and reached only through accepted identity decisions or exact identifiers; inert when the owning feature is off; never summed across sources; no influence score or wrongdoing verdict"
       }
     }
   ],
@@ -321,6 +330,115 @@
         "namespace",
         "principal"
       ]
+    },
+    {
+      "id": "propose-structure-classification",
+      "tool": "noesis-knowledge-engine.propose_ownership_structure_classification",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-structure-classifications-from-records",
+      "tool": "noesis-knowledge-engine.propose_ownership_structure_classifications_from_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-structure-classification",
+      "tool": "noesis-knowledge-engine.review_ownership_structure_classification",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-structure-classification",
+      "tool": "noesis-knowledge-engine.revert_ownership_structure_classification",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-structure-classifications",
+      "tool": "noesis-knowledge-engine.list_ownership_structure_classifications",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-structure-dossier",
+      "tool": "noesis-knowledge-engine.build_ownership_structure_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-structure-dossier",
+      "tool": "noesis-knowledge-engine.export_ownership_structure_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     }
   ],
   "stores": [
@@ -339,6 +457,15 @@
       "store": "src.kb.ownership_identity",
       "tables": [
         "ownership_identity_candidates"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "ownership-structure-classification",
+      "store": "src.kb.ownership_structures",
+      "tables": [
+        "ownership_structure_classifications"
       ],
       "revision_addressable": false,
       "namespace_scoped": true
