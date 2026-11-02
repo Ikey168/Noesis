@@ -9,7 +9,7 @@ pytest-mock>=3.15.1 # Added for mocking
 
 # Web Framework
 fastapi>=0.109.1,<1.0.0
-starlette>=0.40.0,<1.0.0
+starlette>=1.7.0,<2.0.0
 uvicorn>=0.15.0
 
 # Data Processing
