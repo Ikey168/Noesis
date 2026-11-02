@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1917,
+      "tool_count": 1918,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1050,6 +1050,7 @@
         "noesis-knowledge-engine.authorize_access_export",
         "noesis-knowledge-engine.bafin_authorisation_status",
         "noesis-knowledge-engine.bafin_holders_as_of",
+        "noesis-knowledge-engine.bafin_holdings_of_holder",
         "noesis-knowledge-engine.bafin_managers_transactions",
         "noesis-knowledge-engine.bafin_net_short_positions",
         "noesis-knowledge-engine.bafin_notice_dossier",
@@ -2890,7 +2891,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1917
+      "visible_tool_count": 1918
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2903,9 +2904,9 @@
     "states": {
       "available": 168,
       "degraded": 174,
-      "unauthorized": 1913
+      "unauthorized": 1914
     },
-    "tools": 2255
+    "tools": 2256
   },
   "tools": [
     {
@@ -27528,6 +27529,96 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "bafin_holders_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "What one holder holds across issuers as of a date (YYYY-MM-DD, end of day UTC): per issuer, its latest\nvoting-rights notification published by the cutoff (and acquired by acquired_by_ms when given), as notifier\nor chain member, with the chain, corrections and each percentage beside its WpHG basis (\u00a7 33/\u00a7 38/\u00a7 39).\n\nName the holder by party record key (bafin:party:... or bafin:person:...), by organisation name, or as\nkind=\"natural_person\" with a name and the ISIN of an issuer whose notice names the person (persons are\nkeyed per issuer). Other records join only through accepted, unreverted identity decisions; natural\npersons join across issuers only in person-research mode (NOESIS_PERSON_RESEARCH). Proposed candidates are\nlisted apart as unjoined. Never summed across issuers or bases; nothing below a threshold is inferred.\nexport_bundle returns a noesis-evidence-bundle-v1. No advice or signal.",
+      "id": "noesis-knowledge-engine.bafin_holdings_of_holder",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "export_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "isin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "default": "organisation",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "bafin_holdings_of_holder",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -82952,11 +83043,26 @@
     },
     {
       "cost_class": "medium",
-      "description": "A reviewer-proposed candidate for one party, resting on what a notice states (kind lei, bafin-id or\nname) and where the target states it. A person link across issuers is flagged and stays proposed until\nreviewed.",
+      "description": "A reviewer-proposed candidate for one party, resting on what a notice states (kind lei, bafin-id or\nname) and where the target states it. A person link across issuers is flagged and stays proposed until\nreviewed. attributes: further evidence the reviewer checked beside a name (each with kind, value and\nsource); a name alone stays similar-name, which is never accepted.",
       "id": "noesis-knowledge-engine.propose_bafin_identity_link",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
+          "attributes": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "kind": {
             "type": "string"
           },
