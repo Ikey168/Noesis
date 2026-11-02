@@ -292,6 +292,12 @@
         "European Insurance and Occupational Pensions Authority"
       ]
     },
+    "eu-tax-observatory": {
+      "name": "EU Tax Observatory",
+      "match": [
+        "EU Tax Observatory"
+      ]
+    },
     "eiti": {
       "name": "Extractive Industries Transparency Initiative",
       "match": [

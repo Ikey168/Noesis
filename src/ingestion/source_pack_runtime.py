@@ -629,6 +629,16 @@ def _internet_infrastructure_projector(conn: Any) -> Any:
 # Technology internet infrastructure (technology.internet-infrastructure, #2743).
 PROJECTORS["noesis-internet-infrastructure-record-v2"] = _internet_infrastructure_projector
 
+
+def _tax_transparency_projector(conn: Any) -> Any:
+    from src.kb.tax_store import TaxProjector
+
+    return TaxProjector(conn)
+
+
+# Economics tax transparency (economics.tax, #2889).
+PROJECTORS["noesis-tax-transparency-record-v2"] = _tax_transparency_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

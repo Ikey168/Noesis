@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "ai-models", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "business-statistics", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "internet-infrastructure", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "platform-transparency", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "social-protection", "sports-results", "substances", "surveillance", "ted", "tourism-statistics", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "ai-models", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "business-statistics", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "internet-infrastructure", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "platform-transparency", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "social-protection", "sports-results", "substances", "surveillance", "tax-transparency", "ted", "tourism-statistics", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -639,6 +639,27 @@
                 "properties": {
                   "label": {"type": "string", "minLength": 1},
                   "flow": {"enum": ["tour_occ_nim", "tour_occ_arm", "tour_occ_nin2", "tour_cap_nuts2"]}
+                }
+              }}
+            },
+            "additionalProperties": false
+          },
+          "tax_transparency": {
+            "type": "object",
+            "description": "Declared tax transparency documents for the tax-transparency connector (Economics economics.tax, #2889): provider (OECD Corporate Tax Statistics CbCR aggregates or corporate tax rates, EU Tax Observatory offshore wealth or billionaire effective tax rates), runtime format, namespace, live-verification status and the declared documents (an audited dataset, an https URL on the provider's host, the edition label and publication date, column roles, declared jurisdictions and indicators, at most five annual periods, the definition and, for model estimates, the method). Tax Justice Network indices are not-implemented and public CbCR reports are link-only references, so neither is a source here.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["oecd-cts-cbcr", "oecd-cts-rates", "eutax-offshore-wealth", "eutax-billionaire-etr"]},
+              "format": {"enum": ["oecd-cts-cbcr-csv", "oecd-cts-rates-csv", "eutax-offshore-wealth-csv", "eutax-billionaire-etr-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 2, "items": {
+                "type": "object",
+                "required": ["label", "dataset", "url", "release", "columns", "jurisdictions", "indicators", "period", "definition", "references"],
+                "properties": {
+                  "label": {"type": "string", "minLength": 1},
+                  "dataset": {"enum": ["DSD_CBCR@DF_CBCRI", "DSD_TAX_CIT@DF_CIT", "DSD_ETR@DF_ETR", "atlas-offshore-financial-wealth", "gter-billionaire-effective-tax-rates"]},
+                  "url": {"type": "string", "pattern": "^https://"}
                 }
               }}
             },

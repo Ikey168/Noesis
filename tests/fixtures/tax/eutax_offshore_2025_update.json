@@ -1,0 +1,85 @@
+{
+ "documents": [
+  {
+   "columns": {
+    "jurisdiction": "iso3",
+    "period": "year"
+   },
+   "dataset": "atlas-offshore-financial-wealth",
+   "definition": {
+    "notes": [
+     "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+    ],
+    "source_text": "Financial wealth held offshore by a country's households, as estimated by the EU Tax Observatory (model estimate; verify)"
+   },
+   "indicators": {
+    "OFW_GDP": {
+     "concept": "offshore_financial_wealth_share_of_gdp",
+     "label": "Offshore financial wealth, share of GDP as published",
+     "unit": {
+      "code": "PC_GDP",
+      "label": "percent of GDP",
+      "multiplier": "0"
+     }
+    },
+    "OFW_USD": {
+     "concept": "offshore_financial_wealth",
+     "label": "Offshore financial wealth",
+     "unit": {
+      "code": "USD",
+      "label": "US dollars",
+      "multiplier": "9"
+     }
+    }
+   },
+   "jurisdiction_scheme": "iso3166-alpha3",
+   "jurisdictions": {
+    "DEU": "Germany",
+    "NLD": "Netherlands"
+   },
+   "label": "EU Tax Observatory, Atlas of the Offshore World: offshore financial wealth, Germany and Netherlands, Atlas of the Offshore World, 2025 update (authored fixture)",
+   "method": {
+    "description": "Offshore financial wealth estimated from cross-border bank deposit and portfolio statistics and allocated to the households' countries of residence (authored; verify the data sources and allocation per edition); adds automatic exchange of information aggregates (authored)",
+    "label": "Atlas of the Offshore World estimate (authored fixture method statement; verify)",
+    "reference": "https://www.taxobservatory.eu/"
+   },
+   "period": {
+    "end": "2093",
+    "start": "2091"
+   },
+   "references": [
+    {
+     "identifier": "https://atlas-offshore.world/",
+     "kind": "dataset-page"
+    }
+   ],
+   "release": {
+    "edition": "Atlas of the Offshore World, 2025 update (authored fixture)",
+    "label": "Atlas of the Offshore World, 2025 update (authored fixture), declared by the operator (verify the publication date)",
+    "published_on": "2025-05-15"
+   },
+   "url": "https://atlas-offshore.world/data/offshore-financial-wealth-2025.csv",
+   "value_columns": [
+    {
+     "column": "offshore_wealth_usd_bn",
+     "indicator": "OFW_USD"
+    },
+    {
+     "column": "offshore_wealth_pct_gdp",
+     "indicator": "OFW_GDP"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "body": "iso3,country,year,offshore_wealth_usd_bn,offshore_wealth_pct_gdp\nDEU,Germany,2091,512.3,12.1\nDEU,Germany,2092,503.9,11.7\nDEU,Germany,2093,501.0,11.4\nNLD,Netherlands,2091,140.2,13.9\nNLD,Netherlands,2092,138.8,13.2\nNLD,Netherlands,2093,136.1,12.8\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/data/offshore-financial-wealth-2025.csv",
+   "status": 200
+  }
+ ],
+ "note": "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+}

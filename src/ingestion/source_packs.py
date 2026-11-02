@@ -441,6 +441,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 # Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
 NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
+# Economics tax transparency: OECD Corporate Tax Statistics and EU Tax Observatory estimates (#2889).
+NATIVE_CONNECTOR_MODULES["tax-transparency"] = "src.ingestion.tax_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tax-transparency"})
 
 
 def native_connector_module(connector: str) -> Any:

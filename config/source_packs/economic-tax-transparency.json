@@ -1,0 +1,483 @@
+{
+ "defaults": {
+  "auth": {
+   "kind": "none"
+  },
+  "connector": "tax-transparency",
+  "extractor_versions": [
+   "tax-transparency:1.0.0"
+  ],
+  "health": {
+   "max_staleness_s": 31536000,
+   "required": false
+  },
+  "mapping": {
+   "target_schema": "noesis-tax-transparency-record-v2",
+   "version": "2.0.0"
+  },
+  "operations": [
+   "release"
+  ],
+  "schedule": {
+   "interval_s": 2592000,
+   "kind": "interval"
+  }
+ },
+ "description": "Published tax transparency data for the Economics bundle's optional tax features: OECD Corporate Tax Statistics CbCR aggregates and statutory corporate income tax rates as published statistics, OECD forward-looking effective tax rates and EU Tax Observatory offshore-wealth and billionaire effective tax rate estimates as model estimates with method and edition, every edition a release vintage. Tax Justice Network indices are not implemented (licence) and public CbCR reports are link-only references. No own effective tax rate, ratio, rank or score, no blending, no filled jurisdiction or year, no currency conversion and no forecast.",
+ "domains": [
+  "economic"
+ ],
+ "pack_id": "economic-tax-transparency",
+ "sources": [
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 1,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://sdmx.oecd.org/public/rest",
+   "fixture": {
+    "expected_output_hash": "9f8a79bb2a32c2d66f17ef6c0255cd6e8f691103b570f71574868ba1538c4f0f",
+    "path": "tests/fixtures/source_packs/economic-tax-transparency-oecd-cts-cbcr.json",
+    "sha256": "3afebaf965221cad22a00b6857782a77236fcb80a75b9c71c727d072a529c57d"
+   },
+   "license": {
+    "id": "oecd-terms-cc-by-4.0",
+    "redistribution": "OECD data stated to be available under CC BY 4.0 from 1 July 2024; reuse with attribution to the OECD (operator must confirm; not re-verified live)",
+    "terms_url": "https://www.oecd.org/en/about/terms-conditions.html"
+   },
+   "publisher": "OECD, Centre for Tax Policy and Administration (Corporate Tax Statistics database)",
+   "scope": "OECD anonymised and aggregated CbCR statistics (table I, verify) for the parent jurisdictions Germany and Netherlands, partner groupings total, domestic and foreign, at most 5 years (operator must verify the dataflow id, version and columns)",
+   "source_id": "oecd-cts-cbcr",
+   "tax_transparency": {
+    "documents": [
+     {
+      "columns": {
+       "confidentiality": "CONF_STATUS",
+       "counterpart": "COUNTERPART_AREA",
+       "indicator": "MEASURE",
+       "jurisdiction": "REF_AREA",
+       "obs_value": "OBS_VALUE",
+       "period": "TIME_PERIOD",
+       "status": "OBS_STATUS",
+       "unit": "UNIT_MEASURE",
+       "unit_mult": "UNIT_MULT"
+      },
+      "counterparts": {
+       "DOM": "domestic sub-group (verify code)",
+       "FOR": "foreign sub-groups (verify code)",
+       "_T": "all sub-groups (total, verify code)"
+      },
+      "dataset": "DSD_CBCR@DF_CBCRI",
+      "definition": {
+       "caveats": [
+        "profit before income tax may include intra-group dividends (double counting); verify the edition's caveats",
+        "accounting standards differ between groups and jurisdictions",
+        "cells are suppressed for confidentiality where few groups report"
+       ],
+       "notes": [
+        "parent jurisdiction is the jurisdiction of the ultimate parent entity; partner groupings split the domestic and foreign sub-groups (verify)",
+        "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+       ],
+       "source_text": "Anonymised and aggregated country-by-country reporting statistics of multinational enterprise groups by ultimate parent jurisdiction, as the OECD compiles them (verify)"
+      },
+      "indicators": {
+       "EMP": {
+        "concept": "employees",
+        "label": "Number of employees"
+       },
+       "ITA": {
+        "concept": "income_tax_accrued",
+        "label": "Income tax accrued (current year)"
+       },
+       "PBT": {
+        "concept": "profit_before_income_tax",
+        "label": "Profit (loss) before income tax"
+       }
+      },
+      "jurisdiction_scheme": "iso3166-alpha3",
+      "jurisdictions": {
+       "DEU": "Germany",
+       "NLD": "Netherlands"
+      },
+      "label": "OECD Corporate Tax Statistics, CbCR table I (aggregate totals by parent jurisdiction): Germany and Netherlands, Corporate Tax Statistics 2024 edition (authored fixture)",
+      "period": {
+       "end": "2092",
+       "start": "2091"
+      },
+      "references": [
+       {
+        "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+        "kind": "dataset-page"
+       }
+      ],
+      "release": {
+       "edition": "Corporate Tax Statistics 2024 edition (authored fixture)",
+       "label": "Corporate Tax Statistics 2024 edition (authored fixture), declared by the operator (verify the publication date)",
+       "published_on": "2024-07-15"
+      },
+      "units": {
+       "PS": "persons",
+       "USD": "US dollars"
+      },
+      "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1/DEU+NLD..?endPeriod=2092&format=csvfilewithlabels&startPeriod=2091"
+     }
+    ],
+    "format": "oecd-cts-cbcr-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "oecd-cts-cbcr"
+   },
+   "temporal_semantics": "the declared publication date of the edition; the reference year as period; a later edition is a new vintage, never an overwrite",
+   "update_cadence": "annual editions; irregular updates"
+  },
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 2,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://sdmx.oecd.org/public/rest",
+   "fixture": {
+    "expected_output_hash": "299715092b431bffdeb3642a1fe4b678b619a87e74eabfa09f224e7a672b66ae",
+    "path": "tests/fixtures/source_packs/economic-tax-transparency-oecd-cts-rates.json",
+    "sha256": "9a68b0eac3ead85c193419e5135c20388ff1bc53c64109d129324a968e9c1595"
+   },
+   "license": {
+    "id": "oecd-terms-cc-by-4.0",
+    "redistribution": "OECD data stated to be available under CC BY 4.0 from 1 July 2024; reuse with attribution to the OECD (operator must confirm; not re-verified live)",
+    "terms_url": "https://www.oecd.org/en/about/terms-conditions.html"
+   },
+   "publisher": "OECD, Centre for Tax Policy and Administration (Corporate Tax Statistics database)",
+   "scope": "OECD statutory combined CIT rates (published statistics) and forward-looking effective tax rates (model estimates) for Germany, Netherlands and Ireland, at most 5 years (operator must verify the dataflow ids)",
+   "source_id": "oecd-cts-rates",
+   "tax_transparency": {
+    "documents": [
+     {
+      "columns": {
+       "indicator": "MEASURE",
+       "jurisdiction": "REF_AREA",
+       "obs_value": "OBS_VALUE",
+       "period": "TIME_PERIOD",
+       "status": "OBS_STATUS",
+       "unit": "UNIT_MEASURE",
+       "unit_mult": "UNIT_MULT"
+      },
+      "dataset": "DSD_TAX_CIT@DF_CIT",
+      "definition": {
+       "notes": [
+        "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+       ],
+       "source_text": "The statutory corporate income tax rate in force, combining central and sub-central rates, as the OECD publishes it (verify)"
+      },
+      "indicators": {
+       "CIT_COMB": {
+        "concept": "statutory_cit_rate",
+        "label": "Combined (central and sub-central) statutory corporate income tax rate"
+       }
+      },
+      "jurisdiction_scheme": "iso3166-alpha3",
+      "jurisdictions": {
+       "DEU": "Germany",
+       "IRL": "Ireland",
+       "NLD": "Netherlands"
+      },
+      "label": "OECD statutory corporate income tax rates: Germany, Netherlands, Ireland, Corporate Tax Statistics 2024 edition (authored fixture)",
+      "period": {
+       "end": "2093",
+       "start": "2091"
+      },
+      "references": [
+       {
+        "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+        "kind": "dataset-page"
+       }
+      ],
+      "release": {
+       "edition": "Corporate Tax Statistics 2024 edition (authored fixture)",
+       "label": "Corporate Tax Statistics 2024 edition (authored fixture), declared by the operator (verify the publication date)",
+       "published_on": "2024-07-15"
+      },
+      "units": {
+       "PC": "percent"
+      },
+      "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0/DEU+NLD+IRL.CIT_COMB?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091"
+     },
+     {
+      "columns": {
+       "indicator": "MEASURE",
+       "jurisdiction": "REF_AREA",
+       "obs_value": "OBS_VALUE",
+       "period": "TIME_PERIOD",
+       "status": "OBS_STATUS",
+       "unit": "UNIT_MEASURE",
+       "unit_mult": "UNIT_MULT"
+      },
+      "dataset": "DSD_ETR@DF_ETR",
+      "definition": {
+       "notes": [
+        "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+       ],
+       "source_text": "Forward-looking effective tax rates computed by the OECD for a hypothetical investment; model estimates, not observed tax payments (verify)"
+      },
+      "indicators": {
+       "EATR": {
+        "concept": "effective_average_tax_rate",
+        "label": "Forward-looking effective average tax rate"
+       },
+       "EMTR": {
+        "concept": "effective_marginal_tax_rate",
+        "label": "Forward-looking effective marginal tax rate"
+       }
+      },
+      "jurisdiction_scheme": "iso3166-alpha3",
+      "jurisdictions": {
+       "DEU": "Germany",
+       "IRL": "Ireland",
+       "NLD": "Netherlands"
+      },
+      "label": "OECD forward-looking effective tax rates: Germany, Netherlands, Ireland, Corporate Tax Statistics 2024 edition (authored fixture)",
+      "method": {
+       "description": "Effective average and marginal tax rates for a hypothetical domestic investment in a composite asset financed by retained earnings and debt, at a 3% real interest rate and 1% inflation (authored; verify the OECD parameters per edition)",
+       "label": "OECD forward-looking effective tax rate model (authored fixture method statement; verify)",
+       "reference": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html"
+      },
+      "period": {
+       "end": "2092",
+       "start": "2091"
+      },
+      "references": [
+       {
+        "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+        "kind": "dataset-page"
+       }
+      ],
+      "release": {
+       "edition": "Corporate Tax Statistics 2024 edition (authored fixture)",
+       "label": "Corporate Tax Statistics 2024 edition (authored fixture), declared by the operator (verify the publication date)",
+       "published_on": "2024-07-15"
+      },
+      "units": {
+       "PC": "percent"
+      },
+      "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_ETR@DF_ETR,1.0/DEU+NLD+IRL.EATR+EMTR?endPeriod=2092&format=csvfilewithlabels&startPeriod=2091"
+     }
+    ],
+    "format": "oecd-cts-rates-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "oecd-cts-rates"
+   },
+   "temporal_semantics": "the declared publication date of the edition; the reference year as period; a later edition is a new vintage, never an overwrite",
+   "update_cadence": "annual editions; irregular updates"
+  },
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 1,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://atlas-offshore.world",
+   "fixture": {
+    "expected_output_hash": "2e22ef10e3471f8e7c4ec01b383c6bdfb75653994e6996071f0ecd5cd8b76b2f",
+    "path": "tests/fixtures/source_packs/economic-tax-transparency-eutax-offshore-wealth.json",
+    "sha256": "c11a3fbe85be7c38d5d6ad7c44fb863c0676d1c5e110bfe5406fb9f11278d881"
+   },
+   "license": {
+    "id": "eu-tax-observatory-terms-not-established",
+    "redistribution": "not established: no licence statement was found; an operator must verify the terms before accepting this source for a live run",
+    "terms_url": "https://www.taxobservatory.eu/"
+   },
+   "publisher": "EU Tax Observatory (Atlas of the Offshore World)",
+   "scope": "EU Tax Observatory offshore financial wealth model estimates for Germany and Netherlands per Atlas edition, at most 5 years (operator must verify the download path, format and licence)",
+   "source_id": "eutax-offshore-wealth",
+   "tax_transparency": {
+    "documents": [
+     {
+      "columns": {
+       "jurisdiction": "iso3",
+       "period": "year"
+      },
+      "dataset": "atlas-offshore-financial-wealth",
+      "definition": {
+       "notes": [
+        "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+       ],
+       "source_text": "Financial wealth held offshore by a country's households, as estimated by the EU Tax Observatory (model estimate; verify)"
+      },
+      "indicators": {
+       "OFW_GDP": {
+        "concept": "offshore_financial_wealth_share_of_gdp",
+        "label": "Offshore financial wealth, share of GDP as published",
+        "unit": {
+         "code": "PC_GDP",
+         "label": "percent of GDP",
+         "multiplier": "0"
+        }
+       },
+       "OFW_USD": {
+        "concept": "offshore_financial_wealth",
+        "label": "Offshore financial wealth",
+        "unit": {
+         "code": "USD",
+         "label": "US dollars",
+         "multiplier": "9"
+        }
+       }
+      },
+      "jurisdiction_scheme": "iso3166-alpha3",
+      "jurisdictions": {
+       "DEU": "Germany",
+       "NLD": "Netherlands"
+      },
+      "label": "EU Tax Observatory, Atlas of the Offshore World: offshore financial wealth, Germany and Netherlands, Atlas of the Offshore World, 2024 update (authored fixture)",
+      "method": {
+       "description": "Offshore financial wealth estimated from cross-border bank deposit and portfolio statistics and allocated to the households' countries of residence (authored; verify the data sources and allocation per edition)",
+       "label": "Atlas of the Offshore World estimate (authored fixture method statement; verify)",
+       "reference": "https://www.taxobservatory.eu/"
+      },
+      "period": {
+       "end": "2092",
+       "start": "2091"
+      },
+      "references": [
+       {
+        "identifier": "https://atlas-offshore.world/",
+        "kind": "dataset-page"
+       }
+      ],
+      "release": {
+       "edition": "Atlas of the Offshore World, 2024 update (authored fixture)",
+       "label": "Atlas of the Offshore World, 2024 update (authored fixture), declared by the operator (verify the publication date)",
+       "published_on": "2024-05-15"
+      },
+      "url": "https://atlas-offshore.world/data/offshore-financial-wealth-2024.csv",
+      "value_columns": [
+       {
+        "column": "offshore_wealth_usd_bn",
+        "indicator": "OFW_USD"
+       },
+       {
+        "column": "offshore_wealth_pct_gdp",
+        "indicator": "OFW_GDP"
+       }
+      ]
+     }
+    ],
+    "format": "eutax-offshore-wealth-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "eutax-offshore-wealth"
+   },
+   "temporal_semantics": "the declared publication date of the edition; the reference year as period; a later edition is a new vintage, never an overwrite",
+   "update_cadence": "annual editions; irregular updates"
+  },
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 1,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://www.taxobservatory.eu",
+   "fixture": {
+    "expected_output_hash": "c7245c78aa69f678272da2426bda14fa0c80f322155dd2afa33160b034795037",
+    "path": "tests/fixtures/source_packs/economic-tax-transparency-eutax-billionaire-etr.json",
+    "sha256": "536d00e70655afa31df5b26a7e8ae78f7c0eed210c902fe1ae6f4bf240f60337"
+   },
+   "license": {
+    "id": "eu-tax-observatory-terms-not-established",
+    "redistribution": "not established: no licence statement was found; an operator must verify the terms before accepting this source for a live run",
+    "terms_url": "https://www.taxobservatory.eu/"
+   },
+   "publisher": "EU Tax Observatory (Global Tax Evasion Report)",
+   "scope": "EU Tax Observatory billionaire effective tax rate model estimates for France and Netherlands from one report edition (operator must verify that a machine-readable appendix exists, and its licence)",
+   "source_id": "eutax-billionaire-etr",
+   "tax_transparency": {
+    "documents": [
+     {
+      "columns": {
+       "jurisdiction": "iso3",
+       "period": "year"
+      },
+      "dataset": "gter-billionaire-effective-tax-rates",
+      "definition": {
+       "notes": [
+        "country figures only; no individual is named",
+        "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+       ],
+       "source_text": "Taxes paid by billionaires relative to their wealth or income, per country, as estimated in the report (model estimate; verify)"
+      },
+      "indicators": {
+       "BETR_I": {
+        "concept": "billionaire_effective_tax_rate_income",
+        "label": "Billionaires' effective tax rate, percent of income",
+        "unit": {
+         "code": "PC_INCOME",
+         "label": "percent of income",
+         "multiplier": "0"
+        }
+       },
+       "BETR_W": {
+        "concept": "billionaire_effective_tax_rate_wealth",
+        "label": "Billionaires' effective tax rate, percent of wealth",
+        "unit": {
+         "code": "PC_WEALTH",
+         "label": "percent of wealth",
+         "multiplier": "0"
+        }
+       }
+      },
+      "jurisdiction_scheme": "iso3166-alpha3",
+      "jurisdictions": {
+       "FRA": "France",
+       "NLD": "Netherlands"
+      },
+      "label": "EU Tax Observatory, Global Tax Evasion Report: billionaires' effective tax rates, France and Netherlands, Global Tax Evasion Report 2024 (authored fixture)",
+      "method": {
+       "description": "Taxes paid by a country's billionaires relative to their wealth and to their estimated economic income, from wealth rankings and tax data (authored; verify the measures)",
+       "label": "Global Tax Evasion Report billionaire effective tax rate estimate (authored fixture method statement; verify)",
+       "reference": "https://www.taxobservatory.eu/"
+      },
+      "period": {
+       "end": "2091",
+       "start": "2091"
+      },
+      "references": [
+       {
+        "identifier": "https://www.taxobservatory.eu/",
+        "kind": "report"
+       }
+      ],
+      "release": {
+       "edition": "Global Tax Evasion Report 2024 (authored fixture)",
+       "label": "Global Tax Evasion Report 2024, declared by the operator (verify the date and appendix)",
+       "published_on": "2024-03-15"
+      },
+      "url": "https://www.taxobservatory.eu/data/gter-2024-billionaire-effective-tax-rates.csv",
+      "value_columns": [
+       {
+        "column": "etr_wealth_pct",
+        "indicator": "BETR_W"
+       },
+       {
+        "column": "etr_income_pct",
+        "indicator": "BETR_I"
+       }
+      ]
+     }
+    ],
+    "format": "eutax-billionaire-etr-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "eutax-billionaire-etr"
+   },
+   "temporal_semantics": "the declared publication date of the edition; the reference year as period; a later edition is a new vintage, never an overwrite",
+   "update_cadence": "annual editions; irregular updates"
+  }
+ ],
+ "version": "1.0.0"
+}
