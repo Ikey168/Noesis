@@ -89,15 +89,16 @@ def test_live_verification_is_honest_and_the_pack_declares_it_per_source():
     assert {s["source_id"]: (s.get("ownership") or s["competition"])["live_verification"]
             for s in pack["sources"]} == {
         "gleif-level2": "unverified-live", "companies-house": "unverified-live",
-        "sec-edgar-ownership": "unverified-live", "open-ownership-bods": "unverified-live",
+        "sec-edgar-ownership": "unverified-live", "sec-edgar-holdings": "unverified-live",  # #2883
+        "open-ownership-bods": "unverified-live",
         "ec-competition-cases": "unverified-live", "eu-state-aid-tam": "unverified-live",
         "uk-cma-cases": "unverified-live", "us-ftc-cases": "unverified-live", "us-doj-atr-cases": "unverified-live"}
 
 
 def test_offline_conformance_of_every_pinned_fixture():
     result = SourcePackConformance(ROOT).offline(load_source_pack())
-    # Four registry sources plus the competition feature's five (#2217).
-    assert result["valid"] and result["coverage"] == {"configured": 9, "verified": 9}
+    # Four registry sources, the SEC holdings source (#2883) and the competition feature's five (#2217).
+    assert result["valid"] and result["coverage"] == {"configured": 10, "verified": 10}
     for name in ("gleif-level2.json", "companies-house.json", "sec-edgar.json", "open-ownership-bods.json"):
         assert harness.load(name)["authored"] is True
 
@@ -272,11 +273,15 @@ def test_bods_publisher_coverage_is_on_the_contract_and_person_statements_stay_o
     assert all("update_cadence" in v and "license" in v for v in coverage.values() if v["status"] == "implemented")
     env = harness.Env().ready()
     store = OwnershipStore(env.conn)
-    mine = store.records(harness.NS, principal_id=harness.PRINCIPAL, scopes=harness.SCOPES, kinds=("person",))
-    theirs = store.records(harness.NS, principal_id="someone-else", scopes=harness.SCOPES, kinds=("person",))
+    def bods(views):  # the SEC holdings source (#2883) adds its own owner-scoped person statement
+        return [v for v in views if v["record"]["source"]["provider"] == "open-ownership"]
+
+    mine = bods(store.records(harness.NS, principal_id=harness.PRINCIPAL, scopes=harness.SCOPES, kinds=("person",)))
+    theirs = bods(store.records(harness.NS, principal_id="someone-else", scopes=harness.SCOPES, kinds=("person",)))
     assert mine[0]["record"]["name"] == "Jordan Example (fictional)"
     assert theirs[0]["redacted"] is True and "name" not in theirs[0]["record"]
-    reviewer = store.records(harness.NS, principal_id="someone-else", scopes=harness.REVIEW_SCOPES, kinds=("person",))
+    reviewer = bods(store.records(harness.NS, principal_id="someone-else", scopes=harness.REVIEW_SCOPES,
+                                  kinds=("person",)))
     assert reviewer[0]["record"]["name"] == "Jordan Example (fictional)"
 
 

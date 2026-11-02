@@ -231,6 +231,10 @@ LIVE_VERIFICATION.update({
     **{p: {"status": "not-implemented", "note": PROVIDER_CONTRACTS[p]["reason"]}
        for p in ("handelsregister", "unternehmensregister", "bris")},
 })
+# SEC 13F information tables and structured Schedule 13D/13G (#2883) are parsed by their own connector.
+PROVIDER_CONTRACTS["sec-edgar"]["structured_filings"] = (
+    "selected 13F-HR information tables and XML Schedule 13D/13G cover pages: sec-edgar-holdings connector "
+    "(src/ingestion/ownership_sec_holdings.py, SEC_HOLDINGS_CONTRACT), noesis-ownership-record-v2")
 BENEFICIAL_OWNERSHIP_FORMS = frozenset({
     "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A", "SCHEDULE 13D", "SCHEDULE 13D/A", "SCHEDULE 13G",
     "SCHEDULE 13G/A", "3", "3/A", "4", "4/A", "5", "5/A",

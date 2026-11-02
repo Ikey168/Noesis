@@ -145,8 +145,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742),
     # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
     # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739),
-    # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743).
-    assert sum(len(pack["sources"]) for pack in packs) == 353
+    # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743),
+    # plus the Corporate Ownership SEC 13F and Schedule 13D/13G holdings source (#2883).
+    assert sum(len(pack["sources"]) for pack in packs) == 354
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

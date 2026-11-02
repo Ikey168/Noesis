@@ -1,0 +1,130 @@
+{
+  "authored": true,
+  "provider": "SEC EDGAR (www.sec.gov Archives: Form 13F-HR cover pages and information tables; Schedule 13D/13G XML)",
+  "note": "Authored responses for fictional filers and issuers (CIKs 0009999401-0009999701, CUSIP issuer numbers 99990A/99990B with computed check digits; nothing here is issued). Element names follow the EDGAR Form 13F and Schedule 13D/13G XML technical specifications as read for the adapter and are unverified against live filings; date formats (MM-DD-YYYY on 13F, MM/DD/YYYY on the schedules) are assumptions to verify.",
+  "scenarios": [
+    "13f-information-table",
+    "13f-restatement-amendment",
+    "13f-new-holdings-amendment",
+    "13f-put-option-and-principal-rows",
+    "13f-other-manager-and-shared-voting",
+    "13d-group-members",
+    "13d-natural-person-reporting-person",
+    "13d-reporting-person-without-cik",
+    "13g-original",
+    "13g-amendment-five-percent-or-less",
+    "fair-access-user-agent-required"
+  ],
+  "selection": [
+    {
+      "cik": "0009999501",
+      "accession": "0009999501-25-000001",
+      "document": "primary_doc.xml",
+      "information_table": "infotable.xml",
+      "form": "13F-HR",
+      "filing_date": "2025-05-12"
+    },
+    {
+      "cik": "0009999501",
+      "accession": "0009999501-25-000002",
+      "document": "primary_doc.xml",
+      "information_table": "infotable.xml",
+      "form": "13F-HR/A",
+      "filing_date": "2025-06-02"
+    },
+    {
+      "cik": "0009999501",
+      "accession": "0009999501-25-000003",
+      "document": "primary_doc.xml",
+      "information_table": "infotable.xml",
+      "form": "13F-HR",
+      "filing_date": "2025-08-11"
+    },
+    {
+      "cik": "0009999501",
+      "accession": "0009999501-25-000004",
+      "document": "primary_doc.xml",
+      "information_table": "infotable.xml",
+      "form": "13F-HR/A",
+      "filing_date": "2025-08-20"
+    },
+    {
+      "cik": "0009999601",
+      "accession": "0009999601-25-000001",
+      "document": "primary_doc.xml",
+      "form": "SCHEDULE 13D",
+      "filing_date": "2025-04-07"
+    },
+    {
+      "cik": "0009999401",
+      "accession": "0009999701-25-000001",
+      "document": "primary_doc.xml",
+      "form": "SCHEDULE 13G",
+      "filing_date": "2025-02-10"
+    },
+    {
+      "cik": "0009999401",
+      "accession": "0009999701-25-000002",
+      "document": "primary_doc.xml",
+      "form": "SCHEDULE 13G/A",
+      "filing_date": "2025-08-14"
+    }
+  ],
+  "native_pages": [
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000001/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/thirteenffiler\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>13F-HR</submissionType><filerInfo><liveTestFlag>LIVE</liveTestFlag><filer><credentials><cik>0009999501</cik></credentials></filer><periodOfReport>03-31-2025</periodOfReport></filerInfo></headerData>\n  <formData>\n    <coverPage><reportCalendarOrQuarter>03-31-2025</reportCalendarOrQuarter><isAmendment>false</isAmendment><filingManager><name>HARBOR LANTERN CAPITAL MANAGEMENT LLC (FICTIONAL)</name><address><com:street1>1 Fixture Way</com:street1><com:city>Exampleville</com:city><com:stateOrCountry>XX</com:stateOrCountry><com:zipCode>00000</com:zipCode></address></filingManager><reportType>13F HOLDINGS REPORT</reportType><form13FFileNumber>028-99999</form13FFileNumber></coverPage>\n    <summaryPage><otherIncludedManagersCount>1</otherIncludedManagersCount><tableEntryTotal>4</tableEntryTotal><tableValueTotal>9300000</tableValueTotal></summaryPage>\n    <signatureBlock><name>Fixture Signatory</name><title>Chief Compliance Officer</title><signatureDate>05-12-2025</signatureDate></signatureBlock>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000001/infotable.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<informationTable xmlns=\"http://www.sec.gov/edgar/document/thirteenf/informationtable\">\n  <infoTable><nameOfIssuer>EXAMPLA WIDGETS INC (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990A101</cusip><value>3600000</value><shrsOrPrnAmt><sshPrnamt>120000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>120000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n  <infoTable><nameOfIssuer>EXAMPLA WIDGETS INC (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990A101</cusip><value>1500000</value><shrsOrPrnAmt><sshPrnamt>50000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><putCall>Put</putCall><investmentDiscretion>DFND</investmentDiscretion><otherManager>1</otherManager><votingAuthority><Sole>0</Sole><Shared>50000</Shared><None>0</None></votingAuthority></infoTable>\n  <infoTable><nameOfIssuer>NORTHWIND RAIL CORP (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990B109</cusip><value>2250000</value><shrsOrPrnAmt><sshPrnamt>75000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>75000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n  <infoTable><nameOfIssuer>NORTHWIND RAIL CORP (FICTIONAL)</nameOfIssuer><titleOfClass>NOTE 5.000% 2031</titleOfClass><cusip>99990BAA7</cusip><value>1950000</value><shrsOrPrnAmt><sshPrnamt>2000000</sshPrnamt><sshPrnamtType>PRN</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>0</Sole><Shared>0</Shared><None>2000000</None></votingAuthority></infoTable>\n</informationTable>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000002/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/thirteenffiler\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>13F-HR/A</submissionType><filerInfo><liveTestFlag>LIVE</liveTestFlag><filer><credentials><cik>0009999501</cik></credentials></filer><periodOfReport>03-31-2025</periodOfReport></filerInfo></headerData>\n  <formData>\n    <coverPage><reportCalendarOrQuarter>03-31-2025</reportCalendarOrQuarter><isAmendment>true</isAmendment><amendmentNo>1</amendmentNo><amendmentInfo><amendmentType>RESTATEMENT</amendmentType></amendmentInfo><filingManager><name>HARBOR LANTERN CAPITAL MANAGEMENT LLC (FICTIONAL)</name><address><com:street1>1 Fixture Way</com:street1><com:city>Exampleville</com:city><com:stateOrCountry>XX</com:stateOrCountry><com:zipCode>00000</com:zipCode></address></filingManager><reportType>13F HOLDINGS REPORT</reportType><form13FFileNumber>028-99999</form13FFileNumber></coverPage>\n    <summaryPage><otherIncludedManagersCount>1</otherIncludedManagersCount><tableEntryTotal>2</tableEntryTotal><tableValueTotal>6000000</tableValueTotal></summaryPage>\n    <signatureBlock><name>Fixture Signatory</name><title>Chief Compliance Officer</title><signatureDate>06-02-2025</signatureDate></signatureBlock>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000002/infotable.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<informationTable xmlns=\"http://www.sec.gov/edgar/document/thirteenf/informationtable\">\n  <infoTable><nameOfIssuer>EXAMPLA WIDGETS INC (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990A101</cusip><value>3750000</value><shrsOrPrnAmt><sshPrnamt>125000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>125000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n  <infoTable><nameOfIssuer>NORTHWIND RAIL CORP (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990B109</cusip><value>2250000</value><shrsOrPrnAmt><sshPrnamt>75000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>75000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n</informationTable>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000003/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/thirteenffiler\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>13F-HR</submissionType><filerInfo><liveTestFlag>LIVE</liveTestFlag><filer><credentials><cik>0009999501</cik></credentials></filer><periodOfReport>06-30-2025</periodOfReport></filerInfo></headerData>\n  <formData>\n    <coverPage><reportCalendarOrQuarter>06-30-2025</reportCalendarOrQuarter><isAmendment>false</isAmendment><filingManager><name>HARBOR LANTERN CAPITAL MANAGEMENT LLC (FICTIONAL)</name><address><com:street1>1 Fixture Way</com:street1><com:city>Exampleville</com:city><com:stateOrCountry>XX</com:stateOrCountry><com:zipCode>00000</com:zipCode></address></filingManager><reportType>13F HOLDINGS REPORT</reportType><form13FFileNumber>028-99999</form13FFileNumber></coverPage>\n    <summaryPage><otherIncludedManagersCount>1</otherIncludedManagersCount><tableEntryTotal>1</tableEntryTotal><tableValueTotal>2970000</tableValueTotal></summaryPage>\n    <signatureBlock><name>Fixture Signatory</name><title>Chief Compliance Officer</title><signatureDate>08-11-2025</signatureDate></signatureBlock>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000003/infotable.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<informationTable xmlns=\"http://www.sec.gov/edgar/document/thirteenf/informationtable\">\n  <infoTable><nameOfIssuer>EXAMPLA WIDGETS INC (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990A101</cusip><value>2970000</value><shrsOrPrnAmt><sshPrnamt>90000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>90000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n</informationTable>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000004/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/thirteenffiler\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>13F-HR/A</submissionType><filerInfo><liveTestFlag>LIVE</liveTestFlag><filer><credentials><cik>0009999501</cik></credentials></filer><periodOfReport>06-30-2025</periodOfReport></filerInfo></headerData>\n  <formData>\n    <coverPage><reportCalendarOrQuarter>06-30-2025</reportCalendarOrQuarter><isAmendment>true</isAmendment><amendmentNo>2</amendmentNo><amendmentInfo><amendmentType>NEW HOLDINGS</amendmentType></amendmentInfo><filingManager><name>HARBOR LANTERN CAPITAL MANAGEMENT LLC (FICTIONAL)</name><address><com:street1>1 Fixture Way</com:street1><com:city>Exampleville</com:city><com:stateOrCountry>XX</com:stateOrCountry><com:zipCode>00000</com:zipCode></address></filingManager><reportType>13F HOLDINGS REPORT</reportType><form13FFileNumber>028-99999</form13FFileNumber></coverPage>\n    <summaryPage><otherIncludedManagersCount>1</otherIncludedManagersCount><tableEntryTotal>1</tableEntryTotal><tableValueTotal>310000</tableValueTotal></summaryPage>\n    <signatureBlock><name>Fixture Signatory</name><title>Chief Compliance Officer</title><signatureDate>08-20-2025</signatureDate></signatureBlock>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999501/000999950125000004/infotable.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<informationTable xmlns=\"http://www.sec.gov/edgar/document/thirteenf/informationtable\">\n  <infoTable><nameOfIssuer>NORTHWIND RAIL CORP (FICTIONAL)</nameOfIssuer><titleOfClass>COM</titleOfClass><cusip>99990B109</cusip><value>310000</value><shrsOrPrnAmt><sshPrnamt>10000</sshPrnamt><sshPrnamtType>SH</sshPrnamtType></shrsOrPrnAmt><investmentDiscretion>SOLE</investmentDiscretion><votingAuthority><Sole>10000</Sole><Shared>0</Shared><None>0</None></votingAuthority></infoTable>\n</informationTable>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999601/000999960125000001/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/schedule13D\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>SCHEDULE 13D</submissionType><filerInfo><filer><filerCredentials><cik>0009999601</cik></filerCredentials></filer></filerInfo></headerData>\n  <formData>\n    <coverPageHeader><securitiesClassTitle>Common Stock, par value $0.01 per share</securitiesClassTitle><dateOfEvent>03/28/2025</dateOfEvent><previouslyFiledFlag>false</previouslyFiledFlag><issuerInfo><issuerCIK>0009999402</issuerCIK><issuerCUSIP>99990B109</issuerCUSIP><issuerName>Northwind Rail Corp (fictional)</issuerName></issuerInfo></coverPageHeader>\n    <reportingPersons>\n      <reportingPersonInfo><reportingPersonCIK>0009999601</reportingPersonCIK><reportingPersonName>Juniper Activist Partners LP (fictional)</reportingPersonName><memberOfGroup>a</memberOfGroup><fundType>WC</fundType><citizenshipOrOrganization>DE</citizenshipOrOrganization><soleVotingPower>0</soleVotingPower><sharedVotingPower>3700000</sharedVotingPower><soleDispositivePower>0</soleDispositivePower><sharedDispositivePower>3700000</sharedDispositivePower><aggregateAmountOwned>3700000</aggregateAmountOwned><percentOfClass>7.4</percentOfClass><typeOfReportingPerson>PN</typeOfReportingPerson></reportingPersonInfo>\n      <reportingPersonInfo><reportingPersonCIK>0009999602</reportingPersonCIK><reportingPersonName>Juniper Activist GP LLC (fictional)</reportingPersonName><memberOfGroup>a</memberOfGroup><fundType>WC</fundType><citizenshipOrOrganization>DE</citizenshipOrOrganization><soleVotingPower>0</soleVotingPower><sharedVotingPower>3700000</sharedVotingPower><soleDispositivePower>0</soleDispositivePower><sharedDispositivePower>3700000</sharedDispositivePower><aggregateAmountOwned>3700000</aggregateAmountOwned><percentOfClass>7.4</percentOfClass><typeOfReportingPerson>OO</typeOfReportingPerson></reportingPersonInfo>\n      <reportingPersonInfo><reportingPersonCIK>0009999603</reportingPersonCIK><reportingPersonName>Dana Q. Fixture (fictional natural person)</reportingPersonName><memberOfGroup>a</memberOfGroup><fundType>WC</fundType><citizenshipOrOrganization>United States</citizenshipOrOrganization><soleVotingPower>0</soleVotingPower><sharedVotingPower>3700000</sharedVotingPower><soleDispositivePower>0</soleDispositivePower><sharedDispositivePower>3700000</sharedDispositivePower><aggregateAmountOwned>3700000</aggregateAmountOwned><percentOfClass>7.4</percentOfClass><typeOfReportingPerson>IN</typeOfReportingPerson></reportingPersonInfo>\n      <reportingPersonInfo><reportingPersonNoCIK>Y</reportingPersonNoCIK><reportingPersonName>Juniper Co-Investment Trust (fictional)</reportingPersonName><memberOfGroup>a</memberOfGroup><fundType>WC</fundType><citizenshipOrOrganization>DE</citizenshipOrOrganization><soleVotingPower>550000</soleVotingPower><sharedVotingPower>0</sharedVotingPower><soleDispositivePower>550000</soleDispositivePower><sharedDispositivePower>0</sharedDispositivePower><aggregateAmountOwned>550000</aggregateAmountOwned><percentOfClass>1.1</percentOfClass><typeOfReportingPerson>OO</typeOfReportingPerson></reportingPersonInfo>\n    </reportingPersons>\n    <items1To7><item4><transactionPurpose>Fictional fixture text: the reporting persons intend to engage with the board.</transactionPurpose></item4></items1To7>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999401/000999970125000001/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/schedule13g\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>SCHEDULE 13G</submissionType></headerData>\n  <formData>\n    <coverPageHeader><securitiesClassTitle>Common Stock</securitiesClassTitle><eventDateRequiresFilingThisStatement>12/31/2024</eventDateRequiresFilingThisStatement><issuerInfo><issuerCik>0009999401</issuerCik><issuerCusip>99990A101</issuerCusip><issuerName>Exampla Widgets Inc. (fictional)</issuerName></issuerInfo><designateRulesPursuantThisScheduleFiled><designateRulePursuantThisScheduleFiled>Rule 13d-1(b)</designateRulePursuantThisScheduleFiled></designateRulesPursuantThisScheduleFiled></coverPageHeader>\n    <coverPageHeaderReportingPersonDetails><reportingPersonName>Granite Index Advisors Ltd (fictional)</reportingPersonName><memberGroup>b</memberGroup><citizenshipOrOrganization>X0</citizenshipOrOrganization><reportingPersonBeneficiallyOwnedNumberOfShares><soleVotingPower>3050000</soleVotingPower><sharedVotingPower>0</sharedVotingPower><soleDispositivePower>3050000</soleDispositivePower><sharedDispositivePower>0</sharedDispositivePower></reportingPersonBeneficiallyOwnedNumberOfShares><reportingPersonBeneficiallyOwnedAggregateNumberOfShares>3050000</reportingPersonBeneficiallyOwnedAggregateNumberOfShares><classPercent>6.1</classPercent><typeOfReportingPerson>IA</typeOfReportingPerson></coverPageHeaderReportingPersonDetails>\n    <items><item5><classOwnership5PercentOrLess>false</classOwnership5PercentOrLess></item5></items>\n  </formData>\n</edgarSubmission>\n"
+    },
+    {
+      "request": "/Archives/edgar/data/9999401/000999970125000002/primary_doc.xml",
+      "require_header": "User-Agent",
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/schedule13g\" xmlns:com=\"http://www.sec.gov/edgar/common\">\n  <headerData><submissionType>SCHEDULE 13G/A</submissionType><previousAccessionNumber>0009999701-25-000001</previousAccessionNumber></headerData>\n  <formData>\n    <coverPageHeader><amendmentNo>1</amendmentNo><securitiesClassTitle>Common Stock</securitiesClassTitle><eventDateRequiresFilingThisStatement>06/30/2025</eventDateRequiresFilingThisStatement><issuerInfo><issuerCik>0009999401</issuerCik><issuerCusip>99990A101</issuerCusip><issuerName>Exampla Widgets Inc. (fictional)</issuerName></issuerInfo><designateRulesPursuantThisScheduleFiled><designateRulePursuantThisScheduleFiled>Rule 13d-1(b)</designateRulePursuantThisScheduleFiled></designateRulesPursuantThisScheduleFiled></coverPageHeader>\n    <coverPageHeaderReportingPersonDetails><reportingPersonName>Granite Index Advisors Ltd (fictional)</reportingPersonName><memberGroup>b</memberGroup><citizenshipOrOrganization>X0</citizenshipOrOrganization><reportingPersonBeneficiallyOwnedNumberOfShares><soleVotingPower>2100000</soleVotingPower><sharedVotingPower>0</sharedVotingPower><soleDispositivePower>2100000</soleDispositivePower><sharedDispositivePower>0</sharedDispositivePower></reportingPersonBeneficiallyOwnedNumberOfShares><reportingPersonBeneficiallyOwnedAggregateNumberOfShares>2100000</reportingPersonBeneficiallyOwnedAggregateNumberOfShares><classPercent>4.2</classPercent><typeOfReportingPerson>IA</typeOfReportingPerson></coverPageHeaderReportingPersonDetails>\n    <items><item5><classOwnership5PercentOrLess>true</classOwnership5PercentOrLess></item5></items>\n  </formData>\n</edgarSubmission>\n"
+    }
+  ]
+}

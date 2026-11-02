@@ -441,6 +441,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 # Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
 NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
+# Corporate Ownership: SEC 13F information tables and structured Schedule 13D/13G (#2883).
+NATIVE_CONNECTOR_MODULES["sec-edgar-holdings"] = "src.ingestion.ownership_sec_holdings"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sec-edgar-holdings"})
 
 
 def native_connector_module(connector: str) -> Any:
