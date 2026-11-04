@@ -2,7 +2,7 @@
 
 Importing this package registers every scholarly source connector (OpenAlex,
 Crossref, Semantic Scholar, Europe PMC, PubMed, bioRxiv, medRxiv, DOAJ, CORE,
-DBLP, HAL, PLOS, Zenodo, Scopus). Resolve one with ``get_connector("<name>")``.
+DBLP, HAL, PLOS, Zenodo, Scopus, ERIC, EdArXiv). Resolve one with ``get_connector("<name>")``.
 """
 from src.ingestion.connectors.scholarly.base import (  # noqa: F401
     ScholarlyConnector,
