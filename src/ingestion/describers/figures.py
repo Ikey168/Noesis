@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from services.ingest.common.document_model import Document
-from src.ingestion.describers.vision import FigureDescription, VisionDescriber
+from src.ingestion.describers.vision import FigureDescription, VisionDescriber, VisionDescriberError
 
 # "Figure 3: caption text" / "Fig. 3. caption" up to the end of the line/sentence.
 _CAPTION_RE = re.compile(
@@ -75,6 +75,7 @@ def figure_document(
     ingested_at: int,
     description: Optional[FigureDescription] = None,
     content_ref: Optional[str] = None,
+    describer_error: Optional[VisionDescriberError] = None,
 ) -> Document:
     """Build a figure Document from a candidate, optionally enriched.
 
@@ -96,6 +97,10 @@ def figure_document(
         metadata["describer"] = description.to_metadata()
     else:
         metadata["describer"] = None
+        if describer_error is not None:
+            # A configured provider failed: keep the degradation explicit
+            # rather than indistinguishable from "no describer configured".
+            metadata["describer_degraded"] = describer_error.to_metadata()
 
     return Document(
         document_id=_figure_document_id(parent.document_id, candidate.label),
@@ -143,7 +148,13 @@ def figure_documents(
             asset = asset_store.put(cand.image_bytes, parent_document_id=parent.document_id, now_ms=ts, mime_hint=cand.mime)
             content_ref = asset.content_ref
         description = None
+        describer_error = None
         if cand.image_bytes:
             description = describer.describe(cand.image_bytes, context=cand.caption, mime=cand.mime)
-        documents.append(figure_document(parent, cand, ts, description=description, content_ref=content_ref))
+            describer_error = getattr(describer, "last_error", None)
+        documents.append(
+            figure_document(
+                parent, cand, ts, description=description, content_ref=content_ref, describer_error=describer_error
+            )
+        )
     return documents

@@ -165,5 +165,5 @@ def test_contract_and_address_to_cited_origin_transfers_and_probable_cluster():
 
 
 def test_live_evidence_is_reported_separately_and_unverified():
-    assert set(acq.LIVE_VERIFICATION) == set(fb.RAW_FILES)
+    assert set(acq.LIVE_VERIFICATION) == set(fb.RAW_FILES) | {acq.BLOCKSCOUT}
     assert {v["status"] for v in acq.LIVE_VERIFICATION.values()} == {"unverified-live"}

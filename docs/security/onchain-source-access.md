@@ -19,7 +19,7 @@ therefore excludes any source whose purpose is identity attribution.
 | Source id | Kind | Decision |
 | --- | --- | --- |
 | `etherscan-v2-mainnet` | explorer (Etherscan-compatible) | **selected** for Ethereum mainnet |
-| `blockscout-ethereum` | explorer (Etherscan-compatible) | audited, not selected (documented alternative) |
+| `blockscout-ethereum` | explorer (Etherscan-compatible) | **fallback** for `etherscan-v2-mainnet` (no key or exhausted budget; FA22) |
 | `blockstream-esplora-bitcoin` | explorer (Esplora) | **selected** for Bitcoin mainnet |
 | `ethereum-lists-tokens` | public label dataset | **selected** |
 | `eth-labels` | public label dataset | audited, rejected |
@@ -41,8 +41,10 @@ Bitcoin is a second chain added under this same audit because the declared
   the adapter (`READ_RPC_METHODS`).
 - **Authentication.** API key, required. Held in `NOESIS_ETHERSCAN_API_KEY` and
   sent only as the documented `apikey` query parameter. It is never written to a
-  receipt, observation, locator, request log or error. Without it every
-  Ethereum operation returns `no_provider_configured` and writes nothing.
+  receipt, observation, locator, request log or error, and never sent to the
+  fallback. Without it, Ethereum operations go to the Blockscout fallback where
+  it serves them (below). With `NOESIS_ONCHAIN_FALLBACK=off`, they return
+  `no_provider_configured` and write nothing.
 - **Rate limits.** Free tier documented as 5 calls per second and 100,000 calls
   per day *(verify)*. The adapter never retries. HTTP 429 or a
   "Max rate limit reached" envelope is a failed receipt.
@@ -72,18 +74,37 @@ Bitcoin is a second chain added under this same audit because the declared
   the key, byte and request counts, adapter version, licence) and observation
   (parsed facts, raw SHA-256, the chain head the explorer reported).
 
-### Blockscout (`blockscout-ethereum`) — audited, not selected
+### Blockscout (`blockscout-ethereum`) — fallback for Etherscan
 
-- **Access model.** The Etherscan-compatible RPC API on `eth.blockscout.com/api`,
-  with the same `module`/`action` shape. The selected parsers accept its
+- **Access model.** The Etherscan-compatible RPC API on
+  `https://eth.blockscout.com/api`, with the same `module`/`action` shape and
+  no `chainid` (one chain per instance). The selected parsers accept its
   responses. Blockscout additionally states `logIndex` on token transfers.
-- **Authentication.** API key optional. Per-instance limits apply without a key
-  *(verify)*.
+  Actions sent (`PROVIDER_ACTIONS`): `account` `txlist` and `tokentx`, and
+  `block` `eth_block_number` for the chain head.
+- **Unsupported actions.** Other actions are not sent: `contract`
+  `getcontractcreation` and the `proxy` transaction, receipt and block reads.
+  `contract-origin` and `transaction` therefore answer `unavailable`
+  (`unsupported_by_provider`), never an empty result, until an equivalent is
+  verified live.
+- **Authentication.** None used; the optional key is not configured.
+  Per-instance limits apply without a key *(verify)*. No quota is declared for
+  the host in `config/source_quotas.json` until its limits are verified.
 - **Terms.** The explorer is open source (GPL-3.0). The hosted instance has its
-  own service terms *(verify)*.
-- **Decision.** Kept as the documented alternative explorer. It is not declared
-  in the source pack until its hosted terms are verified, so only one explorer
-  per chain is live.
+  own service terms *(verify)*. Attribution recorded on every observation:
+  "Data from Blockscout (eth.blockscout.com)".
+- **Decision (FA22, [#2861](https://github.com/Ikey168/Noesis/issues/2861)).**
+  Declared as the fallback of `etherscan-v2-mainnet` in `FALLBACKS` in
+  `src/ingestion/onchain.py`, not in the source pack: the
+  `noesis-source-pack-v1` contract has no fallback field. It
+  is used when `NOESIS_ETHERSCAN_API_KEY` is missing (`credential_missing`) or
+  the shared free-tier ledger shows the Etherscan budget exhausted
+  (`budget_exhausted`). It inherits the Etherscan source's budgets and policy.
+  Every receipt and observation names the `provider` that answered and the
+  `fallback` reason. `NOESIS_ONCHAIN_FALLBACK=off` disables it. **Live status:
+  `unverified-live`.** The response shapes and action names are taken from the
+  provider documentation. They are tested only against the Etherscan fixture
+  ledger, re-keyed to Blockscout's action names.
 
 ### Blockstream Esplora (`blockstream-esplora-bitcoin`) — selected
 
@@ -145,7 +166,11 @@ statements belong to the Legal bundle's sanctions feature. Excluded.
 
 ## Unavailable-access fallback
 
-- No key: Ethereum operations return `no_provider_configured` and write nothing.
+- No Etherscan key, or an exhausted Etherscan free-tier budget: Ethereum
+  operations go to the Blockscout fallback. An operation it does not serve
+  answers `unavailable` (`unsupported_by_provider`) and writes nothing. With
+  `NOESIS_ONCHAIN_FALLBACK=off` and no key, they return
+  `no_provider_configured` and write nothing.
 - Provider failure, rate limit, byte-budget overrun, cross-host redirect or
   non-allowlisted host: a `failed` receipt with a classified `failure_type`.
   Earlier observations stay current; nothing is retried automatically. A

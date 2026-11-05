@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
+from .captcha_solver import CaptchaRequired
 from .cloudwatch_logger import CloudWatchLogger, ScrapingMetrics, ScrapingStatus
 from .dynamodb_failure_manager import DynamoDBFailureManager
 from .sns_alert_manager import SNSAlertManager
@@ -23,6 +24,7 @@ class RetryReason(Enum):
     TIMEOUT = "timeout"
     HTTP_ERROR = "http_error"
     CAPTCHA_FAILED = "captcha_failed"
+    CAPTCHA_REQUIRED = "captcha-required"
     PROXY_FAILED = "proxy_failed"
     RATE_LIMITED = "rate_limited"
     SERVER_ERROR = "server_error"
@@ -90,6 +92,8 @@ class EnhancedRetryManager:
 
         # Retry tracking
         self.active_retries: Dict[str, List[RetryAttempt]] = {}
+        # URLs skipped as ``captcha-required`` (#2858): never retried.
+        self.skipped: dict[str, str] = {}
         self.circuit_breaker_state: Dict[str, Dict[str, Any]] = {}
 
         # Circuit breaker configuration
@@ -152,6 +156,14 @@ class EnhancedRetryManager:
                 self._reset_circuit_breaker(url)
 
                 return result
+
+            except CaptchaRequired as e:
+                # Typed skip outcome (#2858): no solver is configured, so a
+                # retry cannot succeed. Record the skip (not a failure, and not
+                # a circuit-breaker strike) and let the caller continue.
+                await self._record_captcha_skip(url, e, attempt, context)
+                self.active_retries.pop(url, None)
+                raise
 
             except Exception as e:
                 last_exception = e
@@ -217,10 +229,37 @@ class EnhancedRetryManager:
         # This should never be reached, but just in case
         raise last_exception
 
+    async def _record_captcha_skip(
+        self, url: str, exc: CaptchaRequired, attempt: int, context: dict[str, Any]
+    ):
+        """Record a ``captcha-required, skipped`` outcome without retrying."""
+        self.skipped[url] = RetryReason.CAPTCHA_REQUIRED.value
+        self.logger.warning(
+            "Skipping %s: %s, skipped (no retry)",
+            url, RetryReason.CAPTCHA_REQUIRED.value,
+        )
+        if self.cloudwatch_logger:
+            metrics = ScrapingMetrics(
+                url=url,
+                status=ScrapingStatus.CAPTCHA_BLOCKED,
+                timestamp=time.time(),
+                duration_ms=0,
+                retry_count=attempt,
+                error_message=f"{RetryReason.CAPTCHA_REQUIRED.value}, skipped",
+                proxy_used=context.get("proxy_used"),
+                user_agent=context.get("user_agent_used"),
+                response_code=context.get("response_code"),
+                captcha_encountered=True,
+            )
+            await self.cloudwatch_logger.log_scraping_attempt(metrics)
+
     def _determine_retry_reason(
         self, exception: Exception, context: Dict[str, Any]
     ) -> RetryReason:
         """Determine the reason for retry based on exception and context."""
+        if isinstance(exception, CaptchaRequired):
+            return RetryReason.CAPTCHA_REQUIRED
+
         error_str = str(exception).lower()
 
         if "timeout" in error_str:
@@ -248,6 +287,8 @@ class EnhancedRetryManager:
         self, exception: Exception, context: Dict[str, Any]
     ) -> bool:
         """Determine if an exception represents a permanent failure."""
+        if isinstance(exception, CaptchaRequired):
+            return True
         if hasattr(exception, "status_code"):
             status_code = getattr(exception, "status_code")
             return status_code in self.retry_config.permanent_failure_codes

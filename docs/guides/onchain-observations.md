@@ -16,20 +16,64 @@ key or transaction-submission capability.
 ## Sources
 
 `config/source_packs/onchain.json` (pack `onchain-observations` 1.0.0)
-declares three sources:
+declares three sources. `FALLBACKS` in `src/ingestion/onchain.py` adds one
+fallback provider for Etherscan:
 
 | Source | Chain | Key | Operations |
 | --- | --- | --- | --- |
 | `etherscan-v2-mainnet` | Ethereum mainnet (`eip155:1`) | `NOESIS_ETHERSCAN_API_KEY` (required) | address-transactions, transaction, contract-origin, address-funding |
+| ↳ fallback `blockscout-ethereum` | Ethereum mainnet (`eth.blockscout.com`) | none | address-transactions, address-funding |
 | `blockstream-esplora-bitcoin` | Bitcoin mainnet (`bip122:000000000019d6689c085ae165831e93`) | none | address-transactions, transaction, address-funding |
 | `ethereum-lists-tokens` | Ethereum mainnet | none | label |
 
 The access audit and the per-provider decisions are in
 [`docs/security/onchain-source-access.md`](../security/onchain-source-access.md).
-Blockscout is audited as the alternative Etherscan-compatible explorer. Two
+Blockscout is the fallback of `etherscan-v2-mainnet` (FA22,
+[#2861](https://github.com/Ikey168/Noesis/issues/2861)); see
+[Ethereum without an Etherscan key](#ethereum-without-an-etherscan-key). Two
 label sources were rejected (`eth-labels`, the Etherscan label cloud) and one
-was excluded (OFAC digital-currency addresses). No source is verified live yet
-(`LIVE_VERIFICATION` in `src/ingestion/onchain.py`).
+was excluded (OFAC digital-currency addresses). No source or fallback is
+verified live yet (`LIVE_VERIFICATION` in `src/ingestion/onchain.py`).
+
+### Ethereum without an Etherscan key
+
+Etherscan's free tier is capped (3 calls/s and 100,000 calls/day in
+`config/source_quotas.json`). Ethereum calls go to the keyless Blockscout
+Etherscan-compatible API (`https://eth.blockscout.com/api`) instead when:
+
+- `NOESIS_ETHERSCAN_API_KEY` is not configured (`credential_missing`); or
+- the shared free-tier ledger (`src/ingestion/quota.py`) shows that the
+  Etherscan budget cannot take the call's requests before a window that does
+  not reopen soon, such as the daily limit or a provider `Retry-After` block
+  (`budget_exhausted`). The per-second limit is waited out, not routed.
+
+The choice is made once per call, before any request. A call never mixes
+providers, and a budget that runs out during a call is a failed receipt.
+
+Blockscout is sent only the actions it is declared to serve
+(`PROVIDER_ACTIONS`): `account` `txlist` and `tokentx`, and `block`
+`eth_block_number` for the chain head, without `chainid`. So
+`address-transactions` and `address-funding` work without a key.
+`transaction` and `contract-origin` need actions Blockscout is not declared to
+serve (`getcontractcreation`, the `proxy` reads). They answer
+`status: "unavailable"` with `failure_type: "unsupported_by_provider"`, never an
+empty result, and request and write nothing.
+
+Each receipt keeps `source_id: "etherscan-v2-mainnet"`, the source that was
+asked for, and adds:
+
+- `provider`: the provider that answered;
+- `fallback`: `null`, or `{from, to, reason, detail}` with reason
+  `credential_missing` or `budget_exhausted`.
+
+Each observation records the same `provider` and `fallback`, plus
+`requested_source`. Blockscout's publisher, licence and attribution are stored
+on the observation, so citations and `trace_artifact` name Blockscout.
+
+Set `NOESIS_ONCHAIN_FALLBACK=off` to disable the fallback. Without a key,
+Ethereum calls then return `no_provider_configured` and write nothing.
+Blockscout's live behaviour and hosted terms are not verified yet: the build
+environment has no network access.
 
 ## Acquire (Python API, receipted)
 
@@ -56,8 +100,8 @@ Each call follows the same rules:
   inputs returns the stored receipt; reusing a `request_id` with other inputs
   is refused.
 - The API key is sent only as Etherscan's documented `apikey` parameter and is
-  never stored. Without a key, Ethereum calls return
-  `no_provider_configured` and write nothing.
+  never stored or sent to the fallback. Without a key, Ethereum calls use the
+  Blockscout fallback where it serves the operation (see above).
 - Passing `investigation=` logs the receipt into that investigation's audit
   trail.
 - `trace_artifact(document_id="onchain-obs:…")` shows the full chain: the

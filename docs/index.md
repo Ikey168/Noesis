@@ -469,7 +469,8 @@ For the project overview and local setup, start with the
   [model registry](subsystems/mlops/model-registry.md) ·
   [reproducibility](subsystems/mlops/reproducibility.md) ·
   [MLflow security](subsystems/mlops/security.md)
-- **Models:** [argument-mining benchmarks](subsystems/argument-mining-benchmarks.md)
+- **Models:** [argument-mining benchmarks](subsystems/argument-mining-benchmarks.md) ·
+  [vision describer (Anthropic or local Ollama)](subsystems/vision-describer.md)
 
 ## Data platform
 

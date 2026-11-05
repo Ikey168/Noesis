@@ -86,7 +86,7 @@ figure. Sources are listed at the end.
 | `sam-opportunities` | Required: `NOESIS_SAM_API_KEY` | Free key, but non-federal users without a SAM role get about 10 calls/day (1,000/day with a role); keys expire after 90 days (secondary sources) | — | SAM.gov public Contract Opportunities data extract (download) |
 | `companies-house` | Required: `NOESIS_COMPANIES_HOUSE_API_KEY` | Free; 600 requests per 5 minutes per key | — | Companies House free bulk company data product (monthly snapshot) |
 | `ownership_providers` OpenCorporates (`opencorporates` connector, source `opencorporates-companies`, #2887; also the regional provider) | Required: `NOESIS_OPENCORPORATES_API_KEY` (sent as `api_token`, never stored) | Free share-alike key only for public-benefit users (journalists, NGOs, academics), with attribution and open contribution back; otherwise paid, API plans from £2,250/year | GLEIF LEI (`lei_sources`, free, no key); national registers such as `companies-house` | — |
-| `ownership_providers` Unternehmensregister (not implemented) | Account for some documents | Register information free without registration since August 2022; filed annual accounts cost €1 plus VAT | — | Free register extracts |
+| `ownership_providers` Handelsregister / Unternehmensregister (not implemented; FA20 audit #2859) | None for register information; account for some Unternehmensregister documents | Register information and documents free without registration since August 2022; filed annual accounts cost €1 plus VAT per document. No documented machine interface or bulk export; portal terms treat more than 60 retrievals per hour as misuse (_verify_), so it is not automatable through a permitted interface ([audit](../development/ownership-evidence/handelsregister-automation-audit.md)) | — | Manual official extract recorded with `record_register_document`; GLEIF LEI for the register pointer; re-check if an EU high-value-dataset company API for Germany appears |
 | optional integration `opensanctions` | Required: `NOESIS_OPENSANCTIONS_API_KEY` | API not free for general users (about €0.10 per call); free keys only via a public-interest grant (journalists, NGOs, academic researchers); business use needs a licence | Bulk data download, free for non-commercial use (CC BY-NC 4.0, no key) | — |
 | `sec-edgar-ownership` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key) | Free | — | — |
 | `sec-edgar-holdings` | Required: `NOESIS_SEC_CONTACT` (contact string, not a key; same secret as `sec-edgar-ownership`) | Free; fair access, at most 10 requests per second | — | — |
@@ -126,7 +126,7 @@ figure. Sources are listed at the end.
 | `esa-discos-objects`, `esa-discos-reentries` | Required: `NOESIS_ESA_DISCOS_TOKEN` | Public DISCOSweb API with an ESA account; no fee found | — | — |
 | `astronomy_registration_sources` Space-Track decay/TIP (not implemented) | Account (email + password) | Free account; user agreement restricts redistribution | ESA DISCOS (`esa-discos-*`) | — |
 | `biodiversity_sources` IUCN Red List | Required: `NOESIS_IUCN_API_TOKEN` | Free token on application, non-commercial use; bulk use needs written permission | — | — |
-| `etherscan-v2-mainnet` | Required: `NOESIS_ETHERSCAN_API_KEY` | Free tier: 3 calls/s, 100,000/day, selected chains, attribution required; paid plans from $49/month | — | Free tier; Blockscout API or a public Ethereum RPC endpoint |
+| `etherscan-v2-mainnet` | Required for Etherscan: `NOESIS_ETHERSCAN_API_KEY`; optional `NOESIS_ONCHAIN_FALLBACK=off` disables the keyless fallback | Free tier: 3 calls/s, 100,000/day, selected chains, attribution required; paid plans from $49/month | — | Free tier; without a key, or once the free-tier budget in `config/source_quotas.json` is spent, Ethereum calls fall back to the keyless Blockscout API (`blockscout-ethereum`, `eth.blockscout.com/api`) for address transactions and funding; transaction-by-hash and contract origin then answer `unavailable`. Receipts name the provider that answered. Blockscout live behaviour and terms not yet verified |
 | `football-data-pl-*` (3 sources) | Required: `NOESIS_FOOTBALL_DATA_API_KEY` | Free tier: 12 competitions incl. the Premier League, 10 calls/min, delayed scores; paid €12–199/month | — | Free tier covers these sources |
 | `ddb-berlin-photographs` | Required: `NOESIS_DDB_API_KEY` | Free (account; metadata CC0) | — | — |
 | `europeana-berlin-images` | Required: `NOESIS_EUROPEANA_API_KEY` | Free (account) | — | — |
@@ -149,11 +149,11 @@ figure. Sources are listed at the end.
 | Embeddings backend `openai` | Required for that backend: `OPENAI_API_KEY` | Not free (paid API) | `local_sentence_transformers` backend (built in, no key) | — |
 | Vision describer | Required: `ANTHROPIC_API_KEY` (`NOESIS_VISION_PROVIDER=anthropic`) | Not free (paid API) | A local open-weight vision model; no built-in local provider yet | — |
 | Telegram alert channel | Required for that channel: `TELEGRAM_BOT_TOKEN` | Free (about 30 messages/s broadcast limit) | — | — |
-| Anti-detection scraper CAPTCHA solving (`src/scraper/captcha_solver.py`) | Required for that feature: `captcha_api_key` constructor argument (no environment variable) | **Not free**: 2Captcha charges per solved CAPTCHA (from about $0.50 per 1,000 image CAPTCHAs, more for reCAPTCHA; secondary sources) | Skip sources that require CAPTCHAs | — |
+| Anti-detection scraper CAPTCHA solving (`src/scraper/captcha_solver.py`) | Optional: `captcha_api_key` constructor argument (no environment variable). Without it no solver is created and no paid request is made; empty or placeholder keys such as `YOUR_2CAPTCHA_API_KEY` count as not configured | **Not free**: 2Captcha charges per solved CAPTCHA (from about $0.50 per 1,000 image CAPTCHAs, more for reCAPTCHA; secondary sources) | Default behaviour: pages showing reCAPTCHA, hCaptcha or Cloudflare Turnstile/challenge markers are skipped and recorded as `captcha-required, skipped` (in the run's performance stats under `captcha`); the source is not retried or escalated to the browser, and the run continues | — |
 | Email alert / report channel | Required for that channel: `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` (+ `SMTP_FROM`, `SMTP_PORT`, `SMTP_TLS`) | Depends on the mail provider | — | — |
 | optional integration `github` | Required: `NOESIS_GITHUB_TOKEN` / `GITHUB_PERSONAL_ACCESS_TOKEN` / `GITHUB_TOKEN` | Free (personal access token) | — | — |
 | MCP integration `github` | Required: `NOESIS_GITHUB_MCP_TOKEN` | Free (personal access token) | — | — |
-| MCP integration `context7` | Required: `NOESIS_CONTEXT7_API_KEY` | Free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan | — | Self-hosted Context7 (open source) |
+| MCP integration `context7` | Hosted (default): optional `NOESIS_CONTEXT7_API_KEY` (anonymous use also works). Self-hosted: `NOESIS_CONTEXT7_URL` (HTTPS, or HTTP on loopback only) and, only if the instance needs one, `NOESIS_CONTEXT7_SELF_HOSTED_API_KEY`. The hosted key is never sent to a self-hosted URL | Hosted: free tier (about 1,000 requests/month after a January 2026 cut); paid Pro plan. Self-hosted: free (open source; you run the server) | — | Self-hosted Context7: set `NOESIS_CONTEXT7_URL`; `describe()["endpoint"]` and each snippets receipt record which mode and URL answered |
 
 ## Audited but not implemented (would need a credential)
 
@@ -177,7 +177,7 @@ Implementing any of them would add a credential to this page.
 | GRDC river discharge (BfG) | water | registration; data on request for own use | not implemented |
 | Space-Track decay and TIP messages | astronomy | account | not implemented (redistribution terms) |
 | Copernicus Atmosphere Data Store (CAMS) | environment | ECMWF account + API key | not implemented |
-| Unternehmensregister | ownership | account for some documents | not implemented |
+| Handelsregister / Unternehmensregister | ownership | none for register data; account for some documents | not automatable via a permitted interface (FA20, #2859) |
 | Verisk Property Claim Services | insurance | paid subscription | excluded (licensed) |
 | Ethnologue | linguistics | paid subscription | excluded (licence forbids reuse) |
 | Ansys Granta, MatWeb | materials | licensed commercial databases | excluded (no redistribution rights) |
@@ -188,6 +188,10 @@ Keys are environment variables of the process that runs the connector. Do not
 commit them, paste them into tickets or chat, or store them in `.env` files
 that are backed up unencrypted; inject them at start from a secret manager
 (e.g. OpenBao via a small wrapper) instead.
+
+`NOESIS_CONTEXT7_URL` is an endpoint, not a secret, but keep it in the same
+environment as the keys. When it is set, Context7 runs in self-hosted mode and
+`NOESIS_CONTEXT7_API_KEY` is never sent to that endpoint.
 
 The reference deployment keeps them in an OpenBao KV v2 mount, organised by
 where a key comes from rather than which process uses it:
@@ -254,6 +258,7 @@ where a key comes from rather than which process uses it:
 - Materials Project: [secondary guide](https://mle4217-5219.matsci.dev/database/materials-project)
 - ESA DISCOS: [DISCOSweb API notice](https://discosweb-api.sdo.esoc.esa.int)
 - Etherscan: [rate limits](https://docs.etherscan.io/etherscan-v2/rate-limits)
+- Blockscout: [Etherscan-compatible RPC API](https://docs.blockscout.com/devs/apis/rpc) (keyless fallback; limits and hosted terms to verify)
 - football-data.org: [free tier limits 2026](https://www.thestatsapi.com/blog/football-data-org-free-tier-limits-2026)
 - Europeana: [get API](https://pro.europeana.eu/get-api); DDB: [OpenAPI](https://api.deutsche-digitale-bibliothek.de/OpenAPI)
 - NVD: [API key announcement](https://nvd.nist.gov/general/news/API-Key-Announcement)
