@@ -21,11 +21,18 @@ series) that :class:`src.kb.wealth_distribution_store.WealthProjector` appends a
   download archive (never another member). DFA periods ``YYYY:Qn`` are stored as ``YYYY-Qn`` with the published text
   kept as an attribute.
 
-The ECB HFCS statistical tables and the Bundesbank PHF aggregates are ``not-implemented``: no machine-readable
-aggregates are known and their PDF or report tables are never scraped. Every implemented provider is
-``unverified-live`` until a dated live run; host, path, response shape, dimension and column names marked _verify_
-come from the publishers' documentation as the audit records it, not from a live response. WID, DWA and DFA figures
-are never blended, re-harmonised or recomputed.
+* **ECB HFCS statistical tables** (``ecb-hfcs-statistical-tables``, format ``hfcs-pdf-tables``) and **Bundesbank PHF
+  aggregates** (``bundesbank-phf-aggregates``, format ``phf-pdf-tables``) - survey-wave aggregates that the publishers
+  release only as PDF tables. A document declares the PDF and, per table, an anchor text that must occur exactly once,
+  the column codes in printed order and the row labels it reads (:func:`read_pdf_tables`). Text comes from PyMuPDF
+  word positions rebuilt into printed lines; a declared row must match exactly one line of its table section and hold
+  exactly one number or declared marker per declared column. Anything short of that fails the document with the
+  reason: no cell is guessed, re-ordered or transcribed by hand, and no undeclared cell is read. Each value keeps the
+  printed token, the quoted line, the table anchor and the PDF page.
+
+Every implemented provider is ``unverified-live`` until a dated live run; host, path, response shape, dimension and
+column names marked _verify_ come from the publishers' documentation as the audit records it, not from a live
+response. WID, DWA, DFA, HFCS and PHF figures are never blended, re-harmonised or recomputed.
 """
 
 from __future__ import annotations
@@ -49,17 +56,23 @@ RELEASE_CONTRACT = "noesis-wealth-distribution-release-v1"
 AUDIT = "docs/development/wealth-distribution-evidence/source-audit.md"
 PACK_ID = "society-wealth-distribution"
 FIXTURE_SECRET = "fixture-wid-key-not-a-real-key"
-PROVIDERS = ("wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts")
-NOT_IMPLEMENTED = ("ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates")
+PROVIDERS = ("wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts",
+             "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates")
+NOT_IMPLEMENTED: tuple[str, ...] = ()
 FORMATS = {
     "wid-api-json": {"provider": "wid-wealth-distribution"},
     "ecb-dwa-csv": {"provider": "ecb-distributional-wealth-accounts"},
     "dfa-zip-csv": {"provider": "fed-distributional-financial-accounts"},
+    "hfcs-pdf-tables": {"provider": "ecb-hfcs-statistical-tables"},
+    "phf-pdf-tables": {"provider": "bundesbank-phf-aggregates"},
 }
+PDF_PROVIDERS = ("ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates")
 PROVIDER_HOSTS = {
     "wid-wealth-distribution": "rfap9nitz6.execute-api.eu-west-1.amazonaws.com",
     "ecb-distributional-wealth-accounts": "data-api.ecb.europa.eu",
     "fed-distributional-financial-accounts": "www.federalreserve.gov",
+    "ecb-hfcs-statistical-tables": "www.ecb.europa.eu",
+    "bundesbank-phf-aggregates": "www.bundesbank.de",
 }
 INDICATORS = ("wealth_share", "wealth_level", "wealth_average", "wealth_median", "wealth_income_ratio")
 INDICATOR_MEANINGS = {
@@ -74,7 +87,7 @@ KEY_FIELDS = ("indicator", "wealth_concept", "group", "unit", "population", "met
 STATUSES = ("reported", "confidential", "not_published")
 PUBLICATION_STATUSES = ("not-stated", "normal", "provisional", "estimated", "extrapolated", "projected")
 AREA_SCHEMES = ("iso3166-1-alpha2",)
-FREQUENCIES = ("annual", "quarterly")
+FREQUENCIES = ("annual", "quarterly", "irregular")  # irregular: survey waves (HFCS, PHF)
 NEVER_SENTENCE = (
     "Published wealth distribution figures as each source released them: WID, ECB DWA and Fed DFA side by side with "
     "their own wealth concepts, groups, population units and methods, never blended or re-harmonised; model-based "
@@ -90,12 +103,15 @@ EXCLUSIONS = (
     "correcting or re-estimating a publisher's model-based estimates",
     "forecasts of our own",
     "person-level or household-level data (HFCS, PHF or SCF microdata, rich lists, named individuals or families)",
-    "scraping PDF or report tables (ECB HFCS statistical tables, Bundesbank PHF reports)",
+    ("reading an undeclared PDF table cell, transcribing figures by hand, or guessing a cell that cannot be read "
+     "exactly (HFCS and PHF PDF tables)"),
 )
 CAPS = {
     "wid-wealth-distribution": {"documents": 1, "series_per_response": 40},
     "ecb-distributional-wealth-accounts": {"documents": 1, "series_per_response": 20},
     "fed-distributional-financial-accounts": {"documents": 1, "series_per_response": 20},
+    "ecb-hfcs-statistical-tables": {"documents": 1, "series_per_response": 80, "tables": 6, "pages": 400},
+    "bundesbank-phf-aggregates": {"documents": 1, "series_per_response": 40, "tables": 6, "pages": 120},
 }
 PACING = {
     provider: {"min_interval_s": 0, "basis": "no published quota (verify); one request per declared document"}
@@ -121,15 +137,25 @@ BOUNDED_COVERAGE = {
         "periods": "from a declared start quarter",
         "caps": "1 document, 20 series",
     },
+    "ecb-hfcs-statistical-tables": {
+        "places": {"Germany": "DE", "France": "FR", "Italy": "IT", "Spain": "ES"},
+        "series": "declared rows of the net wealth table (median, mean, top 10% share) per declared country column",
+        "periods": "one survey wave per declared table",
+        "caps": "1 PDF, 6 tables, 400 pages, 80 series",
+    },
+    "bundesbank-phf-aggregates": {
+        "places": {"Germany": "DE"},
+        "series": "declared rows of the net wealth distribution table (mean, median, 90th percentile, top 10% share, "
+                  "Gini) per declared survey-year column",
+        "periods": "the survey waves the declared columns name",
+        "caps": "1 PDF, 6 tables, 120 pages, 40 series",
+    },
 }
 UNAVAILABLE_FALLBACK = (
     "A failed document (HTTP error, redirect to another host, schema drift, a missing archive member, a response "
     "larger than the budget) fails that source's run with its code and a receipt; earlier vintages stay current and "
     "nothing is marked removed or revised because of a failure. Readiness reports the source as stale."
 )
-_NOT_ACQUIRED = {"authentication": "not applicable", "key_handling": "not applicable",
-                 "licence": "not assessed (not acquired)", "redistribution": "not applicable",
-                 "rate_limits": "not applicable", "identifiers": "not applicable", "revision_model": "not applicable"}
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "wid-wealth-distribution": {
         "publisher": "World Inequality Lab, World Inequality Database (WID.world)",
@@ -216,37 +242,61 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     },
     "ecb-hfcs-statistical-tables": {
         "publisher": "European Central Bank, Household Finance and Consumption Survey (HFCS)",
-        "delivers": "per-wave aggregate tables (median and mean net wealth, wealth shares by country)",
-        "access": "PDF statistical tables per wave and revision; no machine-readable aggregate endpoint known (verify "
-                  "whether the ECB Data Portal carries HFCS aggregates)",
-        "entry_points": [],
-        **_NOT_ACQUIRED,
-        "definitions": "not applicable: not acquired",
-        "method": "survey (not acquired)",
-        "personal_data": "HFCS microdata are excluded",
-        "unavailable_fallback": "never scraped or transcribed; reported as not-implemented",
-        "status": "not-implemented",
+        "delivers": "per-wave aggregate tables: median and mean household net wealth and wealth shares by country",
+        "access": "download (the HFCS Statistical Tables PDF per wave and data version, e.g. "
+                  "HFCS_Statistical_Tables_Wave_2021_June_2026.pdf; no machine-readable aggregate endpoint known); "
+                  "declared tables, rows and country columns only (verify table numbers, titles and row labels)",
+        "entry_points": [("https://www.ecb.europa.eu/home/pdf/research/hfcn/"
+                          "HFCS_Statistical_Tables_Wave_2021_June_2026.pdf (verify)")],
+        "authentication": "none",
+        "key_handling": "no key",
+        "licence": "ECB copyright; reproduction permitted with the source acknowledged (verify)",
+        "redistribution": "attribution-required (verify)",
+        "rate_limits": "none published (verify); one request per declared document",
+        "identifiers": "table number and title as printed, row label as printed, column country code as printed "
+                       "(EA and ISO 3166-1 alpha-2; verify)",
+        "revision_model": "each data version of a wave (e.g. July 2023 v3.3, June 2026 v4.1) is a new PDF and a new "
+                          "release dated by the declared publication date; a figure that changes between versions is "
+                          "a new vintage, never an overwrite",
+        "definitions": "household net wealth as the HFCS defines it (real and financial assets minus liabilities), "
+                       "households as the unit of analysis, survey reference year per country (verify per wave)",
+        "method": "survey (HFCS, multiply imputed, weighted aggregates as published)",
+        "personal_data": "none: published aggregates; HFCS microdata are excluded",
+        "unavailable_fallback": UNAVAILABLE_FALLBACK + " A declared cell that cannot be read exactly (anchor not "
+                                "unique, row missing or repeated, column count differs, an undeclared marker) fails "
+                                "the document with the reason; nothing is guessed.",
+        "status": "unverified-live",
     },
     "bundesbank-phf-aggregates": {
-        "publisher": "Deutsche Bundesbank, Panel on Household Finances (PHF)",
-        "delivers": "wave-level German household wealth distribution aggregates",
-        "access": "published in Monthly Report articles, reports and papers; no machine-readable aggregate endpoint "
-                  "known (verify the Bundesbank time-series database)",
-        "entry_points": [],
-        **_NOT_ACQUIRED,
-        "definitions": "not applicable: not acquired",
-        "method": "survey (not acquired)",
-        "personal_data": "PHF microdata (Research Data and Service Centre, scientific use only) are excluded",
-        "unavailable_fallback": "never scraped or transcribed; reported as not-implemented",
-        "status": "not-implemented",
+        "publisher": "Deutsche Bundesbank, Panel on Household Finances (PHF) / household wealth survey",
+        "delivers": "German household net wealth distribution per survey wave: mean, median, percentiles, top 10% "
+                    "share and Gini coefficient",
+        "access": "download (the data annex PDF of the Monthly Report article on each wave, e.g. "
+                  "2023-04-vermoegensbefragung-data.pdf); declared tables, rows and survey-year columns only (verify "
+                  "path, table titles, row labels and decimal separator)",
+        "entry_points": [("https://www.bundesbank.de/resource/blob/908924/3ef9d9a4eaeae8a8779ccec3ac464970/"
+                          "472B63F073F071307366337C94F8C870/2023-04-vermoegensbefragung-data.pdf (verify)")],
+        "authentication": "none",
+        "key_handling": "no key",
+        "licence": "Deutsche Bundesbank publications: reproduction permitted provided the source is stated (verify)",
+        "redistribution": "attribution-required (verify)",
+        "rate_limits": "none published (verify); one request per declared document",
+        "identifiers": "table title as printed, row label as printed, survey-year column as printed (verify)",
+        "revision_model": "each Monthly Report data annex is a release dated by its declared publication date; a "
+                          "later annex that restates an earlier wave is a new vintage, never an overwrite",
+        "definitions": "household net wealth as the PHF defines it, households in Germany as the unit of analysis, "
+                       "survey year as printed (verify)",
+        "method": "survey (PHF, multiply imputed, weighted aggregates as published)",
+        "personal_data": "none: published aggregates; PHF microdata (Research Data and Service Centre, scientific use "
+                         "only) are excluded",
+        "unavailable_fallback": UNAVAILABLE_FALLBACK + " A declared cell that cannot be read exactly fails the "
+                                "document with the reason; nothing is guessed.",
+        "status": "unverified-live",
     },
 }
 LIVE_VERIFICATION = {
-    **{provider: {"status": "unverified-live", "checked": None, "evidence": None,
-                  "note": "no dated live run yet; offline fixtures only"} for provider in PROVIDERS},
-    **{provider: {"status": "not-implemented", "checked": None, "evidence": None,
-                  "note": "no machine-readable aggregates known (verify); tables are never scraped"}
-       for provider in NOT_IMPLEMENTED},
+    provider: {"status": "unverified-live", "checked": None, "evidence": None,
+               "note": "no dated live run yet; offline fixtures only"} for provider in PROVIDERS
 }
 FLAG_ATTRIBUTES = ("OBS_STATUS", "OBS_CONF")
 CONFIDENTIAL_FLAGS = {"C"}
@@ -343,6 +393,8 @@ def check_document(provider: str, document: Mapping[str, Any]) -> None:
         for variable in document["variables"]:
             if not re.fullmatch(r"[a-z]{6}_p[0-9.]+p[0-9.]+_[0-9]{3}_[a-z]", str(variable)):
                 raise WealthFormatError("invalid_document", f"not a WID variable code: {variable!r}")
+    elif provider in PDF_PROVIDERS:
+        check_pdf_document(provider, document)
     elif provider == "ecb-distributional-wealth-accounts":
         if not document.get("key") or "*" in str(document["key"]) or not document.get("dimension_columns"):
             raise WealthFormatError("unbounded_document", "DWA documents name their series key and dimension columns")
@@ -360,10 +412,65 @@ def check_document(provider: str, document: Mapping[str, Any]) -> None:
             raise WealthFormatError("unbounded_document", "documents pin a start period")
 
 
+PDF_MARKER_STATUSES = ("not_published", "confidential")
+PDF_SEPARATORS = {"decimal": (".", ","), "thousands": (None, ",", ".", "'")}
+DEFAULT_HEADING = r"^(Table|Tabelle)\s+[A-Z]?\d+(\.\d+)*\b"
+
+
+def check_pdf_document(provider: str, document: Mapping[str, Any]) -> None:
+    """A PDF document names its file and, per table, the anchor, columns and rows it reads (nothing else is read)."""
+    path = str(document.get("pdf_path") or "")
+    if not path or not path.lower().endswith(".pdf") or any(c in path for c in "?#\\ ") or ".." in path:
+        raise WealthFormatError("invalid_document", "PDF documents name a bare .pdf path on the provider's host")
+    tables = list(document.get("tables") or [])
+    if not 1 <= len(tables) <= CAPS[provider]["tables"]:
+        raise WealthFormatError("unbounded_document", f"declare 1-{CAPS[provider]['tables']} tables")
+    cells = 0
+    for table in tables:
+        table = dict(table)
+        by_period = bool(table.get("columns_are_periods"))
+        for key in ("anchor", "columns", "rows", *(() if by_period else ("period", "column_dimension"))):
+            if not table.get(key):
+                raise WealthFormatError("invalid_document", f"a PDF table states its {key}")
+        columns = [str(c) for c in table["columns"]]
+        if len(set(columns)) != len(columns):
+            raise WealthFormatError("invalid_document", "a PDF table lists each printed column once, in order")
+        periods = columns if by_period else [str(table["period"])]
+        if not all(re.fullmatch(r"\d{4}", p) for p in periods):
+            raise WealthFormatError("invalid_document", "a PDF table's periods are the survey years it reports")
+        read = [str(c) for c in table.get("read_columns") or columns]
+        if not set(read) <= set(columns) or len(set(read)) != len(read):
+            raise WealthFormatError("invalid_document", "read_columns are printed columns, each once")
+        labels = [str(dict(r).get("label") or "") for r in table["rows"]]
+        if not all(labels) or len(set(labels)) != len(labels):
+            raise WealthFormatError("invalid_document", "PDF rows state distinct labels as printed")
+        for row in table["rows"]:
+            if not by_period and table["column_dimension"] in dict(dict(row).get("dims") or {}):
+                raise WealthFormatError("invalid_document", "a row's dimensions never repeat the column dimension")
+        if table.get("decimal", ".") not in PDF_SEPARATORS["decimal"]:
+            raise WealthFormatError("invalid_document", f"decimal separator is one of {PDF_SEPARATORS['decimal']}")
+        if table.get("thousands") not in PDF_SEPARATORS["thousands"] or table.get("thousands") == table.get(
+                "decimal", "."):
+            raise WealthFormatError("invalid_document", "thousands separator is none, ',', '.' or \"'\" and differs "
+                                                        "from the decimal separator")
+        if any(status not in PDF_MARKER_STATUSES for status in dict(table.get("markers") or {}).values()):
+            raise WealthFormatError("invalid_document", f"markers map to {PDF_MARKER_STATUSES}")
+        pages = [int(p) for p in table.get("pages") or []]
+        if any(p < 1 or p > CAPS[provider]["pages"] for p in pages):
+            raise WealthFormatError("invalid_document", "declared pages are 1-based and within the page cap")
+        if not 1 <= int(table.get("max_pages") or 1) <= 3:
+            raise WealthFormatError("invalid_document", "a PDF table section spans 1-3 pages")
+        cells += len(read) * len(labels)
+    if cells > CAPS[provider]["series_per_response"]:
+        raise WealthFormatError("unbounded_document", "declared PDF cells stay within the series cap")
+
+
 def document_key(provider: str, document: Mapping[str, Any]) -> str:
     """Identity of a declared document across releases (removal detection compares releases of one document)."""
-    return f"{provider}:{document['dataset']}:" + digest({k: document.get(k) for k in (
-        "key", "areas", "variables", "archive_path", "member", "value_columns")})[:16]
+    fields = ("key", "areas", "variables", "archive_path", "member", "value_columns")
+    if provider in PDF_PROVIDERS:  # PDF documents only; the other providers' keys stay as first released
+        fields += ("pdf_path", "tables")
+    return f"{provider}:{document['dataset']}:" + digest({k: document.get(k) for k in fields})[:16]
 
 
 def document_url(provider: str, document: Mapping[str, Any], endpoint: str) -> str:
@@ -374,6 +481,8 @@ def document_url(provider: str, document: Mapping[str, Any], endpoint: str) -> s
     if provider == "ecb-distributional-wealth-accounts":
         query = {"format": "csvdata", **{k: str(v) for k, v in dict(document.get("params") or {}).items()}}
         return f"{base}/{document['dataset']}/{document['key']}?" + urlencode(sorted(query.items()))
+    if provider in PDF_PROVIDERS:
+        return f"{base}/{str(document['pdf_path']).lstrip('/')}"
     return f"{base}/{str(document['archive_path']).lstrip('/')}"
 
 
@@ -515,12 +624,158 @@ def _rows_dfa(raw: bytes, document: Mapping[str, Any], *, max_bytes: int) -> lis
     return rows
 
 
+def _norm(text: Any) -> str:
+    """Whitespace-normalised printed text (no case folding: labels are matched as printed)."""
+    return " ".join(str(text or "").replace("\u00a0", " ").replace("\u2212", "-").replace("\u2013", "-").split())
+
+
+def pdf_lines(raw: bytes, *, max_pages: int) -> list[list[str]]:
+    """Printed lines per page, rebuilt from PyMuPDF word positions (words sharing a baseline, left to right)."""
+    if not raw.startswith(b"%PDF"):
+        raise WealthFormatError("schema_drift", "the document is not a PDF")
+    try:  # PyMuPDF, the optional-sources extra; its legacy ``fitz`` name prints a warning on stdout from 1.24
+        import pymupdf as fitz
+    except ImportError:
+        try:
+            import fitz
+        except ImportError as exc:
+            raise WealthFormatError("dependency_missing", "reading PDF tables needs PyMuPDF (the optional-sources "
+                                                          "extra); no figure is read without it") from exc
+    try:
+        document = fitz.open(stream=raw, filetype="pdf")
+    except Exception as exc:  # any unreadable PDF is schema drift, never a partial read
+        raise WealthFormatError("schema_drift", "the PDF cannot be opened") from exc
+    with document:
+        if document.needs_pass:
+            raise WealthFormatError("schema_drift", "the PDF is encrypted")
+        if document.page_count > max_pages:
+            raise WealthFormatError("budget_exhausted", f"the PDF has {document.page_count} pages, more than the "
+                                                        f"cap of {max_pages}")
+        pages = []
+        for page in document:
+            lines: list[dict[str, Any]] = []
+            for x0, y0, x1, y1, word, *_ in sorted(page.get_text("words"), key=lambda w: ((w[1] + w[3]) / 2, w[0])):
+                middle = (y0 + y1) / 2
+                if lines and abs(lines[-1]["middle"] - middle) <= max(1.5, (y1 - y0) * 0.35):
+                    lines[-1]["words"].append((x0, word))
+                else:
+                    lines.append({"middle": middle, "words": [(x0, word)]})
+            pages.append([_norm(" ".join(w for _, w in sorted(line["words"]))) for line in lines])
+    return pages
+
+
+def _section(pages: Sequence[Sequence[str]], table: Mapping[str, Any]) -> list[tuple[int, str]]:
+    """The printed lines of one declared table: after its unique anchor, up to its end anchor or the next heading."""
+    anchor = _norm(table["anchor"])
+    allowed = {int(p) for p in table.get("pages") or []}
+    hits = [(number, index) for number, lines in enumerate(pages, start=1) for index, line in enumerate(lines)
+            if anchor in line and (not allowed or number in allowed)]
+    if not hits:
+        raise WealthFormatError("schema_drift", f"table anchor {anchor!r} not found")
+    if len(hits) > 1:
+        raise WealthFormatError("schema_drift", f"table anchor {anchor!r} appears {len(hits)} times (pages "
+                                                f"{sorted({p for p, _ in hits})}); not read")
+    first, index = hits[0]
+    heading = re.compile(str(table.get("heading_pattern") or DEFAULT_HEADING))
+    end = _norm(table["end_anchor"]) if table.get("end_anchor") else None
+    lines: list[tuple[int, str]] = []
+    for number in range(first, min(len(pages), first + int(table.get("max_pages") or 1) - 1) + 1):
+        for line in pages[number - 1][index + 1 if number == first else 0:]:
+            if (end and end in line) or heading.match(line):
+                return lines
+            lines.append((number, line))
+    return lines
+
+
+_NUMBER = re.compile(r"-?\d[\d.,']*")
+
+
+def read_cell(token: str, table: Mapping[str, Any]) -> dict[str, Any] | None:
+    """One printed cell: a number in the table's declared notation, or a declared marker; ``None`` if it is neither."""
+    markers = {str(k): str(v) for k, v in dict(table.get("markers") or {}).items()}
+    if token in markers:
+        return {"status": markers[token], "value": None, "printed": token}
+    body, flag = token, None
+    for suffix in sorted(dict(table.get("flag_suffixes") or {}), key=len, reverse=True):
+        if body.endswith(suffix) and len(body) > len(suffix):
+            body, flag = body[: -len(suffix)], suffix
+            break
+    body = body.removesuffix("%")
+    if not _NUMBER.fullmatch(body):
+        return None
+    decimal, thousands = str(table.get("decimal") or "."), table.get("thousands")
+    unsigned = body.lstrip("-")
+    if thousands:
+        whole = unsigned.split(decimal)[0]
+        groups = whole.split(str(thousands))
+        if len(groups) > 1 and (not groups[0] or len(groups[0]) > 3 or any(len(g) != 3 for g in groups[1:])):
+            return None
+        body = body.replace(str(thousands), "")
+    if body.count(decimal) > 1 or any(sep in body for sep in {".", ",", "'"} - {decimal}):
+        return None
+    value = decimal_text(body.replace(decimal, ".") if decimal != "." else body)
+    if value is None:
+        return None
+    return {"status": "reported", "value": value, "printed": token, "flag": flag}
+
+
+def read_pdf_tables(raw: bytes, document: Mapping[str, Any], *, max_pages: int) -> list[dict[str, Any]]:
+    """The declared cells of the declared tables; any cell short of one exact reading fails the document."""
+    pages = pdf_lines(raw, max_pages=max_pages)
+    rows = []
+    for table in document["tables"]:
+        table = dict(table)
+        lines = _section(pages, table)
+        columns = [str(c) for c in table["columns"]]
+        read = [str(c) for c in table.get("read_columns") or columns]
+        by_period = bool(table.get("columns_are_periods"))
+        flags = {str(k): str(v) for k, v in dict(table.get("flag_suffixes") or {}).items()}
+        for row in table["rows"]:
+            label = _norm(dict(row)["label"])
+            matches = []
+            for number, line in lines:
+                if not line.startswith(label + " "):
+                    continue
+                tokens = line[len(label) + 1:].split()
+                cells = [read_cell(t, table) for t in tokens]
+                if tokens and all(c is not None for c in cells):
+                    matches.append((number, line, cells))
+            if not matches:
+                raise WealthFormatError("schema_drift", f"row {label!r} not found in table {table['anchor']!r}")
+            if len(matches) > 1:
+                raise WealthFormatError("schema_drift", f"row {label!r} appears {len(matches)} times in table "
+                                                        f"{table['anchor']!r}; not read")
+            number, line, cells = matches[0]
+            if len(cells) != len(columns):
+                raise WealthFormatError("schema_drift", f"row {label!r} holds {len(cells)} cells for {len(columns)} "
+                                                        f"declared columns in table {table['anchor']!r}; not read")
+            for column, cell in zip(columns, cells, strict=True):
+                if column not in read:
+                    continue
+                attributes = {"pdf_page": str(number), "pdf_table": _norm(table["anchor"]), "row_label": label,
+                              "printed": cell["printed"], "quoted_line": line[:500]}
+                if cell["status"] == "confidential":
+                    attributes["OBS_CONF"] = "C"
+                if cell.get("flag"):
+                    attributes["pdf_flag"] = cell["flag"]
+                    attributes["pdf_flag_meaning"] = flags[cell["flag"]]
+                dims = dict(dict(row).get("dims") or {})
+                if not by_period:
+                    dims[str(table["column_dimension"])] = column
+                rows.append({"dims": dims, "period": column if by_period else str(table["period"]),
+                             "value_text": cell["value"], "attributes": attributes, "meta": {},
+                             "stated_status": None})
+    return rows
+
+
 def parse_release(raw: bytes, *, provider: str, document: Mapping[str, Any], url: str,
                   max_bytes: int = 100_000_000) -> dict[str, Any]:
-    """Declared WID, DWA or DFA series as items; flags, statuses and the method statement per series."""
+    """Declared WID, DWA, DFA, HFCS or PHF series as items; flags, statuses and the method statement per series."""
     del url
     if provider == "wid-wealth-distribution":
         rows = _rows_wid(raw, document)
+    elif provider in PDF_PROVIDERS:
+        rows = read_pdf_tables(raw, document, max_pages=CAPS[provider]["pages"])
     elif provider == "ecb-distributional-wealth-accounts":
         rows = _rows_dwa(raw, document)
     else:
@@ -675,7 +930,8 @@ class WealthAdapter:
         if (parts.hostname or "").casefold() != host or parts.scheme != "https":
             raise SourcePackError("network_policy", "declared documents are fetched from the provider's host only")
         headers = {"Accept": "application/json" if provider == "wid-wealth-distribution"
-                   else "application/zip" if provider == "fed-distributional-financial-accounts" else "text/csv"}
+                   else "application/zip" if provider == "fed-distributional-financial-accounts"
+                   else "application/pdf" if provider in PDF_PROVIDERS else "text/csv"}
         if provider == "wid-wealth-distribution":
             if not self._secret:
                 raise SourcePackError("credential_missing", "WID requests need the key behind NOESIS_WID_API_KEY")
@@ -719,8 +975,10 @@ class WealthAdapter:
             release = parse_release(raw, provider=provider, document=document, url=url,
                                     max_bytes=int(self.definition["limits"]["max_bytes"]))
         except WealthFormatError as exc:
-            raise SourcePackError("budget_exhausted" if exc.code == "budget_exhausted" else "schema_drift",
-                                  f"{exc.code}: {exc}") from exc
+            # A missing PDF reader means the source cannot be read in this installation: never a partial release.
+            code = {"budget_exhausted": "budget_exhausted", "dependency_missing": "source_unavailable"}.get(
+                exc.code, "schema_drift")
+            raise SourcePackError(code, f"{exc.code}: {exc}") from exc
         items = release["items"]
         limit = int(request.get("limit") or self.definition["limits"]["max_results"])
         if len(items) > limit:
@@ -777,7 +1035,8 @@ def zip_members(members: Mapping[str, str]) -> bytes:
 
 
 def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
-    """Replay authored responses keyed by URL path and sorted query (``body_zip`` members are zipped on replay)."""
+    """Replay authored responses keyed by URL path and sorted query (``body_zip`` members are zipped on replay;
+    ``body_base64`` carries binary bodies such as authored PDFs)."""
     by_key = {page["request"]: page for page in pages}
 
     def transport(*, url, params, headers, timeout):
@@ -788,6 +1047,10 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
             raise SourcePackError("fixture_missing", f"no native page for {key}")
         if page.get("body_zip") is not None:
             content = zip_members(dict(page["body_zip"]))
+        elif page.get("body_base64") is not None:
+            import base64
+
+            content = base64.b64decode(page["body_base64"])
         else:
             body = page.get("body")
             content = body.encode() if isinstance(body, str) else b"" if body is None else json.dumps(body).encode()
@@ -826,6 +1089,7 @@ __all__ = [
     "NEVER_SENTENCE",
     "NOT_IMPLEMENTED",
     "PACING",
+    "PDF_PROVIDERS",
     "PROVIDERS",
     "PROVIDER_CONTRACTS",
     "PUBLICATION_STATUSES",
@@ -838,6 +1102,9 @@ __all__ = [
     "fixture_request",
     "fixture_transport",
     "parse_release",
+    "pdf_lines",
+    "read_cell",
+    "read_pdf_tables",
     "replay_native_fixture",
     "series_key",
     "unverified",

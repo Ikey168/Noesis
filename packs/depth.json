@@ -234,6 +234,12 @@
         "Statistisches Bundesamt"
       ]
     },
+    "deutsche-bundesbank": {
+      "name": "Deutsche Bundesbank",
+      "match": [
+        "Deutsche Bundesbank"
+      ]
+    },
     "dgfip": {
       "name": "Direction générale des Finances publiques (DGFiP)",
       "match": [
@@ -2088,7 +2094,9 @@
       "sources": [
         "wid-wealth-distribution",
         "ecb-distributional-wealth-accounts",
-        "fed-distributional-financial-accounts"
+        "fed-distributional-financial-accounts",
+        "ecb-hfcs-statistical-tables",
+        "bundesbank-phf-aggregates"
       ]
     },
     "sports.football": {

@@ -14,6 +14,7 @@ from src.ingestion.wealth_distribution_sources import (
     FIXTURE_SECRET,
     LIVE_VERIFICATION,
     NOT_IMPLEMENTED,
+    PDF_PROVIDERS,
     PROVIDER_CONTRACTS,
     PROVIDERS,
     WealthAdapter,
@@ -50,7 +51,7 @@ def test_contracts_coverage_caps_and_live_verification_match_the_audit():
         assert contract["status"] == LIVE_VERIFICATION[provider]["status"] == "unverified-live"
         assert "verify" in contract["licence"]
         assert f"`{provider}`" in audit
-        assert contract["method"].startswith("model-based")
+        assert contract["method"].startswith("survey" if provider in PDF_PROVIDERS else "model-based")
     for provider in NOT_IMPLEMENTED:
         assert PROVIDER_CONTRACTS[provider]["status"] == LIVE_VERIFICATION[provider]["status"] == "not-implemented"
         assert "never scraped" in PROVIDER_CONTRACTS[provider]["unavailable_fallback"]
@@ -67,7 +68,8 @@ def test_pinned_fixtures_replay_through_the_real_adapter_and_match_the_pack():
     assert report["valid"] is True
     assert {s["source_id"]: s["records"] for s in report["sources"]} == {
         "wid-wealth-distribution": 15, "ecb-distributional-wealth-accounts": 6,
-        "fed-distributional-financial-accounts": 5}
+        "fed-distributional-financial-accounts": 5, "ecb-hfcs-statistical-tables": 12,
+        "bundesbank-phf-aggregates": 3}
     pack = h.manifest()
     assert {s["wealth"]["live_verification"] for s in pack["sources"]} == {"unverified-live"}
     wid = next(s for s in pack["sources"] if s["source_id"] == "wid-wealth-distribution")
@@ -140,7 +142,7 @@ def test_declarations_refuse_other_hosts_unbounded_documents_and_undeclared_cont
     (lambda i: i.update(pareto_fit="1.5"), "derived_value"),
     (lambda i: i["observations"][0].update(origin="interpolated"), "derived_value"),
     (lambda i: i["observations"][0].update(value="0.5"), "recomputed_value"),
-    (lambda i: i.update(provider="ecb-hfcs-statistical-tables"), "invalid_record"),
+    (lambda i: i.update(provider="not-a-wealth-provider"), "invalid_record"),
 ])
 def test_person_household_and_derived_fields_are_refused_at_write(mutation, code):
     item = first_item("wid")
@@ -175,7 +177,7 @@ def test_releases_append_vintages_never_overwrite_and_record_removals_and_failur
                     "Q.DE.S14.N.LE.NWA.D10.PT.S.N")["current_vintage_id"] == vintages[1]["vintage_id"]
     status = readiness(conn)
     assert status["providers"]["ecb-distributional-wealth-accounts"]["status"] == "stale"
-    assert status["providers"]["ecb-hfcs-statistical-tables"]["status"] == "not-implemented"
+    assert status["providers"]["ecb-hfcs-statistical-tables"]["status"] == "unavailable"  # selected, nothing acquired
     with pytest.raises(WealthError):
         store.apply_release(h.NS, {"provider": "wid-wealth-distribution", "format": "wid-api-json",
                                    "item_count": 0}, [], source_id=None, run_id="x", principal_id="p",

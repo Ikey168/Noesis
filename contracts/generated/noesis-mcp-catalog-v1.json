@@ -124301,7 +124301,7 @@
     },
     {
       "cost_class": "low",
-      "description": "WID, ECB DWA and Fed DFA values for a place ({scheme: iso3166-1-alpha2, code}) released by a date, side by\nside with definitions, groups, units, populations, methods, flags and cited vintages; pairs from different\nsources state their notes or comparability_unknown.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "description": "WID, ECB DWA and Fed DFA values for a place ({scheme: iso3166-1-alpha2, code}) released by a date, side by\nside with definitions, groups, units, populations, methods, flags and cited vintages; pairs from different\nsources state their notes or comparability_unknown.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
       "id": "noesis-knowledge-engine.wealth_indicator_for_place",
       "input_schema": {
         "additionalProperties": false,
@@ -124387,7 +124387,7 @@
     },
     {
       "cost_class": "low",
-      "description": "A place's wealth figures from each selected source side by side as of a date.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "description": "A place's wealth figures from each selected source side by side as of a date.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
       "id": "noesis-knowledge-engine.wealth_profile",
       "input_schema": {
         "additionalProperties": false,
@@ -124469,7 +124469,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Every vintage of a series with new, revised and dropped periods, model estimates the source replaced,\nmethod and definition changes, removals and the notes per release pair (comparability_unknown when none\napplies).\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "description": "Every vintage of a series with new, revised and dropped periods, model estimates the source replaced,\nmethod and definition changes, removals and the notes per release pair (comparability_unknown when none\napplies).\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
       "id": "noesis-knowledge-engine.wealth_series_history",
       "input_schema": {
         "additionalProperties": false,
@@ -124507,7 +124507,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Per-source access decisions (WID, ECB DWA, Fed DFA unverified-live; ECB HFCS tables and Bundesbank PHF\nnot-implemented), licences, limits, revision models, methods, caps, bounded coverage and the minimisation\ndecision.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
+      "description": "Per-source access decisions (WID, ECB DWA, Fed DFA, and the ECB HFCS and Bundesbank PHF PDF tables read at\ndeclared cells only; all unverified-live), licences, limits, revision models, methods, caps, bounded coverage\nand the minimisation decision.\nExclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no\nshares or ratios of our own, no correction of model-based estimates and no forecasts.",
       "id": "noesis-knowledge-engine.wealth_source_contracts",
       "input_schema": {
         "additionalProperties": false,

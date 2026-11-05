@@ -63,7 +63,8 @@ PROVIDER_ID = "society.wealth"
 BUNDLE_ID = "society"
 # Optional Society features, one per implemented source (default off); feature id -> provider.
 FEATURES = {"wid": "wid-wealth-distribution", "dwa": "ecb-distributional-wealth-accounts",
-            "dfa": "fed-distributional-financial-accounts"}
+            "dfa": "fed-distributional-financial-accounts", "hfcs": "ecb-hfcs-statistical-tables",
+            "phf": "bundesbank-phf-aggregates"}
 RECORD_TYPES = ("release", "series", "definition", "vintage", "observation", "comparability_note")
 SCHEMA_FILE = f"contracts/schemas/jsonschema/{CONTRACT}.json"
 # Keys that would carry data about a person or a household (microdata, weights, rich lists, named holders).

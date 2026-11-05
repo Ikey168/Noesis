@@ -454,6 +454,44 @@
           "reason": "the fed-distributional-financial-accounts entry of the society-wealth-distribution source pack"
         }
       ]
+    },
+    {
+      "id": "hfcs",
+      "default": false,
+      "description": "ECB Household Finance and Consumption Survey statistical tables: declared net wealth rows per country and survey wave, read from the published PDF tables (declared cells only, page and line cited), survey-based; unverified-live",
+      "requires": [
+        {
+          "capability": "society.wealth-series",
+          "contract": "noesis-wealth-distribution-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the ecb-hfcs-statistical-tables entry of the society-wealth-distribution source pack"
+        }
+      ]
+    },
+    {
+      "id": "phf",
+      "default": false,
+      "description": "Deutsche Bundesbank Panel on Household Finances: declared German net wealth distribution rows per survey wave, read from the Monthly Report data annex PDF (declared cells only, page and line cited), survey-based; unverified-live",
+      "requires": [
+        {
+          "capability": "society.wealth-series",
+          "contract": "noesis-wealth-distribution-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the bundesbank-phf-aggregates entry of the society-wealth-distribution source pack"
+        }
+      ]
     }
   ],
   "compatibility_aliases": {
@@ -509,5 +547,5 @@
       }
     ]
   },
-  "content_hash": "sha256:56a0547ae11c499c49d610982dda018e6c55127a5525a708952fe7d977867da2"
+  "content_hash": "sha256:56f60ec8c7c8e8c9fb1759ba3959a34cb3ca34bdf3a939f3a806d1ece94afd59"
 }

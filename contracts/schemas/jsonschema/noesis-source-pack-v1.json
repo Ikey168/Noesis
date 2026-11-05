@@ -609,19 +609,19 @@
           },
           "wealth": {
             "type": "object",
-            "description": "Declared wealth distribution documents for the wealth-distribution connector (Society society.wealth, #2882): provider (World Inequality Database, ECB Distributional Wealth Accounts or Fed Distributional Financial Accounts), runtime format, namespace, live-verification status and the declared documents (WID countries and variables, a DWA series key and start period, or one DFA archive member, its value columns and start period), each stating its key fields read from dimensions or fixed as published, the area, frequency, definition and the references it cites (docs/development/wealth-distribution-evidence/source-audit.md).",
+            "description": "Declared wealth distribution documents for the wealth-distribution connector (Society society.wealth, #2882): provider (World Inequality Database, ECB Distributional Wealth Accounts, Fed Distributional Financial Accounts, ECB HFCS statistical tables or Bundesbank PHF aggregates), runtime format, namespace, live-verification status and the declared documents (WID countries and variables, a DWA series key and start period, one DFA archive member, its value columns and start period, or one HFCS or PHF PDF with its declared tables, row labels and printed columns), each stating its key fields read from dimensions or fixed as published, the area, frequency, definition and the references it cites (docs/development/wealth-distribution-evidence/source-audit.md).",
             "required": ["provider", "format", "live_verification", "documents"],
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
-              "provider": {"enum": ["wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts"]},
-              "format": {"enum": ["wid-api-json", "ecb-dwa-csv", "dfa-zip-csv"]},
+              "provider": {"enum": ["wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts", "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates"]},
+              "format": {"enum": ["wid-api-json", "ecb-dwa-csv", "dfa-zip-csv", "hfcs-pdf-tables", "phf-pdf-tables"]},
               "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
               "documents": {"type": "array", "minItems": 1, "maxItems": 1, "items": {
                 "type": "object",
                 "required": ["label", "dataset", "key_fields", "area", "frequency", "definition", "references"],
                 "properties": {
                   "label": {"type": "string", "minLength": 1},
-                  "frequency": {"enum": ["annual", "quarterly"]}
+                  "frequency": {"enum": ["annual", "quarterly", "irregular"]}
                 }
               }}
             },

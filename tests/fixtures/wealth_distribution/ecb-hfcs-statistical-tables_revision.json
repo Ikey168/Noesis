@@ -1,0 +1,188 @@
+{
+ "note": "authored synthetic revision (fictional values; reference periods 2093-2099, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "ECB HFCS Statistical Tables: household net wealth by country (fixture declaration)",
+   "dataset": "hfcs-statistical-tables",
+   "pdf_path": "home/pdf/research/hfcn/HFCS_Statistical_Tables_Wave_2021_June_2026.pdf",
+   "tables": [
+    {
+     "anchor": "Table 2.1 Net wealth (EUR thousands)",
+     "period": "2096",
+     "column_dimension": "country",
+     "columns": [
+      "EA",
+      "BE",
+      "DE",
+      "ES",
+      "FR",
+      "IT"
+     ],
+     "read_columns": [
+      "DE",
+      "ES",
+      "FR",
+      "IT"
+     ],
+     "rows": [
+      {
+       "label": "Median",
+       "dims": {
+        "statistic": "median",
+        "group": "all",
+        "unit": "EUR-thousands"
+       }
+      },
+      {
+       "label": "Mean",
+       "dims": {
+        "statistic": "mean",
+        "group": "all",
+        "unit": "EUR-thousands"
+       }
+      },
+      {
+       "label": "Share of top 10%",
+       "dims": {
+        "statistic": "share",
+        "group": "top10",
+        "unit": "percent"
+       }
+      }
+     ],
+     "decimal": ".",
+     "thousands": null,
+     "markers": {
+      "-": "not_published"
+     },
+     "flag_suffixes": {
+      "*": "fewer than 25 observations (as the table's footnote states; verify)"
+     }
+    }
+   ],
+   "frequency": "irregular",
+   "area": {
+    "scheme": "iso3166-1-alpha2",
+    "dimension": "country"
+   },
+   "area_labels": {
+    "DE": "Germany",
+    "ES": "Spain",
+    "FR": "France",
+    "IT": "Italy"
+   },
+   "key_fields": {
+    "indicator": {
+     "dimension": "statistic",
+     "codes": {
+      "median": {
+       "code": "median",
+       "concept": "wealth_median",
+       "label": "Median household net wealth"
+      },
+      "mean": {
+       "code": "mean",
+       "concept": "wealth_average",
+       "label": "Mean household net wealth"
+      },
+      "share": {
+       "code": "share",
+       "concept": "wealth_share",
+       "label": "Share of total net wealth"
+      }
+     }
+    },
+    "wealth_concept": {
+     "fixed": {
+      "code": "net-wealth",
+      "label": "Household net wealth: real and financial assets minus liabilities (HFCS definition; verify)"
+     }
+    },
+    "group": {
+     "dimension": "group",
+     "codes": {
+      "all": "All households",
+      "top10": "Top 10% of the net wealth distribution"
+     }
+    },
+    "unit": {
+     "dimension": "unit",
+     "codes": {
+      "EUR-thousands": "EUR thousands (as printed)",
+      "percent": "percent of total net wealth (as printed)"
+     }
+    },
+    "population": {
+     "fixed": {
+      "code": "households",
+      "label": "Households (HFCS)"
+     }
+    },
+    "method": {
+     "fixed": {
+      "code": "survey-hfcs",
+      "label": "HFCS survey: weighted, multiply imputed estimates as published"
+     }
+    }
+   },
+   "method_notes": {
+    "survey-hfcs": "HFCS methodological report for the wave (verify)"
+   },
+   "release": {
+    "published_on": "2099-02-10",
+    "label": "HFCS Statistical Tables wave 2096, revised data version (fixture declaration)",
+    "edition": "fixture data version 2"
+   },
+   "definition": {
+    "source_text": "HFCS household net wealth as printed in the declared statistical table (verify)",
+    "methodology_notes": [
+     "Survey reference years differ by country within a wave (verify per wave)",
+     "Standard errors printed below a row are not read"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "ecb-hfcs",
+     "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+     "relation": "documented_in"
+    }
+   ],
+   "scope_notes": [
+    {
+     "relates_to": "wid-wealth-distribution",
+     "statement": "HFCS net wealth is survey-based and per household; WID net personal wealth combines tax, survey, rich-list and national accounts data per equal-split adult (distributional national accounts); they differ in wealth concept, unit of analysis and coverage of the top, and are shown side by side, never merged (verify the publishers' published comparisons)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+       "note": "HFCS methodological report for the wave (verify)"
+      }
+     ]
+    },
+    {
+     "relates_to": "ecb-distributional-wealth-accounts",
+     "statement": "DWA start from HFCS distributions and align them to household-sector national accounts and quarterly balances; HFCS tables report the survey's own weighted estimates per wave; their levels and top shares differ by construction and are shown side by side, never merged (verify)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+       "note": "HFCS methodological report for the wave (verify)"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/home/pdf/research/hfcn/HFCS_Statistical_Tables_Wave_2021_June_2026.pdf",
+   "status": 200,
+   "headers": {
+    "content-type": "application/pdf"
+   },
+   "body_base64": "JVBERi0xLjcKJcK1wrYKJSBXcml0dGVuIGJ5IE11UERGIDEuMjguMgoKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvSW5mbzw8L1Byb2R1Y2VyKE11UERGIDEuMjguMik+Pj4+CmVuZG9iagoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0NvdW50IDEvS2lkc1s0IDAgUl0+PgplbmRvYmoKCjMgMCBvYmoKPDwvRm9udDw8L2hlbHYgNSAwIFI+Pj4+CmVuZG9iagoKNCAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1JvdGF0ZSAwL1Jlc291cmNlcyAzIDAgUi9QYXJlbnQgMiAwIFIvQ29udGVudHNbNiAwIFIgNyAwIFIgOCAwIFIgOSAwIFIgMTAgMCBSIDExIDAgUiAxMiAwIFIgMTMgMCBSIDE0IDAgUiAxNSAwIFIgMTYgMCBSIDE3IDAgUiAxOCAwIFIgMTkgMCBSIDIwIDAgUiAyMSAwIFIgMjIgMCBSIDIzIDAgUiAyNCAwIFIgMjUgMCBSIDI2IDAgUiAyNyAwIFIgMjggMCBSIDI5IDAgUiAzMCAwIFIgMzEgMCBSIDMyIDAgUiAzMyAwIFIgMzQgMCBSIDM1IDAgUiAzNiAwIFIgMzcgMCBSIDM4IDAgUiAzOSAwIFIgNDAgMCBSIDQxIDAgUiA0MiAwIFIgNDMgMCBSIDQ0IDAgUiA0NSAwIFIgNDYgMCBSIDQ3IDAgUiA0OCAwIFIgNDkgMCBSIDUwIDAgUiA1MSAwIFIgNTIgMCBSIDUzIDAgUiA1NCAwIFIgNTUgMCBSIDU2IDAgUiA1NyAwIFIgNTggMCBSIDU5IDAgUiA2MCAwIFIgNjEgMCBSXT4+CmVuZG9iagoKNSAwIG9iago8PC9UeXBlL0ZvbnQvU3VidHlwZS9UeXBlMS9CYXNlRm9udC9IZWx2ZXRpY2EvRW5jb2RpbmcvV2luQW5zaUVuY29kaW5nPj4KZW5kb2JqCgo2IDAgb2JqCjw8L0xlbmd0aCAxNTQvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnjaJY2xDsIwDET3fIX/AMd2zo2EGJBY2JCyIQZUtWKAgYXvx24VRXHu3vnKt5xHqcRxKhmTT0LjUw6v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IG4gCjAwMDAwMDQzMzUgMDAwMDAgbiAKMDAwMDAwNDQ2NiAwMDAwMCBuIAowMDAwMDA0NTk5IDAwMDAwIG4gCjAwMDAwMDQ3NjcgMDAwMDAgbiAKMDAwMDAwNDg5NCAwMDAwMCBuIAowMDAwMDA1MDIxIDAwMDAwIG4gCjAwMDAwMDUxNDggMDAwMDAgbiAKMDAwMDAwNTI3NSAwMDAwMCBuIAowMDAwMDA1NDAyIDAwMDAwIG4gCjAwMDAwMDU1MjkgMDAwMDAgbiAKMDAwMDAwNTY4MiAwMDAwMCBuIAowMDAwMDA1ODE1IDAwMDAwIG4gCjAwMDAwMDU5NDggMDAwMDAgbiAKMDAwMDAwNjA4MSAwMDAwMCBuIAowMDAwMDA2MjE0IDAwMDAwIG4gCjAwMDAwMDYzNDcgMDAwMDAgbiAKMDAwMDAwNjQ4MCAwMDAwMCBuIAowMDAwMDA2NjYxIDAwMDAwIG4gCjAwMDAwMDY3ODggMDAwMDAgbiAKMDAwMDAwNjkxNSAwMDAwMCBuIAowMDAwMDA3MDQyIDAwMDAwIG4gCjAwMDAwMDcxNjkgMDAwMDAgbiAKMDAwMDAwNzI5NiAwMDAwMCBuIAowMDAwMDA3NDIzIDAwMDAwIG4gCjAwMDAwMDc1NTcgMDAwMDAgbiAKMDAwMDAwNzY5MCAwMDAwMCBuIAowMDAwMDA3ODIzIDAwMDAwIG4gCjAwMDAwMDc5NTYgMDAwMDAgbiAKMDAwMDAwODA4OSAwMDAwMCBuIAowMDAwMDA4MjIxIDAwMDAwIG4gCgp0cmFpbGVyCjw8L1NpemUgNjIvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgo4MzU0CiUlRU9GCg=="
+  }
+ ]
+}

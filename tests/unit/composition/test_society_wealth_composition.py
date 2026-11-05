@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = json.loads((ROOT / "packs/society/manifest.json").read_text())
 PROVIDER = json.loads((ROOT / "packs/society/providers/society.wealth.json").read_text())
 PACK = {"pack_id": "society-wealth-distribution", "version": "1.0.0", "range": "^1.0.0"}
-FEATURES = ["wid", "dwa", "dfa"]
+FEATURES = ["wid", "dwa", "dfa", "hfcs", "phf"]
 
 
 @pytest.fixture(autouse=True)
@@ -60,7 +60,7 @@ def test_descriptor_validates_and_declares_the_series_capability_operations_stor
     assert next(d for d in provider_descriptors() if d["id"] == "society.wealth") == PROVIDER
     series = next(c for c in PROVIDER["capabilities"] if c["id"] == "society.wealth-series")
     assert series["contract"] == {"name": "noesis-wealth-distribution-record", "version": "2.0.0"}
-    assert "no blending of WID, DWA and DFA figures" in series["semantic_constraints"]["exclusions"]
+    assert "no blending of WID, DWA, DFA, HFCS and PHF figures" in series["semantic_constraints"]["exclusions"]
     assert "comparability_unknown" in series["semantic_constraints"]["comparability"]
     tools = {o["tool"].split(".", 1)[1]: o for o in PROVIDER["operations"]}
     assert set(tools) == WEALTH_TOOLS
@@ -105,7 +105,7 @@ def test_feature_selection_drives_readiness():
     assert {p: v["live_verification"]["status"] for p, v in report["providers"].items()} == {
         "wid-wealth-distribution": "unverified-live", "ecb-distributional-wealth-accounts": "unverified-live",
         "fed-distributional-financial-accounts": "unverified-live",
-        "ecb-hfcs-statistical-tables": "not-implemented", "bundesbank-phf-aggregates": "not-implemented"}
+        "ecb-hfcs-statistical-tables": "unverified-live", "bundesbank-phf-aggregates": "unverified-live"}
     conn, coordinator, bundles, _ = _migrated()
     assert enabled_providers(conn) == set()  # composed with defaults: every wealth feature is off
     coordinator.select("society", bundles["society"]["version"], features=["pip", "dfa"])
@@ -131,4 +131,5 @@ def test_taxonomy_classifies_the_provider_under_an_existing_subdomain():
                                                        "shapes": ["statistical-series"]}
     depth = json.loads((ROOT / "packs/depth.json").read_text())
     assert depth["providers"]["society.wealth"]["sources"] == [
-        "wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts"]
+        "wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts",
+        "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates"]

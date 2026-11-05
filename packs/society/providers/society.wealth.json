@@ -34,7 +34,7 @@
         "values": "stored as published, never recomputed or rescaled; model-based estimates (WID, DWA, DFA) keep the publisher's method and the publication status the source states (estimated, provisional, extrapolated); OBS_CONF C is a status, never a value",
         "comparability": "WID, DWA and DFA rows are side by side and never combined; pairs from different sources state different_indicator, the source-stated or reviewer-recorded notes, or comparability_unknown",
         "minimisation": "published aggregates only; person- and household-level fields, HFCS, PHF and SCF microdata, survey weights and rich lists refused at write time",
-        "exclusions": "no nowcasting, no filled or interpolated periods, no blending of WID, DWA and DFA figures, no re-harmonising of wealth concepts, population units or groups, no shares, ratios or averages of our own, no correction of model-based estimates, no forecasts; ECB HFCS tables and Bundesbank PHF reports are not-implemented and never scraped"
+        "exclusions": "no nowcasting, no filled or interpolated periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising of wealth concepts, population units or groups, no shares, ratios or averages of our own, no correction of model-based estimates, no forecasts; ECB HFCS and Bundesbank PHF PDF tables are read only at declared table anchors, row labels and printed columns, each value citing its page and quoted line, and a cell that cannot be read exactly fails the document (never guessed or transcribed by hand)"
       }
     }
   ],

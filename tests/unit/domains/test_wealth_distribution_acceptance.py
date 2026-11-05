@@ -23,6 +23,7 @@ from src.ingestion.wealth_distribution_sources import (
     EXCLUSIONS,
     FIXTURE_SECRET,
     LIVE_VERIFICATION,
+    PDF_PROVIDERS,
     fixture_transport,
 )
 from src.kb.wealth_distribution_queries import (
@@ -42,7 +43,7 @@ from tests.unit import wealth_distribution_harness as h
 from tests.unit.composition.test_migration import _migrated
 
 PACK_ID = "society-wealth-distribution"
-FEATURES = ["pip", "eu-silc", "oecd-idd", "wid", "dwa", "dfa"]
+FEATURES = ["pip", "eu-silc", "oecd-idd", "wid", "dwa", "dfa", "hfcs", "phf"]
 PUBLIC_DNS = lambda _host: ["8.8.8.8"]
 SECRETS = lambda ref: FIXTURE_SECRET if ref == "NOESIS_WID_API_KEY" else None
 
@@ -102,8 +103,7 @@ def test_country_to_cited_wid_dwa_and_dfa_wealth_figures_side_by_side_with_vinta
     status = readiness(conn)
     assert {status["providers"][p]["status"] for p in h.SOURCES.values()} == {"fixture-only"}
     assert {p: LIVE_VERIFICATION[p]["status"] for p in status["providers"]} == {
-        **{p: "unverified-live" for p in h.SOURCES.values()},
-        "ecb-hfcs-statistical-tables": "not-implemented", "bundesbank-phf-aggregates": "not-implemented"}
+        p: "unverified-live" for p in h.SOURCES.values()}
 
     # A failed run (schema drift) fails that source with its code and a receipt; vintages stay current.
     store = WealthStore(conn)
@@ -134,12 +134,16 @@ def test_country_to_cited_wid_dwa_and_dfa_wealth_figures_side_by_side_with_vinta
                                         as_of="2099-06-30")
     for answer in (early, later):
         assert {r["provider"] for r in answer["results"]} == {"wid-wealth-distribution",
-                                                              "ecb-distributional-wealth-accounts"}
+                                                              "ecb-distributional-wealth-accounts",
+                                                              "ecb-hfcs-statistical-tables",
+                                                              "bundesbank-phf-aggregates"}
         assert answer["nothing_combined"] is True
-        assert {p["comparability"] for p in answer["pairs"]} == {"noted"}  # the DWA scope note relates them
+        assert {p["comparability"] for p in answer["pairs"]} == {"noted"}  # DWA, HFCS and PHF scope notes
         for result in answer["results"]:
             assert result["citation"]["vintage_id"] and result["citation"]["as_of"] and result["definition"]
-            assert result["citation"]["live_verification"] == "unverified-live" and result["model_based"]
+            assert result["citation"]["live_verification"] == "unverified-live"
+            # WID and DWA are model-based; the HFCS and PHF tables are the surveys' own estimates.
+            assert result["model_based"] is (result["provider"] not in PDF_PROVIDERS)
         shown = {(r["series_id"], o["period"], o["value_text"]) for r in answer["results"] for o in r["observations"]
                  if o["value_text"] is not None}
         assert shown <= stored_values(conn)  # only published values; nothing derived, filled or blended
@@ -183,7 +187,7 @@ def test_country_to_cited_wid_dwa_and_dfa_wealth_figures_side_by_side_with_vinta
     # A country no source covers is reported, never filled.
     portugal = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, area={"scheme": "iso3166-1-alpha2",
                                                                            "code": "PT"}, as_of="2099-06-30")
-    assert portugal["results"] == [] and len(portugal["none_on_record"]) == 3
+    assert portugal["results"] == [] and len(portugal["none_on_record"]) == len(h.SOURCES)
 
     # The cited evidence bundle: every item with source, record revision and as-of time.
     profile = place_profile(conn, h.NS, scopes=h.READ_ONLY, area=h.DE, as_of="2099-06-30")

@@ -9,14 +9,14 @@ which wealth concept, group, population unit, method and release, as of that
 date?*
 
 It quotes what each source released. It never nowcasts, fills or interpolates
-a period a source did not publish, blends WID, DWA and DFA figures into one
+a period a source did not publish, blends WID, DWA, DFA, HFCS and PHF figures into one
 series, re-harmonises wealth concepts, population units or percentile groups,
 computes a top share, Pareto fit, ratio or average of its own, corrects a
 publisher's model-based estimate or makes a forecast.
 
 ## Sources
 
-Three sources in the `society-wealth-distribution` source pack (1.0.0,
+Five sources in the `society-wealth-distribution` source pack (1.0.0,
 `config/source_packs/society-wealth-distribution.json`), connector
 `wealth-distribution`, all `unverified-live` until a dated live run. Access,
 terms, the revision model, the minimisation decision and the bounded coverage
@@ -30,11 +30,16 @@ checked live.
 | `wid-wealth-distribution` | World Inequality Database (WID API, JSON) | Germany, France, United States; top 1%, 0.1% and 0.01% net personal wealth shares; national and private wealth-to-income ratios; 1 document, 40 series | key from the secret reference `NOESIS_WID_API_KEY`, sent in a header, never stored |
 | `ecb-distributional-wealth-accounts` | ECB Distributional Wealth Accounts (ECB Data Portal, `format=csvdata`) | Germany, France; household net wealth shares of the top 10% and bottom 50%, median net wealth; quarterly; 1 document, 20 series | no key |
 | `fed-distributional-financial-accounts` | Federal Reserve Distributional Financial Accounts (one member of the DFA archive) | United States; net worth shares of the top 0.1%, 99-99.9, 90-99, 50-90 and bottom 50%; quarterly; 1 document, 20 series | no key |
+| `ecb-hfcs-statistical-tables` | ECB HFCS Statistical Tables (PDF, per wave and data version) | Germany, Spain, France, Italy; median and mean net wealth, top 10% share; one table per survey wave; 1 PDF, at most 6 tables and 80 cells | no key |
+| `bundesbank-phf-aggregates` | Bundesbank household wealth survey data annex (PDF) | Germany; mean and median net wealth, top 10% share, one column per survey wave; 1 PDF, at most 6 tables and 40 cells | no key |
 
-The ECB HFCS statistical tables and the Bundesbank PHF aggregates are
-`not-implemented`: no machine-readable aggregates are known, and their PDF or
-report tables are never scraped or transcribed. HFCS, PHF and SCF microdata are
-excluded.
+The HFCS and PHF figures exist only as PDF tables. They are read at the
+declared table anchor, row labels and printed columns only; each value keeps
+its printed token, page, table and quoted line, and a cell that cannot be read
+exactly fails the document instead of being guessed (see WD02 in the source
+audit). Reading them needs PyMuPDF (the `optional-sources` extra); without it
+the source reports `source_unavailable`. Their frequency is `irregular` (survey
+waves). HFCS, PHF and SCF microdata are excluded.
 
 ## Records and vintages
 
@@ -51,8 +56,9 @@ Each value keeps its text as published (WID shares stay fractions of 1, DWA
 and DFA shares stay percent), its cell status (`reported`, `confidential`,
 `not_published`), the publication status the source states (`estimated`,
 `provisional`, `extrapolated`) and its flags verbatim (`OBS_STATUS`,
-`OBS_CONF`, WID's extrapolation ranges). All three sources are model-based and
-every row says so (`model_based`). Each changed release is an appended
+`OBS_CONF`, WID's extrapolation ranges, a PDF cell's footnote flag). WID, DWA and
+DFA are model-based, HFCS and PHF are the surveys' own estimates, and every row
+says which (`model_based`). Each changed release is an appended
 **vintage** dated by the declared release (a WID update, a DWA release, a Z.1
 release), else the retrieval time labelled `retrieval_time`; a series a
 complete later release no longer states gets a `removed_by_source` vintage.

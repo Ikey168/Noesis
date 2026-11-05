@@ -28,7 +28,7 @@ flag attributes in the fixtures are the author's reading of the documentation
 and stay _verify_.
 
 Non-goals for every source: no nowcasting, no filled or interpolated periods of
-our own, no blending of WID, DWA and DFA figures into one series, no
+our own, no blending of WID, DWA, DFA, HFCS or PHF figures into one series, no
 re-harmonising of wealth concepts, population units or percentile groups, no
 top shares, Pareto fits, averages, ratios or other indicators of our own, no
 person-, household- or rich-list-level data, no forecasts. Model-based
@@ -43,8 +43,8 @@ values and never corrected by us.
 | `wid-wealth-distribution` | World Inequality Lab, World Inequality Database (WID.world) | top 1%, 0.1% and 0.01% net personal wealth shares; national and private wealth-to-income ratios | the WID API that WID's own R and Stata tools call (`countries-variables` on an AWS API Gateway host, JSON, `x-api-key` header, _verify_ host, path, response shape and whether WID permits third-party use of the key); the bulk archive `wid_all_data.zip` (_search_: one `WID_data_XX.csv` and `WID_metadata_XX.csv` per country) exceeds the runtime's 100 MB response budget (_verify_ its size) and is not used | `unverified-live` |
 | `ecb-distributional-wealth-accounts` | European Central Bank, Distributional Wealth Accounts (DWA, experimental statistics) | quarterly household net wealth by wealth group (top 10%, bottom 50%) and median net wealth | ECB Data Portal SDMX REST API, `https://data-api.ecb.europa.eu/service/data/DWA/{key}?format=csvdata` (_verify_ the format parameter and column layout); dataflow `DWA`, key positions `FREQ.REF_AREA.REF_SECTOR.ACCOUNTING_ENTRY.STO.INSTR_ASSET.DWA_GRP.UNIT_MEASURE.DWA_EST.DWA_COMP` (_search_: series such as `DWA.Q.DE.S14.N.LE.NWA.B50.EUR.S.N`; the dimension ids are the author's labels, _verify_) | `unverified-live` |
 | `fed-distributional-financial-accounts` | Board of Governors of the Federal Reserve System, Distributional Financial Accounts (DFA) | quarterly US household net worth shares of the top 0.1%, the rest of the top 1% (99-99.9), the next 9% (90-99), the next 40% (50-90) and the bottom 50% | the DFA download archive `https://www.federalreserve.gov/releases/z1/dataviz/download/zips/dfa.zip` (_verify_ path), member `dfa-networth-shares.csv` (_verify_ name and columns `Date`, `Category`, `Net worth`, ...; categories `TopPt1`, `RemainingTop1`, `Next9`, `Next40`, `Bottom50`, _verify_) | `unverified-live` |
-| `ecb-hfcs-statistical-tables` | European Central Bank, Household Finance and Consumption Survey (HFCS) | per-wave aggregate tables (median and mean net wealth, wealth shares by country) | published as PDF statistical tables per wave and revision (_search_: `HFCS_Statistical_Tables_Wave_2023_June_2026.pdf` and earlier versions); no machine-readable aggregate endpoint known to the author (_verify_ whether the ECB Data Portal carries HFCS aggregates); HFCS microdata are released to researchers under contract and are excluded | `not-implemented`: PDF tables are never scraped or transcribed; if a machine-readable aggregate dataflow is verified it joins as an `ecb-dwa-csv`-style document in a source-pack version bump |
-| `bundesbank-phf-aggregates` | Deutsche Bundesbank, Panel on Household Finances (PHF) | wave-level German household wealth distribution aggregates | published in Monthly Report articles, reports and papers (_search_: the PHF page says results of all waves are published there); no machine-readable aggregate endpoint known to the author (_verify_ the Bundesbank time-series database for PHF series); PHF microdata are released through the Research Data and Service Centre for scientific use only and are excluded | `not-implemented`: report tables are never scraped or transcribed |
+| `ecb-hfcs-statistical-tables` | European Central Bank, Household Finance and Consumption Survey (HFCS) | per-wave aggregate tables (median and mean net wealth, wealth shares by country) | published only as PDF statistical tables per wave and data version (_search_: `HFCS_Statistical_Tables_Wave_2021_June_2026.pdf`, data version 4.1, and the July 2023 v3.3 edition); no machine-readable aggregate endpoint known (_verify_ whether the ECB Data Portal carries HFCS aggregates); HFCS microdata are excluded | `unverified-live`, format `hfcs-pdf-tables` (WD02): the declared rows of the declared table for the declared country columns only, read from PyMuPDF word positions; each value keeps its printed token, page, table anchor and quoted line; any cell short of one exact reading fails the document |
+| `bundesbank-phf-aggregates` | Deutsche Bundesbank, Panel on Household Finances (PHF) | wave-level German household wealth distribution aggregates | published in Monthly Report articles with a data annex PDF (_search_: `2023-04-vermoegensbefragung-data.pdf` for the 2021 wave); no machine-readable aggregate endpoint known (_verify_ the Bundesbank time-series database for PHF series); PHF microdata (Research Data and Service Centre, scientific use only) are excluded | `unverified-live`, format `phf-pdf-tables` (WD02): the declared rows of the declared annex table, one column per printed survey year, German number notation declared per table; same reading rules as HFCS |
 
 No source was found whose terms forbid the intended use (store published
 aggregates with citations, show them side by side, export cited evidence
@@ -65,6 +65,47 @@ another host, schema drift, a missing archive member, a response larger than
 the budget) fails that source's run with its code and a receipt; earlier
 vintages stay current and nothing is marked removed or revised because of a
 failure. Readiness reports the source as `stale`.
+
+## PDF tables (WD02): ECB HFCS and Bundesbank PHF
+
+Both publishers release their survey-wave aggregates only as PDF tables, so
+`src/ingestion/wealth_distribution_sources.py` reads them with a declared,
+fail-closed table reader (`read_pdf_tables`), following the precedent of the
+Market insurance SFCR reader (`src/ingestion/insurance_sources.py`).
+
+| Source | Entry point | Authentication | Licence and redistribution | Revision model |
+| --- | --- | --- | --- | --- |
+| ECB HFCS | `https://www.ecb.europa.eu/home/pdf/research/hfcn/HFCS_Statistical_Tables_Wave_2021_June_2026.pdf` (_verify_) | none | ECB copyright; reproduction permitted with the source acknowledged (_verify_) | each data version of a wave is a new PDF and a new release dated by its declared publication date; a changed figure is a new vintage, never an overwrite |
+| Bundesbank PHF | `https://www.bundesbank.de/resource/blob/908924/.../2023-04-vermoegensbefragung-data.pdf` (_verify_; the search result was served from `bundesbank.de`, the pack declares `www.bundesbank.de`) | none | Bundesbank publications: reproduction permitted provided the source is stated (_verify_) | each Monthly Report data annex is a release; a later annex that restates an earlier wave appends vintages |
+
+**Reading rules.** A document declares the PDF path and, per table (at most
+six), an anchor text that must occur exactly once (optionally on declared
+pages), the printed columns in order, the columns it reads, the rows it reads
+by their printed label, the decimal and thousands separators, the markers that
+mean "not published" or "confidential", and footnote flag suffixes. Text is
+rebuilt into printed lines from PyMuPDF word positions. A table section runs
+from its anchor to its end anchor or the next table heading (at most three
+pages). A declared row must match exactly one line of the section whose
+remainder is only numbers in the declared notation or declared markers, and
+that line must hold exactly one cell per printed column. Anything else (the
+anchor missing or repeated, a row missing or repeated, a different number of
+cells, an undeclared marker, a non-PDF response, an encrypted PDF, too many
+pages, PyMuPDF not installed) fails the document with its reason; the earlier
+vintages stay current. No cell is guessed, re-ordered, transcribed by hand or
+read outside the declaration; standard-error lines, undeclared rows and
+undeclared columns are never read.
+
+**Citation per value.** The printed token (e.g. `106.600`, `56,3`, `320.3*`),
+the PDF page, the table anchor, the row label and the quoted line are kept as
+observation attributes beside the normalised value. A declared marker is a
+status, never a value; a footnote flag is kept beside the value.
+
+**Unverified.** The publishers' hosts did not resolve from the build
+environment, so table numbers and titles, row labels, column order, markers,
+footnote conventions and the survey-year labelling are not checked against
+the published PDFs. The pack's declarations are fixture declarations (survey
+years 2093-2099) that a live run must replace with the published layout.
+HFCS reference years differ by country within a wave (_verify_ per wave).
 
 ## Definitions recorded per series
 
@@ -140,8 +181,8 @@ place or variable is a source-pack version bump.
 | WID | `unverified-live` | - | none; offline authored fixtures only |
 | ECB DWA | `unverified-live` | - | none; offline authored fixtures only |
 | Fed DFA | `unverified-live` | - | none; offline authored fixtures only |
-| ECB HFCS statistical tables | `not-implemented` | - | PDF tables only (_verify_) |
-| Bundesbank PHF aggregates | `not-implemented` | - | report tables only (_verify_) |
+| ECB HFCS statistical tables | `unverified-live` | - | none; offline authored PDF fixtures only (the publisher's host did not resolve from the build environment) |
+| Bundesbank PHF aggregates | `unverified-live` | - | none; offline authored PDF fixtures only (the publisher's host did not resolve from the build environment) |
 
 The fixtures are authored, not captured: synthetic values for reference
 periods 2093-2098 and release dates in 2098-2099, so nothing can be mistaken

@@ -37,14 +37,13 @@ def test_tools_are_registered_and_answering_tools_declare_the_exclusions(mcp_env
     assert WEALTH_TOOLS <= set(tools) and set(WEALTH_SCOPES) == WEALTH_TOOLS
     for name in ("wealth_indicator_for_place", "wealth_series_history", "wealth_source_contracts", "wealth_profile"):
         description = " ".join(tools[name].description.lower().split())
-        assert "no nowcasting" in description and "no blending of wid, dwa and dfa figures" in description, name
+        assert "no nowcasting" in description and "no blending of wid, dwa, dfa, hfcs and phf figures" in description, name
 
 
 def test_answers_history_notes_and_cited_export_through_mcp(mcp_env):
     tools, state = mcp_env
     status = tools["wealth_readiness"].fn(namespace=h.NS)
     assert {status["providers"][p]["status"] for p in h.SOURCES.values()} == {"fixture-only"}
-    assert status["providers"]["bundesbank-phf-aggregates"]["status"] == "not-implemented"
     answer = tools["wealth_indicator_for_place"].fn(namespace=h.NS, area=h.US, indicator="wealth_share",
                                                     as_of="2099-06-30")
     assert {r["provider"] for r in answer["results"]} == {"wid-wealth-distribution",
@@ -70,7 +69,7 @@ def test_answers_history_notes_and_cited_export_through_mcp(mcp_env):
     root = next(o for o in bundle["objects"] if o["payload"].get("kind") == "wealth-profile")
     assert root["payload"]["exclusions"] and root["payload"]["minimisation"].startswith("published aggregates")
     contracts = tools["wealth_source_contracts"].fn()
-    assert contracts["live_verification"]["ecb-hfcs-statistical-tables"]["status"] == "not-implemented"
+    assert contracts["live_verification"]["ecb-hfcs-statistical-tables"]["status"] == "unverified-live"
     assert json.dumps(contracts)
 
 

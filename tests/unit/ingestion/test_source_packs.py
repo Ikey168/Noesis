@@ -153,8 +153,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Corporate Ownership Register of Overseas Entities, Danish and Slovak BODS and OpenCorporates sources
     # (#2886, #2887),
     # plus the Society wealth pack's WID, ECB DWA and Fed DFA sources (#2882),
-    # plus the Corporate Ownership offshore-leaks feature's ICIJ Offshore Leaks extract (#2888).
-    assert sum(len(pack["sources"]) for pack in packs) == 366
+    # plus the Corporate Ownership offshore-leaks feature's ICIJ Offshore Leaks extract (#2888),
+    # plus the Society wealth pack's ECB HFCS and Bundesbank PHF PDF table sources (#2882).
+    assert sum(len(pack["sources"]) for pack in packs) == 368
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

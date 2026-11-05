@@ -7,8 +7,9 @@ taxonomy subdomain `income-poverty-inequality`, no new subdomain).
   access, rate limits, revision model, the data-minimisation decision and the
   bounded first coverage for the World Inequality Database, the ECB
   Distributional Wealth Accounts and the Federal Reserve Distributional
-  Financial Accounts; the ECB HFCS statistical tables and the Bundesbank PHF
-  aggregates are `not-implemented` (no machine-readable aggregates known).
+  Financial Accounts; WD02 adds the ECB HFCS statistical tables and the
+  Bundesbank PHF data annex, read from their PDFs at declared table cells only
+  (no machine-readable aggregates are known).
   Written without access to the publishers; terms not verified live.
 - Offline evidence: authored fixtures (reference periods 2093-2098, releases
   2098-2099, synthetic values) replay through the real `wealth-distribution`

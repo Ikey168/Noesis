@@ -30,7 +30,7 @@
     }
   },
   "properties": {
-    "provider": {"enum": ["wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts"]},
+    "provider": {"enum": ["wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts", "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates"]},
     "dataset": {"type": "string", "minLength": 1},
     "native_key": {"type": "string", "minLength": 1},
     "indicator": {
@@ -56,7 +56,7 @@
         "label": {"type": ["string", "null"]}
       }
     },
-    "frequency": {"enum": ["annual", "quarterly"]},
+    "frequency": {"enum": ["annual", "quarterly", "irregular"]},
     "definition": {"type": "object", "required": ["provider", "method"]},
     "references": {"type": "array"},
     "source_notes": {"type": "array"},

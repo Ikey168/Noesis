@@ -2,7 +2,7 @@
 
 Every response under ``tests/fixtures/source_packs/society-wealth-*`` (first releases) and
 ``tests/fixtures/wealth_distribution`` (revisions) is authored in the publisher's documented shape (WID API JSON, ECB
-csvdata, the DFA archive member) with synthetic values only: reference periods 2093-2098 and release dates in
+csvdata, the DFA archive member, authored HFCS and PHF table PDFs) with synthetic values only: reference periods 2093-2098 and release dates in
 2098-2099, so nothing can be mistaken for a published figure. Nothing here is live coverage.
 """
 
@@ -32,7 +32,8 @@ REVIEW = "knowledge:wealth:review"
 SCOPES = {READ, WRITE, REVIEW, "namespace:global:read", "namespace:global:write"}
 READ_ONLY = {READ, "namespace:global:read"}
 SOURCES = {"wid": "wid-wealth-distribution", "dwa": "ecb-distributional-wealth-accounts",
-           "dfa": "fed-distributional-financial-accounts"}
+           "dfa": "fed-distributional-financial-accounts", "hfcs": "ecb-hfcs-statistical-tables",
+           "phf": "bundesbank-phf-aggregates"}
 FIRST_RETRIEVAL = 4_069_008_000_000  # 2098-12-10
 SECOND_RETRIEVAL = 4_084_646_400_000  # 2099-06-09
 DE = {"scheme": "iso3166-1-alpha2", "code": "DE"}

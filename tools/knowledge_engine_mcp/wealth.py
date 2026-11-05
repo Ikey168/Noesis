@@ -100,10 +100,10 @@ def register(mcp, safe, context):
 
     @mcp.tool()
     def wealth_source_contracts() -> dict:
-        """Per-source access decisions (WID, ECB DWA, Fed DFA unverified-live; ECB HFCS tables and Bundesbank PHF
-        not-implemented), licences, limits, revision models, methods, caps, bounded coverage and the minimisation
-        decision.
-        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no
+        """Per-source access decisions (WID, ECB DWA, Fed DFA, and the ECB HFCS and Bundesbank PHF PDF tables read at
+        declared cells only; all unverified-live), licences, limits, revision models, methods, caps, bounded coverage
+        and the minimisation decision.
+        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no
         shares or ratios of our own, no correction of model-based estimates and no forecasts."""
         from src.ingestion.wealth_distribution_sources import (
             AUDIT,
@@ -151,7 +151,7 @@ def register(mcp, safe, context):
         """WID, ECB DWA and Fed DFA values for a place ({scheme: iso3166-1-alpha2, code}) released by a date, side by
         side with definitions, groups, units, populations, methods, flags and cited vintages; pairs from different
         sources state their notes or comparability_unknown.
-        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no
+        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no
         shares or ratios of our own, no correction of model-based estimates and no forecasts."""
         from src.kb.wealth_distribution_queries import WealthQueries
         from src.kb.wealth_distribution_records import enabled_providers
@@ -165,7 +165,7 @@ def register(mcp, safe, context):
         """Every vintage of a series with new, revised and dropped periods, model estimates the source replaced,
         method and definition changes, removals and the notes per release pair (comparability_unknown when none
         applies).
-        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no
+        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no
         shares or ratios of our own, no correction of model-based estimates and no forecasts."""
         from src.kb.wealth_distribution_queries import WealthQueries
 
@@ -188,7 +188,7 @@ def register(mcp, safe, context):
     @mcp.tool()
     def wealth_profile(namespace: str, area: dict, as_of: str | None = None) -> dict:
         """A place's wealth figures from each selected source side by side as of a date.
-        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA and DFA figures, no re-harmonising, no
+        Exclusions: no nowcasting, no filled periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising, no
         shares or ratios of our own, no correction of model-based estimates and no forecasts."""
         from src.kb.wealth_distribution_queries import place_profile
 

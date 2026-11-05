@@ -57,11 +57,14 @@ def test_sources_side_by_side_never_combined_with_comparability(conn):
     germany = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, area=h.DE, indicator="wealth_share",
                                           as_of="2099-06-30")
     assert {r["provider"] for r in germany["results"]} == {"wid-wealth-distribution",
-                                                           "ecb-distributional-wealth-accounts"}
+                                                           "ecb-distributional-wealth-accounts",
+                                                           "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates"}
     assert germany["nothing_combined"] is True and "never combined" in germany["never_combined"]
     pairs = {tuple(sorted(p["providers"])): p["comparability"] for p in germany["pairs"]}
-    assert pairs == {("ecb-distributional-wealth-accounts", "wid-wealth-distribution"): "noted"}
-    noted = germany["pairs"][0]
+    # Every pair of sources is related by a source-stated scope note (DWA, HFCS and PHF declare them).
+    assert set(pairs.values()) == {"noted"} and len(pairs) == 6
+    noted = next(p for p in germany["pairs"] if set(p["providers"]) == {"ecb-distributional-wealth-accounts",
+                                                                        "wid-wealth-distribution"})
     assert noted["notes"][0]["relation"] == "scope_difference" and noted["notes"][0]["origin"] == "source-stated"
     assert {d["kind"] for d in noted["differences"]} >= {"different_source", "different_population",
                                                          "different_method"}
@@ -75,7 +78,8 @@ def test_sources_side_by_side_never_combined_with_comparability(conn):
     mixed = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, area=h.FR, as_of="2099-06-30")
     assert "different_indicator" in {p["comparability"] for p in mixed["pairs"]}
     removed = next(r for r in queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, area=h.FR,
-                                                          indicator="wealth_median", as_of="2099-06-30")["results"])
+                                                          indicator="wealth_median", as_of="2099-06-30")["results"]
+                   if r["provider"] == "ecb-distributional-wealth-accounts")
     assert removed["status"] == "removed_by_source" and removed["observations"] == []
     for answer in (germany, us, mixed):
         assert forbidden_paths(answer) == [] and personal_data_paths(answer) == []

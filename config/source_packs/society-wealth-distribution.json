@@ -1,14 +1,14 @@
 {
   "pack_id": "society-wealth-distribution",
   "version": "1.0.0",
-  "description": "Society bundle, society.wealth provider: World Inequality Database top wealth shares and wealth-income ratios, ECB Distributional Wealth Accounts and Federal Reserve Distributional Financial Accounts, for one bounded selection (Germany, France, United States). Values are quoted as each source released them with definitions, methods, release vintages and flags; WID, DWA and DFA figures are never blended or re-harmonised; model-based estimates keep the publisher's method; no nowcasting, no filled periods, no derived indicators. Audit: docs/development/wealth-distribution-evidence/source-audit.md.",
+  "description": "Society bundle, society.wealth provider: World Inequality Database top wealth shares and wealth-income ratios, ECB Distributional Wealth Accounts, Federal Reserve Distributional Financial Accounts, and the ECB HFCS statistical tables and Bundesbank PHF data annex read from their PDFs at declared table cells only, for one bounded selection (Germany, France, Spain, Italy, United States). Values are quoted as each source released them with definitions, methods, release vintages and flags; WID, DWA, DFA, HFCS and PHF figures are never blended or re-harmonised; model-based estimates keep the publisher's method; no nowcasting, no filled periods, no derived indicators. Audit: docs/development/wealth-distribution-evidence/source-audit.md.",
   "domains": [
     "society"
   ],
   "defaults": {
     "connector": "wealth-distribution",
     "temporal_semantics": "the declared release date (a WID update, an ECB DWA quarterly release, a Fed Z.1 release), else the retrieval time, labelled, dates each vintage; the reference year or quarter is the period; whole-history revisions are new vintages, appended, never overwritten",
-    "update_cadence": "WID: irregular updates; ECB DWA: quarterly; Fed DFA: quarterly with the Z.1 release",
+    "update_cadence": "WID: irregular updates; ECB DWA: quarterly; Fed DFA: quarterly with the Z.1 release; ECB HFCS and Bundesbank PHF: per survey wave",
     "mapping": {
       "target_schema": "noesis-wealth-distribution-record-v2",
       "version": "2.0.0"
@@ -39,7 +39,8 @@
     "policy": {
       "personal_data": "never; published aggregates only; HFCS, PHF and SCF microdata, rich lists and named individuals excluded",
       "values": "as published per source and release; never blended, filled, nowcast, recomputed or re-harmonised",
-      "model_estimates": "WID, DWA and DFA are model-based; their method and flags are kept, never corrected"
+      "model_estimates": "WID, DWA and DFA are model-based; their method and flags are kept, never corrected",
+      "pdf_tables": "HFCS and PHF PDFs are read only at declared table anchors, row labels and printed columns; each value keeps its printed token, page and quoted line; a cell that cannot be read exactly fails the document"
     }
   },
   "sources": [
@@ -441,6 +442,407 @@
         "path": "tests/fixtures/source_packs/society-wealth-dfa.json",
         "sha256": "3881d38c8ff0db828d3e9abfb5c4dd0c550bcfa4e095a502840bd05511999352",
         "expected_output_hash": "315ca07b88142d3d0cfcb1799d58e8a02995dec6a15804df1be8d154ef819e0e"
+      }
+    },
+    {
+      "source_id": "ecb-hfcs-statistical-tables",
+      "endpoint": "https://www.ecb.europa.eu",
+      "publisher": "European Central Bank, Household Finance and Consumption Survey (HFCS)",
+      "scope": "ECB HFCS Statistical Tables PDF for one wave and data version: the declared rows (median and mean net wealth, top 10% share) of the declared net wealth table for Germany, Spain, France and Italy, read only at the declared table anchor, row labels and printed columns; 1 PDF, at most 6 tables and 80 cells; survey-based (operator must verify the PDF path, table number and title, row labels, column order and markers against the published edition)",
+      "license": {
+        "id": "ecb-copyright-reuse",
+        "terms_url": "https://www.ecb.europa.eu/services/disclaimer/html/index.en.html",
+        "redistribution": "attribution-required (verify)"
+      },
+      "update_cadence": "per HFCS wave (about every three years) and per data version of a wave (e.g. July 2023 v3.3, June 2026 v4.1); each edition is a release",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 80,
+        "max_bytes": 20000000,
+        "max_pages": 1
+      },
+      "wealth": {
+        "namespace": "global",
+        "provider": "ecb-hfcs-statistical-tables",
+        "format": "hfcs-pdf-tables",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "ECB HFCS Statistical Tables: household net wealth by country (fixture declaration)",
+            "dataset": "hfcs-statistical-tables",
+            "pdf_path": "home/pdf/research/hfcn/HFCS_Statistical_Tables_Wave_2021_June_2026.pdf",
+            "tables": [
+              {
+                "anchor": "Table 2.1 Net wealth (EUR thousands)",
+                "period": "2096",
+                "column_dimension": "country",
+                "columns": [
+                  "EA",
+                  "BE",
+                  "DE",
+                  "ES",
+                  "FR",
+                  "IT"
+                ],
+                "read_columns": [
+                  "DE",
+                  "ES",
+                  "FR",
+                  "IT"
+                ],
+                "rows": [
+                  {
+                    "label": "Median",
+                    "dims": {
+                      "statistic": "median",
+                      "group": "all",
+                      "unit": "EUR-thousands"
+                    }
+                  },
+                  {
+                    "label": "Mean",
+                    "dims": {
+                      "statistic": "mean",
+                      "group": "all",
+                      "unit": "EUR-thousands"
+                    }
+                  },
+                  {
+                    "label": "Share of top 10%",
+                    "dims": {
+                      "statistic": "share",
+                      "group": "top10",
+                      "unit": "percent"
+                    }
+                  }
+                ],
+                "decimal": ".",
+                "thousands": null,
+                "markers": {
+                  "-": "not_published"
+                },
+                "flag_suffixes": {
+                  "*": "fewer than 25 observations (as the table's footnote states; verify)"
+                }
+              }
+            ],
+            "frequency": "irregular",
+            "area": {
+              "scheme": "iso3166-1-alpha2",
+              "dimension": "country"
+            },
+            "area_labels": {
+              "DE": "Germany",
+              "ES": "Spain",
+              "FR": "France",
+              "IT": "Italy"
+            },
+            "key_fields": {
+              "indicator": {
+                "dimension": "statistic",
+                "codes": {
+                  "median": {
+                    "code": "median",
+                    "concept": "wealth_median",
+                    "label": "Median household net wealth"
+                  },
+                  "mean": {
+                    "code": "mean",
+                    "concept": "wealth_average",
+                    "label": "Mean household net wealth"
+                  },
+                  "share": {
+                    "code": "share",
+                    "concept": "wealth_share",
+                    "label": "Share of total net wealth"
+                  }
+                }
+              },
+              "wealth_concept": {
+                "fixed": {
+                  "code": "net-wealth",
+                  "label": "Household net wealth: real and financial assets minus liabilities (HFCS definition; verify)"
+                }
+              },
+              "group": {
+                "dimension": "group",
+                "codes": {
+                  "all": "All households",
+                  "top10": "Top 10% of the net wealth distribution"
+                }
+              },
+              "unit": {
+                "dimension": "unit",
+                "codes": {
+                  "EUR-thousands": "EUR thousands (as printed)",
+                  "percent": "percent of total net wealth (as printed)"
+                }
+              },
+              "population": {
+                "fixed": {
+                  "code": "households",
+                  "label": "Households (HFCS)"
+                }
+              },
+              "method": {
+                "fixed": {
+                  "code": "survey-hfcs",
+                  "label": "HFCS survey: weighted, multiply imputed estimates as published"
+                }
+              }
+            },
+            "method_notes": {
+              "survey-hfcs": "HFCS methodological report for the wave (verify)"
+            },
+            "release": {
+              "published_on": "2098-06-15",
+              "label": "HFCS Statistical Tables wave 2096 (fixture declaration)",
+              "edition": "fixture data version"
+            },
+            "definition": {
+              "source_text": "HFCS household net wealth as printed in the declared statistical table (verify)",
+              "methodology_notes": [
+                "Survey reference years differ by country within a wave (verify per wave)",
+                "Standard errors printed below a row are not read"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "ecb-hfcs",
+                "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+                "relation": "documented_in"
+              }
+            ],
+            "scope_notes": [
+              {
+                "relates_to": "wid-wealth-distribution",
+                "statement": "HFCS net wealth is survey-based and per household; WID net personal wealth combines tax, survey, rich-list and national accounts data per equal-split adult (distributional national accounts); they differ in wealth concept, unit of analysis and coverage of the top, and are shown side by side, never merged (verify the publishers' published comparisons)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+                    "note": "HFCS methodological report for the wave (verify)"
+                  }
+                ]
+              },
+              {
+                "relates_to": "ecb-distributional-wealth-accounts",
+                "statement": "DWA start from HFCS distributions and align them to household-sector national accounts and quarterly balances; HFCS tables report the survey's own weighted estimates per wave; their levels and top shares differ by construction and are shown side by side, never merged (verify)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html",
+                    "note": "HFCS methodological report for the wave (verify)"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-wealth-hfcs.json",
+        "sha256": "40b27c6b8ec2053e0e635060391b1707d879d1005005ff5ae6b339679d9ff9f9",
+        "expected_output_hash": "3ff5e4ac77dac67d932de32fc136a1e1db4106e74fb225e7a1200d54eaad87c2"
+      }
+    },
+    {
+      "source_id": "bundesbank-phf-aggregates",
+      "endpoint": "https://www.bundesbank.de",
+      "publisher": "Deutsche Bundesbank, Panel on Household Finances (PHF)",
+      "scope": "Bundesbank Monthly Report data annex PDF on the household wealth survey: the declared rows (mean and median net wealth, top 10% share) of the declared net wealth table for Germany, one column per survey wave as printed, read only at the declared table anchor, row labels and printed columns; 1 PDF, at most 6 tables and 40 cells; survey-based (operator must verify the PDF path, table title, row labels, survey-year columns and number notation)",
+      "license": {
+        "id": "bundesbank-reproduction-with-source",
+        "terms_url": "https://www.bundesbank.de/en/homepage/imprint",
+        "redistribution": "attribution-required (verify)"
+      },
+      "update_cadence": "per survey wave (about every two to three years), published with a Monthly Report article and data annex",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 40,
+        "max_bytes": 20000000,
+        "max_pages": 1
+      },
+      "wealth": {
+        "namespace": "global",
+        "provider": "bundesbank-phf-aggregates",
+        "format": "phf-pdf-tables",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "Bundesbank household wealth survey data annex: net wealth of households in Germany (fixture declaration)",
+            "dataset": "phf-net-wealth-distribution",
+            "pdf_path": "resource/blob/908924/3ef9d9a4eaeae8a8779ccec3ac464970/472B63F073F071307366337C94F8C870/2023-04-vermoegensbefragung-data.pdf",
+            "tables": [
+              {
+                "anchor": "Tabelle 1 Nettovermögen der privaten Haushalte in Deutschland",
+                "columns_are_periods": true,
+                "columns": [
+                  "2093",
+                  "2095",
+                  "2097"
+                ],
+                "rows": [
+                  {
+                    "label": "Mittelwert in Euro",
+                    "dims": {
+                      "statistic": "mean",
+                      "group": "all",
+                      "unit": "EUR"
+                    }
+                  },
+                  {
+                    "label": "Median in Euro",
+                    "dims": {
+                      "statistic": "median",
+                      "group": "all",
+                      "unit": "EUR"
+                    }
+                  },
+                  {
+                    "label": "Anteil der vermögendsten 10 % in %",
+                    "dims": {
+                      "statistic": "share",
+                      "group": "top10",
+                      "unit": "percent"
+                    }
+                  }
+                ],
+                "decimal": ",",
+                "thousands": ".",
+                "markers": {
+                  "-": "not_published"
+                }
+              }
+            ],
+            "frequency": "irregular",
+            "area": {
+              "scheme": "iso3166-1-alpha2",
+              "fixed": "DE"
+            },
+            "area_labels": {
+              "DE": "Germany"
+            },
+            "key_fields": {
+              "indicator": {
+                "dimension": "statistic",
+                "codes": {
+                  "median": {
+                    "code": "median",
+                    "concept": "wealth_median",
+                    "label": "Median household net wealth"
+                  },
+                  "mean": {
+                    "code": "mean",
+                    "concept": "wealth_average",
+                    "label": "Mean household net wealth"
+                  },
+                  "share": {
+                    "code": "share",
+                    "concept": "wealth_share",
+                    "label": "Share of total net wealth"
+                  }
+                }
+              },
+              "wealth_concept": {
+                "fixed": {
+                  "code": "net-wealth",
+                  "label": "Household net wealth (PHF definition; verify)"
+                }
+              },
+              "group": {
+                "dimension": "group",
+                "codes": {
+                  "all": "All households",
+                  "top10": "Wealthiest 10% of households"
+                }
+              },
+              "unit": {
+                "dimension": "unit",
+                "codes": {
+                  "EUR": "euro (as printed)",
+                  "percent": "percent of total net wealth (as printed)"
+                }
+              },
+              "population": {
+                "fixed": {
+                  "code": "households-de",
+                  "label": "Private households in Germany (PHF)"
+                }
+              },
+              "method": {
+                "fixed": {
+                  "code": "survey-phf",
+                  "label": "PHF survey: weighted, multiply imputed estimates as published"
+                }
+              }
+            },
+            "method_notes": {
+              "survey-phf": "PHF methodological documentation (verify)"
+            },
+            "release": {
+              "published_on": "2098-07-20",
+              "label": "Monthly Report data annex 2098-07 (fixture declaration)"
+            },
+            "definition": {
+              "source_text": "PHF household net wealth as printed in the declared data annex table (verify)",
+              "methodology_notes": [
+                "The survey year as printed is the period; fieldwork can span two calendar years (verify)"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "bundesbank-phf",
+                "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+                "relation": "documented_in"
+              }
+            ],
+            "scope_notes": [
+              {
+                "relates_to": "ecb-hfcs-statistical-tables",
+                "statement": "The PHF is Germany's contribution to the HFCS; the Bundesbank's national tables and the ECB's HFCS statistical tables can differ in data version, survey-year labelling and conventions, and are shown side by side, never reconciled (verify)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+                    "note": "PHF documentation (verify)"
+                  }
+                ]
+              },
+              {
+                "relates_to": "wid-wealth-distribution",
+                "statement": "PHF net wealth is survey-based and per household; WID net personal wealth is per equal-split adult from distributional national accounts; they differ in wealth concept, unit of analysis and coverage of the top, and are shown side by side, never merged (verify)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+                    "note": "PHF documentation (verify)"
+                  }
+                ]
+              },
+              {
+                "relates_to": "ecb-distributional-wealth-accounts",
+                "statement": "DWA align HFCS (including PHF) distributions to national accounts; PHF tables report the survey's own weighted estimates; they differ by construction and are shown side by side, never merged (verify)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+                    "note": "PHF documentation (verify)"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-wealth-phf.json",
+        "sha256": "2730819aad5d5bfe3557126ffb6d5aef9169d348430c52f08b1150852f0156f3",
+        "expected_output_hash": "eba3d385e95ca1a297d00e8e128fc18323c8c178c49537e681352ef8e80ba294"
       }
     }
   ]
