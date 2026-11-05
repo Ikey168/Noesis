@@ -51,7 +51,10 @@ companies that share a name never converge.
 | UK Companies House | implemented (`companies-house`) | public data API: profile, officers, PSC, PSC statements, exemptions, filing history | API key (HTTP Basic), `NOESIS_COMPANIES_HOUSE_API_KEY` | documented 600 requests / 5 min; live requests spaced; 429 honoured | `items_per_page`/`start_index` within the page budget | ≤ daily | each JSON response retained as the runtime document with SHA-256 | company number, officer id, PSC id |
 | SEC EDGAR | implemented (`sec-edgar-ownership`) | data.sec.gov submissions and companyfacts; selected Schedule 13D/13G primary documents on www.sec.gov | declared User-Agent contact, `NOESIS_SEC_CONTACT` | fair access: ≤ 10 requests/s; live requests spaced | submissions `recent` block, bounded by `max_filings` | ≤ daily | JSON and XML responses with SHA-256 | CIK, ticker (as listed), LEI when present |
 | Open Ownership BODS | implemented (`bods`) | selected BODS 0.2/0.3 statement files (JSON array or JSON Lines) | none | byte and page budget | statement offset per file | per dataset release, ≤ weekly | the page's statements with the file SHA-256 | statementID, GB-COH, XI-LEI, other org-id schemes |
-| OpenCorporates | reused (#1483 regional provider) | existing provider | API token | per plan | — | — | existing documents | jurisdiction + company number |
+| OpenCorporates | implemented (`opencorporates`, #2887; search stays with the #1483 regional provider) | API v0.4 company lookup for selected registrations, embedded officers | API token, `NOESIS_OPENCORPORATES_API_KEY` | per plan; live requests spaced; 429 honoured | one company per page | ≤ weekly | each JSON response with SHA-256 (token never stored) | jurisdiction + company number; gb-coh / dk-cvr where configured |
+| Companies House PSC snapshot | implemented (bulk `companies-house-psc-snapshot`, #2885) | daily ZIP of JSON lines, filtered to declared company numbers or a prefix | none | bulk quota ledger and run budgets | file by file, resumable | daily | manifest, file digests, filtered subset; per-line SHA-256 on each record | company number, PSC id |
+| Register of Overseas Entities | implemented (`companies-house-roe`, #2886) | public data API with OE numbers: profile, managing officers, registrable beneficial owners, statements | as Companies House | as Companies House | as Companies House | ≤ daily | as Companies House | OE number; foreign registration as stated |
+| HM Land Registry OCOD | not implemented (#2886) | Use land and property data service | account + per-account licence + API key | — | — | monthly | — | title number (no counterpart in geospatial.real-estate) |
 | Handelsregister | not implemented | interactive portal of the federal states | — | portal terms restrict automated and bulk retrieval | — | — | — | register court + HRA/HRB number |
 | Unternehmensregister | not implemented | interactive portal | account for some documents | no API | — | — | — | — |
 | BRIS | not implemented | e-Justice portal search | — | no public third-party API | — | — | — | — |
@@ -109,6 +112,51 @@ skipped. For Handelsregister, Unternehmensregister and BRIS a user-obtained
 official document can be recorded as a registration with its document
 reference and digest (`record_register_document`); nothing is fetched.
 
+### SEC 13F, 13D and 13G holdings (#2883)
+
+The `sec-edgar-holdings` connector (`src/ingestion/ownership_sec_holdings.py`)
+parses explicitly selected Form 13F-HR information tables and XML Schedule
+13D/13G filings and their amendments into `noesis-ownership-record-v2`
+records. v2 is a new contract version and v1 is unchanged.
+
+- A 13F row is a `reported_holding`: the position as reported, with no
+  percentage and no control, so it never enters the parent slots.
+- A schedule cover page gives one `shareholding` per reporting person, with
+  percent of class, voting and dispositive powers and group members as stated.
+- Every assertion carries its `filing` and amendment chain. Amendments are new
+  records on the chain, never overwrites.
+
+The graph queries `holders` and `holdings` (`src/kb/ownership_holdings.py`)
+select the statement in force as of a date and cite each line's accession
+number. Issuers, managers and reporting persons are per-filing records that
+resolve only through reviewable CIK and CUSIP-issuer identity candidates.
+Natural-person reporting persons are owner-scoped unless
+`NOESIS_PERSON_RESEARCH` is on.
+
+Source audit:
+`docs/development/ownership-evidence/sec-holdings-source-audit.md`.
+### Further registers (#2885–#2887)
+
+Audit: `docs/development/ownership-register-audit.md`.
+
+- **PSC snapshot** — `python -m src.ingestion.bulk run companies-house-psc-snapshot --params '{"company_numbers": ["09990002"]}' --sink ownership --namespace ownership --principal <id>` runs the
+  daily snapshot through the same PSC parsers as the API path; records are keyed
+  `companies-house:psc-snapshot...` (company identity stays `companies-house:gb-coh:<number>`), carry the
+  hash of their snapshot line, and become revisions only when an entry changes or ceases. Nothing is deleted.
+- **Register of Overseas Entities** — source `companies-house-roe`; beneficial owners of every kind,
+  managing officers and statements as published (`is_sanctioned` as declared, super-secure owners as a
+  reporting exception, trust-held interests as stated; trust details are not public). OCOD is not
+  implemented, so dossiers list no UK titles.
+- **BODS publishers** — Denmark CVR (`open-ownership-bods-dk`) and Slovakia RPVS (`open-ownership-bods-sk`)
+  each select their own register source (`ownership.publishers`); other implemented sources in a file are
+  counted as `not_selected`. Latvia is recorded as not implemented.
+- **OpenCorporates** — `opencorporates-companies`: aggregator identity and officers; register numbers only
+  for configured jurisdictions, so identity review proposes cross-referenced (never exact) matches.
+- **Natural persons** — individual PSCs, individual beneficial owners and BODS person statements are
+  owner-scoped unless person-research mode (`NOESIS_PERSON_RESEARCH`) is on; addresses are never stored.
+- **Graph** — a band straddling one half (the ROE's "more than 25 percent") is `band-spans-majority` and
+  stays in the parent slot rather than being read as a minority holding.
+
 ## Identity, graph, timeline, dossier (O08–O10)
 
 `OwnershipIdentityService.propose` offers candidates with basis, evidence and
@@ -140,6 +188,111 @@ registration, officers and ownership at a date from the revisions known at a
 record time. `build_dossier` assembles all of this for one identifier. A name
 lookup returns candidates and never picks one. `export_dossier` saves an
 authored report in which every sourced statement cites its record revision.
+
+`estimate_dividend_flows` (#2891) combines stated holdings in this graph with
+the Market pack's declared dividends. Its results are **derived** estimates,
+never reported figures, and each one cites its input revisions, carries an
+interval, and states its method and assumptions. See
+[dividend-flow estimates](dividend-flow-estimates.md).
+## Holding structures (#2890)
+
+`src/kb/ownership_structures.py` adds `StructureClassifications`, which marks
+an ownership entity as a `family_office`, `private_foundation`, `trust`,
+`trustee`, `holding_company` or `special_purpose_vehicle`. It does so only
+where a source states the type.
+
+- **Contract and storage.** Each classification is a
+  `noesis-ownership-structure-classification-v1` record in the
+  `ownership_structure_classifications` table. This is a new contract beside
+  the ownership record contracts; record v1 and v2 are unchanged.
+- **Basis.** The basis is `register-legal-form`, `self-description` or
+  `declared-category`. There is no name basis.
+- **Citation.** A classification cites one of two things:
+  - an ownership record revision plus the dotted field that states the value.
+    The value at that field must equal the stated value, or the proposal is
+    refused with `not_stated`.
+  - an official document (reference, SHA-256, locator and a quote containing
+    the value).
+- **No names.** A citation of a name field is refused with
+  `name_inference_refused`.
+- **Review.** A classification starts `proposed`. Accept and reject need
+  `knowledge:ownership:review` and a reason, and revert undoes either. Every
+  step is kept in the history. Only accepted classifications classify an
+  entity. An entity with none is `unclassified`, and disagreeing accepted
+  types are returned side by side.
+- **Proposals from records.** `propose_from_records` proposes types only
+  from exact `STATED_FORMS` entries, such as the BODS 0.4 arrangement subtype
+  `trust`.
+- **Persons.** `person` records are classified only in person-research mode.
+
+`src/kb/ownership_structure_dossier.py`
+(`noesis-ownership-structure-dossier-v1`) builds one view of a structure. It
+starts from an exact identifier and composes the existing record owners
+section by section, in a registry (`SECTIONS`):
+
+- `classification`
+- `ownership`: up and down, from `OwnershipGraph`
+- `sec_holdings`: `ownership_holdings`
+- `bafin_holdings`: `BafinQueries.holdings_of_holder`
+- `lobbying`: `LobbyingQueries`
+- `political_donations`: `CampaignFinanceLinks` ownership links
+- `public_payments`: `PublicFinanceStore.payments`
+- `competition`: cases and state aid
+- `procurement`: award history of reviewed party links
+- `sanctions`: `SanctionsQueries.statement_as_of`
+- `offshore_leaks`
+
+Nothing is copied into a new store. Each linked section reads the shared
+identity state machine in the other owner's namespace. Only `accepted`
+candidates join; `proposed` ones are listed under `pending`.
+
+Each line must carry a citation (`id`, `namespace`, `record`, `revision`) and
+its `reached_by` basis, or the dossier is refused with `uncited_line`. Each
+section reports one status:
+
+| Status | Meaning |
+| --- | --- |
+| `assembled` | The section has cited lines. |
+| `none_on_record` | Nothing is linked. This does not mean nothing exists. |
+| `inert` | The owning optional feature is not selected. |
+| `not_available` | No provider is installed. |
+| `not_requested` | No namespace was given for the section. |
+| Owner's refusal code | The owner refused, for example `unauthorized`. |
+
+Amounts are never summed across rows or sources, and the competition
+owner's computed totals are left out. `forbidden_keys` refuses influence
+scores, wrongdoing verdicts, risk ratings and cross-source totals. A dossier
+for a natural person needs person-research mode.
+
+`export_structure_bundle` writes a `noesis-evidence-bundle-v1` with these
+objects:
+
+- the dossier, as the root receipt;
+- one claim per section;
+- one evidence object per cited revision, with `locator.cited` set.
+
+Sections that are not assembled are bundle omissions, so verification
+reports `incomplete`. A tampered dossier fails its hash check, and ownership
+citations are re-read at their pinned revision.
+
+The `offshore_leaks` section imports its provider lazily from
+`src.kb.offshore_leaks_links:structure_section` (#2888). It reads the ICIJ
+records joined to the structure through accepted identity decisions, cites
+each line to its record revision, leak dataset and node id with ICIJ's caveat,
+and is `inert` while the `offshore-leaks` feature is off. `register_section`
+installs a different provider explicitly.
+
+Tools (gated by the bundle's enablement):
+
+- `propose_ownership_structure_classification`
+- `propose_ownership_structure_classifications_from_records`
+- `review_ownership_structure_classification`
+- `revert_ownership_structure_classification`
+- `list_ownership_structure_classifications`
+- `build_ownership_structure_dossier`
+- `export_ownership_structure_dossier`
+
+The `ownership.core` descriptor binds them under `ownership.dossier`.
 
 ## Composition (O11)
 

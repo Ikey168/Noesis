@@ -33,3 +33,5 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -q tests/unit/domains/test_market_action
 ```
 
 No authorized live vendor action sample has been evaluated. Provider-specific event completeness, adjustment conventions and corrections remain gated on #1655 and #1658.
+
+Confirmed and corrected `cash_dividend` actions are also the declared-dividend input of the derived [dividend-flow estimates](../subsystems/dividend-flow-estimates.md) (#2891). Those estimates read the actions only and never present an estimate as a reported figure.

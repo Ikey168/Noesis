@@ -17,6 +17,7 @@
       },
       "operations": [
         "holders-as-of",
+        "holdings-of-holder",
         "managers-transactions",
         "net-short-positions",
         "warnings-for-entity",
@@ -27,8 +28,8 @@
       "semantic_constraints": {
         "as_of": "only notices published by the as-of cutoff (end of day, UTC) and acquired by the acquisition cutoff: the Market public_and_acquired policy",
         "corrections": "a correction supersedes the notice it corrects; queries show one notice per correction chain and earlier revisions stay in history",
-        "holdings": "percentages kept with their WpHG basis (§ 33, § 38, § 39) and never summed across notifiers; positions below a publication threshold are never inferred",
-        "identity": "issuers by ISIN and LEI; notifiers, holders, short sellers and managers are source strings with reviewable matches; natural persons only within the issuer context",
+        "holdings": "percentages kept with their WpHG basis (§ 33, § 38, § 39) and never summed across notifiers, issuers or bases; positions below a publication threshold are never inferred",
+        "identity": "issuers by ISIN and LEI; notifiers, holders, short sellers and managers are source strings with reviewable matches; natural persons only within the issuer context, except that in person-research mode accepted, unreverted identity decisions join a person's holdings across issuers; proposed candidates are never joined",
         "composition": "voting-rights notifications project through the Corporate Ownership record owner (ownership.records) as voting_rights control assertions the ownership graph reads; the corporate-ownership bafin-voting-rights feature binds this provider for that projection, and holders are keyed only through reviewed ownership.identity matches",
         "exclusions": "no investment advice, signals, trading recommendations or insider-sentiment scores"
       }
@@ -38,6 +39,21 @@
     {
       "id": "holders-as-of",
       "tool": "noesis-knowledge-engine.bafin_holders_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "holdings-of-holder",
+      "tool": "noesis-knowledge-engine.bafin_holdings_of_holder",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true

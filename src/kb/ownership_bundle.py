@@ -53,12 +53,31 @@ BUNDLE = {
                          "tools": ["propose_ownership_identity_matches", "review_ownership_identity_match",
                                    "revert_ownership_identity_match", "list_ownership_identity_candidates"]},
             "graph_and_timeline": {"tools": ["ownership_graph", "ownership_timeline", "ownership_state_as_of"]},
+            # Derived dividend-flow estimates along stated holdings (#2891): reads, never writes, Market inputs.
+            "dividend_flows": {"reuses": ["MarketCorporateActionStore", "MarketFinancialFactStore",
+                                          "MarketInstrumentStore"], "tools": ["estimate_dividend_flows"]},
             "dossier": {"reuses": ["AuthoredReportStore"], "tools": ["build_ownership_dossier", "export_ownership_dossier"]},
+            # Holding structures (#2890): stated classification plus a dossier composing the other record owners.
+            "structures": {"reuses": ["OwnershipGraph", "LobbyingQueries", "CampaignFinanceLinks", "PublicFinanceStore",
+                                      "competition_queries", "ProcurementIdentityService", "SanctionsQueries",
+                                      "BafinQueries", "EvidenceBundleBuilder"],
+                           "tools": ["propose_ownership_structure_classification",
+                                     "propose_ownership_structure_classifications_from_records",
+                                     "review_ownership_structure_classification",
+                                     "revert_ownership_structure_classification",
+                                     "list_ownership_structure_classifications",
+                                     "build_ownership_structure_dossier", "export_ownership_structure_dossier"]},
             # Optional competition feature (#2217, default off): cases, stages and state aid naming a company.
             "competition": {"feature": "competition", "tools": ["lookup_competition_cases",
                                                                 "competition_case_history",
                                                                 "state_aid_awards_for_beneficiary",
                                                                 "build_competition_dossier"]},
+            # Optional offshore-leaks feature (#2888, default off): ICIJ Offshore Leaks links, quoted with caveat.
+            "offshore_leaks": {"feature": "offshore-leaks", "tools": [],
+                               "reuses": ["bulk-release runner (icij-offshore-leaks)", "ownership dossier"],
+                               "functions": ["src.kb.offshore_leaks.project_bulk_subset",
+                                             "src.kb.offshore_leaks.propose_identity",
+                                             "src.kb.offshore_leaks.build_dossier_with_offshore_leaks"]},
         },
     },
     "never": ["infer beneficial ownership", "make sanctions or AML determinations",
@@ -189,6 +208,11 @@ def acquire(conn, namespace: str, *, run_key: str, principal_id: str, scopes: It
     manifest, _ = runtime._manifest(SOURCE_PACK_ID)
     selected = [s for s in manifest["sources"] if (s["source_id"] in source_ids if source_ids else
                                                    s["connector"] != "competition" or _competition_on(conn))]
+    if not source_ids:
+        # Optional offshore-leaks feature (#2888, default off): ICIJ extracts run only when it is selected.
+        from src.kb.offshore_leaks import feature_enabled as _offshore_leaks_on
+
+        selected = [s for s in selected if s["connector"] != "icij-offshore-leaks" or _offshore_leaks_on(conn)]
     if any(dict(s.get("ownership") or {}).get("namespace", namespace) != namespace for s in selected):
         raise OwnershipError("invalid_request", "the installed source pack projects into a different namespace")
     receipts = {}

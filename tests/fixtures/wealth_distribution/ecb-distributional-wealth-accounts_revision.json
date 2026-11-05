@@ -1,0 +1,124 @@
+{
+ "note": "authored synthetic revision (reference periods 2093-2098, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "ECB Distributional Wealth Accounts: household net wealth shares (top 10%, bottom 50%) and median, Germany and France",
+   "dataset": "DWA",
+   "key": "Q.DE+FR.S14.N.LE.NWA.D10+B50+_Z.PT+EUR_MD.S.N",
+   "params": {
+    "startPeriod": "2096-Q1"
+   },
+   "dimension_columns": [
+    "FREQ",
+    "REF_AREA",
+    "REF_SECTOR",
+    "ACCOUNTING_ENTRY",
+    "STO",
+    "INSTR_ASSET",
+    "DWA_GRP",
+    "UNIT_MEASURE",
+    "DWA_EST",
+    "DWA_COMP"
+   ],
+   "frequency": "quarterly",
+   "area": {
+    "scheme": "iso3166-1-alpha2",
+    "dimension": "REF_AREA"
+   },
+   "area_labels": {
+    "DE": "Germany",
+    "FR": "France"
+   },
+   "key_fields": {
+    "indicator": {
+     "dimension": "UNIT_MEASURE",
+     "codes": {
+      "PT": {
+       "concept": "wealth_share",
+       "label": "Share of total household net wealth (verify)"
+      },
+      "EUR_MD": {
+       "concept": "wealth_median",
+       "label": "Median household net wealth (verify)"
+      }
+     }
+    },
+    "wealth_concept": {
+     "dimension": "INSTR_ASSET",
+     "codes": {
+      "NWA": "Net wealth (verify)"
+     }
+    },
+    "group": {
+     "dimension": "DWA_GRP",
+     "codes": {
+      "D10": "Top 10% (decile 10)",
+      "B50": "Bottom 50%",
+      "_Z": "All households (median)"
+     }
+    },
+    "unit": {
+     "dimension": "UNIT_MEASURE",
+     "codes": {
+      "PT": "percent of total (verify)",
+      "EUR_MD": "euro, median (verify)"
+     }
+    },
+    "population": {
+     "fixed": {
+      "code": "S14",
+      "label": "households (sector S14)"
+     }
+    },
+    "method": {
+     "fixed": {
+      "code": "model-based-dwa",
+      "label": "HFCS distributions aligned to household-sector national accounts, experimental statistics (model-based)"
+     }
+    }
+   },
+   "method_notes": {
+    "model-based-dwa": "Distributional Wealth Accounts: experimental statistics combining the HFCS with quarterly financial and non-financial accounts (verify)"
+   },
+   "scope_notes": [
+    {
+     "relates_to": "wid-wealth-distribution",
+     "statement": "DWA household net wealth (HFCS distributions aligned to household-sector national accounts, per household) and WID net personal wealth (distributional national accounts, per equal-split adult) differ in wealth concept and unit of analysis; their top shares are shown side by side, never merged (verify the publishers' published comparisons)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://data.ecb.europa.eu/methodology/distributional-wealth-accounts",
+       "note": "DWA methodological note (verify)"
+      }
+     ]
+    }
+   ],
+   "release": {
+    "published_on": "2099-01-12",
+    "label": "DWA release 2099-01 (fixture declaration)"
+   },
+   "definition": {
+    "source_text": "ECB DWA household net wealth by wealth group (verify)",
+    "methodology_notes": [
+     "OBS_STATUS and OBS_CONF are kept verbatim; C is a status, never a value"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "ecb-dwa",
+     "url": "https://data.ecb.europa.eu/data/datasets/DWA/data-information",
+     "relation": "documented_in"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/service/data/DWA/Q.DE+FR.S14.N.LE.NWA.D10+B50+_Z.PT+EUR_MD.S.N?format=csvdata&startPeriod=2096-Q1",
+   "status": 200,
+   "body": "KEY,FREQ,REF_AREA,REF_SECTOR,ACCOUNTING_ENTRY,STO,INSTR_ASSET,DWA_GRP,UNIT_MEASURE,DWA_EST,DWA_COMP,TIME_PERIOD,OBS_VALUE,OBS_STATUS,OBS_CONF,TITLE\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2096-Q1,55.0,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2096-Q2,55.1,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2096-Q3,55.2,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2096-Q4,55.3,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2097-Q1,55.4,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2097-Q2,55.5,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2097-Q3,55.6,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2097-Q4,55.8,A,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.D10.PT.S.N,Q,DE,S14,N,LE,NWA,D10,PT,S,N,2098-Q1,55.8,E,F,Net wealth share top 10% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2096-Q1,3.0,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2096-Q2,3.1,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2096-Q3,3.2,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2096-Q4,3.3,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2097-Q1,3.4,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2097-Q2,3.5,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2097-Q3,3.6,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2097-Q4,3.8,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA.B50.PT.S.N,Q,DE,S14,N,LE,NWA,B50,PT,S,N,2098-Q1,3.8,E,F,Net wealth share bottom 50% (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2096-Q1,101000,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2096-Q2,101250,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2096-Q3,101500,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2096-Q4,101750,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2097-Q1,102000,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2097-Q2,102250,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2097-Q3,102625,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2097-Q4,102875,A,F,Median net wealth (fixture)\nDWA.Q.DE.S14.N.LE.NWA._Z.EUR_MD.S.N,Q,DE,S14,N,LE,NWA,_Z,EUR_MD,S,N,2098-Q1,103000,E,F,Median net wealth (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2096-Q1,58.0,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2096-Q2,58.1,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2096-Q3,58.2,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2096-Q4,58.3,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2097-Q1,58.4,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2097-Q2,58.5,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2097-Q3,58.6,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2097-Q4,58.8,A,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.D10.PT.S.N,Q,FR,S14,N,LE,NWA,D10,PT,S,N,2098-Q1,58.8,E,F,Net wealth share top 10% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2096-Q1,6.0,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2096-Q2,6.1,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2096-Q3,6.2,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2096-Q4,6.3,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2097-Q1,6.4,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2097-Q2,6.5,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2097-Q3,6.6,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2097-Q4,6.8,A,F,Net wealth share bottom 50% (fixture)\nDWA.Q.FR.S14.N.LE.NWA.B50.PT.S.N,Q,FR,S14,N,LE,NWA,B50,PT,S,N,2098-Q1,6.8,E,F,Net wealth share bottom 50% (fixture)\n"
+  }
+ ]
+}

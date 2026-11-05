@@ -34,6 +34,7 @@ import json
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.ingestion.campaign_finance_sources import LIVE_VERIFICATION
 from src.kb.campaign_finance_queries import CampaignFinanceQueries, resolve_committee
 from src.kb.campaign_finance_records import (
@@ -138,8 +139,8 @@ class CampaignFinanceMonitor:
                  ) -> tuple[dict[str, Any], int]:
         items, withheld = [], 0
         for row in self._rows(subscription, principal_id, scopes):
-            if row["individual"] and row["record_kind"] == "contribution":
-                continue  # never notified (CF01)
+            if row["individual"] and row["record_kind"] == "contribution" and not person_research_enabled():
+                continue  # never notified (CF01) outside person-research mode
             if not notifiable(row):
                 withheld += 1
                 continue

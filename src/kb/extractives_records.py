@@ -109,7 +109,10 @@ def check_minimised(record: dict[str, Any]) -> None:
     if found:
         raise ExtractivesError("personal_data_refused", "records carry no personal fields under the minimisation "
                                "decision", paths=found)
-    if record.get("natural_person") and (record.get("name_as_published") != WITHHELD_NAME or record.get("identifiers")):
+    from src.config.env import person_research_enabled
+
+    if (record.get("natural_person") and not person_research_enabled()
+            and (record.get("name_as_published") != WITHHELD_NAME or record.get("identifiers"))):
         raise ExtractivesError("personal_data_refused", "an individual payer's name and identifiers are withheld")
     if forbidden_keys(record):
         raise ExtractivesError("invalid_release", "records carry no reconciliation beyond the report, own estimate, "

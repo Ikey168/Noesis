@@ -17,6 +17,7 @@ from src.ingestion.bulk.base import BulkAdapter
 ADAPTERS: Dict[str, str] = {
     "bls-flat-files": "src.ingestion.bulk.adapters.bls:BlsFlatFiles",
     "companies-house-snapshot": "src.ingestion.bulk.adapters.companies_house:CompaniesHouseSnapshot",
+    "companies-house-psc-snapshot": "src.ingestion.bulk.adapters.companies_house_psc:CompaniesHousePscSnapshot",
     "eia-bulk": "src.ingestion.bulk.adapters.eia:EiaBulk",
     "ember-generation": "src.ingestion.bulk.adapters.ember:EmberGeneration",
     "fas-psd": "src.ingestion.bulk.adapters.fas_psd:FasPsd",
@@ -28,6 +29,7 @@ ADAPTERS: Dict[str, str] = {
     "pubmed-baseline": "src.ingestion.bulk.adapters.pubmed_baseline:PubMedBaseline",
     "s2-datasets": "src.ingestion.bulk.adapters.s2_datasets:SemanticScholarDatasets",
     "openaq-archive": "src.ingestion.bulk.adapters.openaq_archive:OpenAqArchive",
+    "icij-offshore-leaks": "src.ingestion.bulk.adapters.icij_offshore_leaks:IcijOffshoreLeaks",
 }
 
 

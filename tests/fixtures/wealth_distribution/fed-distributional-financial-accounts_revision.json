@@ -1,0 +1,97 @@
+{
+ "note": "authored synthetic revision (reference periods 2093-2098, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "Federal Reserve Distributional Financial Accounts: net worth shares by wealth percentile group, United States",
+   "dataset": "dfa-networth-shares",
+   "archive_path": "releases/z1/dataviz/download/zips/dfa.zip",
+   "member": "dfa-networth-shares.csv",
+   "value_columns": [
+    "Net worth"
+   ],
+   "start_period": "2096-Q1",
+   "frequency": "quarterly",
+   "area": {
+    "scheme": "iso3166-1-alpha2",
+    "fixed": "US"
+   },
+   "area_labels": {
+    "US": "United States"
+   },
+   "key_fields": {
+    "indicator": {
+     "fixed": {
+      "code": "share",
+      "concept": "wealth_share",
+      "label": "Share of the aggregate"
+     }
+    },
+    "wealth_concept": {
+     "dimension": "column",
+     "codes": {
+      "Net worth": "Household net worth (verify)"
+     }
+    },
+    "group": {
+     "dimension": "Category",
+     "codes": {
+      "TopPt1": "Top 0.1%",
+      "RemainingTop1": "99th to 99.9th percentile",
+      "Next9": "90th to 99th percentile",
+      "Next40": "50th to 90th percentile",
+      "Bottom50": "Bottom 50%"
+     }
+    },
+    "unit": {
+     "fixed": {
+      "code": "PT",
+      "label": "percent of the aggregate (verify)"
+     }
+    },
+    "population": {
+     "fixed": {
+      "code": "US-households",
+      "label": "US households"
+     }
+    },
+    "method": {
+     "fixed": {
+      "code": "model-based-dfa",
+      "label": "SCF distributed onto the Financial Accounts (Z.1), interpolated between survey years (model-based)"
+     }
+    }
+   },
+   "method_notes": {
+    "model-based-dfa": "Distributional Financial Accounts methodology (verify)"
+   },
+   "release": {
+    "published_on": "2099-03-22",
+    "label": "DFA with Z.1 2099-03 (fixture declaration)"
+   },
+   "definition": {
+    "source_text": "DFA net worth held by each wealth percentile group as a share of the aggregate (verify)",
+    "methodology_notes": [
+     "Quarters between triennial SCF waves are the Board's model-based estimates"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "fed-dfa",
+     "url": "https://www.federalreserve.gov/releases/efa/efa-distributional-financial-accounts.htm",
+     "relation": "documented_in"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/releases/z1/dataviz/download/zips/dfa.zip",
+   "status": 200,
+   "body_zip": {
+    "dfa-networth-shares.csv": "Date,Category,Net worth,Assets\n2095:Q4,TopPt1,13.50,14.50\n2095:Q4,RemainingTop1,17.50,18.50\n2095:Q4,Next9,36.00,37.00\n2095:Q4,Next40,30.50,31.50\n2095:Q4,Bottom50,2.50,3.50\n2096:Q1,TopPt1,13.60,14.50\n2096:Q1,RemainingTop1,17.45,18.50\n2096:Q1,Next9,36.10,37.00\n2096:Q1,Next40,30.45,31.50\n2096:Q1,Bottom50,2.45,3.50\n2096:Q2,TopPt1,13.70,14.50\n2096:Q2,RemainingTop1,17.40,18.50\n2096:Q2,Next9,36.20,37.00\n2096:Q2,Next40,30.40,31.50\n2096:Q2,Bottom50,2.40,3.50\n2096:Q3,TopPt1,13.80,14.50\n2096:Q3,RemainingTop1,17.35,18.50\n2096:Q3,Next9,36.30,37.00\n2096:Q3,Next40,30.35,31.50\n2096:Q3,Bottom50,2.35,3.50\n2096:Q4,TopPt1,13.90,14.50\n2096:Q4,RemainingTop1,17.30,18.50\n2096:Q4,Next9,36.40,37.00\n2096:Q4,Next40,30.30,31.50\n2096:Q4,Bottom50,2.30,3.50\n2097:Q1,TopPt1,14.20,14.50\n2097:Q1,RemainingTop1,17.20,18.50\n2097:Q1,Next9,36.45,37.00\n2097:Q1,Next40,30.20,31.50\n2097:Q1,Bottom50,2.20,3.50\n2097:Q2,TopPt1,14.30,14.50\n2097:Q2,RemainingTop1,17.15,18.50\n2097:Q2,Next9,36.55,37.00\n2097:Q2,Next40,30.15,31.50\n2097:Q2,Bottom50,2.15,3.50\n2097:Q3,TopPt1,14.40,14.50\n2097:Q3,RemainingTop1,17.10,18.50\n2097:Q3,Next9,36.65,37.00\n2097:Q3,Next40,30.10,31.50\n2097:Q3,Bottom50,2.10,3.50\n2097:Q4,TopPt1,14.50,14.50\n2097:Q4,RemainingTop1,17.05,18.50\n2097:Q4,Next9,36.75,37.00\n2097:Q4,Next40,30.05,31.50\n2097:Q4,Bottom50,2.05,3.50\n2098:Q1,TopPt1,14.40,14.50\n2098:Q1,RemainingTop1,17.05,18.50\n2098:Q1,Next9,36.90,37.00\n2098:Q1,Next40,30.05,31.50\n2098:Q1,Bottom50,2.05,3.50\n"
+   }
+  }
+ ]
+}

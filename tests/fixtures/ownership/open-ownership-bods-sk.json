@@ -1,0 +1,274 @@
+{
+ "authored": true,
+ "provider": "Open Ownership (BODS 0.2 statements, Slovak RPVS)",
+ "note": "Authored BODS 0.2 statements for fictional Slovak, Danish and Norwegian companies and a fictional person, shaped like Open Ownership's republication of the Slovak public sector partners register. Its statement about the Danish company's earlier holder conflicts with the Danish register and is kept beside it.",
+ "scenarios": [
+  "publisher-own-source",
+  "cross-jurisdiction-holder",
+  "conflict-with-other-publisher",
+  "person-owner-scoped"
+ ],
+ "native_pages": [
+  {
+   "request": "/fixtures/exampla/sk-rpvs-statements.json",
+   "body": [
+    {
+     "statementID": "oo-fixture-sk-ent-1",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "Príklad s.r.o. (fictional)",
+     "incorporatedInJurisdiction": {
+      "name": "Slovakia",
+      "code": "SK"
+     },
+     "identifiers": [
+      {
+       "scheme": "SK-ORSR",
+       "id": "99990021"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-ent-dk",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "Eksempel Holding ApS (fictional)",
+     "incorporatedInJurisdiction": {
+      "name": "Denmark",
+      "code": "DK"
+     },
+     "identifiers": [
+      {
+       "scheme": "DK-CVR",
+       "id": "99990011"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-ent-nw",
+     "statementType": "entityStatement",
+     "statementDate": "2026-10-01",
+     "entityType": "registeredEntity",
+     "name": "Northwind Nordic AS (fictional)",
+     "incorporatedInJurisdiction": {
+      "name": "Norway",
+      "code": "NO"
+     },
+     "identifiers": [
+      {
+       "scheme": "NO-BRC",
+       "id": "999900031"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-per-1",
+     "statementType": "personStatement",
+     "statementDate": "2026-10-01",
+     "personType": "knownPerson",
+     "names": [
+      {
+       "type": "individual",
+       "fullName": "Ján Príklad (fictional)"
+      }
+     ],
+     "nationalities": [
+      {
+       "code": "SK"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-ooc-1",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2026-10-01",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-sk-ent-1"
+     },
+     "interestedParty": {
+      "describedByEntityStatement": "oo-fixture-sk-ent-dk"
+     },
+     "interests": [
+      {
+       "type": "shareholding",
+       "interestLevel": "direct",
+       "beneficialOwnershipOrControl": false,
+       "share": {
+        "exact": 60
+       },
+       "startDate": "2021-05-01"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-ooc-2",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2026-10-01",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-sk-ent-1"
+     },
+     "interestedParty": {
+      "describedByPersonStatement": "oo-fixture-sk-per-1"
+     },
+     "interests": [
+      {
+       "type": "shareholding",
+       "interestLevel": "indirect",
+       "beneficialOwnershipOrControl": true,
+       "share": {
+        "minimum": 25,
+        "maximum": 50
+       },
+       "startDate": "2021-05-01"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    },
+    {
+     "statementID": "oo-fixture-sk-ooc-3",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2026-10-01",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-sk-ent-dk"
+     },
+     "interestedParty": {
+      "describedByEntityStatement": "oo-fixture-sk-ent-nw"
+     },
+     "interests": [
+      {
+       "type": "shareholding",
+       "interestLevel": "direct",
+       "beneficialOwnershipOrControl": false,
+       "share": {
+        "minimum": 75,
+        "maximum": 100
+       },
+       "startDate": "2018-01-01",
+       "endDate": "2019-06-30"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2026-10-02",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)",
+      "url": "https://rpvs.gov.sk/",
+      "retrievedAt": "2026-10-01"
+     }
+    }
+   ]
+  }
+ ]
+}

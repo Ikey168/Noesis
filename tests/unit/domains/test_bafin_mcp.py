@@ -27,6 +27,7 @@ NAMESPACE_SCOPES = {
 }
 REQUIRED = {
     "bafin_holders_as_of",
+    "bafin_holdings_of_holder",
     "bafin_managers_transactions",
     "bafin_net_short_positions",
     "bafin_warnings_for_entity",
@@ -34,6 +35,11 @@ REQUIRED = {
 }
 READS = {
     "bafin_holders_as_of": {"namespace": h.NS, "isin": h.ISSUER, "as_of": "2026-04-14"},
+    "bafin_holdings_of_holder": {
+        "namespace": h.NS,
+        "name": "Fiktiva Holding SE",
+        "as_of": "2026-04-14",
+    },
     "bafin_managers_transactions": {
         "namespace": h.NS,
         "isin": h.ISSUER,
@@ -186,6 +192,19 @@ def test_reads_answer_on_a_read_only_connection_with_exactly_the_declared_scopes
         "VR-2026-0007",
         "VR-2026-0009",
     ]
+    state["scopes"] = declared("bafin_holdings_of_holder") | NAMESPACE_SCOPES
+    holdings = tools["bafin_holdings_of_holder"].fn(
+        **READS["bafin_holdings_of_holder"], export_bundle=True
+    )
+    assert [g["issuer_key"] for g in holdings["answer"]["issuers"]] == [h.ISSUER]
+    assert holdings["answer"]["pins"] == {
+        answer["holders"][0]["notice_id"]: answer["holders"][0]["revision_id"]
+    }
+    assert holdings["bundle"]["contract"] == "noesis-evidence-bundle-v1"
+    refused = tools["bafin_holdings_of_holder"].fn(
+        namespace=h.NS, as_of="2026-04-14", name="x", party="bafin:party:x"
+    )
+    assert refused["ok"] is False and refused["error"]["code"] == "invalid_request"
     notice_id = answer["holders"][0]["notice_id"]
     state["scopes"] = declared("inspect_bafin_notice") | NAMESPACE_SCOPES
     inspected = tools["inspect_bafin_notice"].fn(namespace=h.NS, notice_id=notice_id)
@@ -285,6 +304,19 @@ def test_writes_work_with_exactly_the_declared_scopes(mcp_env):
     }
     state["scopes"] = declared("propose_bafin_identity_link") | NAMESPACE_SCOPES
     assert tools["propose_bafin_identity_link"].fn(**link).get("ok", True) is not False
+    # Attribute evidence beside the name upgrades the pending candidate beyond similar-name.
+    attributed = tools["propose_bafin_identity_link"].fn(
+        **link,
+        attributes=[{"kind": "context", "value": "identity theft", "source": "rss"}],
+    )
+    assert attributed["change"] == "upgraded"
+    state["scopes"] = declared("list_bafin_identity_candidates") | NAMESPACE_SCOPES
+    listed = tools["list_bafin_identity_candidates"].fn(
+        namespace=h.NS, party="bafin:named:fiktiva invest"
+    )["candidates"]
+    assert {
+        c["basis"] for c in listed if c["candidate_id"] == attributed["candidate_id"]
+    } == {"name-jurisdiction"}
     subscription_id = results["create_bafin_notice_monitor"]["subscription_id"]
     for scope in sorted(declared("run_bafin_notice_monitor")):
         state["scopes"] = (

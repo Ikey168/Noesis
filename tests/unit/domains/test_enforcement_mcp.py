@@ -50,7 +50,7 @@ def test_tool_descriptions_declare_the_exclusions():
     for name in ("enforcement_actions_for_entity", "enforcement_actions_by_authority"):
         text = tools[name].description.lower()
         assert "no risk or compliance scoring" in text or "no ranking, scoring" in text
-    assert "individuals are never proposed" in " ".join(tools["propose_enforcement_identity_matches"].description.split())
+    assert "only in person-research mode" in " ".join(tools["propose_enforcement_identity_matches"].description.split())
 
 
 def test_outputs_pass_the_minimisation_guard_and_carry_the_exclusions():

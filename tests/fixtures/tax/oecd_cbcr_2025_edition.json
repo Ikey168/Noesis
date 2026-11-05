@@ -1,0 +1,86 @@
+{
+ "documents": [
+  {
+   "columns": {
+    "confidentiality": "CONF_STATUS",
+    "counterpart": "COUNTERPART_AREA",
+    "indicator": "MEASURE",
+    "jurisdiction": "REF_AREA",
+    "obs_value": "OBS_VALUE",
+    "period": "TIME_PERIOD",
+    "status": "OBS_STATUS",
+    "unit": "UNIT_MEASURE",
+    "unit_mult": "UNIT_MULT"
+   },
+   "counterparts": {
+    "DOM": "domestic sub-group (verify code)",
+    "FOR": "foreign sub-groups (verify code)",
+    "_T": "all sub-groups (total, verify code)"
+   },
+   "dataset": "DSD_CBCR@DF_CBCRI",
+   "definition": {
+    "caveats": [
+     "profit before income tax may include intra-group dividends (double counting); verify the edition's caveats",
+     "accounting standards differ between groups and jurisdictions",
+     "cells are suppressed for confidentiality where few groups report"
+    ],
+    "notes": [
+     "parent jurisdiction is the jurisdiction of the ultimate parent entity; partner groupings split the domestic and foreign sub-groups (verify)",
+     "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+    ],
+    "source_text": "Anonymised and aggregated country-by-country reporting statistics of multinational enterprise groups by ultimate parent jurisdiction, as the OECD compiles them (verify)"
+   },
+   "indicators": {
+    "EMP": {
+     "concept": "employees",
+     "label": "Number of employees"
+    },
+    "ITA": {
+     "concept": "income_tax_accrued",
+     "label": "Income tax accrued (current year)"
+    },
+    "PBT": {
+     "concept": "profit_before_income_tax",
+     "label": "Profit (loss) before income tax"
+    }
+   },
+   "jurisdiction_scheme": "iso3166-alpha3",
+   "jurisdictions": {
+    "DEU": "Germany",
+    "NLD": "Netherlands"
+   },
+   "label": "OECD Corporate Tax Statistics, CbCR table I (aggregate totals by parent jurisdiction): Germany and Netherlands, Corporate Tax Statistics 2025 edition (authored fixture)",
+   "period": {
+    "end": "2093",
+    "start": "2091"
+   },
+   "references": [
+    {
+     "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+     "kind": "dataset-page"
+    }
+   ],
+   "release": {
+    "edition": "Corporate Tax Statistics 2025 edition (authored fixture)",
+    "label": "Corporate Tax Statistics 2025 edition (authored fixture), declared by the operator (verify the publication date)",
+    "published_on": "2025-07-15"
+   },
+   "units": {
+    "PS": "persons",
+    "USD": "US dollars"
+   },
+   "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1/DEU+NLD..?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091"
+  }
+ ],
+ "native_pages": [
+  {
+   "body": "STRUCTURE,STRUCTURE_ID,ACTION,REF_AREA,COUNTERPART_AREA,MEASURE,UNIT_MEASURE,UNIT_MULT,TIME_PERIOD,OBS_VALUE,OBS_STATUS,CONF_STATUS\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,EMP,PS,0,2091,2400100,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,EMP,PS,0,2092,2389000,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,EMP,PS,0,2093,2401100,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,ITA,USD,6,2091,40100.2,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,ITA,USD,6,2092,38800.0,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,ITA,USD,6,2093,40501.2,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,PBT,USD,6,2091,250100.0,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,PBT,USD,6,2092,241200.5,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,DOM,PBT,USD,6,2093,255102.0,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,EMP,PS,0,2091,2723300,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,EMP,PS,0,2092,2709700,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,EMP,PS,0,2093,2724300,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,ITA,USD,6,2091,21100.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,ITA,USD,6,2092,21076.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,ITA,USD,6,2093,21311.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,PBT,USD,6,2091,162245.6,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,PBT,USD,6,2092,157564.9,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,FOR,PBT,USD,6,2093,165490.5,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,EMP,PS,0,2091,5123400,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,EMP,PS,0,2092,5098700,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,EMP,PS,0,2093,5124400,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,ITA,USD,6,2091,61200.3,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,ITA,USD,6,2092,59876.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,ITA,USD,6,2093,61812.3,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,PBT,USD,6,2091,412345.6,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,PBT,USD,6,2092,399001.2,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,DEU,_T,PBT,USD,6,2093,420592.5,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,EMP,PS,0,2091,300100,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,EMP,PS,0,2092,301200,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,EMP,PS,0,2093,301100,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,ITA,USD,6,2091,6100.0,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,ITA,USD,6,2092,6400.5,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,ITA,USD,6,2093,6161.0,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,PBT,USD,6,2091,30200.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,PBT,USD,6,2092,31100.2,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,DOM,PBT,USD,6,2093,30804.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,ITA,USD,6,2091,6245.6,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,ITA,USD,6,2092,,A,C\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,ITA,USD,6,2093,6308.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,PBT,USD,6,2091,68565.3,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,PBT,USD,6,2092,70134.3,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,FOR,PBT,USD,6,2093,69936.6,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,EMP,PS,0,2091,1210000,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,EMP,PS,0,2092,1225000,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,EMP,PS,0,2093,1211000,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,ITA,USD,6,2091,12345.6,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,ITA,USD,6,2092,12999.9,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,ITA,USD,6,2093,12469.1,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,PBT,USD,6,2091,98765.4,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,PBT,USD,6,2092,101234.5,A,F\nDATAFLOW,OECD.CTP.TPS:DSD_CBCR@DF_CBCRI(1.1),I,NLD,_T,PBT,USD,6,2093,100740.7,A,F\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/public/rest/data/OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1/DEU+NLD..?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091",
+   "status": 200
+  }
+ ],
+ "note": "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+}

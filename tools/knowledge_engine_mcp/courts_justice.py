@@ -8,7 +8,8 @@ Court coverage is the optional ``courts`` feature and statistics the optional
 ``justice-statistics`` feature.
 
 Exclusions: no personal profiles of private individuals (natural persons are
-pseudonymised and never a query key or monitor target), no recidivism or risk
+pseudonymised and never a query key or monitor target unless person-research
+mode, NOESIS_PERSON_RESEARCH, is on), no recidivism or risk
 scoring, no neighbourhood safety ratings, no rankings of places, no derived
 win/loss labels or outcome predictions, and no legal advice.
 """
@@ -155,7 +156,8 @@ def register(mcp, safe, context):
     @mcp.tool()
     def docket_as_of(namespace: str, record_key: str, as_of: str | None = None) -> dict:
         """One docket's revision current at a date: entries filed by then (verbatim, documents linked), parties
-        minimised (organisations by name, natural persons pseudonymised) and the cited revision."""
+        minimised (organisations by name, natural persons pseudonymised unless person-research mode is on) and the
+        cited revision."""
         def run(conn):
             from src.kb.courts_justice import READ_SCOPE, authorize
 
@@ -220,7 +222,8 @@ def register(mcp, safe, context):
     @mcp.tool()
     def propose_court_party_matches(namespace: str, ownership_namespace: str | None = None) -> dict:
         """Propose organisational parties against ownership entities and canonical aliases (identifiers first;
-        names are low evidence and never auto-accepted). Natural persons are never proposed."""
+        names are low evidence and never auto-accepted). Natural persons are proposed (against ownership persons)
+        only in person-research mode."""
         return safe(lambda conn: identity(conn, True).propose(namespace, principal_id=who()[0], scopes=who()[1],
                                                         ownership_namespace=ownership_namespace),
                     write=True, required_scope="knowledge:ownership:write")

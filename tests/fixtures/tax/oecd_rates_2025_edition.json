@@ -1,0 +1,132 @@
+{
+ "documents": [
+  {
+   "columns": {
+    "indicator": "MEASURE",
+    "jurisdiction": "REF_AREA",
+    "obs_value": "OBS_VALUE",
+    "period": "TIME_PERIOD",
+    "status": "OBS_STATUS",
+    "unit": "UNIT_MEASURE",
+    "unit_mult": "UNIT_MULT"
+   },
+   "dataset": "DSD_TAX_CIT@DF_CIT",
+   "definition": {
+    "notes": [
+     "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+    ],
+    "source_text": "The statutory corporate income tax rate in force, combining central and sub-central rates, as the OECD publishes it (verify)"
+   },
+   "indicators": {
+    "CIT_COMB": {
+     "concept": "statutory_cit_rate",
+     "label": "Combined (central and sub-central) statutory corporate income tax rate"
+    }
+   },
+   "jurisdiction_scheme": "iso3166-alpha3",
+   "jurisdictions": {
+    "DEU": "Germany",
+    "IRL": "Ireland",
+    "NLD": "Netherlands"
+   },
+   "label": "OECD statutory corporate income tax rates: Germany, Netherlands, Ireland, Corporate Tax Statistics 2025 edition (authored fixture)",
+   "period": {
+    "end": "2093",
+    "start": "2091"
+   },
+   "references": [
+    {
+     "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+     "kind": "dataset-page"
+    }
+   ],
+   "release": {
+    "edition": "Corporate Tax Statistics 2025 edition (authored fixture)",
+    "label": "Corporate Tax Statistics 2025 edition (authored fixture), declared by the operator (verify the publication date)",
+    "published_on": "2025-07-15"
+   },
+   "units": {
+    "PC": "percent"
+   },
+   "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0/DEU+NLD+IRL.CIT_COMB?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091"
+  },
+  {
+   "columns": {
+    "indicator": "MEASURE",
+    "jurisdiction": "REF_AREA",
+    "obs_value": "OBS_VALUE",
+    "period": "TIME_PERIOD",
+    "status": "OBS_STATUS",
+    "unit": "UNIT_MEASURE",
+    "unit_mult": "UNIT_MULT"
+   },
+   "dataset": "DSD_ETR@DF_ETR",
+   "definition": {
+    "notes": [
+     "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+    ],
+    "source_text": "Forward-looking effective tax rates computed by the OECD for a hypothetical investment; model estimates, not observed tax payments (verify)"
+   },
+   "indicators": {
+    "EATR": {
+     "concept": "effective_average_tax_rate",
+     "label": "Forward-looking effective average tax rate"
+    },
+    "EMTR": {
+     "concept": "effective_marginal_tax_rate",
+     "label": "Forward-looking effective marginal tax rate"
+    }
+   },
+   "jurisdiction_scheme": "iso3166-alpha3",
+   "jurisdictions": {
+    "DEU": "Germany",
+    "IRL": "Ireland",
+    "NLD": "Netherlands"
+   },
+   "label": "OECD forward-looking effective tax rates: Germany, Netherlands, Ireland, Corporate Tax Statistics 2025 edition (authored fixture)",
+   "method": {
+    "description": "Effective average and marginal tax rates for a hypothetical domestic investment in a composite asset financed by retained earnings and debt, at a 5% real interest rate and 1% inflation (authored; verify the OECD parameters per edition)",
+    "label": "OECD forward-looking effective tax rate model (authored fixture method statement; verify)",
+    "reference": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html"
+   },
+   "period": {
+    "end": "2093",
+    "start": "2091"
+   },
+   "references": [
+    {
+     "identifier": "https://www.oecd.org/en/data/datasets/corporate-tax-statistics-database.html",
+     "kind": "dataset-page"
+    }
+   ],
+   "release": {
+    "edition": "Corporate Tax Statistics 2025 edition (authored fixture)",
+    "label": "Corporate Tax Statistics 2025 edition (authored fixture), declared by the operator (verify the publication date)",
+    "published_on": "2025-07-15"
+   },
+   "units": {
+    "PC": "percent"
+   },
+   "url": "https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_ETR@DF_ETR,1.0/DEU+NLD+IRL.EATR+EMTR?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091"
+  }
+ ],
+ "native_pages": [
+  {
+   "body": "STRUCTURE,STRUCTURE_ID,ACTION,REF_AREA,MEASURE,UNIT_MEASURE,UNIT_MULT,TIME_PERIOD,OBS_VALUE,OBS_STATUS\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,DEU,CIT_COMB,PC,0,2091,29.83,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,DEU,CIT_COMB,PC,0,2092,29.83,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,DEU,CIT_COMB,PC,0,2093,29.90,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,IRL,CIT_COMB,PC,0,2091,12.5,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,IRL,CIT_COMB,PC,0,2092,12.5,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,IRL,CIT_COMB,PC,0,2093,15.0,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,NLD,CIT_COMB,PC,0,2091,25.8,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,NLD,CIT_COMB,PC,0,2092,25.8,A\nDATAFLOW,OECD.CTP.TPS:DSD_TAX_CIT@DF_CIT(2.0),I,NLD,CIT_COMB,PC,0,2093,25.8,A\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/public/rest/data/OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0/DEU+NLD+IRL.CIT_COMB?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091",
+   "status": 200
+  },
+  {
+   "body": "STRUCTURE,STRUCTURE_ID,ACTION,REF_AREA,MEASURE,UNIT_MEASURE,UNIT_MULT,TIME_PERIOD,OBS_VALUE,OBS_STATUS\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EATR,PC,0,2091,28.1,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EATR,PC,0,2092,28.0,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EATR,PC,0,2093,28.1,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EMTR,PC,0,2091,19.4,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EMTR,PC,0,2092,19.3,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,DEU,EMTR,PC,0,2093,19.4,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EATR,PC,0,2091,14.2,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EATR,PC,0,2092,14.1,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EATR,PC,0,2093,14.2,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EMTR,PC,0,2091,7.9,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EMTR,PC,0,2092,7.8,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,IRL,EMTR,PC,0,2093,7.9,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EATR,PC,0,2091,22.4,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EATR,PC,0,2092,21.7,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EATR,PC,0,2093,21.8,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EMTR,PC,0,2091,14.0,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EMTR,PC,0,2092,13.8,A\nDATAFLOW,OECD.CTP.TPS:DSD_ETR@DF_ETR(2.0),I,NLD,EMTR,PC,0,2093,13.9,A\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/public/rest/data/OECD.CTP.TPS,DSD_ETR@DF_ETR,1.0/DEU+NLD+IRL.EATR+EMTR?endPeriod=2093&format=csvfilewithlabels&startPeriod=2091",
+   "status": 200
+  }
+ ],
+ "note": "authored fixture in the documented shape; every value and reference year is fictional (verify the live shape)"
+}

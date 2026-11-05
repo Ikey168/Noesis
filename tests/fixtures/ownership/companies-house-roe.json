@@ -1,0 +1,248 @@
+{
+ "authored": true,
+ "provider": "companies-house",
+ "note": "Authored responses for fictional overseas entities OE099901 and OE099902 on the Register of Overseas Entities, shaped like the public data API (profile with foreign_company_details, managing officers, registrable beneficial owners of every kind, statements). The beneficial-owner statement code is an authored placeholder: the ROE statement enumeration is unverified. Requests without an Authorization header replay as HTTP 401.",
+ "scenarios": [
+  "overseas-entity-profile",
+  "managing-officers",
+  "individual-beneficial-owner-owner-scoped",
+  "corporate-beneficial-owner-resolves-by-company-number",
+  "trust-held-interest-ceased",
+  "government-body-beneficial-owner",
+  "sanctioned-as-declared",
+  "super-secure-withheld",
+  "beneficial-owner-statement",
+  "none-reported"
+ ],
+ "native_pages": [
+  {
+   "request": "/company/OE099901",
+   "require_header": "Authorization",
+   "body": {
+    "company_name": "NORTHSEA PROPERTY HOLDINGS LIMITED",
+    "company_number": "OE099901",
+    "company_status": "registered",
+    "type": "registered-overseas-entity",
+    "date_of_creation": "2023-01-16",
+    "registered_office_address": {
+     "address_line_1": "1 Fixture Esplanade",
+     "locality": "St Helier",
+     "country": "Jersey"
+    },
+    "foreign_company_details": {
+     "governed_by": "Companies (Jersey) Law 1991",
+     "legal_form": "Limited company",
+     "originating_registry": {
+      "country": "Jersey",
+      "name": "Jersey Financial Services Commission"
+     },
+     "registration_number": "999901"
+    },
+    "etag": "fixture-etag-oe-1",
+    "links": {
+     "self": "/company/OE099901"
+    }
+   }
+  },
+  {
+   "request": "/company/OE099901/officers",
+   "require_header": "Authorization",
+   "body": {
+    "items_per_page": 35,
+    "start_index": 0,
+    "total_results": 2,
+    "items": [
+     {
+      "name": "VOE, Lee",
+      "officer_role": "managing-officer",
+      "appointed_on": "2023-01-16",
+      "nationality": "British",
+      "occupation": "Director",
+      "links": {
+       "officer": {
+        "appointments": "/officers/FIXMO001/appointments"
+       }
+      }
+     },
+     {
+      "name": "EXAMPLA SECRETARIES LIMITED",
+      "officer_role": "corporate-managing-officer",
+      "appointed_on": "2023-01-16",
+      "resigned_on": "2025-06-30",
+      "links": {
+       "officer": {
+        "appointments": "/officers/FIXMO002/appointments"
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/company/OE099901/persons-with-significant-control",
+   "require_header": "Authorization",
+   "body": {
+    "items_per_page": 25,
+    "start_index": 0,
+    "total_results": 5,
+    "active_count": 4,
+    "ceased_count": 1,
+    "items": [
+     {
+      "kind": "individual-beneficial-owner",
+      "name": "Mr Casey Example",
+      "notified_on": "2023-01-16",
+      "natures_of_control": [
+       "ownership-of-shares-more-than-25-percent-registered-overseas-entity",
+       "voting-rights-more-than-25-percent-registered-overseas-entity"
+      ],
+      "nationality": "British",
+      "country_of_residence": "Jersey",
+      "date_of_birth": {
+       "month": 5,
+       "year": 1970
+      },
+      "name_elements": {
+       "title": "Mr",
+       "forename": "Casey",
+       "surname": "EXAMPLE"
+      },
+      "address": {
+       "address_line_1": "2 Fixture Lane",
+       "locality": "St Helier"
+      },
+      "is_sanctioned": false,
+      "links": {
+       "self": "/company/OE099901/persons-with-significant-control/individual-beneficial-owner/FIXBO001"
+      }
+     },
+     {
+      "kind": "corporate-entity-beneficial-owner",
+      "name": "EXAMPLA HOLDINGS PLC",
+      "notified_on": "2023-01-16",
+      "natures_of_control": [
+       "right-to-appoint-and-remove-directors-registered-overseas-entity"
+      ],
+      "identification": {
+       "legal_authority": "Companies Act 2006",
+       "legal_form": "Public limited company",
+       "place_registered": "Register of Companies for England and Wales",
+       "country_registered": "England",
+       "registration_number": "9990001"
+      },
+      "is_sanctioned": false,
+      "links": {
+       "self": "/company/OE099901/persons-with-significant-control/corporate-entity-beneficial-owner/FIXBO002"
+      }
+     },
+     {
+      "kind": "corporate-entity-beneficial-owner",
+      "name": "ISLAND TRUSTEES LIMITED",
+      "notified_on": "2023-01-16",
+      "ceased_on": "2025-03-31",
+      "natures_of_control": [
+       "ownership-of-shares-more-than-25-percent-as-trust-registered-overseas-entity"
+      ],
+      "identification": {
+       "legal_authority": "Companies (Jersey) Law 1991",
+       "legal_form": "Limited company",
+       "place_registered": "Jersey Financial Services Commission",
+       "country_registered": "Jersey",
+       "registration_number": "999902"
+      },
+      "is_sanctioned": false,
+      "links": {
+       "self": "/company/OE099901/persons-with-significant-control/corporate-entity-beneficial-owner/FIXBO003"
+      }
+     },
+     {
+      "kind": "legal-person-beneficial-owner",
+      "name": "Ministry of Fixtures of Exampland",
+      "notified_on": "2024-02-01",
+      "natures_of_control": [
+       "significant-influence-or-control-registered-overseas-entity"
+      ],
+      "identification": {
+       "legal_authority": "Exampland Public Bodies Act",
+       "legal_form": "Government department"
+      },
+      "is_sanctioned": true,
+      "links": {
+       "self": "/company/OE099901/persons-with-significant-control/legal-person-beneficial-owner/FIXBO004"
+      }
+     },
+     {
+      "kind": "super-secure-beneficial-owner",
+      "description": "super-secure-beneficial-owner",
+      "ceased": false,
+      "links": {
+       "self": "/company/OE099901/persons-with-significant-control/super-secure-beneficial-owner/FIXBO005"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/company/OE099902",
+   "require_header": "Authorization",
+   "body": {
+    "company_name": "SOUTHBANK ESTATES INC",
+    "company_number": "OE099902",
+    "company_status": "registered",
+    "type": "registered-overseas-entity",
+    "date_of_creation": "2023-07-03",
+    "foreign_company_details": {
+     "legal_form": "BVI business company",
+     "originating_registry": {
+      "country": "British Virgin Islands",
+      "name": "BVI Registry of Corporate Affairs"
+     },
+     "registration_number": "999903"
+    },
+    "links": {
+     "self": "/company/OE099902"
+    }
+   }
+  },
+  {
+   "request": "/company/OE099902/officers",
+   "require_header": "Authorization",
+   "body": {
+    "items_per_page": 35,
+    "start_index": 0,
+    "total_results": 1,
+    "items": [
+     {
+      "name": "ROE, Morgan",
+      "officer_role": "managing-officer",
+      "appointed_on": "2023-07-03",
+      "links": {
+       "officer": {
+        "appointments": "/officers/FIXMO003/appointments"
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/company/OE099902/persons-with-significant-control-statements",
+   "require_header": "Authorization",
+   "body": {
+    "items_per_page": 25,
+    "start_index": 0,
+    "total_results": 1,
+    "items": [
+     {
+      "statement": "fixture-no-registrable-beneficial-owner-identified",
+      "notified_on": "2023-07-03",
+      "etag": "fixture-oe-statement-1",
+      "links": {
+       "self": "/company/OE099902/persons-with-significant-control-statements/FIXOES001"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

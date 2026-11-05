@@ -215,6 +215,9 @@ NATIVE_CONNECTOR_MODULES = {
     "bods": "src.ingestion.ownership_providers",
     "environment": "src.ingestion.environment_providers",
 }
+# Corporate Ownership: OpenCorporates company identity and officers (#2887).
+NATIVE_CONNECTOR_MODULES["opencorporates"] = "src.ingestion.ownership_opencorporates"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"opencorporates"})
 NATIVE_CONNECTOR_MODULES.update({
     connector: "src.ingestion.clinical_providers"
     for connector in ("ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines")
@@ -441,6 +444,18 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
 # Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
 NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
+# Economics tax transparency: OECD Corporate Tax Statistics and EU Tax Observatory estimates (#2889).
+NATIVE_CONNECTOR_MODULES["tax-transparency"] = "src.ingestion.tax_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tax-transparency"})
+# Corporate Ownership: SEC 13F information tables and structured Schedule 13D/13G (#2883).
+NATIVE_CONNECTOR_MODULES["sec-edgar-holdings"] = "src.ingestion.ownership_sec_holdings"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sec-edgar-holdings"})
+# Society wealth distribution: WID, ECB Distributional Wealth Accounts and Fed DFA (#2882).
+NATIVE_CONNECTOR_MODULES["wealth-distribution"] = "src.ingestion.wealth_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"wealth-distribution"})
+# Corporate Ownership offshore leaks: bounded ICIJ Offshore Leaks Database extracts (#2888).
+NATIVE_CONNECTOR_MODULES["icij-offshore-leaks"] = "src.ingestion.offshore_leaks"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"icij-offshore-leaks"})
 
 
 def native_connector_module(connector: str) -> Any:

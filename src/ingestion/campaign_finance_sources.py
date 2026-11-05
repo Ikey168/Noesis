@@ -54,11 +54,19 @@ from datetime import datetime
 from typing import Any
 from urllib.parse import urlencode, urlsplit
 
+from src.config.env import person_research_enabled
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
 RECORD_CONTRACT = "noesis-campaign-finance-record-v1"
 MINIMISATION_POLICY = "campaign-finance-minimisation-v1"
+# Person-research mode (NOESIS_PERSON_RESEARCH): individual donors keep name, employer, occupation, city, state
+# and the regulator's donor id; only the street address and ZIP / postcode are withheld.
+PERSON_RESEARCH_POLICY = "campaign-finance-person-research-v1"
+PERSON_RESEARCH_COUNTERPARTY_KEYS = frozenset({"kind", "entity_type", "status", "name", "employer", "occupation",
+                                               "city", "state", "contributor_id", "donor_id"})
+PERSON_RESEARCH_FORBIDDEN_KEYS = frozenset({"street", "street_1", "street_2", "address", "zip", "zip_code",
+                                            "postcode"})
 CONNECTOR = "campaign-finance"
 PER_PAGE = 100
 MAX_PAGES_PER_UNIT = 5
@@ -327,6 +335,15 @@ def fec_counterparty(row: Mapping[str, Any], prefix: str, *, committee_field: st
     entity_type = _clean(row.get("entity_type"))
     entity_type = entity_type.upper() if entity_type else None
     if entity_type in FEC_INDIVIDUAL_TYPES or row.get("is_individual") is True and entity_type is None:
+        if person_research_enabled():
+            withheld = sorted(f"{prefix}_{s}" for s in ("street_1", "street_2", "zip") if _clean(row.get(f"{prefix}_{s}")))
+            contributor_id = _clean(row.get(f"{prefix}_id"))
+            return ({"kind": "natural-person", "entity_type": entity_type or "IND",
+                     "name": _clean(row.get(f"{prefix}_name")), "employer": _clean(row.get(f"{prefix}_employer")),
+                     "occupation": _clean(row.get(f"{prefix}_occupation")), "city": _clean(row.get(f"{prefix}_city")),
+                     "state": _clean(row.get(f"{prefix}_state")),
+                     "contributor_id": contributor_id.upper() if contributor_id else None},
+                    {"policy": PERSON_RESEARCH_POLICY, "counterparty": "natural-person", "withheld": withheld})
         withheld = sorted(f"{prefix}_{s}" for s in _FEC_PERSON_SUFFIXES if _clean(row.get(f"{prefix}_{s}")))
         withheld += [k for k in ("memo_text",) if _clean(row.get(k))]
         return ({"kind": "natural-person", "entity_type": entity_type or "IND", "name": None},
@@ -351,6 +368,8 @@ def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
     if not is_natural_person(record):
         counterparty = (record.get("fields") or {}).get("counterparty") or {}
         return ["$.fields.counterparty.kind"] if counterparty.get("kind") == "natural-person" else []
+    if (record.get("minimisation") or {}).get("policy") == PERSON_RESEARCH_POLICY:
+        return _person_research_violations(record)
     found = []
     counterparty = (record.get("fields") or {}).get("counterparty") or {}
     if counterparty.get("kind") != "natural-person":
@@ -370,6 +389,31 @@ def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
                 if bare in INDIVIDUAL_FORBIDDEN_KEYS or stem in INDIVIDUAL_FORBIDDEN_KEYS:
                     if item not in (None, "", [], {}):
                         found.append(f"{path}.{key}")
+                walk(item, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
+
+    walk(record.get("fields") or {}, "$.fields")
+    return sorted(set(found))
+
+
+def _person_research_violations(record: Mapping[str, Any]) -> list[str]:
+    """Person-research records (only while the mode is on) may name the donor; never a street address or ZIP."""
+    if not person_research_enabled():
+        return ["$.minimisation.policy"]
+    counterparty = (record.get("fields") or {}).get("counterparty") or {}
+    found = [] if counterparty.get("kind") == "natural-person" else ["$.fields.counterparty.kind"]
+    found += [f"$.fields.counterparty.{k}" for k in sorted(set(counterparty) - PERSON_RESEARCH_COUNTERPARTY_KEYS)]
+
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, Mapping):
+            for key, item in value.items():
+                bare = str(key).casefold()
+                stem = re.sub(r"^(contributor|recipient|payee|donor)_", "", bare)
+                if (bare in PERSON_RESEARCH_FORBIDDEN_KEYS or stem in PERSON_RESEARCH_FORBIDDEN_KEYS) \
+                        and item not in (None, "", [], {}):
+                    found.append(f"{path}.{key}")
                 walk(item, f"{path}.{key}")
         elif isinstance(value, list):
             for index, item in enumerate(value):
@@ -710,7 +754,13 @@ def parse_ec_donations(raw: bytes, unit: Mapping[str, Any]) -> list[dict[str, An
         for row in members:
             status = _clean(row.get("DonorStatus"))
             individual = str(status or "").casefold() in UK_INDIVIDUAL_STATUSES
-            if individual:
+            if individual and person_research_enabled():
+                withheld = sorted(k for k in ("Postcode",) if _clean(row.get(k)))
+                counterparty = {"kind": "natural-person", "status": status, "name": _clean(row.get("DonorName")),
+                                "donor_id": _clean(row.get("DonorId"))}
+                minimisation = {"policy": PERSON_RESEARCH_POLICY, "counterparty": "natural-person",
+                                "withheld": withheld}
+            elif individual:
                 withheld = sorted(k for k in ("DonorName", "Postcode", "DonorId", "PurposeOfVisit")
                                   if _clean(row.get(k)))
                 counterparty = {"kind": "natural-person", "status": status, "name": None}

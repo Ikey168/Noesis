@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-dividend-flow-estimate-v1.json",
+  "title": "Noesis dividend-flow estimate v1",
+  "description": "Derived estimates of the dividend attributable to a holder along stated ownership paths (#2891). Every estimate is labelled derived and never reported, carries the honesty envelope (n, method, assumptions), its method id and version, the exact revision of each cited input and a bounds interval. Holdings below a publication threshold are not estimated, unknown links stay unknown, and nothing is summed across paths or netted across currencies. See docs/subsystems/dividend-flow-estimates.md.",
+  "type": "object",
+  "required": ["contract", "query", "mode", "label", "reported", "namespace", "market_namespace", "entity", "cutoffs", "method", "method_id", "method_version", "method_parameters", "n", "assumptions", "estimates", "not_estimated", "unknown_links", "withheld", "unlinked_entities", "cycles", "truncated", "dividends", "excluded_dividends", "reported_context", "market_links", "by_currency", "assumption_texts", "regimes", "sources", "degraded", "status", "pins", "notice", "result_hash"],
+  "properties": {
+    "contract": {"const": "noesis-dividend-flow-estimate-v1"},
+    "query": {"const": "estimate-dividend-flows"},
+    "mode": {"enum": ["holder", "issuer"]},
+    "label": {"const": "derived"},
+    "reported": {"const": false},
+    "namespace": {"type": "string", "minLength": 1},
+    "market_namespace": {"type": "string", "minLength": 1},
+    "entity": {"type": "object", "required": ["entity"]},
+    "cutoffs": {
+      "type": "object",
+      "required": ["as_of", "publicly_available_by_ms", "acquired_by_ms", "availability_policy"],
+      "properties": {
+        "as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "publicly_available_by_ms": {"type": "integer", "minimum": 0},
+        "acquired_by_ms": {"type": "integer", "minimum": 0},
+        "availability_policy": {"const": "public_and_acquired"}
+      }
+    },
+    "method": {"$ref": "#/definitions/method"},
+    "method_id": {"$ref": "#/definitions/method_id"},
+    "method_version": {"type": "string", "minLength": 1},
+    "method_parameters": {"type": "object", "required": ["max_depth", "window_days", "max_unbounded_gap_days", "window"]},
+    "n": {"type": "integer", "minimum": 0, "description": "distinct cited input revisions across the estimates"},
+    "assumptions": {"type": "array", "items": {"type": "string"}, "description": "ids of the assumptions the estimates rest on; the texts are in assumption_texts"},
+    "estimates": {"type": "array", "items": {"$ref": "#/definitions/estimate"}},
+    "not_estimated": {"type": "array", "items": {"$ref": "#/definitions/not_estimated"}},
+    "unknown_links": {"type": "array", "items": {"type": "object", "required": ["subject", "holder", "reason"]}},
+    "withheld": {"type": "array", "items": {"type": "object", "required": ["subject", "reason"]}},
+    "unlinked_entities": {"type": "array", "items": {"type": "object", "required": ["entity", "reason"]}},
+    "cycles": {"type": "array", "items": {"type": "object", "required": ["path"]}},
+    "truncated": {"type": "boolean"},
+    "dividends": {"type": "array", "items": {"$ref": "#/definitions/dividend_event"}},
+    "excluded_dividends": {"type": "array", "items": {"type": "object", "required": ["reason"]}},
+    "reported_context": {"type": "array", "items": {"type": "object", "required": ["label", "concept", "value", "input"], "properties": {"label": {"const": "reported"}}}},
+    "market_links": {"type": "object"},
+    "by_currency": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+    "assumption_texts": {"type": "object", "additionalProperties": {"type": "string"}},
+    "regimes": {"type": "object"},
+    "sources": {"type": "object"},
+    "degraded": {"type": "array"},
+    "status": {"enum": ["complete", "partial"]},
+    "pins": {"type": "object", "required": ["records", "identity"]},
+    "notice": {"type": "string"},
+    "result_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "decimal": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?$"},
+    "method": {"const": "noesis-dividend-flow-lookthrough@1.0.0"},
+    "method_id": {"const": "noesis-dividend-flow-lookthrough"},
+    "input": {
+      "type": "object",
+      "required": ["role", "store", "record_id", "revision", "revision_id", "record_hash", "provider"],
+      "properties": {
+        "role": {"enum": ["dividend", "holding", "next-report", "shares-outstanding", "context"]},
+        "store": {"enum": ["ownership-record", "market-corporate-action", "market-financial-fact"]},
+        "record_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 1},
+        "revision_id": {"type": "string", "minLength": 1},
+        "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "provider": {"type": "string", "minLength": 1}
+      }
+    },
+    "dividend_event": {
+      "type": "object",
+      "required": ["event_id", "source", "issuer_id", "per_share", "currency", "holding_date", "inputs", "label"],
+      "properties": {
+        "label": {"const": "reported"},
+        "source": {"enum": ["market-corporate-action", "market-financial-fact"]},
+        "per_share": {"$ref": "#/definitions/decimal"},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/input"}}
+      }
+    },
+    "estimate": {
+      "type": "object",
+      "required": ["estimate_id", "label", "reported", "statement", "kind", "depth", "path", "recipient", "issuer_entity", "dividend", "estimate", "n", "method", "method_id", "method_version", "links", "inputs", "assumptions", "flags"],
+      "properties": {
+        "label": {"const": "derived"},
+        "reported": {"const": false},
+        "kind": {"enum": ["direct-holding", "look-through"]},
+        "depth": {"type": "integer", "minimum": 1},
+        "path": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+        "estimate": {
+          "type": "object",
+          "required": ["currency", "point", "interval", "interval_covers"],
+          "properties": {
+            "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+            "point": {"oneOf": [{"$ref": "#/definitions/decimal"}, {"type": "null"}]},
+            "interval": {"type": "object", "required": ["low", "high"], "properties": {"low": {"$ref": "#/definitions/decimal"}, "high": {"$ref": "#/definitions/decimal"}}, "additionalProperties": false},
+            "interval_covers": {
+              "type": "object",
+              "required": ["interval_kind", "holding_bands", "timing", "threshold_censoring"],
+              "properties": {"interval_kind": {"const": "bounds"}, "holding_bands": {"type": "boolean"}, "timing": {"enum": ["bounded", "not-bounded"]}, "threshold_censoring": {"type": "boolean"}}
+            }
+          },
+          "additionalProperties": false
+        },
+        "n": {"type": "integer", "minimum": 2},
+        "method": {"$ref": "#/definitions/method"},
+        "method_id": {"$ref": "#/definitions/method_id"},
+        "method_version": {"type": "string", "minLength": 1},
+        "links": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["subject", "holder", "measure", "statements", "value"]}},
+        "inputs": {"type": "array", "minItems": 2, "items": {"$ref": "#/definitions/input"}},
+        "assumptions": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "flags": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "not_estimated": {
+      "type": "object",
+      "required": ["reason", "path", "depth", "dividend", "label", "reported"],
+      "properties": {"label": {"const": "derived"}, "reported": {"const": false}},
+      "not": {"required": ["estimate"]}
+    }
+  }
+}

@@ -21,7 +21,10 @@ dated live run and cited demo belong to #2720. See the
 - No merging of a settled "neither admit nor deny" outcome into a finding: the
   published admission wording is shown as it is.
 - No profiling of named individuals. Individuals are counted, never named,
-  matched or monitored (the EN01 minimisation decision).
+  matched or monitored (the EN01 minimisation decision), unless the operator
+  turns on person-research mode (`NOESIS_PERSON_RESEARCH`,
+  [details](../security/person-research-mode.md)); dates of birth, home
+  addresses and IRN/CRD numbers stay withheld even then.
 - No sums of penalties across currencies or authorities, and no conversion.
 - No legal advice.
 

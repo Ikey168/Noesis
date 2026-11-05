@@ -45,6 +45,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.kb.onchain_identifiers import (
     CHAINS,
     IdentifierError,
@@ -618,7 +619,8 @@ class OnchainStore:
         """Offer: the label a source states refers to an organization or contract canonical entity.
 
         The reference is about the *label text*, never a statement that the
-        entity controls the address. Person-typed or untyped entities are refused.
+        entity controls the address. Person-typed entities are refused unless person-research mode
+        (``NOESIS_PERSON_RESEARCH``) is on; untyped entities are always refused.
         """
         authorize(namespace, scopes, WRITE_SCOPE)
         if not str(reason or "").strip():
@@ -644,12 +646,13 @@ class OnchainStore:
         if entity is None:
             raise OnchainError("unknown_entity", "no canonical entity with that id")
         entity_type = str(entity[0] or "").strip().lower()
-        if entity_type in PERSON_TYPES:
+        person = entity_type in PERSON_TYPES
+        if person and not person_research_enabled():
             raise OnchainError(
                 "person_reference_refused",
                 "addresses are never linked to person entities",
             )
-        if entity_type not in REFERENCE_TYPES:
+        if not person and entity_type not in REFERENCE_TYPES:
             raise OnchainError(
                 "entity_type_refused",
                 "only organization or contract entities can be referenced",
@@ -1832,7 +1835,7 @@ def references_for_entity(
             "decision_id": r[5],
         }
         for r in rows
-        if str(r[4]).lower() not in PERSON_TYPES
+        if person_research_enabled() or str(r[4]).lower() not in PERSON_TYPES
     ]
 
 

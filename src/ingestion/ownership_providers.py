@@ -42,7 +42,13 @@ from urllib.parse import urlsplit
 from xml.etree import ElementTree
 
 from src.ingestion.source_packs import SourcePackError
-from src.kb.ownership_records import PART_CONTRACT, OwnershipRecordError, record
+from src.kb.ownership_records import (
+    PART_CONTRACT,
+    PERSON_RESEARCH_POLICY,
+    OwnershipRecordError,
+    person_research_enabled,
+    record,
+)
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
 FIXTURE_SECRET = "fixture-secret-not-a-credential"
@@ -139,10 +145,23 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
             "GB Persons Of Significant Control Register": {
                 "status": "implemented", "jurisdiction": "GB", "update_cadence": "as republished by Open Ownership",
                 "license": "as stated per statement (publicationDetails.license)"},
+            # Reviewed in docs/development/ownership-register-audit.md (#2887); each publisher is acquired by
+            # its own source (ownership.publishers) so its statements keep their own revision chains.
             "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])": {
-                "status": "not-implemented", "reason": "licence and personal-data terms not reviewed for reuse"},
+                "status": "implemented", "jurisdiction": "DK", "update_cadence": "as republished by Open Ownership",
+                "license": "as stated per statement (publicationDetails.license); CVR data reused under the "
+                           "Danish Business Authority's terms for free public data (verify)",
+                "personal_data": "person statements owner-scoped unless person-research mode is on"},
             "Slovakia Public Sector Partners Register (Register partnerov verejného sektora)": {
-                "status": "not-implemented", "reason": "licence and personal-data terms not reviewed for reuse"},
+                "status": "implemented", "jurisdiction": "SK", "update_cadence": "as republished by Open Ownership",
+                "license": "as stated per statement (publicationDetails.license); RPVS is public by statute "
+                           "(Act No. 315/2016 Coll.) (verify reuse terms)",
+                "personal_data": "person statements owner-scoped unless person-research mode is on"},
+            "Latvia Register of Enterprises beneficial owners": {
+                "status": "not-implemented",
+                "reason": "the Register of Enterprises publishes its own BODS release on data.gov.lv (CC0 per "
+                          "secondary sources, verify); the statement source description and BODS version of the "
+                          "current files are unverified, so no statement can be attributed to it safely"},
         },
         "host_note": "host and dataset path layout are declared for bounded selection and are unverified from "
                      "this runtime (egress blocked); verify before any live run",
@@ -150,16 +169,30 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
         "cost": "free",
     },
     "opencorporates": {
-        "status": "reused",
-        "connector": "existing regional provider (#1483, src/ingestion/regional_providers.py)",
+        "status": "implemented",
+        "connector": "opencorporates (src/ingestion/ownership_opencorporates.py, #2887); search and document "
+                     "enrichment stay with the existing regional provider (#1483, src/ingestion/regional_providers.py)",
         "documentation": "https://api.opencorporates.com/documentation/API-Reference",
-        "access": "company search/lookup through the existing regional provider",
-        "authentication": "API token",
+        "access": "API v0.4 company lookup /companies/{jurisdiction_code}/{company_number} for explicitly selected "
+                  "registrations; officers as embedded in the company response",
+        "authentication": "API token sent as api_token (required secret NOESIS_OPENCORPORATES_API_KEY)",
+        "rate_limits": "per the key's plan; the adapter spaces live requests (min_interval_s) and honours HTTP 429",
+        "pagination": "one company per runtime page; embedded officer lists are not paged",
+        "cadence": "weekly at most per selected company",
+        "terms": "OpenCorporates data is open data under ODbL 1.0 with attribution (verify against the key's plan "
+                 "and https://opencorporates.com/terms-of-use-2/); every record names OpenCorporates as publisher "
+                 "and links the company page",
+        "retained_evidence": "each API response retained as the runtime document (native JSON) with its SHA-256; "
+                             "the token is never stored",
         "role": "aggregator; enrichment and identity evidence only, never an authoritative substitute for a "
                 "national register",
-        "identifiers": ["opencorporates jurisdiction_code + company_number"],
-        "coverage": "whatever the existing regional provider acquired; not re-acquired here",
-        "cost": "per OpenCorporates plan",
+        "identifiers": ["opencorporates jurisdiction_code + company_number",
+                        "national register number for configured jurisdictions (gb-coh, dk-cvr)"],
+        "coverage": "explicitly selected registrations only (1-25 per source); no search or bulk use",
+        "unavailable_fallback": "401/403 fails the source as authentication_failed; 404 is 'none reported'; earlier "
+                                "revisions stay current",
+        "audit": "docs/development/ownership-register-audit.md",
+        "cost": "per OpenCorporates plan; free share-alike keys for public-benefit users",
     },
     "handelsregister": {
         "status": "not-implemented",
@@ -227,10 +260,110 @@ LIVE_VERIFICATION = {
                        "failure_code": "no_verified_dataset_path", "cause": _BLOCKED, "evidence": _LIVE_RUN},
 }
 LIVE_VERIFICATION.update({
-    "opencorporates": {"status": "reused", "note": "verified (or not) by the existing regional provider"},
+    "opencorporates": {"status": "unverified-live", "result": "not-attempted", "failure_code": "credential_missing",
+                       "cause": "no NOESIS_OPENCORPORATES_API_KEY configured; offline authored fixtures only"},
     **{p: {"status": "not-implemented", "note": PROVIDER_CONTRACTS[p]["reason"]}
        for p in ("handelsregister", "unternehmensregister", "bris")},
 })
+# SEC 13F information tables and structured Schedule 13D/13G (#2883) are parsed by their own connector.
+PROVIDER_CONTRACTS["sec-edgar"]["structured_filings"] = (
+    "selected 13F-HR information tables and XML Schedule 13D/13G cover pages: sec-edgar-holdings connector "
+    "(src/ingestion/ownership_sec_holdings.py, SEC_HOLDINGS_CONTRACT), noesis-ownership-record-v2")
+
+# ------------------------------------------- further UK registers (#2885, #2886)
+# Reviewed in docs/development/ownership-register-audit.md. The PSC snapshot and
+# the Register of Overseas Entities emit the same companies-house records as the
+# API path (provider "companies-house"); OCOD is recorded, not acquired.
+_AUDIT = "docs/development/ownership-register-audit.md"
+PROVIDER_HOSTS.update({
+    "companies-house-psc-snapshot": {"download.companieshouse.gov.uk"},
+    "companies-house-roe": {"api.company-information.service.gov.uk"},
+    "hmlr-ocod": set(),
+})
+PROVIDER_CONTRACTS.update({
+    "companies-house-psc-snapshot": {
+        "status": "implemented",
+        "connector": "bulk adapter companies-house-psc-snapshot (src/ingestion/bulk/adapters/companies_house_psc.py) "
+                     "with the ownership sink (src/ingestion/bulk/ownership_sink.py)",
+        "documentation": "https://download.companieshouse.gov.uk/en_pscdata.html",
+        "access": "daily People with significant control snapshot: ZIP files of JSON lines "
+                  "({company_number, data}), one file or split parts (file layout unverified from this runtime)",
+        "authentication": "none",
+        "rate_limits": "bulk download through the shared quota ledger; one release per run with byte/file/time budgets",
+        "pagination": "file by file; resumable per file; lines filtered by the declared selection",
+        "cadence": "daily snapshot (stated as updated every morning before 10am); a run reuses an already "
+                   "processed release",
+        "terms": "provided free of charge and not supported (data.gov.uk listing). Reuse terms: Companies House "
+                 "public task and Crown copyright statement; Companies House has stated that the free data "
+                 "products are not released under the Open Government Licence while third parties describe them "
+                 "as OGL v3 (conflicting; verify). Personal data is published under the Companies Act 2006 and its "
+                 "reuse remains subject to UK GDPR",
+        "personal_data": "individual PSCs: name, nationality and country of residence stored owner-scoped; month/year "
+                         "of birth only under person-research mode; service addresses never stored",
+        "retained_evidence": "release manifest, per-file digests and the filtered subset (gzipped JSONL) in the bulk "
+                             "state directory; each record carries the SHA-256 of its snapshot line",
+        "identifiers": ["gb-coh company number", "PSC id (links.self)"],
+        "coverage": "explicitly selected company numbers or a declared company-number prefix only (e.g. OE for "
+                    "overseas entities); never the whole register",
+        "unavailable_fallback": "a failed listing or download fails the run receipt; ceased or changed entries are "
+                                "new revisions; entries missing from a later snapshot are never deleted",
+        "audit": _AUDIT,
+        "cost": "free",
+    },
+    "companies-house-roe": {
+        "status": "implemented",
+        "connector": "companies-house (the public data API with OE company numbers; source companies-house-roe)",
+        "documentation": "https://developer-specs.company-information.service.gov.uk/companies-house-public-data-api/"
+                         "resources/individualbeneficialowner",
+        "access": "Register of Overseas Entities through the public data API: /company/{OE number} profile, "
+                  "/officers (managing officers), /persons-with-significant-control (registrable beneficial owners: "
+                  "individual, corporate entity, legal person e.g. government body, super-secure) and statements",
+        "authentication": "API key (required secret NOESIS_COMPANIES_HOUSE_API_KEY), as companies-house",
+        "rate_limits": "as companies-house",
+        "pagination": "as companies-house",
+        "cadence": "daily at most per selected overseas entity",
+        "terms": "as companies-house; trust details are not on the public register (available on application "
+                 "only, verify) and are therefore not acquired; is_sanctioned is kept as declared",
+        "personal_data": "individual beneficial owners and super-secure owners follow person-research mode: "
+                         "owner-scoped by default, super-secure details are withheld by the register itself",
+        "retained_evidence": "as companies-house",
+        "identifiers": ["gb-coh OE number", "foreign registration as stated in foreign_company_details"],
+        "coverage": "explicitly selected OE numbers only (1-25 per source)",
+        "unavailable_fallback": "as companies-house; exempt, super-secure and unverified statuses are kept as "
+                                "published, never inferred",
+        "audit": _AUDIT,
+        "cost": "free with registration",
+    },
+    "hmlr-ocod": {
+        "status": "not-implemented",
+        "documentation": "https://use-land-property-data.service.gov.uk/",
+        "access": "HM Land Registry 'Overseas companies that own property in England and Wales' (formerly OCOD), "
+                  "monthly CSV through the Use land and property data service",
+        "authentication": "account on the service, acceptance of the dataset licence, then an API key (verify)",
+        "terms": "free under a dataset licence accepted per account (verify the current licence text)",
+        "cost": "free with an account",
+        "reason": "access needs an account and a per-account licence acceptance that Noesis cannot give on the "
+                  "operator's behalf, and the geospatial.real-estate records carry no title numbers (INSPIRE ids and "
+                  "Price Paid transactions only), so there is no shared published identifier to join on; a spatial "
+                  "join is excluded by design. Overseas-entity dossiers therefore list no UK titles",
+    },
+})
+LIVE_VERIFICATION.update({
+    "companies-house-psc-snapshot": {"status": "unverified-live", "result": "not-attempted",
+                                     "failure_code": "host_not_allowed",
+                                     "cause": "download.companieshouse.gov.uk not reachable from this runtime; "
+                                              "offline authored snapshot only", "evidence": _AUDIT},
+    "companies-house-roe": {"status": "unverified-live", "result": "not-sent", "failure_code": "credential_missing",
+                            "cause": "NOESIS_COMPANIES_HOUSE_API_KEY not configured; offline authored fixtures only",
+                            "evidence": _AUDIT},
+    "hmlr-ocod": {"status": "not-implemented", "note": PROVIDER_CONTRACTS["hmlr-ocod"]["reason"]},
+})
+# ICIJ Offshore Leaks Database (#2888): contract and live state live with the adapter module.
+from src.ingestion import offshore_leaks as _offshore_leaks
+
+PROVIDER_CONTRACTS[_offshore_leaks.PROVIDER] = _offshore_leaks.PROVIDER_CONTRACT
+LIVE_VERIFICATION[_offshore_leaks.PROVIDER] = _offshore_leaks.LIVE_VERIFICATION
+PROVIDER_HOSTS[_offshore_leaks.PROVIDER] = {"offshoreleaks-data.icij.org"}
 BENEFICIAL_OWNERSHIP_FORMS = frozenset({
     "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A", "SCHEDULE 13D", "SCHEDULE 13D/A", "SCHEDULE 13G",
     "SCHEDULE 13G/A", "3", "3/A", "4", "4/A", "5", "5/A",
@@ -258,6 +391,10 @@ _COUNTRY_NAMES = {
     "england": "GB", "wales": "GB", "scotland": "GB", "northern ireland": "GB", "united kingdom": "GB",
     "england and wales": "GB", "netherlands": "NL", "the netherlands": "NL", "germany": "DE", "ireland": "IE",
     "luxembourg": "LU", "france": "FR", "united states": "US", "usa": "US",
+    # Register of Overseas Entities origins and further BODS jurisdictions (#2886, #2887).
+    "jersey": "JE", "guernsey": "GG", "isle of man": "IM", "british virgin islands": "VG",
+    "virgin islands, british": "VG", "cayman islands": "KY", "cyprus": "CY", "switzerland": "CH",
+    "denmark": "DK", "slovakia": "SK", "latvia": "LV", "panama": "PA", "norway": "NO",
 }
 
 
@@ -391,13 +528,26 @@ def _ch_company(company: str) -> str:
     return company
 
 
+_CH_PROFILE_MAPPED = {"company_name", "company_number", "type", "company_status", "previous_company_names",
+                      "date_of_creation", "date_of_cessation", "registered_office_address", "jurisdiction", "etag",
+                      "links"}
+
+
 def parse_ch_profile(payload: Mapping[str, Any], *, company: str, raw_sha: str) -> list[dict[str, Any]]:
     if payload.get("company_number") != company or not payload.get("company_name"):
         raise SourcePackError("schema_drift", "Companies House profile lacks the requested company")
     key = f"companies-house:gb-coh:{company}"
     source = _ch_source(company, "profile", raw_sha, "", f"/company/{company}")
+    jurisdiction, native = "GB", {"jurisdiction": payload.get("jurisdiction"), "etag": payload.get("etag")}
+    if payload.get("type") == "registered-overseas-entity":
+        # An overseas entity (OE number) is incorporated abroad: its jurisdiction is the stated
+        # originating registry's country, else unknown; every other published field is kept verbatim (#2886).
+        foreign = dict(payload.get("foreign_company_details") or {})
+        country = str(dict(foreign.get("originating_registry") or {}).get("country") or "").strip().lower()
+        jurisdiction = _COUNTRY_NAMES.get(country)
+        native["overseas_entity"] = {k: v for k, v in sorted(payload.items()) if k not in _CH_PROFILE_MAPPED}
     records = [
-        record("legal_entity", key, source, name=payload["company_name"], jurisdiction="GB",
+        record("legal_entity", key, source, name=payload["company_name"], jurisdiction=jurisdiction,
                identifiers=[{"scheme": "gb-coh", "value": company, "authority": "Companies House"}],
                entity_type=payload.get("type"), status=payload.get("company_status"),
                other_names=[{"name": p.get("name"), "type": "previous", "effective_from": p.get("effective_from"),
@@ -405,7 +555,7 @@ def parse_ch_profile(payload: Mapping[str, Any], *, company: str, raw_sha: str) 
                founding_date=_date(payload.get("date_of_creation")),
                dissolution_date=_date(payload.get("date_of_cessation")),
                addresses=[{"type": "registered-office", **dict(payload.get("registered_office_address") or {})}],
-               native={"jurisdiction": payload.get("jurisdiction"), "etag": payload.get("etag")}),
+               native=native),
         record("registration", f"companies-house:registration:{company}", {**source, "locator": {"json_pointer": "/company_number"}},
                entity_key=key, register="Companies House", number=company, jurisdiction=payload.get("jurisdiction"),
                status=payload.get("company_status"), registered_on=_date(payload.get("date_of_creation")),
@@ -467,6 +617,8 @@ def _psc_holder(item: Mapping[str, Any], company: str) -> tuple[dict[str, Any], 
         number = str(ident.get("registration_number") or "").replace(" ", "").upper()
         uk = re.search(r"companies house|england|wales|scotland|united kingdom", " ".join(
             str(ident.get(k) or "") for k in ("place_registered", "country_registered", "legal_authority")), re.I)
+        if uk and number.isdigit() and len(number) < 8:
+            number = number.zfill(8)  # registers often state England and Wales numbers without leading zeros
         if number and uk and re.fullmatch(r"[A-Z0-9]{8}", number):
             return {"key": f"companies-house:gb-coh:{number}", "name": item.get("name"), "kind": "entity"}, [], psc_id
         holder_key = f"companies-house:psc:{company}:{psc_id}"
@@ -482,8 +634,8 @@ def _psc_holder(item: Mapping[str, Any], company: str) -> tuple[dict[str, Any], 
 
 def ch_nature(nature: str) -> tuple[str, dict[str, Any] | None]:
     """Map a PSC nature of control to an assertion kind; bands stay bands."""
-    base = re.sub(r"-as-(trust|firm)$", "", nature)
-    base = re.sub(r"-registered-overseas-entity$", "", base)
+    base = re.sub(r"-registered-overseas-entity$", "", nature)
+    base = re.sub(r"-as-(trust|firm)$", "", base)
     for prefix, kind in (("ownership-of-shares-", "shareholding"), ("voting-rights-", "voting_rights")):
         if base.startswith(prefix):
             band = _CH_BANDS.get(base[len(prefix):])
@@ -495,11 +647,55 @@ def ch_nature(nature: str) -> tuple[str, dict[str, Any] | None]:
     return "other_control", None
 
 
+def _psc_person(item: Mapping[str, Any], holder: Mapping[str, Any], source: dict[str, Any], *,
+                research: bool) -> dict[str, Any]:
+    """The natural person a PSC or ROE beneficial-owner entry names.
+
+    Owner-scoped by default (visible to the acquiring principal and ownership
+    reviewers only). Under person-research mode it is stored unscoped with the
+    published month and year of birth and carries the person-research policy.
+    Addresses are never stored.
+    """
+    native: dict[str, Any] = {"psc_kind": item.get("kind")}
+    if research:
+        native.update({"policy": PERSON_RESEARCH_POLICY, "date_of_birth": item.get("date_of_birth"),
+                       "name_elements": item.get("name_elements")})
+    else:
+        native["minimisation"] = "owner-scoped; date of birth and addresses are not stored"
+    return record("person", holder["key"], source, owner_scoped=None if research else True,
+                  name=item.get("name") or "unnamed person",
+                  nationalities=[n.strip() for n in str(item.get("nationality") or "").split(",") if n.strip()],
+                  country_of_residence=item.get("country_of_residence"), native_kind=item.get("kind"), native=native)
+
+
+def _beneficial_owner_native(item: Mapping[str, Any], nature: str) -> dict[str, Any]:
+    """Register of Overseas Entities fields kept as published (#2886)."""
+    held_as = re.search(r"-as-(trust|firm)(?:-registered-overseas-entity)?$", nature)
+    return {"register": "Register of Overseas Entities", "is_sanctioned_as_declared": item.get("is_sanctioned"),
+            "held_as": held_as[1] if held_as else None}
+
+
 def parse_ch_psc(payload: Mapping[str, Any], *, company: str, raw_sha: str, offset: int = 0) -> list[dict[str, Any]]:
     if not isinstance(payload.get("items"), list):
         raise SourcePackError("schema_drift", "PSC list has no items")
     key, records = f"companies-house:gb-coh:{company}", []
+    research = person_research_enabled()
+    page = f"/company/{company}/persons-with-significant-control"
     for index, item in enumerate(payload["items"]):
+        kind = str(item.get("kind") or "")
+        if kind.startswith("super-secure"):
+            # The register states that a protected person exists and withholds their details.
+            records.append(record(
+                "ownership_assertion", f"companies-house:psc:{company}:{_psc_holder(item, company)[2]}:super-secure",
+                _ch_source(company, "psc", raw_sha, f"/items/{index}", page), subject_key=key,
+                assertion_kind="reporting_exception", holder=None,
+                reporting_exception={"level": "psc", "category": kind,
+                                     "reason": "details withheld by the register (protected person)",
+                                     "native_text": item.get("description")},
+                validity=_validity(item.get("notified_on"), item.get("ceased_on"), open_when_missing=False),
+                statement_date=_date(item.get("notified_on")),
+                native={"psc_kind": kind, "ceased": item.get("ceased"), "page_offset": offset}))
+            continue
         natures = item.get("natures_of_control")
         if not isinstance(natures, list) or not natures:
             raise SourcePackError("schema_drift", "PSC item lacks natures_of_control")
@@ -508,16 +704,25 @@ def parse_ch_psc(payload: Mapping[str, Any], *, company: str, raw_sha: str, offs
             entity["source"]["raw_sha256"] = raw_sha
             entity["source"]["locator"] = {"json_pointer": f"/items/{index}/identification"}
             records.append(entity)
+        person = holder["kind"] == "person"
+        if person:
+            records.append(_psc_person(item, holder, _ch_source(company, "psc", raw_sha, f"/items/{index}", page),
+                                       research=research))
         for nature in natures:
-            kind, share = ch_nature(str(nature))
+            kind_, share = ch_nature(str(nature))
+            native = {"nature_of_control": nature, "psc_kind": item.get("kind"), "page_offset": offset}
+            if "beneficial-owner" in kind:
+                native.update(_beneficial_owner_native(item, str(nature)))
             records.append(record(
                 "ownership_assertion", f"companies-house:psc:{company}:{psc_id}:{nature}",
-                _ch_source(company, "psc", raw_sha, f"/items/{index}/natures_of_control",
-                           f"/company/{company}/persons-with-significant-control"),
-                subject_key=key, assertion_kind=kind, holder=holder, share=share,
+                _ch_source(company, "psc", raw_sha, f"/items/{index}/natures_of_control", page),
+                **({"owner_scoped": True} if person and not research else {}),
+                subject_key=key, assertion_kind=kind_, holder=holder, share=share,
                 validity=_validity(item.get("notified_on"), item.get("ceased_on"), open_when_missing=True),
-                statement_date=_date(item.get("notified_on")), basis="PSC register entry as filed with Companies House",
-                native={"nature_of_control": nature, "psc_kind": item.get("kind"), "page_offset": offset},
+                statement_date=_date(item.get("notified_on")),
+                basis=("Register of Overseas Entities beneficial-owner entry as filed with Companies House"
+                       if "beneficial-owner" in kind else "PSC register entry as filed with Companies House"),
+                native=native,
             ))
     return records
 
@@ -799,11 +1004,22 @@ def _bods_share(share: Any) -> dict[str, Any] | None:
                      "max_inclusive": None if high is None else "maximum" in share}, "native": share}
 
 
-def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: str, offset: int = 0) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Project BODS 0.2/0.3 statements; unsupported sources and versions are counted, not guessed."""
+def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: str, offset: int = 0,
+               publishers: Sequence[str] | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Project BODS 0.2/0.3 statements; unsupported sources and versions are counted, not guessed.
+
+    ``publishers`` (a source's declared ``ownership.publishers``) limits the
+    projection to those implemented register sources, so each publisher is
+    acquired by its own source; other implemented sources are counted under
+    ``not_selected``. Person statements are owner-scoped unless person-research
+    mode is on.
+    """
     publisher_coverage = PROVIDER_CONTRACTS["open-ownership"]["publisher_coverage"]
+    research = person_research_enabled()
     records: list[dict[str, Any]] = []
     coverage: dict[str, Any] = {"publishers": {}, "not_implemented": {}, "unsupported_version": 0, "statements": 0}
+    if publishers is not None:
+        coverage["not_selected"] = {}
     for position, statement in enumerate(statements):
         index = offset + position
         coverage["statements"] += 1
@@ -816,6 +1032,9 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
         support = publisher_coverage.get(description, {"status": "not-implemented", "reason": "source not reviewed"})
         if support["status"] != "implemented":
             coverage["not_implemented"][description] = coverage["not_implemented"].get(description, 0) + 1
+            continue
+        if publishers is not None and description not in publishers:
+            coverage["not_selected"][description] = coverage["not_selected"].get(description, 0) + 1
             continue
         tally = coverage["publishers"].setdefault(publisher, {})
         tally[description] = tally.get(description, 0) + 1
@@ -837,11 +1056,13 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
             elif kind == "personStatement":
                 names = statement.get("names") or [{}]
                 records.append(record(
-                    "person", key, source, owner_scoped=True, name=names[0].get("fullName") or "unnamed person",
+                    "person", key, source, owner_scoped=None if research else True,
+                    name=names[0].get("fullName") or "unnamed person",
                     identifiers=[i for i in (_bods_scheme(x) for x in statement.get("identifiers") or []) if i],
                     nationalities=[n.get("code") for n in statement.get("nationalities") or []],
                     native_kind=statement.get("personType"),
-                    native={"statement_date": statement.get("statementDate"), "annotations": annotations}))
+                    native={"statement_date": statement.get("statementDate"), "annotations": annotations,
+                            **({"policy": PERSON_RESEARCH_POLICY} if research else {})}))
             elif kind == "ownershipOrControlStatement":
                 subject = dict(statement.get("subject") or {}).get("describedByEntityStatement")
                 party = dict(statement.get("interestedParty") or {})
@@ -867,7 +1088,8 @@ def parse_bods(statements: Sequence[Mapping[str, Any]], *, url: str, raw_sha: st
                 for number, interest in enumerate(statement.get("interests") or [{}]):
                     itype = str(interest.get("type") or "unknown-interest")
                     records.append(record(
-                        "ownership_assertion", f"{key}:interest:{number}", source, owner_scoped=bool(person) or None,
+                        "ownership_assertion", f"{key}:interest:{number}", source,
+                        owner_scoped=(bool(person) and not research) or None,
                         subject_key=subject_key, assertion_kind=_BODS_INTERESTS.get(itype, "other_control"),
                         holder=holder, share=_bods_share(interest.get("share")),
                         validity=_validity(interest.get("startDate"), interest.get("endDate"), open_when_missing=False),
@@ -1135,6 +1357,11 @@ class BodsAdapter(_WorkAdapter):
         files = list(self.selection.get("files") or [])
         if len(files) > 10 or any(not re.fullmatch(r"/[A-Za-z0-9._/-]{1,300}", str(f)) or ".." in str(f) for f in files):
             raise SourcePackError("unbounded_source", "bods sources select 1-10 statement files by path")
+        coverage = PROVIDER_CONTRACTS["open-ownership"]["publisher_coverage"]
+        declared = self.selection.get("publishers")
+        if declared is not None and (not isinstance(declared, list) or not declared or any(
+                dict(coverage.get(str(p)) or {}).get("status") != "implemented" for p in declared)):
+            raise SourcePackError("invalid_mapping", "bods publishers name implemented register sources only")
         return [(str(f),) for f in files]
 
     def _fetch(self, item, *, start, limit):
@@ -1145,7 +1372,9 @@ class BodsAdapter(_WorkAdapter):
             return self._envelope(path, "statements", raw, None, [], outcome="none_reported"), len(raw), None, status
         statements = load_bods(raw)
         page = statements[start:start + limit]
-        records, coverage = parse_bods(page, url=url, raw_sha=_sha(raw), offset=start)
+        selected = self.selection.get("publishers")
+        records, coverage = parse_bods(page, url=url, raw_sha=_sha(raw), offset=start,
+                                       publishers=None if selected is None else [str(p) for p in selected])
         coverage.update({"offset": start, "total": len(statements)})
         next_start = start + len(page) if start + len(page) < len(statements) else None
         return (self._envelope(f"{path}#{start}", "statements", raw, page, records, coverage=coverage),

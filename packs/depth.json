@@ -234,6 +234,12 @@
         "Statistisches Bundesamt"
       ]
     },
+    "deutsche-bundesbank": {
+      "name": "Deutsche Bundesbank",
+      "match": [
+        "Deutsche Bundesbank"
+      ]
+    },
     "dgfip": {
       "name": "Direction générale des Finances publiques (DGFiP)",
       "match": [
@@ -290,6 +296,12 @@
       "name": "European Insurance and Occupational Pensions Authority (EIOPA)",
       "match": [
         "European Insurance and Occupational Pensions Authority"
+      ]
+    },
+    "eu-tax-observatory": {
+      "name": "EU Tax Observatory",
+      "match": [
+        "EU Tax Observatory"
       ]
     },
     "eiti": {
@@ -389,6 +401,12 @@
         "Etherscan"
       ]
     },
+    "european-central-bank": {
+      "name": "European Central Bank (ECB)",
+      "match": [
+        "European Central Bank"
+      ]
+    },
     "european-commission": {
       "name": "European Commission",
       "match": [
@@ -469,6 +487,12 @@
       "name": "Office of the Federal Register",
       "match": [
         "Office of the Federal Register"
+      ]
+    },
+    "federal-reserve-board": {
+      "name": "Board of Governors of the Federal Reserve System",
+      "match": [
+        "Board of Governors of the Federal Reserve System"
       ]
     },
     "first": {
@@ -620,6 +644,12 @@
       "name": "Icecat",
       "match": [
         "Icecat"
+      ]
+    },
+    "icij": {
+      "name": "International Consortium of Investigative Journalists (ICIJ)",
+      "match": [
+        "International Consortium of Investigative Journalists"
       ]
     },
     "ifcn": {
@@ -862,6 +892,12 @@
       "name": "Open Ownership",
       "match": [
         "Open Ownership"
+      ]
+    },
+    "opencorporates": {
+      "name": "OpenCorporates",
+      "match": [
+        "OpenCorporates"
       ]
     },
     "open-source-vulnerabilities": {
@@ -1250,6 +1286,12 @@
         "World Bank"
       ]
     },
+    "world-inequality-lab": {
+      "name": "World Inequality Lab (WID.world)",
+      "match": [
+        "World Inequality Lab"
+      ]
+    },
     "wri": {
       "name": "World Resources Institute",
       "match": [
@@ -1421,6 +1463,14 @@
         "berlin-haushalt",
         "eu-financial-transparency-system",
         "eurostat-government-finance"
+      ]
+    },
+    "economics.tax": {
+      "sources": [
+        "oecd-cts-cbcr",
+        "oecd-cts-rates",
+        "eutax-offshore-wealth",
+        "eutax-billionaire-etr"
       ]
     },
     "economics.tourism": {
@@ -1820,7 +1870,8 @@
         "gleif-level2",
         "companies-house",
         "sec-edgar-ownership",
-        "open-ownership-bods"
+        "open-ownership-bods",
+        "icij-offshore-leaks"
       ]
     },
     "platform.web-archives": {
@@ -2037,6 +2088,15 @@
         "eurostat-esspros",
         "oecd-socx",
         "ilo-social-protection-coverage"
+      ]
+    },
+    "society.wealth": {
+      "sources": [
+        "wid-wealth-distribution",
+        "ecb-distributional-wealth-accounts",
+        "fed-distributional-financial-accounts",
+        "ecb-hfcs-statistical-tables",
+        "bundesbank-phf-aggregates"
       ]
     },
     "sports.football": {

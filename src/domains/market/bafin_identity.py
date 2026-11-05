@@ -15,7 +15,9 @@
   natural persons) are keyed within their issuer. No candidate is ever proposed
   automatically for a person, and a person candidate across issuers exists only
   when a reviewer proposes it with evidence, and even then it stays ``proposed``
-  until reviewed.
+  until reviewed. In person-research mode (``NOESIS_PERSON_RESEARCH``) equal
+  normalised person names under different issuers are proposed automatically
+  as cross-issuer candidates; they still stay ``proposed`` until reviewed.
 
 One equivalence (:func:`src.domains.market.bafin_notices.party_key`) is used by
 candidate generation, lookups, queries and monitors.
@@ -23,9 +25,11 @@ candidate generation, lookups, queries and monitors.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+import json
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.domains.market.bafin_notices import (
     READ_SCOPE,
     BafinError,
@@ -493,6 +497,39 @@ class BafinIdentity:
                             "note": "a warning names a string; it is never attributed without a reviewed match",
                         },
                     )
+        if person_research_enabled():
+            # Person-research mode (NOESIS_PERSON_RESEARCH): the same normalised
+            # natural-person name under different issuers is offered as a
+            # cross-issuer candidate, so one person's holdings, chains and
+            # managers' transactions can be read together once a reviewer accepts.
+            persons = sorted(
+                (p for p in parties.values() if p["kind"] == "natural_person"),
+                key=lambda p: p["record_key"],
+            )
+            for index, party in enumerate(persons):
+                names = {party_key(n, kind="natural_person") for n in party["names"]}
+                for other in persons[index + 1 :]:
+                    if party["issuers"] == other["issuers"]:
+                        continue
+                    same = names & {
+                        party_key(n, kind="natural_person") for n in other["names"]
+                    }
+                    if not same:
+                        continue
+                    offer(
+                        party,
+                        other["record_key"],
+                        _entity_id(other["record_key"]),
+                        "similar-name",
+                        {
+                            "kind": "name",
+                            "names": sorted(same),
+                            "fields": ["name"],
+                            "cross_issuer": True,
+                            "note": "person-research mode: the same natural-person name under "
+                            "different issuers; a reviewer decides",
+                        },
+                    )
         if ownership_namespace:
             offered += self._ownership(
                 namespace, ownership_namespace, parties, principal_id, scopes
@@ -503,7 +540,8 @@ class BafinIdentity:
             ),
             "candidates": self.candidates(namespace, scopes=scopes),
             "parties": len(parties),
-            "notice": "candidates stay proposed until reviewed; natural persons are never proposed automatically",
+            "notice": "candidates stay proposed until reviewed; natural persons are proposed automatically "
+            "only in person-research mode",
         }
 
     def _ownership(
@@ -766,3 +804,72 @@ class BafinIdentity:
             links.setdefault(left, set()).add(right)
             links.setdefault(right, set()).add(left)
         return {k: sorted(v) for k, v in links.items()}
+
+    def accepted_cluster(
+        self,
+        namespace: str,
+        party: str,
+        *,
+        follow: Callable[[str], bool] | None = None,
+    ) -> dict[str, list[str]]:
+        """The record keys that accepted, unreverted identity decisions join to a party (transitively).
+
+        ``follow(key)`` decides whether a key reached through an accepted
+        decision is joined and walked on from; the party itself always is.
+        Proposed, rejected and reverted candidates never join anything.
+        """
+        keys, used = {party}, set()
+        if not self.service._ready():
+            return {"keys": [party], "candidates": []}
+        rows = self.conn.execute(
+            "SELECT candidate_id, left_key, right_key FROM ownership_identity_candidates WHERE namespace=? "
+            "AND state='accepted' ORDER BY candidate_id",
+            [namespace],
+        ).fetchall()
+        frontier = [party]
+        while frontier:
+            current = frontier.pop()
+            for candidate_id, left, right in rows:
+                if current not in (left, right):
+                    continue
+                other = right if left == current else left
+                if follow is not None and not follow(other):
+                    continue
+                used.add(candidate_id)
+                if other not in keys:
+                    keys.add(other)
+                    frontier.append(other)
+        return {"keys": sorted(keys), "candidates": sorted(used)}
+
+    def pending_links(
+        self, namespace: str, keys: Iterable[str]
+    ) -> list[dict[str, Any]]:
+        """Proposed (undecided) candidates linking any of the keys to a record outside them."""
+        keys = set(keys)
+        if not keys or not self.service._ready():
+            return []
+        marks = ",".join("?" * len(keys))
+        rows = self.conn.execute(
+            "SELECT candidate_id, left_key, right_key, basis, evidence_json FROM ownership_identity_candidates "
+            f"WHERE namespace=? AND state='proposed' AND (left_key IN ({marks}) OR right_key IN ({marks})) "
+            "ORDER BY candidate_id",
+            [namespace, *sorted(keys), *sorted(keys)],
+        ).fetchall()
+        result = []
+        for candidate_id, left, right, basis, evidence in rows:
+            for mine, other in ((left, right), (right, left)):
+                if mine in keys and other not in keys:
+                    result.append(
+                        {
+                            "candidate_id": candidate_id,
+                            "state": "proposed",
+                            "basis": basis,
+                            "record_key": other,
+                            "linked_to": mine,
+                            "cross_issuer": any(
+                                e.get("cross_issuer")
+                                for e in json.loads(evidence or "[]")
+                            ),
+                        }
+                    )
+        return result

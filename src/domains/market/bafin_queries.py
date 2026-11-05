@@ -33,6 +33,7 @@ from src.domains.market.bafin_notices import (
     cutoffs,
     digest,
     iso_day,
+    issuer_key,
     normalize_bafin_id,
     normalize_isin,
     party_key,
@@ -76,6 +77,165 @@ def _thresholds(value: str | None, basis: str) -> list[str]:
         return []
     number = Decimal(value)
     return [t for t in THRESHOLDS[basis] if number >= Decimal(t)]
+
+
+# The WpHG basis of each stated percentage; a holding is reported per basis and never summed across bases.
+BASES = {
+    "s33": "§ 33 WpHG: voting rights attached to shares",
+    "s38": "§ 38 WpHG: instruments",
+    "s39": "§ 39 WpHG: total of § 33 and § 38 as notified",
+}
+
+
+def _notifier_key(notice: Mapping[str, Any]) -> str:
+    notifier = notice["notifier"]
+    return party_key(notifier["name"], kind=notifier.get("kind", "unknown"))
+
+
+def _latest_per(
+    views: Iterable[Mapping[str, Any]], key_of
+) -> dict[Any, dict[str, Any]]:
+    """key -> {order, view (the latest by publication date), all notice ids} over current, live notices."""
+    latest: dict[Any, dict[str, Any]] = {}
+    for view in views:
+        key = key_of(view["notice"])
+        order = (
+            view["notice"].get("publication_date") or "",
+            view["notice"].get("event_date") or "",
+            view["public_at_ms"],
+            view["notice_id"],
+        )
+        entry = latest.setdefault(key, {"order": None, "view": None, "all": []})
+        entry["all"].append(view["notice_id"])
+        if entry["order"] is None or order > entry["order"]:
+            entry.update({"order": order, "view": view})
+    return latest
+
+
+def _holding(
+    entry: Mapping[str, Any], as_of_day: date, stale_after_days: int
+) -> dict[str, Any]:
+    """One notifier's latest notification as stated, with thresholds reached, corrections and staleness."""
+    view = entry["view"]
+    notice = view["notice"]
+    percentages = notice["percentages"]
+    reached = {
+        basis: _thresholds(percentages.get(basis), basis)
+        for basis in ("s33", "s38", "s39")
+    }
+    published = notice.get("publication_date")
+    age = (as_of_day - date.fromisoformat(published)).days if published else None
+    return {
+        **_row(view),
+        "issuer": notice["issuer"],
+        "notifier": notice["notifier"],
+        "earlier_notifications": sorted(set(entry["all"]) - {view["notice_id"]}),
+        "chain": notice.get("chain") or [],
+        "percentages": percentages,
+        "thresholds_stated": notice.get("thresholds") or [],
+        "thresholds_reached": reached,
+        "event_date": notice.get("event_date"),
+        "corrections": [m for m in view["chain"]["members"] if m != view["notice_id"]],
+        "correction_link": view["chain"]["link"],
+        "last_notice_date": published,
+        "age_days": age,
+        "stale": bool(age is not None and age > stale_after_days),
+        "stale_label": (
+            f"no notification for more than {stale_after_days} days; shown as last notified, "
+            "not extrapolated"
+        )
+        if age is not None and age > stale_after_days
+        else None,
+    }
+
+
+PARTY_PREFIX = "bafin:party:"
+PERSON_PREFIX = "bafin:person:"
+NAMED_PREFIX = "bafin:named:"
+HOLDER_PREFIXES = (PARTY_PREFIX, PERSON_PREFIX)
+
+
+def _holder_record(
+    party: str | None, name: str | None, kind: str, isin: str | None
+) -> str:
+    """The record key a holder query starts from (the same keys identity candidates use)."""
+    from src.domains.market.bafin_identity import organisation_key, person_key
+
+    if bool(party) == bool(name):
+        raise BafinError(
+            "invalid_request", "name a holder: a party record key or a name, not both"
+        )
+    if party:
+        key = str(party).strip()
+        if not key.startswith(HOLDER_PREFIXES) or key in HOLDER_PREFIXES:
+            raise BafinError(
+                "invalid_request",
+                "a holder record key starts with bafin:party: or bafin:person:",
+            )
+        if isin:
+            raise BafinError(
+                "invalid_request", "a record key needs no ISIN; it is keyed already"
+            )
+        return key
+    if kind == "natural_person":
+        if not isin:
+            raise BafinError(
+                "invalid_request",
+                "a natural person is keyed within an issuer: give the ISIN of an issuer whose notice names "
+                "the person",
+            )
+        return person_key(normalize_isin(isin), name)
+    if kind != "organisation":
+        raise BafinError("invalid_request", "kind is organisation or natural_person")
+    if isin:
+        raise BafinError(
+            "invalid_request",
+            "an organisation is keyed by its name across issuers; an ISIN only anchors a natural person",
+        )
+    return organisation_key(name)
+
+
+def _holder_match(notice: Mapping[str, Any], keys: set[str]) -> dict[str, Any] | None:
+    """How a notification names one of the keys: as notifier, else as a member of the stated chain."""
+    from src.domains.market.bafin_identity import organisation_key, person_key
+
+    notifier = notice["notifier"]
+    natural = notifier.get("kind") == "natural_person"
+    key = (
+        person_key(issuer_key(notice.get("issuer") or {}), notifier["name"])
+        if natural
+        else organisation_key(notifier["name"])
+    )
+    if key in keys:
+        return {"role": "notifier", "record_key": key, "chain_member": None}
+    for member in notice.get("chain") or []:
+        same = party_key(member["name"]) == party_key(notifier["name"])
+        member_key = key if same else organisation_key(member["name"])
+        if member_key in keys:
+            return {
+                "role": "chain member",
+                "record_key": member_key,
+                "chain_member": member,
+            }
+    return None
+
+
+def _reaches_lowest(item: Mapping[str, Any]) -> bool:
+    return any(item["thresholds_reached"][basis] for basis in ("s33", "s39"))
+
+
+def _positions(item: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Each stated percentage with its WpHG basis, side by side; bases are never added up."""
+    return [
+        {
+            "basis": basis,
+            "provision": label,
+            "percentage": item["percentages"].get(basis),
+            "thresholds_reached": item["thresholds_reached"][basis],
+        }
+        for basis, label in BASES.items()
+        if item["percentages"].get(basis) is not None
+    ]
 
 
 class BafinQueries:
@@ -147,62 +307,13 @@ class BafinQueries:
         current = current_per_chain(visible["notices"])
         withdrawn = [v for v in current if v["notice"].get("withdrawn")]
         live = [v for v in current if not v["notice"].get("withdrawn")]
-        latest: dict[str, dict[str, Any]] = {}
-        for view in live:
-            notifier = view["notice"]["notifier"]
-            key = party_key(notifier["name"], kind=notifier.get("kind", "unknown"))
-            order = (
-                view["notice"].get("publication_date") or "",
-                view["notice"].get("event_date") or "",
-                view["public_at_ms"],
-                view["notice_id"],
-            )
-            entry = latest.setdefault(key, {"order": None, "view": None, "all": []})
-            entry["all"].append(view["notice_id"])
-            if entry["order"] is None or order > entry["order"]:
-                entry.update({"order": order, "view": view})
+        latest = _latest_per(live, _notifier_key)
         as_of_day = date.fromisoformat(cut["as_of"])
         holders, below = [], []
         for key, entry in sorted(latest.items()):
-            view = entry["view"]
-            notice = view["notice"]
-            percentages = notice["percentages"]
-            reached = {
-                basis: _thresholds(percentages.get(basis), basis)
-                for basis in ("s33", "s38", "s39")
-            }
-            published = notice.get("publication_date")
-            age = (
-                (as_of_day - date.fromisoformat(published)).days if published else None
-            )
-            item = {
-                **_row(view),
-                "issuer": notice["issuer"],
-                "notifier": notice["notifier"],
-                "earlier_notifications": sorted(
-                    set(entry["all"]) - {view["notice_id"]}
-                ),
-                "chain": notice.get("chain") or [],
-                "percentages": percentages,
-                "thresholds_stated": notice.get("thresholds") or [],
-                "thresholds_reached": reached,
-                "event_date": notice.get("event_date"),
-                "corrections": [
-                    m for m in view["chain"]["members"] if m != view["notice_id"]
-                ],
-                "correction_link": view["chain"]["link"],
-                "last_notice_date": published,
-                "age_days": age,
-                "stale": bool(age is not None and age > stale_after_days),
-                "stale_label": (
-                    f"no notification for more than {stale_after_days} days; shown as last notified, "
-                    "not extrapolated"
-                )
-                if age is not None and age > stale_after_days
-                else None,
-            }
-            lowest = [basis for basis in ("s33", "s39") if reached[basis]]
-            if not lowest:
+            item = _holding(entry, as_of_day, stale_after_days)
+            percentages = item["percentages"]
+            if not _reaches_lowest(item):
                 below.append(item)
                 continue
             if threshold is not None and not any(
@@ -227,6 +338,150 @@ class BafinQueries:
                 "percentage is at or above (WpHG § 33: 3 % upwards; §§ 38 and 39: 5 % upwards)",
             },
             views,
+            visible["unreadable"],
+        )
+
+    def holdings_of_holder(
+        self,
+        namespace: str,
+        as_of: Any,
+        *,
+        scopes: Iterable[str],
+        party: str | None = None,
+        name: str | None = None,
+        kind: str = "organisation",
+        isin: str | None = None,
+        acquired_by_ms: int | None = None,
+        stale_after_days: int = STALE_AFTER_DAYS,
+    ) -> dict[str, Any]:
+        """What one holder holds across issuers: its latest voting-rights notification per issuer by the cutoff.
+
+        The holder is a party record key (``bafin:party:...`` or
+        ``bafin:person:...``), an organisation name (keyed by
+        :func:`organisation_key`) or a natural person's name with the ISIN of
+        an issuer whose notice names the person (persons are keyed per issuer).
+        Other records join only through accepted, unreverted identity
+        decisions; a natural person is joined across issuers only in
+        person-research mode. Proposed candidates are listed apart, unjoined.
+        """
+        from src.config.env import person_research_enabled
+        from src.domains.market.bafin_identity import BafinIdentity
+
+        start = _holder_record(party, name, kind, isin)
+        cut, visible = self._visible(
+            namespace,
+            set(scopes),
+            ("voting_rights_notification",),
+            as_of,
+            acquired_by_ms,
+        )
+        research = person_research_enabled()
+
+        def follow(key: str) -> bool:
+            # A warning string is attributed by review, never an identity to walk through; a natural person is
+            # keyed per issuer and stays there unless person-research mode is on.
+            if key.startswith(NAMED_PREFIX):
+                return False
+            return research or not key.startswith(PERSON_PREFIX)
+
+        identity = BafinIdentity(self.conn, initialize=False)
+        cluster = identity.accepted_cluster(namespace, start, follow=follow)
+        joined = sorted(k for k in cluster["keys"] if k.startswith(HOLDER_PREFIXES))
+        current = current_per_chain(visible["notices"])
+        withdrawn = [v for v in current if v["notice"].get("withdrawn")]
+        latest = _latest_per(
+            (v for v in current if not v["notice"].get("withdrawn")),
+            lambda n: (issuer_key(n["issuer"]), _notifier_key(n)),
+        )
+        as_of_day = date.fromisoformat(cut["as_of"])
+
+        def read(keys: set[str]) -> tuple[list[dict[str, Any]], list[Mapping]]:
+            groups: dict[str, dict[str, Any]] = {}
+            used = []
+            for (issuer, _), entry in sorted(latest.items()):
+                notice = entry["view"]["notice"]
+                match = _holder_match(notice, keys)
+                if match is None:
+                    continue
+                item = {**_holding(entry, as_of_day, stale_after_days), **match}
+                item["positions"] = _positions(item)
+                group = groups.setdefault(
+                    issuer,
+                    {
+                        "issuer_key": issuer,
+                        "issuer": notice["issuer"],
+                        "holdings": [],
+                        "notified_below_lowest_threshold": [],
+                    },
+                )
+                group[
+                    "holdings"
+                    if _reaches_lowest(item)
+                    else "notified_below_lowest_threshold"
+                ].append(item)
+                used.append(entry["view"])
+            return [groups[k] for k in sorted(groups)], used
+
+        issuers, used = read(set(joined))
+        withdrawn_rows = []
+        for view in withdrawn:
+            match = _holder_match(view["notice"], set(joined))
+            if match is not None:
+                withdrawn_rows.append(
+                    {**_row(view), "issuer": view["notice"]["issuer"], **match}
+                )
+                used.append(view)
+        unjoined = []
+        for pending in identity.pending_links(namespace, joined):
+            other = pending["record_key"]
+            if not other.startswith(HOLDER_PREFIXES) or not follow(other):
+                continue
+            other_issuers, other_used = read({other})
+            used += other_used
+            unjoined.append(
+                {
+                    **pending,
+                    "issuers": other_issuers,
+                    "note": "a proposed candidate, not an identity decision: listed apart and never joined to "
+                    "the holder until a reviewer accepts it",
+                }
+            )
+        return self._answer(
+            "holdings_of_holder",
+            namespace,
+            cut,
+            {
+                "holder": {
+                    "record_key": start,
+                    "party": party,
+                    "name": name,
+                    "kind": "natural_person"
+                    if start.startswith(PERSON_PREFIX)
+                    else "organisation",
+                    "isin": normalize_isin(isin) if isin else None,
+                },
+                "identity": {
+                    "joined_records": joined,
+                    "accepted_candidates": cluster["candidates"],
+                    "person_research": research,
+                    "persons": "natural persons join across issuers only through accepted, unreverted identity "
+                    "decisions"
+                    if research
+                    else "natural persons are keyed per issuer and read within that issuer only "
+                    "(person-research mode is off)",
+                },
+                "issuers": issuers,
+                "withdrawn": withdrawn_rows,
+                "unjoined_candidates": unjoined,
+                "semantics_detail": "per issuer, the latest notification per notifier published by the cutoff that "
+                "names the holder as notifier or as a member of the stated chain, with each "
+                "percentage beside its WpHG basis (§ 33, § 38, § 39); never summed across issuers "
+                "or bases; a holding notified below the lowest threshold is listed apart as stated, "
+                "and an issuer without a notification naming the holder is absent, never 0 %; "
+                "organisations are equal by normalised name, other records join only through "
+                "accepted, unreverted identity decisions",
+            },
+            used,
             visible["unreadable"],
         )
 
@@ -760,41 +1015,34 @@ class BafinQueries:
         return dossier
 
 
-def export_dossier_bundle(
-    conn: Any, dossier: Mapping[str, Any], *, created_at_ms: int | None = None
+def _export_bundle(
+    conn: Any,
+    answer: Mapping[str, Any],
+    receipt: Mapping[str, Any],
+    root_id: str,
+    created_at_ms: int | None,
 ) -> dict[str, Any]:
-    """The dossier as a ``noesis-evidence-bundle-v1``: the dossier as root, one evidence object per cited revision."""
+    """An answer as a ``noesis-evidence-bundle-v1``: the answer as root, one evidence object per cited revision."""
     from src.evidence_bundle import EvidenceBundleBuilder
 
-    if dossier.get("contract") != DOSSIER_CONTRACT:
-        raise BafinError(
-            "invalid_request", "only an assembled BaFin notice dossier can be exported"
-        )
     store = BafinNoticeStore(conn, initialize=False)
     builder = EvidenceBundleBuilder(
         "receipt",
-        {
-            "domain": "market",
-            "kind": "bafin-notice-dossier",
-            "namespace": dossier["namespace"],
-            "issuer_isin": dossier["issuer_isin"],
-            "parameters": dossier["parameters"],
-            "dossier_hash": dossier["dossier_hash"],
-        },
+        dict(receipt),
         created_at_ms=created_at_ms if created_at_ms is not None else store.now(),
-        as_of_ms=dossier["cutoffs"]["publicly_available_by_ms"],
+        as_of_ms=answer["cutoffs"]["publicly_available_by_ms"],
     )
     evidence = []
-    for notice_id, revision_id in sorted(dossier["pins"].items()):
+    for notice_id, revision_id in sorted(answer["pins"].items()):
         checked = store.revision(
-            dossier["namespace"], revision_id
+            answer["namespace"], revision_id
         )  # a pinned revision must be on record
         if checked["notice_id"] != notice_id:
             raise BafinError(
                 "invalid_request", "a pinned revision belongs to another notice"
             )
         history = {
-            h["revision_id"]: h for h in store.history(dossier["namespace"], notice_id)
+            h["revision_id"]: h for h in store.history(answer["namespace"], notice_id)
         }
         notice = history[revision_id]["notice"]
         source = notice["source"]
@@ -824,9 +1072,62 @@ def export_dossier_bundle(
         )
     builder.add_object(
         "receipt",
-        {k: v for k, v in dossier.items() if k != "generation"},
-        object_id=f"bafin-dossier:{dossier['dossier_hash'][:32]}",
+        {k: v for k, v in answer.items() if k != "generation"},
+        object_id=root_id,
         references=evidence,
         root=True,
     )
     return builder.build()
+
+
+def export_dossier_bundle(
+    conn: Any, dossier: Mapping[str, Any], *, created_at_ms: int | None = None
+) -> dict[str, Any]:
+    """The dossier as a ``noesis-evidence-bundle-v1``: the dossier as root, one evidence object per cited revision."""
+    if dossier.get("contract") != DOSSIER_CONTRACT:
+        raise BafinError(
+            "invalid_request", "only an assembled BaFin notice dossier can be exported"
+        )
+    return _export_bundle(
+        conn,
+        dossier,
+        {
+            "domain": "market",
+            "kind": "bafin-notice-dossier",
+            "namespace": dossier["namespace"],
+            "issuer_isin": dossier["issuer_isin"],
+            "parameters": dossier["parameters"],
+            "dossier_hash": dossier["dossier_hash"],
+        },
+        f"bafin-dossier:{dossier['dossier_hash'][:32]}",
+        created_at_ms,
+    )
+
+
+def export_holdings_bundle(
+    conn: Any, answer: Mapping[str, Any], *, created_at_ms: int | None = None
+) -> dict[str, Any]:
+    """A holdings-of-holder answer as a ``noesis-evidence-bundle-v1``, every cited notice revision as evidence."""
+    if (
+        answer.get("contract") != CONTRACT
+        or answer.get("query") != "holdings_of_holder"
+    ):
+        raise BafinError(
+            "invalid_request", "only a BaFin holdings-of-holder answer can be exported"
+        )
+    return _export_bundle(
+        conn,
+        answer,
+        {
+            "domain": "market",
+            "kind": "bafin-holdings-of-holder",
+            "namespace": answer["namespace"],
+            "holder": answer["holder"],
+            "joined_records": answer["identity"]["joined_records"],
+            "as_of": answer["cutoffs"]["as_of"],
+            "acquired_by_ms": answer["cutoffs"]["acquired_by_ms"],
+            "answer_hash": answer["answer_hash"],
+        },
+        f"bafin-holdings:{answer['answer_hash'][:32]}",
+        created_at_ms,
+    )

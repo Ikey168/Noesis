@@ -1,0 +1,16 @@
+{
+ "native_pages": [
+  {
+   "request": "/releases/z1/dataviz/download/zips/dfa.zip",
+   "status": 200,
+   "body_zip": {
+    "dfa-networth-shares.csv": "Date,Category,Net worth,Assets\n2095:Q4,TopPt1,13.50,14.50\n2095:Q4,RemainingTop1,17.50,18.50\n2095:Q4,Next9,36.00,37.00\n2095:Q4,Next40,30.50,31.50\n2095:Q4,Bottom50,2.50,3.50\n2096:Q1,TopPt1,13.60,14.50\n2096:Q1,RemainingTop1,17.45,18.50\n2096:Q1,Next9,36.10,37.00\n2096:Q1,Next40,30.45,31.50\n2096:Q1,Bottom50,2.45,3.50\n2096:Q2,TopPt1,13.70,14.50\n2096:Q2,RemainingTop1,17.40,18.50\n2096:Q2,Next9,36.20,37.00\n2096:Q2,Next40,30.40,31.50\n2096:Q2,Bottom50,2.40,3.50\n2096:Q3,TopPt1,13.80,14.50\n2096:Q3,RemainingTop1,17.35,18.50\n2096:Q3,Next9,36.30,37.00\n2096:Q3,Next40,30.35,31.50\n2096:Q3,Bottom50,2.35,3.50\n2096:Q4,TopPt1,13.90,14.50\n2096:Q4,RemainingTop1,17.30,18.50\n2096:Q4,Next9,36.40,37.00\n2096:Q4,Next40,30.30,31.50\n2096:Q4,Bottom50,2.30,3.50\n2097:Q1,TopPt1,14.00,14.50\n2097:Q1,RemainingTop1,17.25,18.50\n2097:Q1,Next9,36.50,37.00\n2097:Q1,Next40,30.25,31.50\n2097:Q1,Bottom50,2.25,3.50\n2097:Q2,TopPt1,14.10,14.50\n2097:Q2,RemainingTop1,17.20,18.50\n2097:Q2,Next9,36.60,37.00\n2097:Q2,Next40,30.20,31.50\n2097:Q2,Bottom50,2.20,3.50\n2097:Q3,TopPt1,14.20,14.50\n2097:Q3,RemainingTop1,17.15,18.50\n2097:Q3,Next9,36.70,37.00\n2097:Q3,Next40,30.15,31.50\n2097:Q3,Bottom50,2.15,3.50\n2097:Q4,TopPt1,14.30,14.50\n2097:Q4,RemainingTop1,17.10,18.50\n2097:Q4,Next9,36.80,37.00\n2097:Q4,Next40,30.10,31.50\n2097:Q4,Bottom50,2.10,3.50\n"
+   }
+  }
+ ],
+ "scenarios": [
+  "first-release",
+  "zip-member",
+  "period-before-start-skipped"
+ ]
+}

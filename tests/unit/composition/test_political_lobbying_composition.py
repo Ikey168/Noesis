@@ -163,6 +163,7 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "market", "feature": "insurance", "reason": "not selected"},  # #2230
         {"pack": "political", "feature": "legislation-uk", "reason": "not selected"},
         {"pack": "political", "feature": "legislation-us", "reason": "not selected"},
+        {"pack": "corporate-ownership", "feature": "offshore-leaks", "reason": "not selected"},  # #2888
     ]
     # The bundle ships official-political-records 1.4.0 (elections result sources #1908, legislation sources
     # #2208, campaign-finance sources #2209); the lobbying descriptor's ^1.1.0 range is satisfied by it.

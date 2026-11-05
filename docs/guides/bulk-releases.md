@@ -45,7 +45,9 @@ A run processes one release of one adapter:
    written to `subset/<table>.jsonl.gz`, and optionally
    - `--sink dataset`: the dataset and release are registered in the dataset
      store and rows ingested in chunks of up to 10,000, partitioned by file;
-   - `--sink documents --domain D`: papers go through the gateway ingest.
+   - `--sink documents --domain D`: papers go through the gateway ingest;
+   - `--sink ownership --namespace NS`: ownership records (PSC snapshot) are applied to the ownership store,
+     where an unchanged entry adds nothing and a changed or ceased one is a revision.
    Raw files are deleted after processing (`--keep-raw` keeps them).
 4. **Incremental** — files whose fingerprint matches a completed file of an
    earlier release are skipped (`--full` reprocesses them).
@@ -65,6 +67,7 @@ per-adapter host allowlist, public addresses only, contact User-Agent.
 |---|---|---|
 | `bls-flat-files` | newest Last-Modified of the selected files | `survey` + `series` / `series_prefix` / `all_series`, `since_year`, `files` |
 | `companies-house-snapshot` | monthly snapshot date | `company_numbers`, `postcode_prefix`, `sic_prefix`, `status`, `incorporated_since`, or `all_companies` |
+| `companies-house-psc-snapshot` (ownership records) | daily PSC snapshot date | `company_numbers` and/or `company_prefix` (e.g. `OE`), optional `kinds`; use `--sink ownership --namespace NS --principal ID` (see `docs/development/ownership-register-audit.md`) |
 | `eia-bulk` | manifest `last_updated` | `datasets` + `series` / `series_prefix` / `all_series`, `since_period` |
 | `ember-generation` | file Last-Modified | `frequency`, `iso3` / `areas` / `all_areas`, `sources`, `since` (CC BY 4.0) |
 | `fas-psd` | file Last-Modified | `commodity_codes` / `commodities` / `all_commodities`, `countries`, `attributes`, `since_market_year` |
@@ -76,6 +79,7 @@ per-adapter host allowlist, public addresses only, contact User-Agent.
 | `pubmed-baseline` (documents) | baseline year + last update file | `pmids` / `mesh` / `journals` / `keywords`, `year_from`/`_to`, `include_baseline`, `include_updates` |
 | `s2-datasets` | S2AG release (or diff range) | `dataset` (abstracts/papers), `corpus_ids` / `dois` / `all_records`, `release`, `since_release` — needs `SEMANTIC_SCHOLAR_API_KEY` |
 | `openaq-archive` | listing date | `location_ids` (required), `date_from`, `date_to` (≤ 24 months), `parameters` |
+| `icij-offshore-leaks` | archive Last-Modified (or ETag) | `node_ids` (1-200 seeds), or `datasets` / `jurisdictions` with `max_nodes` (≤ 1000); `hops` 0/1, `node_kinds` (ODbL / CC BY-SA; project with `src.kb.offshore_leaks.project_bulk_subset`; see the [offshore leaks guide](corporate-ownership-offshore-leaks.md)) |
 
 ### Large dumps: what to expect
 

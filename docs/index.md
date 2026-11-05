@@ -202,6 +202,16 @@ For the project overview and local setup, start with the
   matched to ownership entities through reviewed identity: company or group to cited cases as of a date, stage history
   and aid for a beneficiary; no outcome prediction, market-power or aid-compatibility assessment;
   [source audit](development/competition-evidence/source-audit.md)
+- [Corporate Ownership offshore leaks guide](guides/corporate-ownership-offshore-leaks.md) — bounded ICIJ Offshore
+  Leaks Database selections (bulk runner) as entities, owner-scoped persons and officer/intermediary roles quoting
+  ICIJ's labels, cited to the leak dataset and node id; ICIJ links and registry matches are reviewable candidates
+  only; ICIJ's caveat on every line; no wrongdoing, AML or sanctions verdict;
+  [source audit](development/offshore-leaks-evidence/source-audit.md)
+- [Dividend-flow estimates](subsystems/dividend-flow-estimates.md) — derived, never reported: declared per-share
+  dividends times holdings stated in force at the record date, looked through stated holdings with an explicit
+  `max_depth`, each estimate with its cited input revisions, an interval for bands, timing gaps and threshold
+  censoring, `n`, method and assumptions; per currency, never summed or netted;
+  [source audit](development/dividend-flow-evidence/source-audit.md)
 - [Political campaign finance guide](guides/political-campaign-finance.md) — FEC committees, filing versions with
   amendment chains, itemised receipts, disbursements and independent expenditures and UK Electoral Commission
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
@@ -294,11 +304,22 @@ For the project overview and local setup, start with the
   comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
   blend, re-classification, COFOG combination, derived figure or forecast; offline only;
   [source audit](development/social-protection-evidence/source-audit.md)
+- [Society wealth distribution guide](guides/society-wealth.md) — World Inequality Database, ECB Distributional
+  Wealth Accounts and Fed Distributional Financial Accounts for a country as of a release, side by side with
+  wealth concepts, groups, populations, methods, vintages and comparability notes; no blend, re-harmonisation,
+  derived share or correction of model-based estimates; offline only;
+  [source audit](development/wealth-distribution-evidence/source-audit.md)
 - [Economics tourism guide](guides/economics-tourism.md) — Eurostat tourism occupancy and capacity for a place as
   of a release, monthly and annual series kept apart with residence, accommodation type, NUTS version, flags and
   vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
   UN Tourism not-implemented; no nowcast, filled month, blended or derived figure;
   [source audit](development/tourism-evidence/source-audit.md)
+- [Economics tax transparency guide](guides/economics-tax.md) — OECD Corporate Tax Statistics CbCR aggregates and
+  statutory rates as published statistics, OECD forward-looking effective tax rates and EU Tax Observatory offshore
+  wealth and billionaire tax-rate figures as model estimates with method and edition, each as of the edition
+  published by a date; link-only public CbCR references matched to ownership entities through reviewed identity;
+  Tax Justice Network indices not-implemented (licence); no own tax rate, rank, blend or forecast; offline only;
+  [source audit](development/tax-transparency-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

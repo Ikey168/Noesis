@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-wealth-distribution-record-v2",
+  "title": "Wealth distribution series item: one series of one release (society.wealth)",
+  "description": "One published series as a source released it (World Inequality Database, ECB Distributional Wealth Accounts or Federal Reserve Distributional Financial Accounts): source, dataset, indicator (wealth share, level, average, median or wealth-income ratio), wealth concept, wealth group, unit, population or unit of analysis, method (model-based estimates keep the publisher's method), place, frequency, the definition and method statement the source states and the observations (value text as published, cell status, the source-stated publication status, flags verbatim). Each release is appended as a vintage by src/kb/wealth_distribution_store.py, never overwritten; removals and revisions are vintages. No record carries person- or household-level data; a confidential or unpublished cell carries no value; nothing is nowcast, filled, recomputed, blended, re-harmonised, derived or forecast.",
+  "type": "object",
+  "required": ["provider", "dataset", "native_key", "indicator", "wealth_concept", "group", "unit", "population", "method", "area", "frequency", "definition", "observations"],
+  "definitions": {
+    "code": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {"code": {"type": "string", "minLength": 1}, "label": {"type": ["string", "null"]}}
+    },
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}(-Q[1-4])?$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "status": {"enum": ["reported", "confidential", "not_published"]},
+        "publication_status": {"enum": ["not-stated", "normal", "provisional", "estimated", "extrapolated", "projected"]},
+        "origin": {"const": "published"},
+        "flags": {"type": "object", "additionalProperties": {"type": "string"}},
+        "flag_meanings": {"type": "array", "items": {"type": "string"}},
+        "attributes": {"type": "object"}
+      },
+      "if": {"properties": {"status": {"not": {"const": "reported"}}}},
+      "then": {"properties": {"value": {"type": "null"}}}
+    }
+  },
+  "properties": {
+    "provider": {"enum": ["wid-wealth-distribution", "ecb-distributional-wealth-accounts", "fed-distributional-financial-accounts", "ecb-hfcs-statistical-tables", "bundesbank-phf-aggregates"]},
+    "dataset": {"type": "string", "minLength": 1},
+    "native_key": {"type": "string", "minLength": 1},
+    "indicator": {
+      "type": "object",
+      "required": ["code", "concept"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "concept": {"enum": ["wealth_share", "wealth_level", "wealth_average", "wealth_median", "wealth_income_ratio"]},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "wealth_concept": {"$ref": "#/definitions/code"},
+    "group": {"$ref": "#/definitions/code"},
+    "unit": {"$ref": "#/definitions/code"},
+    "population": {"$ref": "#/definitions/code"},
+    "method": {"$ref": "#/definitions/code"},
+    "area": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["iso3166-1-alpha2"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "frequency": {"enum": ["annual", "quarterly", "irregular"]},
+    "definition": {"type": "object", "required": ["provider", "method"]},
+    "references": {"type": "array"},
+    "source_notes": {"type": "array"},
+    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+  }
+}

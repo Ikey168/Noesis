@@ -78,13 +78,49 @@ still to verify live, are in
 * **Personal data.** Managers' names are held in a person table under a
   pseudonymous reference scoped to the notice and its issuer. Revisions only
   hold that reference. Natural persons are matched only within their issuer,
-  and a cross-issuer candidate only exists when a reviewer proposes it.
+  and a cross-issuer candidate only exists when a reviewer proposes it (or,
+  in person-research mode, `NOESIS_PERSON_RESEARCH`, when the same normalised
+  name appears under different issuers; it still stays proposed until reviewed).
+
+## Holdings of one holder across issuers
+
+`bafin_holdings_of_holder` is the inverse of `bafin_holders_as_of`: instead of
+"who holds issuer X" it answers "what does holder Y hold, issuer by issuer, as
+of a date" under the same `public_and_acquired` cutoffs.
+
+* **The holder** is a party record key (`bafin:party:...` for an organisation,
+  `bafin:person:...` for a natural person), an organisation name (keyed by its
+  normalised name, which is the same record in every issuer), or
+  `kind="natural_person"` with a name and the ISIN of an issuer whose notice
+  names the person. Persons are keyed per issuer, so a name alone never finds
+  a person elsewhere.
+* **Per issuer**, the answer lists the latest notification per notifier
+  published by the cutoff that names the holder as notifier or as a member of
+  the stated chain, with the chain, corrections, earlier notifications, staleness
+  and every stated percentage beside its WpHG basis (§ 33, § 38, § 39). Nothing is
+  summed across issuers or bases. A holding whose latest notification is below
+  the lowest threshold is listed apart as stated; an issuer without a
+  notification naming the holder is absent, never 0 %.
+* **Identity.** Other records join the holder only through accepted,
+  unreverted identity decisions (`review_bafin_identity_match`), followed
+  transitively; the answer names the joined records and the accepted candidate
+  ids. Proposed candidates are listed under `unjoined_candidates` with the
+  other record's holdings, never merged into the holder's. A reverted decision
+  no longer joins. Natural persons join across issuers only in person-research
+  mode; with the switch off a person is read within its own issuer. A
+  similar-name candidate is never accepted, so a reviewer adds the attribute
+  evidence they checked (`propose_bafin_identity_link(..., attributes=[...])`)
+  before accepting.
+* **Evidence.** Every listed notification is pinned by revision;
+  `export_bundle=true` returns a `noesis-evidence-bundle-v1` with one evidence
+  object per pinned revision (`export_holdings_bundle`).
 
 ## MCP tools (noesis-knowledge-engine)
 
 | Tool | Scopes | Semantics |
 | --- | --- | --- |
 | `bafin_holders_as_of(namespace, isin, as_of, acquired_by_ms?, threshold?)` | `market:bafin:read` | latest notification per notifier published by the cutoff, chain as stated, percentages by basis, thresholds reached; stale holders keep their last notice date |
+| `bafin_holdings_of_holder(namespace, as_of, party?, name?, kind?, isin?, acquired_by_ms?, export_bundle?)` | `market:bafin:read` | per issuer, the holder's latest notification by the cutoff (as notifier or chain member) with percentages by basis; joined only through accepted identity decisions, proposed candidates listed unjoined; never summed |
 | `bafin_managers_transactions(namespace, date_from, date_to, isin?, person?, as_of?, acquired_by_ms?)` | `market:bafin:read` | notifications in the window with trades and aggregate; amendments supersede |
 | `bafin_net_short_positions(namespace, isin, as_of, acquired_by_ms?)` | `market:bafin:read` | latest published position per holder; ended positions are "below publication threshold or closed"; a labelled sum of published positions |
 | `bafin_warnings_for_entity(namespace, name?, party?, as_of?, acquired_by_ms?)` | `market:bafin:read` | name-equal strings (not attributed) and reviewed matches; removals kept |
@@ -110,6 +146,20 @@ bafin_net_short_positions(..., as_of="2026-05-01") -> Kurzfrist Capital LLP "bel
 bafin_notice_dossier(..., as_of="2026-07-02", export_bundle=true) -> cited dossier and evidence bundle
 ```
 
-Offline evidence: `tests/unit/domains/test_bafin_acceptance.py`. Bounded live
+Holdings across issuers (both fictional issuers in scope,
+`tests/unit/bafin_harness.py: acquire_cross_issuer`):
+
+```
+bafin_holdings_of_holder(namespace="market-bafin", name="Fiktiva Holding SE", as_of="2026-05-01")
+  -> DE000MSTR014: VR-2026-0007 (§ 33 5.21 %, § 39 5.21 %); DE000BSPL026: VR-2026-0002 (§ 33 3.01 %)
+bafin_holdings_of_holder(..., as_of="2026-05-20")
+  -> DE000BSPL026 moves to notified_below_lowest_threshold: VR-2026-0013 (2.4 % as stated)
+bafin_holdings_of_holder(..., name="Erika Musterfrau", kind="natural_person", isin="DE000MSTR014", as_of="2026-05-20")
+  -> DE000MSTR014 only; with NOESIS_PERSON_RESEARCH=1 the DE000BSPL026 person is an unjoined candidate
+     until a reviewer accepts it, then both issuers are returned
+```
+
+Offline evidence: `tests/unit/domains/test_bafin_acceptance.py` and
+`tests/unit/domains/test_bafin_holdings_of_holder.py`. Bounded live
 evidence is still outstanding (#2132) and will be recorded under
 `docs/development/bafin-notices-evidence/`.

@@ -1,0 +1,245 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "society.wealth",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.wealth_distribution_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "society.wealth-series",
+      "contract": {
+        "name": "noesis-wealth-distribution-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "list-series",
+        "indicator-for-place",
+        "series-history",
+        "comparability-notes",
+        "profile",
+        "export-profile",
+        "register-schemas",
+        "record-comparability-note",
+        "review-comparability-note"
+      ],
+      "semantic_constraints": {
+        "series": "keyed by source, dataset, indicator (wealth share, level, average, median or wealth-income ratio), wealth concept, wealth group, unit, population or unit of analysis, method, place and frequency, each with the code as published; values also in the Economics series storage (economic_vintages, dataset_observations; domain society)",
+        "definitions": "the definition and the method statement the source states are definition revisions; a changed method statement (a new WID DINA method) is a new revision",
+        "vintages": "each changed release is an appended vintage with release and retrieval clocks (a declared WID update, DWA release or Z.1 release date, else the labelled retrieval time); a series a complete later release no longer states gets a removed_by_source vintage; as-of answers select the vintage released by the date",
+        "values": "stored as published, never recomputed or rescaled; model-based estimates (WID, DWA, DFA) keep the publisher's method and the publication status the source states (estimated, provisional, extrapolated); OBS_CONF C is a status, never a value",
+        "comparability": "WID, DWA and DFA rows are side by side and never combined; pairs from different sources state different_indicator, the source-stated or reviewer-recorded notes, or comparability_unknown",
+        "minimisation": "published aggregates only; person- and household-level fields, HFCS, PHF and SCF microdata, survey weights and rich lists refused at write time",
+        "exclusions": "no nowcasting, no filled or interpolated periods, no blending of WID, DWA, DFA, HFCS and PHF figures, no re-harmonising of wealth concepts, population units or groups, no shares, ratios or averages of our own, no correction of model-based estimates, no forecasts; ECB HFCS and Bundesbank PHF PDF tables are read only at declared table anchors, row labels and printed columns, each value citing its page and quoted line, and a cell that cannot be read exactly fails the document (never guessed or transcribed by hand)"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.wealth_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.wealth_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_wealth_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.wealth_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.wealth_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.wealth_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "profile",
+      "tool": "noesis-knowledge-engine.wealth_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-profile",
+      "tool": "noesis-knowledge-engine.export_wealth_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_wealth_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-comparability-note",
+      "tool": "noesis-knowledge-engine.record_wealth_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series + relation + statement"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-comparability-note",
+      "tool": "noesis-knowledge-engine.review_wealth_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "note_id + state"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:wealth:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "wealth-distribution-record",
+      "store": "src.kb.wealth_distribution_store",
+      "tables": [
+        "wealth_releases",
+        "wealth_series",
+        "wealth_definitions",
+        "wealth_vintages",
+        "wealth_observations",
+        "wealth_release_members",
+        "wealth_comparability",
+        "wealth_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "series",
+      "kind": "table-exists",
+      "target": "wealth_vintages"
+    },
+    {
+      "id": "wealth-source",
+      "kind": "source-pack-enabled",
+      "target": "society-wealth-distribution"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "society-wealth-distribution",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

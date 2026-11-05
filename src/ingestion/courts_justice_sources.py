@@ -41,6 +41,13 @@ a record. ``PROVIDER_CONTRACTS``, ``MINIMISATION``, ``BOUNDED_COVERAGE`` and
 
 Nothing here predicts outcomes, labels a case won or lost, scores recidivism
 or risk, rates neighbourhood safety, ranks places or gives legal advice.
+
+**Person-research mode** (``NOESIS_PERSON_RESEARCH``, off by default; see
+``docs/security/person-research-mode.md``): a natural-person party keeps its
+published name and gets a docket-scoped party key like an organisation, and
+the docket record carries the policy ``courts-person-research-v1`` (refused at
+projection with the switch off). Addresses, dates of birth, ``extra_info``,
+attorneys and CourtListener party ids are still never stored.
 """
 
 from __future__ import annotations
@@ -53,6 +60,7 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlencode, urlsplit
 
+from src.config.env import person_research_enabled
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
@@ -188,7 +196,19 @@ MINIMISATION = {
     "descriptions are court-published text and are kept verbatim, never parsed into person records",
     "no_profile": "natural persons are never matched to entities, aggregated across dockets, used as a query "
     "key or used as a subscription target; no personal profile is assembled",
+    "person_research": {
+        "switch": "NOESIS_PERSON_RESEARCH (off by default; docs/security/person-research-mode.md)",
+        "policy": "courts-person-research-v1",
+        "stored_for_natural_persons": ["name as published", "docket-scoped party key", "role(s) as published"],
+        "never_stored": ["addresses", "dates of birth", "party extra_info", "attorneys and their contact details",
+                         "CourtListener party ids of natural persons"],
+        "matching": "natural-person parties are offered to identity review against ownership persons (equal "
+                    "normalized name, low evidence) and may be queried or monitored through an accepted match or "
+                    "their published name; nothing is accepted automatically",
+        "write_guard": "a docket record under the policy is refused at projection while the switch is off",
+    },
 }
+PERSON_RESEARCH_POLICY = "courts-person-research-v1"
 # CJ01 bounded first coverage: nothing implies complete coverage of a court, a statute or a statistics programme.
 BOUNDED_COVERAGE = {
     "dockets": "the declared CourtListener dockets (at most 20 per source) of the declared federal courts "
@@ -289,15 +309,18 @@ def _cl_url(value: Any, fallback: str) -> str:
     return text if text.startswith("https://") else fallback
 
 
-def _parties(docket_id: int, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Minimise at ingestion: only role, type flag and (organisations only) the name as published."""
+def _parties(docket_id: int, items: list[dict[str, Any]], persons: bool = False) -> list[dict[str, Any]]:
+    """Minimise at ingestion: only role, type flag and (organisations only) the name as published.
+
+    In person-research mode (``persons``) a natural person keeps the name as published and a party key too.
+    """
     out = []
     counters: dict[str, int] = {}
     for ordinal, item in enumerate(items, start=1):
         roles = sorted({_clean(t.get("name")) for t in item.get("party_types") or []
                         if isinstance(t, Mapping) and _clean(t.get("name"))})
         kind = party_type(item.get("name"))
-        if kind == "organisation":
+        if kind == "organisation" or (persons and _clean(item.get("name"))):
             out.append({"ordinal": ordinal, "party_type": kind, "name_as_published": _clean(item.get("name")),
                         "roles": roles, "party_key": f"courts:party:courtlistener:{docket_id}:{ordinal}"})
         else:
@@ -340,7 +363,8 @@ def parse_docket(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> lis
     if unit.get("court") and unit["court"] != court_id:
         raise CourtsJusticeFormatError("schema_drift", "the docket belongs to another court than declared")
     entries = _entries(_results(_json(responses["entries"]), "docket entries"))
-    parties = _parties(docket_id, _results(_json(responses["parties"]), "parties"))
+    persons = person_research_enabled()
+    parties = _parties(docket_id, _results(_json(responses["parties"]), "parties"), persons)
     fields = {
         "courtlistener_docket_id": docket_id, "court_id": court_id,
         "docket_number": _clean(docket.get("docket_number")), "case_name": _verbatim(docket.get("case_name")),
@@ -350,9 +374,14 @@ def parse_docket(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> lis
         "entries": entries, "parties": parties,
     }
     locator = _cl_url(docket.get("absolute_url"), f"{CL_SITE}/docket/{docket_id}/")
-    return [_record("courtlistener-docket-json", "docket", f"courts:docket:courtlistener:{docket_id}",
-                    native_revision=docket.get("date_modified"), title=docket.get("case_name"), locator=locator,
-                    published_at=docket.get("date_filed"), fields=fields)]
+    record = _record("courtlistener-docket-json", "docket", f"courts:docket:courtlistener:{docket_id}",
+                     native_revision=docket.get("date_modified"), title=docket.get("case_name"), locator=locator,
+                     published_at=docket.get("date_filed"), fields=fields)
+    if any(p["party_type"] == "natural_person" and p.get("name_as_published") for p in parties):
+        record["minimisation"] = {"policy": PERSON_RESEARCH_POLICY,
+                                  "withheld": ["addresses", "dates_of_birth", "extra_info", "attorneys",
+                                               "courtlistener_party_ids"]}
+    return [record]
 
 
 def citation_text(citation: Mapping[str, Any]) -> str | None:

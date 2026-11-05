@@ -156,7 +156,13 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "legal", "feature": "justice-statistics", "reason": "not selected"},  # #2218
         {"pack": "economics", "feature": "labour-statistics", "reason": "not selected"},
         {"pack": "economics", "feature": "logistics", "reason": "not selected"},  # #2229
+        {"pack": "corporate-ownership", "feature": "offshore-leaks", "reason": "not selected"},  # #2888
         {"pack": "economics", "feature": "public-finance", "reason": "not selected"},
+        {"pack": "economics", "feature": "tax-eutax-billionaire-etr", "reason": "not selected"},  # #2889
+        {"pack": "economics", "feature": "tax-eutax-offshore-wealth", "reason": "not selected"},  # #2889
+        {"pack": "economics", "feature": "tax-oecd-cbcr", "reason": "not selected"},  # #2889
+        {"pack": "economics", "feature": "tax-oecd-rates", "reason": "not selected"},  # #2889
+        {"pack": "economics", "feature": "tax-public-cbcr", "reason": "not selected"},  # #2889
         {"pack": "economics", "feature": "tourism-capacity", "reason": "not selected"},  # #2739
         {"pack": "economics", "feature": "tourism-occupancy", "reason": "not selected"},  # #2739
         {"pack": "economics", "feature": "trade-comext", "reason": "not selected"},

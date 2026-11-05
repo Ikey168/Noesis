@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://noesis.local/contracts/noesis-enforcement-record-v2.json",
   "title": "Regulatory enforcement authority, action, respondent, notice, penalty or appeal as published",
-  "description": "One record of the Legal pack's regulatory enforcement feature (#2651), stored as immutable revisions in the enforcement store. An action is keyed by authority and native identifier (SEC release or file number, FCA notice reference, ECHO case number, EDPB Article 60 register entry) with action type, legal bases and charges as cited, key dates, the outcome as published (a settlement keeps the published admission wording), court cases as citations, facilities by published FRS identifier and lead/concerned authorities. Respondents are organisational only, name and role as published, with published identifiers and no identity resolution; natural persons are counted on the action, never named (EN01 minimisation). Notices are versioned documents; penalties keep the published amount text and currency, with undisclosed amounts explicit; appeals keep forum, reference and status as published. Corrections and removals by the source are revisions. No record carries a risk or compliance score, an inferred finding of wrongdoing, a merged settlement finding, a personal profile or legal advice.",
+  "description": "One record of the Legal pack's regulatory enforcement feature (#2651), stored as immutable revisions in the enforcement store. An action is keyed by authority and native identifier (SEC release or file number, FCA notice reference, ECHO case number, EDPB Article 60 register entry) with action type, legal bases and charges as cited, key dates, the outcome as published (a settlement keeps the published admission wording), court cases as citations, facilities by published FRS identifier and lead/concerned authorities. Respondents are organisational only, name and role as published, with published identifiers and no identity resolution; natural persons are counted on the action, never named (EN01 minimisation), except in records stored under the person-research policy (enforcement-person-research-v1, NOESIS_PERSON_RESEARCH on), where an individual respondent keeps the published name and role but no identifier; dates of birth, home addresses and personal registration numbers stay withheld. Notices are versioned documents; penalties keep the published amount text and currency, with undisclosed amounts explicit; appeals keep forum, reference and status as published. Corrections and removals by the source are revisions. No record carries a risk or compliance score, an inferred finding of wrongdoing, a merged settlement finding, a personal profile or legal advice.",
   "type": "object",
   "required": ["contract", "kind", "record_key", "source", "authority"],
   "properties": {
@@ -49,7 +49,8 @@
     "natural_person_respondents": {"type": ["integer", "null"], "minimum": 0},
     "court_cases": {"type": ["array", "null"], "items": {"type": "object", "required": ["docket_number"]}},
     "facilities": {"type": ["array", "null"], "items": {"type": "object"}},
-    "respondent_type": {"const": "organisation"},
+    "respondent_type": {"enum": ["organisation", "natural_person"]},
+    "minimisation": {"type": "object", "required": ["policy"], "properties": {"policy": {"enum": ["enforcement-minimisation-v1", "enforcement-person-research-v1"]}, "withheld": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
     "role": {"enum": ["respondent", "defendant", "firm", "controller", "processor", "other"]},
     "identifiers": {"type": ["array", "null"], "items": {"type": "object", "required": ["scheme", "value"]}},
     "penalty_type": {"enum": ["civil_penalty", "disgorgement", "prejudgment_interest", "financial_penalty", "penalty_before_settlement_discount", "federal_penalty", "state_local_penalty", "supplemental_environmental_project", "cost_recovery", "compliance_action_cost", "administrative_fine", "other"]},
@@ -59,6 +60,9 @@
     "content_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "unknowns": {"type": ["array", "null"], "items": {"type": "string"}}
   },
+  "if": {"required": ["respondent_type"], "properties": {"respondent_type": {"const": "natural_person"}}},
+  "then": {"required": ["minimisation"], "properties": {"identifiers": {"maxItems": 0},
+           "minimisation": {"properties": {"policy": {"const": "enforcement-person-research-v1"}}}}},
   "not": {"anyOf": [{"required": ["risk_score"]}, {"required": ["compliance_score"]}, {"required": ["finding_of_wrongdoing"]},
                     {"required": ["violation_found"]}, {"required": ["guilty"]}, {"required": ["legal_advice"]},
                     {"required": ["date_of_birth"]}, {"required": ["home_address"]}, {"required": ["nationality"]}]}

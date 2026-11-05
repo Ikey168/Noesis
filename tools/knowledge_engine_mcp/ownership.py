@@ -18,9 +18,13 @@ OWNERSHIP_TOOLS = OWNERSHIP_WRITES | {
     "ownership_bundle_status", "ownership_provider_contracts", "lookup_ownership_entity",
     "inspect_ownership_record", "ownership_record_history", "list_ownership_identity_candidates",
     "ownership_graph", "ownership_timeline", "ownership_state_as_of", "build_ownership_dossier",
+    "estimate_dividend_flows",
 }
 OWNERSHIP_SCOPES = {
     "ownership_provider_contracts": [],
+    # Derived dividend-flow estimates (#2891) read the ownership graph and the Market dividend inputs.
+    "estimate_dividend_flows": ["knowledge:ownership:read", "market:actions:read", "market:financial-facts:read",
+                                "market:instruments:read"],
     "set_ownership_bundle_enabled": ["operator"],
     "acquire_ownership_sources": ["knowledge:ownership:write", "knowledge:ingestion:execute"],
     "review_ownership_identity_match": ["knowledge:ownership:review"],
@@ -40,6 +44,20 @@ OWNERSHIP_WRITES = OWNERSHIP_WRITES | COMPETITION_WRITES
 OWNERSHIP_TOOLS = OWNERSHIP_TOOLS | COMPETITION_TOOLS
 OWNERSHIP_SCOPES = {**OWNERSHIP_SCOPES, **COMPETITION_SCOPES}
 
+# Holding structures (#2890): stated classification and the structure dossier, registered here.
+from tools.knowledge_engine_mcp.ownership_structures import (
+    STRUCTURE_SCOPES,
+    STRUCTURE_TOOLS,
+    STRUCTURE_WRITES,
+)
+from tools.knowledge_engine_mcp.ownership_structures import (
+    register as register_structures,
+)
+
+OWNERSHIP_WRITES = OWNERSHIP_WRITES | STRUCTURE_WRITES
+OWNERSHIP_TOOLS = OWNERSHIP_TOOLS | STRUCTURE_TOOLS
+OWNERSHIP_SCOPES = {**OWNERSHIP_SCOPES, **STRUCTURE_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return OWNERSHIP_SCOPES.get(
@@ -48,6 +66,7 @@ def required_scopes(tool_name, mutability):
 
 def register(mcp, safe, context):
     register_competition(mcp, safe, context)
+    register_structures(mcp, safe, context)
 
     def who():
         return context()[0], context()[1]
@@ -169,11 +188,47 @@ def register(mcp, safe, context):
     @mcp.tool()
     def ownership_graph(namespace: str, query: str, entity: str, as_of: str | None = None, max_depth: int = 10,
                         known_at_ms: int | None = None) -> dict:
-        """direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain as of a date."""
+        """direct_parents / ultimate_parents / subsidiaries / control_chain / successor_chain / holders / holdings as of a date."""
         from src.kb.ownership_graph import query as run_query
         return gated(namespace, lambda conn: run_query(conn, namespace, query, entity, principal_id=who()[0],
                                                        scopes=who()[1], as_of=as_of, max_depth=max_depth,
                                                        known_at_ms=known_at_ms))
+
+    @mcp.tool()
+    def estimate_dividend_flows(namespace: str, market_namespace: str, as_of: str, holder: str | None = None,
+                                issuer: str | None = None, max_depth: int = 3, window_days: int = 365,
+                                acquired_by_ms: int | None = None, known_at_ms: int | None = None,
+                                links: dict | None = None, verify: bool = False,
+                                export_bundle: bool = False) -> dict:
+        """DERIVED dividend-flow estimates, never reported figures: declared cash dividends per share (Market
+        corporate actions, else filed per-share facts) whose record date falls in the window_days up to as_of
+        (YYYY-MM-DD), times the holding stated in force at that date, looked through stated holdings up to
+        max_depth links. Name exactly one of holder (what flows to it) or issuer (what flows from it), as an
+        ownership record key or record id. Each estimate carries label "derived", method id/version, every cited
+        input revision, an interval (holding bands, regime timing rules, threshold censoring), n and assumptions.
+        Holdings below publication thresholds are never estimated; unknown links, cycles and truncation are
+        listed; natural persons are withheld unless person-research mode is on; nothing is summed across paths or
+        netted across currencies. links: {ownership record_key: {"issuer_id", "security_id"?}} when no exact CIK
+        or LEI links the entity to a Market issuer. verify recomputes each estimate from its cited revisions;
+        export_bundle returns a noesis-evidence-bundle-v1. Not investment, tax or ownership advice.
+        """
+        def run(conn):
+            from src.domains.market import dividend_flows as flows
+
+            principal, scopes = who()
+            answer = flows.estimate_dividend_flows(
+                conn, namespace, market_namespace=market_namespace, as_of=as_of, holder=holder, issuer=issuer,
+                principal_id=principal, scopes=scopes, max_depth=max_depth, window_days=window_days,
+                acquired_by_ms=acquired_by_ms, known_at_ms=known_at_ms, links=links)
+            if not (verify or export_bundle):
+                return answer
+            result = {"answer": answer}
+            if verify:
+                result["verification"] = flows.reproduce(conn, answer, principal_id=principal, scopes=scopes)
+            if export_bundle:
+                result["bundle"] = flows.export_bundle(conn, answer)
+            return result
+        return gated(namespace, run)
 
     @mcp.tool()
     def ownership_timeline(namespace: str, entity: str, known_at_ms: int | None = None,

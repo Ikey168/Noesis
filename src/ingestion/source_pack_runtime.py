@@ -610,6 +610,16 @@ def _social_protection_projector(conn: Any) -> Any:
 PROJECTORS["noesis-social-protection-record-v2"] = _social_protection_projector
 
 
+def _wealth_projector(conn: Any) -> Any:
+    from src.kb.wealth_distribution_store import WealthProjector
+
+    return WealthProjector(conn)
+
+
+# Society wealth distribution (society.wealth, #2882).
+PROJECTORS["noesis-wealth-distribution-record-v2"] = _wealth_projector
+
+
 def _tourism_statistics_projector(conn: Any) -> Any:
     from src.kb.tourism_store import TourismProjector
 
@@ -628,6 +638,16 @@ def _internet_infrastructure_projector(conn: Any) -> Any:
 
 # Technology internet infrastructure (technology.internet-infrastructure, #2743).
 PROJECTORS["noesis-internet-infrastructure-record-v2"] = _internet_infrastructure_projector
+
+
+def _tax_transparency_projector(conn: Any) -> Any:
+    from src.kb.tax_store import TaxProjector
+
+    return TaxProjector(conn)
+
+
+# Economics tax transparency (economics.tax, #2889).
+PROJECTORS["noesis-tax-transparency-record-v2"] = _tax_transparency_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

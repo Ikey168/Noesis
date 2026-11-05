@@ -182,6 +182,7 @@
     "noesis-knowledge-engine.build_environment_place_dossier",
     "noesis-knowledge-engine.build_funding_shortlist",
     "noesis-knowledge-engine.build_ownership_dossier",
+    "noesis-knowledge-engine.build_ownership_structure_dossier",
     "noesis-knowledge-engine.build_procurement_shortlist",
     "noesis-knowledge-engine.calculate_spatial_relation",
     "noesis-knowledge-engine.chemicals_bundle_status",
@@ -243,6 +244,7 @@
     "noesis-knowledge-engine.energy_source_contracts",
     "noesis-knowledge-engine.engineering_safety_dossier",
     "noesis-knowledge-engine.environment_provider_contracts",
+    "noesis-knowledge-engine.estimate_dividend_flows",
     "noesis-knowledge-engine.exoplanet_status_as_of",
     "noesis-knowledge-engine.expand_clinical_question",
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
@@ -252,6 +254,7 @@
     "noesis-knowledge-engine.export_income_profile",
     "noesis-knowledge-engine.export_lexeme_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
+    "noesis-knowledge-engine.export_ownership_structure_dossier",
     "noesis-knowledge-engine.export_sports_records",
     "noesis-knowledge-engine.fisheries_area_aggregates",
     "noesis-knowledge-engine.fisheries_bundle_status",
@@ -349,6 +352,7 @@
     "noesis-knowledge-engine.list_linguistic_identity_candidates",
     "noesis-knowledge-engine.list_oss_identity_candidates",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
+    "noesis-knowledge-engine.list_ownership_structure_classifications",
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_safety_subject_matches",
     "noesis-knowledge-engine.list_sports_identity_candidates",
@@ -419,6 +423,8 @@
     "noesis-knowledge-engine.propose_lexeme_matches",
     "noesis-knowledge-engine.propose_oss_identity_link",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
+    "noesis-knowledge-engine.propose_ownership_structure_classification",
+    "noesis-knowledge-engine.propose_ownership_structure_classifications_from_records",
     "noesis-knowledge-engine.propose_product_notice_matches",
     "noesis-knowledge-engine.propose_product_notice_party_links",
     "noesis-knowledge-engine.propose_publisher_organisation_matches",
@@ -473,6 +479,7 @@
     "noesis-knowledge-engine.revert_income_identity",
     "noesis-knowledge-engine.revert_oss_identity_match",
     "noesis-knowledge-engine.revert_ownership_identity_match",
+    "noesis-knowledge-engine.revert_ownership_structure_classification",
     "noesis-knowledge-engine.revert_safety_subject_match",
     "noesis-knowledge-engine.revert_sports_identity_match",
     "noesis-knowledge-engine.revert_sports_news_link",
@@ -492,6 +499,7 @@
     "noesis-knowledge-engine.review_linguistic_identity_match",
     "noesis-knowledge-engine.review_oss_identity_match",
     "noesis-knowledge-engine.review_ownership_identity_match",
+    "noesis-knowledge-engine.review_ownership_structure_classification",
     "noesis-knowledge-engine.review_product_notice_match",
     "noesis-knowledge-engine.review_product_notice_party_link",
     "noesis-knowledge-engine.review_safety_subject_match",
@@ -2643,6 +2651,50 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
+        "tool": "noesis-knowledge-engine.build_ownership_structure_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.build_ownership_structure_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.estimate_dividend_flows"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.estimate_dividend_flows"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
         "tool": "noesis-knowledge-engine.export_ownership_dossier"
       },
       {
@@ -2657,6 +2709,28 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.export_ownership_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_ownership_structure_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_ownership_structure_dossier"
       },
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
@@ -2701,6 +2775,28 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.list_ownership_identity_candidates"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_ownership_structure_classifications"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_ownership_structure_classifications"
       },
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
@@ -2872,6 +2968,50 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
+        "tool": "noesis-knowledge-engine.propose_ownership_structure_classification"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_ownership_structure_classification"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_ownership_structure_classifications_from_records"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_ownership_structure_classifications_from_records"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
         "tool": "noesis-knowledge-engine.record_ownership_register_document"
       },
       {
@@ -2916,6 +3056,28 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
+        "tool": "noesis-knowledge-engine.revert_ownership_structure_classification"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_ownership_structure_classification"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
         "tool": "noesis-knowledge-engine.review_ownership_identity_match"
       },
       {
@@ -2930,6 +3092,28 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.review_ownership_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "corporate-ownership",
+        "composition": "corporate-ownership",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_ownership_structure_classification"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "corporate-ownership",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_ownership_structure_classification"
       }
     ],
     "economics": [

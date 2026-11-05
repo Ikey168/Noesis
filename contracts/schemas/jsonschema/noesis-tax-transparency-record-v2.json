@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-tax-transparency-record-v2",
+  "title": "Tax transparency series item: one series of one edition (economics.tax)",
+  "description": "One series as its publisher released it in one edition (OECD Corporate Tax Statistics CbCR aggregates and corporate tax rates; EU Tax Observatory offshore wealth and billionaire effective tax rates): dataset, nature (published_statistic or model_estimate), indicator, jurisdiction, counterpart grouping, unit with its multiplier, frequency, the edition, the definition the source states and, for model estimates, the method; observations with value text as published, status and status letters verbatim. Each edition is appended as a vintage by src/kb/tax_store.py, never overwritten; removals are vintages. Model estimates are never written to the Economics observation storage and never presented as observations. No record carries person-, taxpayer- or wealth-holder-level data; a confidential cell is a status and carries no value; nothing is computed, filled, converted, blended, ranked or forecast. Public CbCR reports are link-only company_report references and never carry a figure.",
+  "type": "object",
+  "required": ["provider", "dataset", "nature", "native_key", "indicator", "jurisdiction", "counterpart", "unit", "frequency", "edition", "definition", "observations"],
+  "definitions": {
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "status": {"enum": ["reported", "estimated", "confidential", "not_published"]},
+        "flags": {"type": "object", "additionalProperties": {"type": "string"}},
+        "flag_meanings": {"type": "array", "items": {"type": "string"}}
+      },
+      "if": {"properties": {"status": {"enum": ["confidential", "not_published"]}}},
+      "then": {"properties": {"value": {"type": "null"}}}
+    }
+  },
+  "properties": {
+    "provider": {"enum": ["oecd-cts-cbcr", "oecd-cts-rates", "eutax-offshore-wealth", "eutax-billionaire-etr"]},
+    "dataset": {"enum": ["DSD_CBCR@DF_CBCRI", "DSD_TAX_CIT@DF_CIT", "DSD_ETR@DF_ETR", "atlas-offshore-financial-wealth", "gter-billionaire-effective-tax-rates"]},
+    "nature": {"enum": ["published_statistic", "model_estimate"]},
+    "native_key": {"type": "string", "minLength": 1},
+    "indicator": {
+      "type": "object",
+      "required": ["code", "concept"],
+      "properties": {"code": {"type": "string"}, "concept": {"type": "string"}, "label": {"type": "string"}}
+    },
+    "jurisdiction": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {"scheme": {"const": "iso3166-alpha3"}, "code": {"type": "string", "pattern": "^[A-Z]{3}$"}, "label": {"type": ["string", "null"]}}
+    },
+    "counterpart": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {"code": {"type": "string"}, "label": {"type": ["string", "null"]}}
+    },
+    "unit": {
+      "type": "object",
+      "required": ["code", "multiplier"],
+      "properties": {"code": {"type": "string"}, "label": {"type": ["string", "null"]}, "multiplier": {"type": "string"}}
+    },
+    "frequency": {"const": "annual"},
+    "edition": {"type": "string", "minLength": 1},
+    "method": {
+      "type": ["object", "null"],
+      "required": ["label", "description", "reference"],
+      "properties": {"label": {"type": "string"}, "description": {"type": "string"}, "reference": {"type": "string", "pattern": "^https://"}}
+    },
+    "definition": {"type": "object", "required": ["provider", "source_text"]},
+    "references": {"type": "array"},
+    "source_notes": {"type": "array"},
+    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+  },
+  "if": {"properties": {"nature": {"const": "model_estimate"}}},
+  "then": {"required": ["method"], "properties": {"method": {"type": "object"}}}
+}

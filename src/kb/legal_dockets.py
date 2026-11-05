@@ -26,6 +26,12 @@ pseudonyms) and ``legal_opinion_revisions`` / ``legal_opinions`` (citations,
 the disposition quoted verbatim, author or per curiam, type, cited opinions).
 An updated docket is a new revision; earlier revisions stay queryable.
 
+In person-research mode (``NOESIS_PERSON_RESEARCH``) a docket record under
+the ``courts-person-research-v1`` policy may carry natural-person party names
+and keys; such a record is refused with ``minimisation_violation`` while the
+switch is off, and natural persons may then be queried by an accepted
+identity match or by their published name (``dockets_for_party``).
+
 Case outcomes exist only as quoted text with a locator; nothing derives a
 win/loss label, predicts an outcome or gives legal advice.
 """
@@ -38,6 +44,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import date
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.kb.courts_justice import (
     DOCKET_ANSWER_CONTRACT,
     READ_SCOPE,
@@ -91,6 +98,21 @@ CREATE TABLE IF NOT EXISTS legal_court_receipts (
 
 def _content(record: Mapping[str, Any]) -> str:
     return digest({k: v for k, v in record.items() if k != "evidence_origin"})
+
+
+def _person_research(record: Mapping[str, Any]) -> bool:
+    """Whether a docket record is under the person-research policy; refused while the switch is off."""
+    from src.ingestion.courts_justice_sources import PERSON_RESEARCH_POLICY
+
+    policy = (record.get("minimisation") or {}).get("policy")
+    if policy is None:
+        return False
+    if policy != PERSON_RESEARCH_POLICY:
+        raise CourtsJusticeError("invalid_record", "unknown minimisation policy")
+    if not person_research_enabled():
+        raise CourtsJusticeError("minimisation_violation", "docket records under the person-research policy are "
+                                                           "refused while NOESIS_PERSON_RESEARCH is off")
+    return True
 
 
 def docket_key(docket_id: Any) -> str:
@@ -184,6 +206,7 @@ class LegalDocketStore:
 
     def _docket(self, namespace, record, *, run_id, source_id, observed) -> bool:
         fields = dict(record["fields"])
+        persons = _person_research(record)
         content = _content(record)
         revision_no = self._next_revision("legal_docket_revisions", namespace, record["record_key"], content)
         if revision_no is None:
@@ -210,7 +233,8 @@ class LegalDocketStore:
                                entry.get("date_filed"), entry.get("description"),
                                canonical(entry.get("documents") or [])])
         for party in fields.get("parties") or []:
-            if party["party_type"] == "natural_person" and (party.get("name_as_published") or party.get("party_key")):
+            if party["party_type"] == "natural_person" and not persons and (
+                    party.get("name_as_published") or party.get("party_key")):
                 raise CourtsJusticeError("minimisation_violation", "a natural-person party carries a name or key")
             self.conn.execute("INSERT INTO legal_docket_parties VALUES (?,?,?,?,?,?,?)",
                               [revision_id, party["ordinal"], party["party_type"], party.get("name_as_published"),
@@ -417,7 +441,12 @@ class LegalDocketStore:
 
     def dockets_for_party(self, namespace: str, entity_id: str, *, scopes: Iterable[str],
                           as_of: str | None = None) -> dict[str, Any]:
-        """Dockets of an organisational party reached through an *accepted* identity match only."""
+        """Dockets of an organisational party reached through an *accepted* identity match only.
+
+        In person-research mode (``NOESIS_PERSON_RESEARCH``) a natural person is a query target too: through an
+        accepted match with their ownership person record, or by the party name as published (``published-name``
+        links, which are not identity decisions).
+        """
         from src.kb.courts_justice_identity import CourtsIdentity
 
         scopes = set(scopes)
@@ -425,12 +454,17 @@ class LegalDocketStore:
         text = str(entity_id or "").strip()
         if not text:
             raise CourtsJusticeError("invalid_request", "give the canonical entity id of an organisational party")
-        if text.startswith("natural person") or re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z.]+)+", text):
+        persons = person_research_enabled()
+        if text.startswith("natural person") or (
+                not persons and re.fullmatch(r"[A-Z][a-z]+( [A-Z][a-z.]+)+", text)):
             raise CourtsJusticeError("natural_person_not_a_query_key",
                                      "parties are queried by an accepted organisation identity, never by a person's "
                                      "name or pseudonym")
-        links = CourtsIdentity(self.conn, initialize=False, now=self.now).accepted_parties(namespace, text,
-                                                                                         scopes=scopes)
+        identity = CourtsIdentity(self.conn, initialize=False, now=self.now)
+        links = identity.accepted_parties(namespace, text, scopes=scopes)
+        if persons:
+            links += identity.parties_named(namespace, text, scopes=scopes,
+                                            exclude={link["party_key"] for link in links})
         by_docket: dict[str, list[dict[str, Any]]] = {}
         for link in links:
             by_docket.setdefault(link["docket_key"], []).append(link)
@@ -447,9 +481,13 @@ class LegalDocketStore:
                 if decision:
                     decisions.append(decision)
         return self._answer(namespace, {"entity_id": text}, as_of, dockets, decisions,
-                            {"basis": "accepted identity match (reviewable, reversible)",
+                            {"basis": "accepted identity match (reviewable, reversible)"
+                             + ("; party name as published (person-research mode)"
+                                if any(link["method"] == "published-name" for link in links) else ""),
                              "matches": [{"candidate_id": link["candidate_id"], "party_key": link["party_key"],
-                                          "reviewer": link["reviewer"]} for link in links]})
+                                          "reviewer": link["reviewer"],
+                                          **({"method": "published-name"} if link["method"] == "published-name"
+                                             else {})} for link in links]})
 
     def dockets_for_provision(self, namespace: str, provision: str, *, scopes: Iterable[str],
                               as_of: str | None = None) -> dict[str, Any]:

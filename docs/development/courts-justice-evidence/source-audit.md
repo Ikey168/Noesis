@@ -77,6 +77,17 @@ party carrying a name or key is refused with `minimisation_violation`):
 * No personal profile is assembled: natural persons are never matched to
   entities, aggregated across dockets, used as a query key or used as a
   subscription target.
+* **Person-research mode** (`NOESIS_PERSON_RESEARCH`, off by default, #2892;
+  `docs/security/person-research-mode.md`): a natural-person party keeps the
+  name as published and a docket-scoped party key, and the docket record
+  carries `minimisation.policy: courts-person-research-v1` (refused at
+  projection with the switch off). Addresses, dates of birth, `extra_info`,
+  attorneys and CourtListener party ids are still never stored. Such parties
+  are proposed against ownership persons (equal normalized name, low
+  evidence, reviewer decides) and may be queried (`dockets_for_party`) or
+  monitored through an accepted match or by the published name
+  (`published-name` links, not identity decisions). Pseudonyms are never a
+  query key. `MINIMISATION["person_research"]` is the machine-readable copy.
 * data.police.uk: street-level crimes are aggregated to counts per category and
   outcome category at ingestion; locations, streets and persistent crime IDs
   are not stored, and the publisher's location anonymisation (snap points) is

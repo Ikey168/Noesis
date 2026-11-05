@@ -39,6 +39,16 @@ birth, home address, nationality, personal registration numbers) are rejected
 at write time. No record carries a risk or compliance score, a finding of
 wrongdoing inferred from an initiated action, or a merged "finding" for a
 settled matter: such fields are rejected outright.
+
+**Person-research mode** (``NOESIS_PERSON_RESEARCH``, off by default; see
+``docs/security/person-research-mode.md``). Records an adapter emits while the
+switch is on and that name an individual carry ``minimisation.policy``
+``enforcement-person-research-v1``: a ``respondent`` may then be a
+``natural_person`` with the name and role as published, but never with an
+identifier (personal registration numbers such as the FCA IRN or FINRA CRD
+stay withheld), and dates of birth, home addresses and the other personal
+attributes above stay refused. A record under that policy is refused on write
+while the switch is off, so a default warehouse never receives person data.
 """
 
 from __future__ import annotations
@@ -48,6 +58,8 @@ import json
 import re
 from pathlib import Path
 from typing import Any
+
+from src.config.env import person_research_enabled
 
 CONTRACT = "noesis-enforcement-record-v2"
 SCHEMA_NAME = "enforcement-record"
@@ -71,11 +83,19 @@ FORBIDDEN_FIELDS = ("risk_score", "compliance_score", "risk_rating", "compliance
 PERSONAL_FIELDS = ("date_of_birth", "birth_date", "dob", "home_address", "residential_address", "nationality",
                    "personal_id", "national_id_number", "passport_number", "ssn", "age", "individual_name",
                    "natural_person_name", "natural_person_names")
+MINIMISATION_POLICY = "enforcement-minimisation-v1"
+# Person-research mode (NOESIS_PERSON_RESEARCH): individual respondents keep their published name and role; dates of
+# birth, home addresses and personal registration numbers (FCA IRN, FINRA CRD) stay withheld.
+PERSON_RESEARCH_POLICY = "enforcement-person-research-v1"
+PERSON_RESEARCH_WITHHELD = ("date_of_birth", "home_address", "personal_registration_number")
+RESPONDENT_TYPES = ("organisation", "natural_person")
+# Personal registration numbers are never stored, in any mode (EN01).
+PERSONAL_ID_SCHEMES = frozenset({"gb-fca-irn", "fca-irn", "irn", "finra-crd", "us-finra-crd", "crd"})
 _DATE = re.compile(r"^\d{4}(-\d{2}(-\d{2})?)?$")
 _AUTHORITY = re.compile(r"^[a-z]{2}-[a-z0-9-]{2,40}$")
 _SOURCE_FIELDS = {"provider", "provider_record_id", "url", "locator", "publisher", "license", "revision", "note",
                   "retrieved_at_ms", "raw_sha256", "evidence_origin"}
-_COMMON = {"contract", "kind", "record_key", "source", "native", "unknowns"}
+_COMMON = {"contract", "kind", "record_key", "source", "native", "unknowns", "minimisation"}
 _KIND_FIELDS = {
     "authority": {"authority", "name_as_published", "jurisdiction", "url", "identifiers"},
     "enforcement_action": {"authority", "action_number", "action_type", "action_type_as_published", "title",
@@ -156,6 +176,33 @@ def _identifiers(values: Any, field: str) -> None:
         if not isinstance(item, dict) or set(item) - {"scheme", "value", "type_as_published"} or not item.get("scheme"):
             _fail(f"{field} items use scheme/value/type_as_published")
         _text(item.get("value"), f"{field}.value", limit=500)
+        if str(item["scheme"]).casefold() in PERSONAL_ID_SCHEMES:
+            _fail("personal registration numbers (FCA IRN, FINRA CRD) are never stored (EN01)",
+                  "minimisation_violation")
+
+
+def person_research_record(record: Any) -> bool:
+    """Whether a record was stored under the person-research policy (``NOESIS_PERSON_RESEARCH``)."""
+    return isinstance(record, dict) and (record.get("minimisation") or {}).get("policy") == PERSON_RESEARCH_POLICY
+
+
+def _minimisation(record: dict[str, Any]) -> bool:
+    """Check the record's minimisation statement; ``True`` when it is under the person-research policy."""
+    statement = record.get("minimisation")
+    if statement is None:
+        return False
+    if not isinstance(statement, dict) or set(statement) - {"policy", "withheld"} \
+            or statement.get("policy") not in (MINIMISATION_POLICY, PERSON_RESEARCH_POLICY):
+        _fail(f"minimisation names its policy ({MINIMISATION_POLICY} or {PERSON_RESEARCH_POLICY}) and what it "
+              "withheld")
+    for item in _list(statement.get("withheld"), "minimisation.withheld"):
+        _text(item, "minimisation.withheld", limit=200)
+    if statement["policy"] != PERSON_RESEARCH_POLICY:
+        return False
+    if not person_research_enabled():
+        _fail("records stored under the person-research policy are refused while NOESIS_PERSON_RESEARCH is off",
+              "minimisation_violation")
+    return True
 
 
 def _keys(value: Any) -> set[str]:
@@ -217,6 +264,7 @@ def validate_record(record: Any) -> dict[str, Any]:
     if record.get("contract") != CONTRACT:
         _fail("unsupported enforcement record contract", "schema_drift")
     kind = _enum(record.get("kind"), KINDS, "kind")
+    persons = _minimisation(record)
     extra = set(record) - _COMMON - _KIND_FIELDS[kind]
     if extra:
         _fail(f"unsupported {kind} field: " + ", ".join(sorted(extra)))
@@ -283,9 +331,13 @@ def validate_record(record: Any) -> dict[str, Any]:
         _https(result.get("action_url"), "action_url")
     elif kind == "respondent":
         _text(result.get("name_as_published"), "name_as_published", limit=1000)
-        if result.get("respondent_type") != "organisation":
+        if result.get("respondent_type") != "organisation" and not (
+                persons and result.get("respondent_type") == "natural_person"):
             _fail("only organisational respondents are recorded; natural persons are counted on the action, never "
                   "named (EN01 minimisation decision)", "minimisation_violation")
+        if result["respondent_type"] == "natural_person" and result.get("identifiers"):
+            _fail("an individual respondent carries no identifier: personal registration numbers stay withheld",
+                  "minimisation_violation")
         _enum(result.get("role"), RESPONDENT_ROLES, "role")
         _text(result.get("role_as_published"), "role_as_published", limit=500)
         _identifiers(result.get("identifiers"), "identifiers")

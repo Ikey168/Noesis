@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://noesis.local/contracts/noesis-court-justice-record-v1.json",
   "title": "Court docket, opinion cluster or justice-statistics release as published",
-  "description": "One acquired record of the Legal pack's courts and justice-statistics features (#2218). A docket (court, docket number, case name as published, filing and termination dates, docket entries with descriptions verbatim and linked documents, parties minimised under the CJ01 decision) and an opinion cluster (published citations, disposition quoted verbatim, opinions with author or per curiam, type, cited opinions and paragraph text) are projected onto Legal works, expressions and versions; a statistics release (definitions, observations with place, period, value, unit and flags, coverage and comparability notes) is a justice-statistics vintage. No record carries a derived outcome label, an outcome prediction, a risk or recidivism score, a safety rating or a ranking.",
+  "description": "One acquired record of the Legal pack's courts and justice-statistics features (#2218). A docket (court, docket number, case name as published, filing and termination dates, docket entries with descriptions verbatim and linked documents, parties minimised under the CJ01 decision; a docket under the person-research policy courts-person-research-v1, written only while NOESIS_PERSON_RESEARCH is on, keeps natural-person party names and keys but never addresses, dates of birth, extra_info or attorneys) and an opinion cluster (published citations, disposition quoted verbatim, opinions with author or per curiam, type, cited opinions and paragraph text) are projected onto Legal works, expressions and versions; a statistics release (definitions, observations with place, period, value, unit and flags, coverage and comparability notes) is a justice-statistics vintage. No record carries a derived outcome label, an outcome prediction, a risk or recidivism score, a safety rating or a ranking.",
   "type": "object",
   "required": ["contract", "format", "provider", "jurisdiction", "record_kind", "record_key", "native_revision", "title", "locator", "fields"],
   "properties": {
@@ -17,6 +17,7 @@
     "locator": {"type": "string", "pattern": "^https://"},
     "published_at": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
     "evidence_origin": {"enum": ["fixture", "live"]},
+    "minimisation": {"type": "object", "required": ["policy"], "properties": {"policy": {"const": "courts-person-research-v1"}, "withheld": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
     "fields": {
       "type": "object",
       "properties": {
@@ -33,9 +34,7 @@
               "pseudonym": {"type": "string"},
               "party_key": {"type": ["string", "null"]}
             },
-            "additionalProperties": false,
-            "if": {"properties": {"party_type": {"const": "natural_person"}}},
-            "then": {"required": ["pseudonym"], "properties": {"name_as_published": {"const": null}, "party_key": {"const": null}}}
+            "additionalProperties": false
           }
         },
         "entries": {
@@ -65,6 +64,11 @@
       }
     }
   },
+  "if": {"not": {"required": ["minimisation"]}},
+  "then": {"properties": {"fields": {"properties": {"parties": {"items": {
+    "if": {"properties": {"party_type": {"const": "natural_person"}}},
+    "then": {"required": ["pseudonym"], "properties": {"name_as_published": {"const": null}, "party_key": {"const": null}}}
+  }}}}}},
   "not": {"anyOf": [{"required": ["outcome_label"]}, {"required": ["prediction"]}, {"required": ["risk_score"]},
                     {"required": ["recidivism_score"]}, {"required": ["safety_rating"]}, {"required": ["rank"]},
                     {"properties": {"fields": {"anyOf": [{"required": ["outcome_label"]}, {"required": ["risk_score"]}, {"required": ["safety_rating"]}, {"required": ["rank"]}, {"required": ["winner"]}]}}}]}

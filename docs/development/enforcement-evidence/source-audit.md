@@ -88,6 +88,35 @@ are sometimes about sole traders.
   read access. Nothing personal is stored, so no further restriction applies.
 * **Matching.** Individuals are never offered to identity matching (EN07).
 
+### Person-research mode (`NOESIS_PERSON_RESEARCH`, #2892)
+
+Off by default; with the switch off everything above holds unchanged. With it
+on (an operator's own research warehouse, see
+`docs/security/person-research-mode.md`):
+
+* **Stored.** Individual respondents as `respondent` records with
+  `respondent_type: natural_person`, the name and role as published and **no
+  identifier**; individuals' names in stored titles, captions, charges and
+  outcome texts; an individual's own sanction, attributed to them
+  (`respondent_key`) when the sentence names one individual; releases, cases,
+  notices (FCA notices addressed to individuals) and register entries whose
+  only respondents are individuals.
+* **Withheld, also in the mode.** Dates of birth and ages, home addresses and
+  personal registration numbers (FCA IRN, FINRA CRD) are replaced by
+  `[... withheld]` in every stored text; `validate_record` refuses any identifier
+  on an individual respondent, IRN/CRD identifier schemes on any record, and
+  the personal fields (`date_of_birth`, `home_address`, `nationality`, ...).
+* **Policy.** Every record that differs from what the default minimisation
+  would store carries `minimisation.policy: enforcement-person-research-v1`;
+  records naming no individual are stored exactly as with the switch off.
+  Writing a record under the policy while the switch is off is refused
+  (`minimisation_violation`).
+* **Matching.** Individual respondents are identity subjects proposed only
+  against ownership **person** records (`name-jurisdiction`, low evidence,
+  never accepted automatically); `actions_for_entity` and entity monitors reach
+  them through an accepted match. With the switch off they are not subjects.
+* `MINIMISATION["person_research"]` is the machine-readable copy.
+
 ## Stable native identifiers (stored as published)
 
 | Source | Identifiers |

@@ -1,0 +1,182 @@
+{
+ "note": "authored synthetic revision (fictional values; reference periods 2093-2099, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "Bundesbank household wealth survey data annex: net wealth of households in Germany (fixture declaration)",
+   "dataset": "phf-net-wealth-distribution",
+   "pdf_path": "resource/blob/908924/3ef9d9a4eaeae8a8779ccec3ac464970/472B63F073F071307366337C94F8C870/2023-04-vermoegensbefragung-data.pdf",
+   "tables": [
+    {
+     "anchor": "Tabelle 1 Nettoverm\u00f6gen der privaten Haushalte in Deutschland",
+     "columns_are_periods": true,
+     "columns": [
+      "2093",
+      "2095",
+      "2097",
+      "2099"
+     ],
+     "rows": [
+      {
+       "label": "Mittelwert in Euro",
+       "dims": {
+        "statistic": "mean",
+        "group": "all",
+        "unit": "EUR"
+       }
+      },
+      {
+       "label": "Median in Euro",
+       "dims": {
+        "statistic": "median",
+        "group": "all",
+        "unit": "EUR"
+       }
+      },
+      {
+       "label": "Anteil der verm\u00f6gendsten 10 % in %",
+       "dims": {
+        "statistic": "share",
+        "group": "top10",
+        "unit": "percent"
+       }
+      }
+     ],
+     "decimal": ",",
+     "thousands": ".",
+     "markers": {
+      "-": "not_published"
+     }
+    }
+   ],
+   "frequency": "irregular",
+   "area": {
+    "scheme": "iso3166-1-alpha2",
+    "fixed": "DE"
+   },
+   "area_labels": {
+    "DE": "Germany"
+   },
+   "key_fields": {
+    "indicator": {
+     "dimension": "statistic",
+     "codes": {
+      "median": {
+       "code": "median",
+       "concept": "wealth_median",
+       "label": "Median household net wealth"
+      },
+      "mean": {
+       "code": "mean",
+       "concept": "wealth_average",
+       "label": "Mean household net wealth"
+      },
+      "share": {
+       "code": "share",
+       "concept": "wealth_share",
+       "label": "Share of total net wealth"
+      }
+     }
+    },
+    "wealth_concept": {
+     "fixed": {
+      "code": "net-wealth",
+      "label": "Household net wealth (PHF definition; verify)"
+     }
+    },
+    "group": {
+     "dimension": "group",
+     "codes": {
+      "all": "All households",
+      "top10": "Wealthiest 10% of households"
+     }
+    },
+    "unit": {
+     "dimension": "unit",
+     "codes": {
+      "EUR": "euro (as printed)",
+      "percent": "percent of total net wealth (as printed)"
+     }
+    },
+    "population": {
+     "fixed": {
+      "code": "households-de",
+      "label": "Private households in Germany (PHF)"
+     }
+    },
+    "method": {
+     "fixed": {
+      "code": "survey-phf",
+      "label": "PHF survey: weighted, multiply imputed estimates as published"
+     }
+    }
+   },
+   "method_notes": {
+    "survey-phf": "PHF methodological documentation (verify)"
+   },
+   "release": {
+    "published_on": "2099-04-18",
+    "label": "Monthly Report data annex 2099-04 (fixture declaration)"
+   },
+   "definition": {
+    "source_text": "PHF household net wealth as printed in the declared data annex table (verify)",
+    "methodology_notes": [
+     "The survey year as printed is the period; fieldwork can span two calendar years (verify)"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "bundesbank-phf",
+     "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+     "relation": "documented_in"
+    }
+   ],
+   "scope_notes": [
+    {
+     "relates_to": "ecb-hfcs-statistical-tables",
+     "statement": "The PHF is Germany's contribution to the HFCS; the Bundesbank's national tables and the ECB's HFCS statistical tables can differ in data version, survey-year labelling and conventions, and are shown side by side, never reconciled (verify)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+       "note": "PHF documentation (verify)"
+      }
+     ]
+    },
+    {
+     "relates_to": "wid-wealth-distribution",
+     "statement": "PHF net wealth is survey-based and per household; WID net personal wealth is per equal-split adult from distributional national accounts; they differ in wealth concept, unit of analysis and coverage of the top, and are shown side by side, never merged (verify)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+       "note": "PHF documentation (verify)"
+      }
+     ]
+    },
+    {
+     "relates_to": "ecb-distributional-wealth-accounts",
+     "statement": "DWA align HFCS (including PHF) distributions to national accounts; PHF tables report the survey's own weighted estimates; they differ by construction and are shown side by side, never merged (verify)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.bundesbank.de/en/bundesbank/research/panel-on-household-finances",
+       "note": "PHF documentation (verify)"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/resource/blob/908924/3ef9d9a4eaeae8a8779ccec3ac464970/472B63F073F071307366337C94F8C870/2023-04-vermoegensbefragung-data.pdf",
+   "status": 200,
+   "headers": {
+    "content-type": "application/pdf"
+   },
+   "body_base64": "JVBERi0xLjcKJcK1wrYKJSBXcml0dGVuIGJ5IE11UERGIDEuMjguMgoKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvSW5mbzw8L1Byb2R1Y2VyKE11UERGIDEuMjguMik+Pj4+CmVuZG9iagoKMiAwIG9iago8PC9UeXBlL1BhZ2VzL0NvdW50IDEvS2lkc1s0IDAgUl0+PgplbmRvYmoKCjMgMCBvYmoKPDwvRm9udDw8L2hlbHYgNSAwIFI+Pj4+CmVuZG9iagoKNCAwIG9iago8PC9UeXBlL1BhZ2UvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1JvdGF0ZSAwL1Jlc291cmNlcyAzIDAgUi9QYXJlbnQgMiAwIFIvQ29udGVudHNbNiAwIFIgNyAwIFIgOCAwIFIgOSAwIFIgMTAgMCBSIDExIDAgUiAxMiAwIFIgMTMgMCBSIDE0IDAgUiAxNSAwIFIgMTYgMCBSIDE3IDAgUiAxOCAwIFIgMTkgMCBSIDIwIDAgUiAyMSAwIFIgMjIgMCBSIDIzIDAgUiAyNCAwIFIgMjUgMCBSIDI2IDAgUiAyNyAwIFIgMjggMCBSIDI5IDAgUiAzMCAwIFIgMzEgMCBSXT4+CmVuZG9iagoKNSAwIG9iago8PC9UeXBlL0ZvbnQvU3VidHlwZS9UeXBlMS9CYXNlRm9udC9IZWx2ZXRpY2EvRW5jb2RpbmcvV2luQW5zaUVuY29kaW5nPj4KZW5kb2JqCgo2IDAgb2JqCjw8L0xlbmd0aCAxMzAvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnjaHY2xCoIxDIT3PEXewDZ/eteCOAgubkI3cVD+/jjo4OLzm0ogCd9dLvKRY5esKSqrJ2U17W/ZPcfrq037ptd9AQoN6wYQBYMLLCaCZZBBYk22WnJHpk9PKAP136dWHWisdM6kstwtIQge4W6MfEuF88u8tna49bOculzkB2dEI/kKZW5kc3RyZWFtCmVuZG9iagoKNyAwIG9iago8PC9MZW5ndGggMTMwL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp42h2MMQ5CMQxD95wiNyBtE+dXQgxILGxI3RBTacUAAwvnJ/3yEMvPMX3p3CixhBKrsNvG7UOH13j/uHKbfD+aIiHD0EOWpaQsOmCurpiOcBnPCXh0RhboSrK4RF6Dp+jtRLfw5gVx0Vca7bqT9bMWCxbtwQf09GhXujS60R+HECXfCmVuZHN0cmVhbQplbmRvYmoKCjggMCBvYmoKPDwvTGVuZ3RoIDYyL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nOMq5HIK4TJUMABCQwUjAwMFcxMThZBcLv2M1JwyBUuFkDSFaBtjI2MDY0tjY7vYEC8u1xCuQC4AT14MRwplbmRzdHJlYW0KZW5kb2JqCgo5IDAgb2JqCjw8L0xlbmd0aCA2Mi9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFI1NTBXMTE4WQXC79jNScMgVLhZA0hWgbYyNjA2NLY1O72BAvLtcQrkAuAFEJDFMKZW5kc3RyZWFtCmVuZG9iagoKMTAgMCBvYmoKPDwvTGVuZ3RoIDYyL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nOMq5HIK4TJUMABCQwVjAwMFcxMThZBcLv2M1JwyBUuFkDSFaBtjI2MDY0tjc7vYEC8u1xCuQC4AT7QMTAplbmRzdHJlYW0KZW5kb2JqCgoxMSAwIG9iago8PC9MZW5ndGggNjIvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBWMTUwVzExOFkFwu/YzUnDIFS4WQNIVoG2MjYwNjS2NLu9gQLy7XEK5ALgBRNgxXCmVuZHN0cmVhbQplbmRvYmoKCjEyIDAgb2JqCjw8L0xlbmd0aCA4Ny9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJwNxzEKgDAMBdA9p8gNTGuaT0EcBBc3IZs4aYuDDi6e3/KmRy9NToGlCazC6IX9oe4q98eZvfI26GkZCrVkB2AJERrFspUomtBuddx9odlppR/99RKwCmVuZHN0cmVhbQplbmRvYmoKCjEzIDAgb2JqCjw8L0xlbmd0aCA2OC9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFIwMDBXNjA4WQXC79jNScMgVLhZA0hWgbYyNjY2MDo1RjQ2MDYwO72BAvLtcQrkAuAJ1ADZcKZW5kc3RyZWFtCmVuZG9iagoKMTQgMCBvYmoKPDwvTGVuZ3RoIDY3L0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nOMq5HIK4TJUMABCQwUjU1MFc2MDhZBcLv2M1JwyBUuFkDSFaBtjI2NjYzOjVCBtYGxgFxvixeUawhXIBQCfkg2oCmVuZHN0cmVhbQplbmRvYmoKCjE1IDAgb2JqCjw8L0xlbmd0aCA2Ny9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFYwMDBXNjA4WQXC79jNScMgVLhZA0hWgbY2NjQ2Mzo1QgbWBsYBcb4sXlGsIVyAUAne0NnwplbmRzdHJlYW0KZW5kb2JqCgoxNiAwIG9iago8PC9MZW5ndGggNjgvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBWMTUwVzYwOFkFwu/YzUnDIFS4WQNIVoG2NjYyNjE6NUYwtjA2MDu9gQLy7XEK5ALgCfyQ2sCmVuZHN0cmVhbQplbmRvYmoKCjE3IDAgb2JqCjw8L0xlbmd0aCA3OC9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFEwMFc0MzhZBcLv2M1JwyBUuFkDSFaBuTFDNTMxMzSzNDs1QjAyANJE1MzU3NjczS7GJDvLhcQ7gCuQByZhEECmVuZHN0cmVhbQplbmRvYmoKCjE4IDAgb2JqCjw8L0xlbmd0aCA2Ni9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFIwMDBXNDM4WQXC79jNScMgVLhZA0hWgbYzNjA6NUYxNjA2MDu9gQLy7XEK5ALgCENg08CmVuZHN0cmVhbQplbmRvYmoKCjE5IDAgb2JqCjw8L0xlbmd0aCA2Ni9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFI1NTBXNDM4WQXC79jNScMgVLhZA0hWgbY3NjA6NUY1NjA2MDu9gQLy7XEK5ALgCGFw1ICmVuZHN0cmVhbQplbmRvYmoKCjIwIDAgb2JqCjw8L0xlbmd0aCA2Ny9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFYwMDBXNDM4WQXC79jNScMgVLhZA0hWgbY0NjA2Mzo1RjMyBtYBcb4sXlGsIVyAUAnn0NowplbmRzdHJlYW0KZW5kb2JqCgoyMSAwIG9iago8PC9MZW5ndGggNjcvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBWMTUwVzQzOFkFwu/YzUnDIFS4WQNIVoG2NDYwNjY6NUYyMgbWAXG+LF5RrCFcgFAJ+qDaUKZW5kc3RyZWFtCmVuZG9iagoKMjIgMCBvYmoKPDwvTGVuZ3RoIDEwNi9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeNodirEKhDAQRPv9iv0DN5tkloBcIVxjJ2wnVhqx0OIav994TDHzmEc/GpwCS0vgJGyi7Bd1Rz1vLuw7z30KqJaQUbCqoC1TFcPb2HbA2leRLP6tqhJDFBXNzS4va/4sPtLXaaIHxUwZrwplbmRzdHJlYW0KZW5kb2JqCgoyMyAwIG9iago8PC9MZW5ndGggNjIvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBSMDAwVzAyOFkFwu/YzUnDIFS4WQNIVoG2NTY0ujZGNDu9gQLy7XEK5ALgBROgx0CmVuZHN0cmVhbQplbmRvYmoKCjI0IDAgb2JqCjw8L0xlbmd0aCA2Mi9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFI1NTBXMDI4WQXC79jNScMgVLhZA0hWgbY1NjM6NkYyO72BAvLtcQrkAuAFKtDHwKZW5kc3RyZWFtCmVuZG9iagoKMjUgMCBvYmoKPDwvTGVuZ3RoIDYyL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nOMq5HIK4TJUMABCQwVjAwMFcwMjhZBcLv2M1JwyBUuFkDSFaBtjU2Mzo2RjY7vYEC8u1xCuQC4AUU0MdAplbmRzdHJlYW0KZW5kb2JqCgoyNiAwIG9iago8PC9MZW5ndGggNjIvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBWMTUwVzAyOFkFwu/YzUnDIFS4WQNIVoG2NTYxOjZGMTu9gQLy7XEK5ALgBSpgx8CmVuZHN0cmVhbQplbmRvYmoKCjI3IDAgb2JqCjw8L0xlbmd0aCA4Mi9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFEwMFMwsLhZBcLv2M1JwyBUuFkDSFaBsTczNLs1QzS6MUkySzNDNTMxCwNE8EipqapZqb2MWGeHG5hnAFcgEAxe0SXAplbmRzdHJlYW0KZW5kb2JqCgoyOCAwIG9iago8PC9MZW5ndGggNjIvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBSMDAwUzCwuFkFwu/YzUnDIFS4WQNIVoG2MDo2Rjc2NTu9gQLy7XEK5ALgBTIwx+CmVuZHN0cmVhbQplbmRvYmoKCjI5IDAgb2JqCjw8L0xlbmd0aCA2Mi9GaWx0ZXIvRmxhdGVEZWNvZGU+PgpzdHJlYW0KeJzjKuRyCuEyVDAAQkMFI1NTBTMLC4WQXC79jNScMgVLhZA0hWgbYwOjZGNzYxO72BAvLtcQrkAuAFStDIcKZW5kc3RyZWFtCmVuZG9iagoKMzAgMCBvYmoKPDwvTGVuZ3RoIDYyL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nOMq5HIK4TJUMABCQwVjAwMFMwsLhZBcLv2M1JwyBUuFkDSFaBtjA6NkY3NjY7vYEC8u1xCuQC4AUzcMfQplbmRzdHJlYW0KZW5kb2JqCgozMSAwIG9iago8PC9MZW5ndGggNjIvRmlsdGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnic4yrkcgrhMlQwAEJDBWMTUwUzCwuFkFwu/YzUnDIFS4WQNIVoG2MDo2Rjc2Mju9gQLy7XEK5ALgBUmAyFCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCAzMgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNDIgMDAwMDAgbiAKMDAwMDAwMDEyMCAwMDAwMCBuIAowMDAwMDAwMTcyIDAwMDAwIG4gCjAwMDAwMDAyMTMgMDAwMDAgbiAKMDAwMDAwMDQ5MiAwMDAwMCBuIAowMDAwMDAwNTgxIDAwMDAwIG4gCjAwMDAwMDA3ODAgMDAwMDAgbiAKMDAwMDAwMDk3OSAwMDAwMCBuIAowMDAwMDAxMTA5IDAwMDAwIG4gCjAwMDAwMDEyMzkgMDAwMDAgbiAKMDAwMDAwMTM3MCAwMDAwMCBuIAowMDAwMDAxNTAxIDAwMDAwIG4gCjAwMDAwMDE2NTcgMDAwMDAgbiAKMDAwMDAwMTc5NCAwMDAwMCBuIAowMDAwMDAxOTMwIDAwMDAwIG4gCjAwMDAwMDIwNjYgMDAwMDAgbiAKMDAwMDAwMjIwMyAwMDAwMCBuIAowMDAwMDAyMzUwIDAwMDAwIG4gCjAwMDAwMDI0ODUgMDAwMDAgbiAKMDAwMDAwMjYyMCAwMDAwMCBuIAowMDAwMDAyNzU2IDAwMDAwIG4gCjAwMDAwMDI4OTIgMDAwMDAgbiAKMDAwMDAwMzA2OCAwMDAwMCBuIAowMDAwMDAzMTk5IDAwMDAwIG4gCjAwMDAwMDMzMzAgMDAwMDAgbiAKMDAwMDAwMzQ2MSAwMDAwMCBuIAowMDAwMDAzNTkyIDAwMDAwIG4gCjAwMDAwMDM3NDMgMDAwMDAgbiAKMDAwMDAwMzg3NCAwMDAwMCBuIAowMDAwMDA0MDA1IDAwMDAwIG4gCjAwMDAwMDQxMzYgMDAwMDAgbiAKCnRyYWlsZXIKPDwvU2l6ZSAzMi9Sb290IDEgMCBSPj4Kc3RhcnR4cmVmCjQyNjcKJSVFT0YK"
+  }
+ ]
+}

@@ -92,3 +92,16 @@ def enabled_packs(default: str = "") -> str:
     """The enabled domain packs, comma-separated
     (``NOESIS_ENABLED_PACKS`` / ``NEURONEWS_ENABLED_PACKS``)."""
     return resolve_env("ENABLED_PACKS", default) or default
+
+
+def person_research_enabled() -> bool:
+    """Private person-level research mode (``NOESIS_PERSON_RESEARCH``, off by default).
+
+    When on, the natural-person minimisation and refusal rules in the
+    finance-relevant modules (OSINT movements, on-chain labels, campaign
+    finance, BaFin notices, enforcement, courts, extractives) are lifted:
+    natural persons named by a source are stored, indexed, matched and
+    answered like organisations. Meant for an operator's own local research
+    warehouse; the default keeps every minimisation rule in force.
+    """
+    return (resolve_env("PERSON_RESEARCH", "off") or "off").strip().lower() in ("on", "1", "true", "yes")

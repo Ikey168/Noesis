@@ -2,7 +2,7 @@
 
     python -m src.ingestion.bulk list
     python -m src.ingestion.bulk run <adapter> --params '<json>' [--dry-run] [--full]
-        [--sink subset|dataset|documents] [--namespace NS] [--domain DOMAIN]
+        [--sink subset|dataset|documents|ownership] [--namespace NS] [--domain DOMAIN] [--principal ID]
         [--state-dir DIR] [--work-dir DIR] [--max-bytes N] [--max-files N] [--max-seconds N] [--keep-raw]
     python -m src.ingestion.bulk job /srv/bulk/jobs/<name>.json   # same options, from a job file
     python -m src.ingestion.bulk quotas [--host HOST]
@@ -11,7 +11,8 @@ Defaults: state ``NOESIS_BULK_STATE_DIR`` or ``/srv/bulk/state``; scratch
 ``NOESIS_BULK_WORK_DIR`` or ``/srv/bulk/tmp``. The subset is always written to the
 state directory; ``--sink dataset`` also registers the release and ingests rows
 into the warehouse (``NOESIS_DB_PATH``), ``--sink documents`` commits papers
-through the gateway ingest. Exit code 0 = complete/dry-run, 2 = deferred or
+through the gateway ingest, ``--sink ownership`` applies ownership records
+(e.g. the PSC snapshot) to the ownership store in ``--namespace``. Exit code 0 = complete/dry-run, 2 = deferred or
 budget exhausted (resumable), 1 = errors.
 """
 from __future__ import annotations
@@ -48,7 +49,9 @@ def main(argv=None) -> int:
     run.add_argument("--params", default="{}")
     run.add_argument("--dry-run", action="store_true")
     run.add_argument("--full", action="store_true", help="ignore files unchanged since earlier releases")
-    run.add_argument("--sink", choices=["subset", "dataset", "documents"], default="subset")
+    run.add_argument("--sink", choices=["subset", "dataset", "documents", "ownership"], default="subset")
+    run.add_argument("--principal", default=os.getenv("NOESIS_BULK_PRINCIPAL", "bulk-runner"),
+                     help="acquiring principal for owner-scoped ownership records")
     run.add_argument("--namespace", default=os.getenv("NOESIS_BULK_NAMESPACE", "bulk"))
     run.add_argument("--domain")
     run.add_argument("--state-dir", default=os.getenv("NOESIS_BULK_STATE_DIR", "/srv/bulk/state"))
@@ -67,7 +70,7 @@ def main(argv=None) -> int:
     if args.command == "job":
         spec = json.loads(Path(args.path).read_text())
         argv2 = ["run", spec["adapter"], "--params", json.dumps(spec.get("params") or {})]
-        for key in ("sink", "namespace", "domain", "state_dir", "work_dir", "max_bytes", "max_files", "max_seconds"):
+        for key in ("sink", "namespace", "domain", "principal", "state_dir", "work_dir", "max_bytes", "max_files", "max_seconds"):
             if spec.get(key) is not None:
                 argv2 += ["--" + key.replace("_", "-"), str(spec[key])]
         for flag in ("dry_run", "full", "keep_raw"):
@@ -86,6 +89,11 @@ def main(argv=None) -> int:
             raise SystemExit(f"{adapter.name} emits {adapter.output}, not rows")
         from src.ingestion.bulk.sinks import DatasetSink
         sinks.append(DatasetSink(args.namespace, _connect))
+    elif args.sink == "ownership":
+        if "ownership_records" not in adapter.tables:
+            raise SystemExit(f"{adapter.name} emits no ownership records")
+        from src.ingestion.bulk.ownership_sink import OwnershipSink
+        sinks.append(OwnershipSink(args.namespace, _connect, principal_id=args.principal))
     elif args.sink == "documents":
         if adapter.output != "documents" or not args.domain:
             raise SystemExit("--sink documents needs a documents adapter and --domain")

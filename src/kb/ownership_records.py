@@ -26,6 +26,16 @@ source) and are never merged.
 Entity-like records (``legal_entity``, ``person``) reference the shared
 ``canonical_entities`` owner (``src/kb/entities.py``) by id; this module does
 not create another entity store.
+
+``noesis-ownership-record-v2`` (#2883) is a new contract version beside v1,
+which stays unchanged and accepted. A v2 record may also carry what structured
+SEC filings state: the ``reported_holding`` assertion kind (a Form 13F
+information-table position with no percentage and no control), Schedule
+13D/13G voting and dispositive ``powers`` and ``group`` membership, the
+``filing`` an assertion comes from with its place on the amendment chain, and
+the ``person_policy`` a natural-person statement was stored under (owner-scoped
+by default; the opt-in ``NOESIS_PERSON_RESEARCH`` mode stores it unscoped and
+such records are refused with ``minimisation_violation`` when the mode is off).
 """
 
 from __future__ import annotations
@@ -37,9 +47,13 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
+from src.config.env import person_research_enabled
+
 CONTRACT = "noesis-ownership-record-v1"
 PART_CONTRACT = "noesis-ownership-part-v1"
 DOSSIER_CONTRACT = "noesis-ownership-dossier-v1"
+CONTRACT_V2 = "noesis-ownership-record-v2"  # #2883; v1 stays accepted and unchanged
+CONTRACTS = (CONTRACT, CONTRACT_V2)
 READ_SCOPE = "knowledge:ownership:read"
 WRITE_SCOPE = "knowledge:ownership:write"
 REVIEW_SCOPE = "knowledge:ownership:review"
@@ -47,6 +61,8 @@ PROVIDERS = (
     "gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates",
     "handelsregister", "unternehmensregister", "bris", "market-instruments", "bafin",
 )
+# ICIJ Offshore Leaks Database (#2888): leak-dataset records, quoted with ICIJ's caveat; never a verdict.
+PROVIDERS = PROVIDERS + ("icij-offshore-leaks",)
 KINDS = (
     "legal_entity", "person", "registration", "officer_role", "ownership_assertion",
     "corporate_event", "filing_reference",
@@ -84,12 +100,20 @@ _KIND_FIELDS = {
 _COMMON = {"contract", "kind", "record_key", "source", "owner_scoped", "unknowns", "native"}
 _SOURCE_FIELDS = {"provider", "provider_record_id", "url", "locator", "statement_id", "publisher", "source_type",
                   "retrieved_at_ms", "raw_sha256", "license", "revision", "note"}
+# Natural persons named by a register (PSC individuals, ROE beneficial owners,
+# BODS person statements) are owner-scoped by default. With the opt-in
+# person-research mode (NOESIS_PERSON_RESEARCH, docs/security/person-research-mode.md)
+# they are stored unscoped and carry this policy; writing such a record with the
+# switch off is refused (``minimisation_violation``).
+PERSON_RESEARCH_POLICY = "ownership-person-research-v1"
 SCHEMA_DIR = Path(__file__).resolve().parents[2] / "contracts/schemas/jsonschema"
 SCHEMAS = {
     "ownership-record": "noesis-ownership-record-v1",
     "ownership-part": "noesis-ownership-part-v1",
     "ownership-dossier": "noesis-ownership-dossier-v1",
 }
+# Further registered versions of a module: (name, semantic version) -> contract file (#2883).
+SCHEMA_VERSIONS = {("ownership-record", "2.0.0"): CONTRACT_V2}
 
 
 class OwnershipRecordError(ValueError):
@@ -261,6 +285,8 @@ def compute_unknowns(record: dict[str, Any]) -> list[str]:
     elif kind == "filing_reference":
         if not record.get("parsed"):
             unknowns.append("ownership_figures (filing not parsed)")
+    if record.get("contract") == CONTRACT_V2:
+        unknowns.extend(v2_unknowns(record))
     return sorted(set(unknowns))
 
 
@@ -272,16 +298,21 @@ def validate_record(record: Any) -> dict[str, Any]:
     if any(marker in lowered for marker in FORBIDDEN_FIELDS):
         _fail("ownership records hold what a source states; no beneficial-ownership, sanctions or AML "
               "determination is stored", "determination_forbidden")
-    if record.get("contract") != CONTRACT:
+    if record.get("contract") not in CONTRACTS:
         _fail("unsupported ownership record contract", "schema_drift")
+    v2 = record["contract"] == CONTRACT_V2
     kind = _enum(record.get("kind"), KINDS, "kind")
-    extra = set(record) - _COMMON - _KIND_FIELDS[kind]
+    extra = set(record) - _COMMON - _KIND_FIELDS[kind] - (V2_KIND_FIELDS.get(kind, set()) if v2 else set())
     if extra:
         _fail(f"unsupported {kind} field: " + ", ".join(sorted(extra)))
     _text(record.get("record_key"), "record_key", limit=1000)
     _source(record.get("source"))
     if record.get("owner_scoped") not in (None, True, False):
         _fail("owner_scoped is a boolean")
+    native = record.get("native")
+    if isinstance(native, dict) and native.get("policy") == PERSON_RESEARCH_POLICY and not person_research_enabled():
+        _fail("this record was produced under person-research mode (NOESIS_PERSON_RESEARCH); it is refused while "
+              "the switch is off", "minimisation_violation")
     result = json.loads(canonical(record))
     if result.get("native") is not None and not isinstance(result["native"], dict):
         _fail("native preserves the source's original wording as an object")
@@ -314,7 +345,8 @@ def validate_record(record: Any) -> dict[str, Any]:
         _enum(result["appointed_status"], DATE_STATUS, "appointed_status")
     elif kind == "ownership_assertion":
         _text(result.get("subject_key"), "subject_key", limit=1000)
-        assertion_kind = _enum(result.get("assertion_kind"), ASSERTION_KINDS, "assertion_kind")
+        assertion_kind = _enum(result.get("assertion_kind"), ASSERTION_KINDS + (V2_ASSERTION_KINDS if v2 else ()),
+                               "assertion_kind")
         holder = result.get("holder")
         exception = result.get("reporting_exception")
         if assertion_kind == "reporting_exception":
@@ -354,6 +386,8 @@ def validate_record(record: Any) -> dict[str, Any]:
             _fail("document_url must be an HTTPS locator")
         if result.get("parsed") not in (True, False):
             _fail("filing_reference.parsed states whether ownership figures were extracted")
+    if v2:
+        validate_v2_fields(result)
     result["unknowns"] = compute_unknowns(result)
     return result
 
@@ -368,8 +402,9 @@ def entity_key(scheme: str, value: str) -> str:
     return f"{scheme.lower()}:{str(value).strip()}"
 
 
-def schema(name: str) -> dict[str, Any]:
-    return json.loads((SCHEMA_DIR / f"{SCHEMAS[name]}.json").read_text())
+def schema(name: str, version: str = "1.0.0") -> dict[str, Any]:
+    contract = SCHEMAS[name] if version == "1.0.0" else SCHEMA_VERSIONS[(name, version)]
+    return json.loads((SCHEMA_DIR / f"{contract}.json").read_text())
 
 
 def register_schemas(conn: Any, *, principal_id: str, scopes: Any) -> list[dict[str, Any]]:
@@ -378,13 +413,198 @@ def register_schemas(conn: Any, *, principal_id: str, scopes: Any) -> list[dict[
 
     registry = SchemaRegistry(conn)
     results = []
-    for name, contract in SCHEMAS.items():
+    versions = [(name, contract, "1.0.0") for name, contract in SCHEMAS.items()]
+    versions += [(name, contract, version) for (name, version), contract in SCHEMA_VERSIONS.items()]
+    for name, contract, version in versions:
         definition = {
-            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "1.0.0",
-            "content": schema(name), "owner": "ownership.core", "dependencies": [], "compatibility_policy": "backward",
+            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": version,
+            "content": schema(name, version), "owner": "ownership.core", "dependencies": [],
+            "compatibility_policy": "backward",
             "provenance": {"kind": "imported", "source": f"contracts/schemas/jsonschema/{contract}.json"},
             "actor": {"principal_id": principal_id, "kind": "service"},
         }
-        results.append(registry.register(definition, f"ownership-schema:{name}:1.0.0", principal_id=principal_id,
+        results.append(registry.register(definition, f"ownership-schema:{name}:{version}", principal_id=principal_id,
                                          scopes=scopes))
     return results
+
+
+# ------------------------------------------------- noesis-ownership-record-v2 (#2883)
+
+V2_ASSERTION_KINDS = ("reported_holding",)
+PERSON_POLICY_DEFAULT = "ownership-person-owner-scoped-v1"
+PERSON_POLICY_RESEARCH = "ownership-person-research-v1"
+PERSON_POLICIES = (PERSON_POLICY_DEFAULT, PERSON_POLICY_RESEARCH)
+V2_KIND_FIELDS = {
+    "ownership_assertion": {"filing", "position", "powers", "group", "person_policy"},
+    "filing_reference": {"amendment"},
+    "person": {"person_policy"},
+}
+AMENDMENT_TYPES = ("restatement", "new_holdings")
+AMOUNT_TYPES = ("SH", "PRN")
+PUT_CALL = ("Put", "Call")
+INVESTMENT_DISCRETION = ("SOLE", "DFND", "OTR")
+VALUE_UNITS = ("USD", "USD-thousands")
+POWER_FIELDS = ("sole_voting", "shared_voting", "sole_dispositive", "shared_dispositive", "aggregate_amount")
+_DECIMAL_TEXT = re.compile(r"^\d+(\.\d+)?$")
+_ACCESSION = re.compile(r"^\d{10}-\d{2}-\d{6}$")
+_CUSIP = re.compile(r"^[0-9A-Z*@#]{9}$")
+
+
+def record_v2(kind: str, record_key: str, source: dict[str, Any], **fields: Any) -> dict[str, Any]:
+    """Build and validate a ``noesis-ownership-record-v2`` record."""
+    return validate_record({"contract": CONTRACT_V2, "kind": kind, "record_key": record_key, "source": source, **fields})
+
+
+def _decimal_text(value: Any, field: str) -> Any:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not _DECIMAL_TEXT.fullmatch(value):
+        _fail(f"{field} is a decimal string as stated, never a float")
+    return value
+
+
+def _object(value: Any, allowed: set[str], field: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) - allowed:
+        _fail(f"{field} uses " + "/".join(sorted(allowed)))
+    return value
+
+
+def _amendment(value: Any, field: str) -> None:
+    amendment = _object(value, {"is_amendment", "number", "type", "amends_accession", "chain_key", "chain_basis"}, field)
+    if amendment.get("is_amendment") not in (True, False):
+        _fail(f"{field}.is_amendment states whether the filing amends an earlier one")
+    _text(amendment.get("chain_key"), f"{field}.chain_key", limit=500)
+    if amendment.get("number") is not None and not re.fullmatch(r"\d+", str(amendment["number"])):
+        _fail(f"{field}.number is the amendment number as stated")
+    if amendment.get("type") is not None:
+        _enum(amendment["type"], AMENDMENT_TYPES, f"{field}.type")
+    if amendment.get("amends_accession") is not None and not _ACCESSION.fullmatch(str(amendment["amends_accession"])):
+        _fail(f"{field}.amends_accession is an accession number")
+    if not amendment["is_amendment"] and (amendment.get("number") or amendment.get("type") or amendment.get("amends_accession")):
+        _fail(f"{field}: an original filing carries no amendment number, type or amended accession")
+
+
+def _filing(value: Any) -> None:
+    filing = _object(value, {"accession_number", "form_type", "filing_date", "period_of_report", "event_date",
+                             "document_url", "amendment"}, "filing")
+    if not _ACCESSION.fullmatch(str(filing.get("accession_number") or "")):
+        _fail("filing.accession_number is an EDGAR accession number")
+    _text(filing.get("form_type"), "filing.form_type", limit=100)
+    for key in ("filing_date", "period_of_report", "event_date"):
+        _date(filing.get(key), f"filing.{key}")
+    if filing.get("document_url") is not None and not str(filing["document_url"]).startswith("https://"):
+        _fail("filing.document_url must be an HTTPS locator")
+    _amendment(filing.get("amendment"), "filing.amendment")
+
+
+def _position(value: Any) -> None:
+    position = _object(value, {"issuer_name", "title_of_class", "cusip", "figi", "amount", "amount_type", "value",
+                               "value_unit", "put_call", "investment_discretion", "other_managers",
+                               "voting_authority"}, "position")
+    if not _CUSIP.fullmatch(str(position.get("cusip") or "")):
+        _fail("position.cusip is the nine-character CUSIP as reported")
+    if position.get("amount") is None:
+        _fail("position.amount (shares or principal) is required")
+    _decimal_text(position.get("amount"), "position.amount")
+    _enum(position.get("amount_type"), AMOUNT_TYPES, "position.amount_type")
+    _decimal_text(position.get("value"), "position.value")
+    for key, allowed in (("value_unit", VALUE_UNITS), ("put_call", PUT_CALL),
+                         ("investment_discretion", INVESTMENT_DISCRETION)):
+        if position.get(key) is not None:
+            _enum(position[key], allowed, f"position.{key}")
+    managers = position.get("other_managers")
+    if managers is not None and (not isinstance(managers, list) or not all(isinstance(m, str) for m in managers)):
+        _fail("position.other_managers lists the other-manager numbers as stated")
+    voting = position.get("voting_authority")
+    if voting is not None:
+        for key, amount in _object(voting, {"sole", "shared", "none"}, "position.voting_authority").items():
+            _decimal_text(amount, f"position.voting_authority.{key}")
+
+
+def _person_policy(result: dict[str, Any], *, natural_person: bool) -> None:
+    policy = result.get("person_policy")
+    if not natural_person:
+        if policy is not None:
+            _fail("person_policy applies to natural-person statements only")
+        return
+    _enum(policy, PERSON_POLICIES, "person_policy")
+    if policy == PERSON_POLICY_DEFAULT and result.get("owner_scoped") is not True:
+        _fail("a natural-person statement stored under the default policy is owner-scoped", "minimisation_violation")
+    if policy == PERSON_POLICY_RESEARCH:
+        from src.config.env import person_research_enabled
+
+        if not person_research_enabled():
+            _fail("person-research records are refused while NOESIS_PERSON_RESEARCH is off", "minimisation_violation")
+
+
+def validate_v2_fields(result: dict[str, Any]) -> None:
+    """Rules for the fields only ``noesis-ownership-record-v2`` carries."""
+    kind = result["kind"]
+    if kind == "person":
+        _person_policy(result, natural_person=True)
+    elif kind == "filing_reference":
+        if result.get("amendment") is not None:
+            _amendment(result["amendment"], "amendment")
+    elif kind == "ownership_assertion":
+        assertion_kind = result["assertion_kind"]
+        if result.get("filing") is not None:
+            _filing(result["filing"])
+        if assertion_kind == "reported_holding":
+            if result.get("position") is None or result.get("filing") is None:
+                _fail("a reported holding carries the position and the filing that reports it")
+            if result.get("share") is not None:
+                _fail("a reported holding states shares or principal, not a percentage")
+        elif result.get("position") is not None:
+            _fail("only reported_holding assertions carry a 13F position")
+        if result.get("position") is not None:
+            _position(result["position"])
+        if (result.get("powers") is not None or result.get("group") is not None) and assertion_kind not in {
+                "shareholding", "voting_rights"}:
+            _fail("voting/dispositive powers and group membership belong to shareholding or voting-rights assertions")
+        if result.get("powers") is not None:
+            for key, amount in _object(result["powers"], set(POWER_FIELDS), "powers").items():
+                _decimal_text(amount, f"powers.{key}")
+        natural = (result.get("holder") or {}).get("kind") == "person"
+        group = result.get("group")
+        if group is not None:
+            _object(group, {"member_of_group", "members", "basis"}, "group")
+            if group.get("member_of_group") not in ("a", "b", None):
+                _fail("group.member_of_group is the cover-page box as stated: a, b or unknown")
+            if not isinstance(group.get("members") or [], list):
+                _fail("group.members is a list")
+            from src.config.env import person_research_enabled
+
+            for member in group.get("members") or []:
+                _object(member, {"key", "name", "kind", "withheld"}, "group.members[]")
+                _enum(member.get("kind"), HOLDER_KINDS, "group.members[].kind")
+                if member["kind"] == "person" and not member.get("withheld") and not person_research_enabled():
+                    _fail("a natural-person group member is withheld unless person-research mode is on",
+                          "minimisation_violation")
+                if member.get("withheld") and (member.get("name") or member.get("key")):
+                    _fail("a withheld group member carries no name or key")
+        _person_policy(result, natural_person=natural)
+
+
+def v2_unknowns(record: dict[str, Any]) -> list[str]:
+    unknowns = []
+    position = record.get("position") or {}
+    if record.get("kind") == "ownership_assertion" and record.get("assertion_kind") == "reported_holding":
+        if position.get("value") is None:
+            unknowns.append("position.value")
+        elif position.get("value_unit") is None:
+            unknowns.append("position.value_unit")
+        if position.get("voting_authority") is None:
+            unknowns.append("position.voting_authority")
+        if position.get("investment_discretion") is None:
+            unknowns.append("position.investment_discretion")
+    filing = record.get("filing") or {}
+    if record.get("kind") == "ownership_assertion" and record.get("assertion_kind") in {"shareholding", "voting_rights"} \
+            and filing:
+        if record.get("powers") is None:
+            unknowns.append("powers")
+        if (record.get("group") or {}).get("member_of_group") is None:
+            unknowns.append("group.member_of_group")
+    amendment = filing.get("amendment") or record.get("amendment") or {}
+    if amendment.get("is_amendment") and not amendment.get("amends_accession"):
+        unknowns.append("amendment.amends_accession")
+    return unknowns

@@ -93,7 +93,9 @@ PROJECTOR_OWNERS = {
     "noesis-ai-model-record-v2": "src.kb.ai_models_store",  # Technology AI models and datasets (#2742)
     "noesis-waste-record-v2": "src.kb.waste_store",  # Climate and Environment waste (#2740)
     "noesis-social-protection-record-v2": "src.kb.social_protection_store",  # Society social protection (#2741)
+    "noesis-wealth-distribution-record-v2": "src.kb.wealth_distribution_store",  # Society wealth (#2882)
     "noesis-tourism-statistics-record-v2": "src.kb.tourism_store",  # Economics tourism (#2739)
+    "noesis-tax-transparency-record-v2": "src.kb.tax_store",  # Economics tax transparency (#2889)
     # Technology internet infrastructure (#2743)
     "noesis-internet-infrastructure-record-v2": "src.kb.internet_infrastructure_store",
 }
@@ -279,7 +281,8 @@ def test_ownership_manifest_resolves_to_its_own_provider_plus_shared_providers(i
             stores.setdefault(store["record_type"], []).append(descriptor["id"])
     assert all(len(owners) == 1 for owners in stores.values())  # one authority per store
     owned = {s["store"] for d in provider_descriptors() if d["id"] == "ownership.core" for s in d["stores"]}
-    assert owned == {"src.kb.ownership_store", "src.kb.ownership_identity"}  # no second entity or LEI store
+    # No second entity or LEI store; holding-structure classifications (#2890) are their own reviewable decisions.
+    assert owned == {"src.kb.ownership_store", "src.kb.ownership_identity", "src.kb.ownership_structures"}
     assert ownership_bundle.BUNDLE["architecture"]["manifest"] == "packs/corporate-ownership/manifest.json"
 
 

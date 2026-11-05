@@ -81,6 +81,7 @@ def test_descriptor_declares_capability_store_probe_scopes_source_pack_and_owner
     tools = {o["tool"].rsplit(".", 1)[1]: o for o in descriptor["operations"]}
     assert {
         "bafin_holders_as_of",
+        "bafin_holdings_of_holder",
         "bafin_managers_transactions",
         "bafin_net_short_positions",
         "bafin_warnings_for_entity",

@@ -430,8 +430,14 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.social_protection import SOCIAL_PROTECTION_WRITES
     if name in SOCIAL_PROTECTION_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.wealth import WEALTH_WRITES
+    if name in WEALTH_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.tourism import TOURISM_WRITES
     if name in TOURISM_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.tax import TAX_WRITES
+    if name in TAX_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.internet_infrastructure import (
         INTERNET_INFRASTRUCTURE_WRITES,
@@ -1198,10 +1204,18 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in SOCIAL_PROTECTION_TOOLS:
         return social_protection_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.wealth import WEALTH_TOOLS
+    from tools.knowledge_engine_mcp.wealth import required_scopes as wealth_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in WEALTH_TOOLS:
+        return wealth_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.tourism import TOURISM_TOOLS
     from tools.knowledge_engine_mcp.tourism import required_scopes as tourism_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TOURISM_TOOLS:
         return tourism_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.tax import TAX_TOOLS
+    from tools.knowledge_engine_mcp.tax import required_scopes as tax_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in TAX_TOOLS:
+        return tax_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.internet_infrastructure import (
         INTERNET_INFRASTRUCTURE_TOOLS,
     )

@@ -57,8 +57,10 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580),
     # plus the Technology AI models and datasets technology-ai-models pack (#2742),
     # plus the Society bundle's society-social-protection pack (#2741),
-    # plus the Technology internet-infrastructure features' technology-internet-infrastructure pack (#2743).
-    assert len(packs) == 38
+    # plus the Technology internet-infrastructure features' technology-internet-infrastructure pack (#2743),
+    # plus the Economics tax features' separate economic-tax-transparency pack (#2889),
+    # plus the Society bundle's society-wealth-distribution pack (#2882).
+    assert len(packs) == 40
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -145,8 +147,15 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742),
     # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
     # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739),
-    # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743).
-    assert sum(len(pack["sources"]) for pack in packs) == 353
+    # plus the Technology internet-infrastructure RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources (#2743),
+    # plus the Economics tax-transparency OECD CbCR, OECD rates and two EU Tax Observatory sources (#2889),
+    # plus the Corporate Ownership SEC 13F and Schedule 13D/13G holdings source (#2883),
+    # plus the Corporate Ownership Register of Overseas Entities, Danish and Slovak BODS and OpenCorporates sources
+    # (#2886, #2887),
+    # plus the Society wealth pack's WID, ECB DWA and Fed DFA sources (#2882),
+    # plus the Corporate Ownership offshore-leaks feature's ICIJ Offshore Leaks extract (#2888),
+    # plus the Society wealth pack's ECB HFCS and Bundesbank PHF PDF table sources (#2882).
+    assert sum(len(pack["sources"]) for pack in packs) == 368
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

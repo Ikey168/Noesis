@@ -132,3 +132,26 @@ def seed_market(conn) -> dict:
 def candidate(service, left: str, right: str, *, scopes=SCOPES) -> dict:
     a, b = sorted((left, right))
     return next(c for c in service.candidates(NS, scopes=scopes) if (c["left_key"], c["right_key"]) == (a, b))
+
+
+def drain_source(source_id: str, *, secret=FIXTURE_SECRET, adapters=None) -> list:
+    """All envelopes of one pack source replayed through its real adapter over its pinned fixture."""
+    from src.ingestion.ownership_providers import ADAPTERS, fixture_transport
+    from src.kb.ownership_bundle import load_source_pack
+
+    source = next(s for s in load_source_pack()["sources"] if s["source_id"] == source_id)
+    fixture = json.loads((ROOT / source["fixture"]["path"]).read_text())
+    adapter = (adapters or ADAPTERS)[source["connector"]](source, transport=fixture_transport(fixture["native_pages"]),
+                                                          secret=secret)
+    envelopes, cursor = [], None
+    for _ in range(50):
+        page = adapter.fetch_page({"operation": "ownership"}, cursor=cursor)
+        envelopes.extend(page.records)
+        cursor = page.next_cursor
+        if cursor is None:
+            return envelopes
+    raise AssertionError("adapter did not terminate")
+
+
+def flat_records(envelopes) -> dict:
+    return {r["record_key"]: r for e in envelopes for r in e["ownership_part"]["records"]}

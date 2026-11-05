@@ -12,6 +12,9 @@ recorded here.
   API, only third-party harvests as bulk). Names the EU high-value-dataset
   company API as the route to re-check. Written without network access
   (2026-11-01); terms marked _verify_.
+- Source audit for SEC 13F information tables and structured Schedule 13D/13G
+  filings (#2883, `sec-edgar-holdings`, `unverified-live`):
+  [`sec-holdings-source-audit.md`](sec-holdings-source-audit.md).
 
 `live-check-<date>.json` is written by `scripts/ownership_live_check.py`. It
 runs one bounded acquisition per provider through the real `SourcePackRuntime`

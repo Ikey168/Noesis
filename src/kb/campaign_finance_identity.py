@@ -37,6 +37,7 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.config.env import person_research_enabled
 from src.ingestion.campaign_finance_sources import slug
 from src.kb.campaign_finance_records import (
     READ_SCOPE,
@@ -47,7 +48,7 @@ from src.kb.campaign_finance_records import (
 )
 
 SUBJECT_KINDS = ("candidate", "committee", "connected-organisation", "regulated-entity", "donor-committee",
-                 "donor-organisation")
+                 "donor-organisation", "donor-person")
 FEC_OFFICE_ELECTIONS = {"P": "us-president", "S": "us-senate", "H": "us-house"}
 INDIVIDUAL_NOTICE = ("individual donors and payees are natural persons: never matched, linked or expanded (CF01); "
                      "they stay minimised, unmatched line items")
@@ -69,9 +70,21 @@ def fec_person_name(value: Any) -> str | None:
 
 
 def donor_key(record: Mapping[str, Any]) -> str | None:
-    """The subject key of an item's organisational donor; ``None`` for a natural person (never a subject)."""
+    """The subject key of an item's donor; ``None`` for a natural person unless person-research mode is on and the
+    record was stored under it (``NOESIS_PERSON_RESEARCH``)."""
     counterparty = (record.get("fields") or {}).get("counterparty") or {}
-    if record.get("record_kind") != "contribution" or counterparty.get("kind") != "organisation":
+    if record.get("record_kind") != "contribution":
+        return None
+    if counterparty.get("kind") == "natural-person":
+        if not (person_research_enabled() and counterparty.get("name")):
+            return None
+        if record.get("provider") == "openfec":
+            if counterparty.get("contributor_id"):
+                return f"campaign-finance:fec:donor-person:{counterparty['contributor_id']}"
+            return (f"campaign-finance:fec:donor-person:{slug(counterparty.get('name'))}:"
+                    f"{slug(counterparty.get('state'))}")
+        return f"campaign-finance:ukec:donor-person:{counterparty.get('donor_id') or slug(counterparty.get('name'))}"
+    if counterparty.get("kind") != "organisation":
         return None
     if record.get("provider") == "openfec":
         if counterparty.get("committee_id"):
@@ -105,7 +118,8 @@ class CampaignFinanceIdentity:
     def subjects(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
         """Candidates, committees, connected organisations, regulated entities and organisational donors as published.
 
-        Each subject cites the record revisions it was read from. Natural persons are never subjects.
+        Each subject cites the record revisions it was read from. Natural persons are subjects (``donor-person``) only in
+        person-research mode (``NOESIS_PERSON_RESEARCH``).
         """
         scopes = set(scopes)
         out: dict[str, dict[str, Any]] = {}
@@ -142,8 +156,19 @@ class CampaignFinanceIdentity:
                     ec_id=fields.get("regulated_entity_id"))
             elif kind in {"contribution", "expenditure", "independent-expenditure"}:
                 counterparty = fields.get("counterparty") or {}
-                if counterparty.get("kind") != "organisation" or kind != "contribution":
-                    continue  # only donors; natural persons are never subjects
+                if kind != "contribution":
+                    continue  # only donors are subjects
+                if counterparty.get("kind") == "natural-person":
+                    key = donor_key(record)
+                    if key:  # person-research mode only; otherwise natural persons are never subjects
+                        add(key, "donor-person", counterparty.get("name"),
+                            "US" if record["provider"] == "openfec" else "GB", row,
+                            employer=counterparty.get("employer"), occupation=counterparty.get("occupation"))
+                        out[key]["addresses"].add(", ".join(p for p in (counterparty.get("city"),
+                                                                         counterparty.get("state")) if p))
+                    continue
+                if counterparty.get("kind") != "organisation":
+                    continue
                 key = donor_key(record)
                 if record["provider"] == "openfec":
                     if counterparty.get("committee_id"):
@@ -191,7 +216,9 @@ class CampaignFinanceIdentity:
         from src.kb.ownership_store import OwnershipStore
 
         return [e for e in OwnershipStore(self.conn, initialize=False).records(
-            namespace, principal_id=principal_id, scopes=scopes, kinds=("legal_entity",)) if not e.get("redacted")]
+            namespace, principal_id=principal_id, scopes=scopes,
+            kinds=("legal_entity", "person") if person_research_enabled() else ("legal_entity",))
+            if not e.get("redacted")]
 
     def lobbying_subjects(self, namespace: str) -> list[dict[str, Any]]:
         """Registrants and declared clients as the in-force register revision states them (read-only)."""
@@ -275,7 +302,8 @@ class CampaignFinanceIdentity:
                                                    "note": "a regulated party and a party list with an equal name; "
                                                            "a reviewer decides"}, principal_id, scopes))
         # Corporate Ownership: company numbers, then name + address in one country
-        organisations = [s for s in subjects if s["kind"] in {"donor-organisation", "connected-organisation"}]
+        organisations = [s for s in subjects if s["kind"] in {"donor-organisation", "connected-organisation",
+                                                                  "donor-person"}]
         if ownership_namespace:
             try:
                 owned = self._ownership_entities(ownership_namespace, principal_id, scopes)
@@ -297,7 +325,8 @@ class CampaignFinanceIdentity:
                                                    "exact-identifier", "company-number", {
                                                        "scheme": "gb-coh", "value": subject["identifiers"]["gb-coh"],
                                                        "right": right}, principal_id, scopes))
-                    elif (_country(body.get("jurisdiction")) == subject["country"] and subject["names"]
+                    elif (_country(body.get("jurisdiction") or body.get("country_of_residence")) == subject["country"]
+                          and subject["names"]
                           and _norm(body.get("name")) in {_norm(n) for n in subject["names"]}):
                         offered.append(self._offer(namespace, subject, body["record_key"], entity(body["record_key"]),
                                                    "name-jurisdiction", "name+address", {

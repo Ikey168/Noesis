@@ -88,7 +88,8 @@ def test_descriptor_validates_and_declares_capabilities_operations_stores_and_so
 
 def test_the_manifest_contributes_default_off_features_per_source_and_a_version_bump():
     assert validate_composition_manifest(MANIFEST) == []
-    assert MANIFEST["version"] == "0.2.0"  # 0.2.0 adds society.social-protection (#2741)
+    # 0.2.0 adds society.social-protection (#2741); 0.3.0 adds society.wealth (#2882).
+    assert MANIFEST["version"] == "0.3.0"
     features = {f["id"]: f for f in MANIFEST["optional_features"]}
     assert [(i, features[i]["default"]) for i in FEATURES] == [(i, False) for i in FEATURES]
     for feature in FEATURES:
@@ -96,7 +97,7 @@ def test_the_manifest_contributes_default_off_features_per_source_and_a_version_
         assert {"society.social-protection-series", "society.social-protection-links",
                 "geospatial.place-resolution", "platform.source-acquisition"} <= required
         assert "provider_absent" in features[feature]["description"]
-    assert {"society.income", "society.social-protection"} == {p["id"] for p in MANIFEST["contributes"]["providers"]}
+    assert {"society.income", "society.social-protection"} <= {p["id"] for p in MANIFEST["contributes"]["providers"]}
     assert PACK in MANIFEST["contributes"]["source_packs"]
     installed = validate_source_pack(json.loads((ROOT / "config/source_packs/society-social-protection.json")
                                                 .read_text()))
