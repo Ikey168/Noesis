@@ -227,6 +227,38 @@ def suggest_answer_support(
     }
 
 
+#: Claim spans longer than this need a complete local-window coverage result
+#: before a hosted relation is asked.
+LONG_CLAIM_CHARS = 4000
+
+
+def derive_claim_relation(
+    labels: Sequence[Any], similarity: float, duplicate_threshold: float
+) -> str | None:
+    """Pair relation from the two directional Choice labels (None = abstain).
+
+    Shared by per-link and batched review so both apply identical rules.
+    """
+    if len(labels) != 2 or not all(label in RELATIONS for label in labels):
+        return None
+    labels = list(labels)
+    if set(labels) == {"entailment", "contradiction"}:
+        return None  # conflicting directions need review
+    if labels == ["entailment", "entailment"] and similarity >= duplicate_threshold:
+        return "duplicate"
+    if labels == ["contradiction", "contradiction"]:
+        return "contradicts"
+    if labels[0] == "entailment":
+        return "a_supports_b"
+    if labels[1] == "entailment":
+        return "b_supports_a"
+    if labels[0] == "contradiction":
+        return "a_contradicts_b"
+    if labels[1] == "contradiction":
+        return "b_contradicts_a"
+    return "neutral"
+
+
 def suggest_claim_relation(
     runtime: Any,
     namespace: str,
@@ -289,7 +321,7 @@ def suggest_claim_relation(
         "entailment",
         "contradiction",
     } <= set(window_relations)
-    long_unchecked = max(len(text_a), len(text_b)) > 4000 and (
+    long_unchecked = max(len(text_a), len(text_b)) > LONG_CLAIM_CHARS and (
         window_relations is None or window_coverage_complete is not True
     )
     if window_conflict or long_unchecked:
@@ -330,26 +362,7 @@ def suggest_claim_relation(
     forward = _answered(result, "a_to_b", "choice")
     backward = _answered(result, "b_to_a", "choice")
     labels = [answer.get("value") if answer else None for answer in (forward, backward)]
-    relation = None
-    if all(label in RELATIONS for label in labels):
-        if set(labels) == {"entailment", "contradiction"}:
-            relation = None  # conflicting directions need review
-        elif (
-            labels == ["entailment", "entailment"] and similarity >= duplicate_threshold
-        ):
-            relation = "duplicate"
-        elif labels == ["contradiction", "contradiction"]:
-            relation = "contradicts"
-        elif labels[0] == "entailment":
-            relation = "a_supports_b"
-        elif labels[1] == "entailment":
-            relation = "b_supports_a"
-        elif labels[0] == "contradiction":
-            relation = "a_contradicts_b"
-        elif labels[1] == "contradiction":
-            relation = "b_contradicts_a"
-        else:
-            relation = "neutral"
+    relation = derive_claim_relation(labels, similarity, duplicate_threshold)
     return {
         "contract": "noesis-jev-claim-relation-suggestion-v1",
         "status": "suggested" if relation else "abstained",
@@ -400,6 +413,32 @@ def _claim_pair(
     locator_a, text_a = _span(texts[0], first["locator"])
     locator_b, text_b = _span(texts[1], second["locator"])
     return refs, bindings, [locator_a, locator_b], (text_a, text_b)
+
+
+def derive_contradiction_assessment(
+    kind: str | None,
+    jointly: float | None,
+    same: float | None,
+    jointly_true_threshold: float = 0.5,
+    same_subject_threshold: float = 0.5,
+) -> tuple[str | None, str | None]:
+    """``(assessment, reason)`` from the Choice kind and two Noul answers.
+
+    Shared by per-link and batched review so both apply identical rules.
+    """
+    if kind is None or jointly is None or same is None:
+        return None, "unanswered"
+    if kind == "unclear":
+        return None, "unclear"
+    if kind in CONTRADICTION_CONFLICT_KINDS:
+        if jointly < jointly_true_threshold and same >= same_subject_threshold:
+            return "conflict", None
+        return None, "inconsistent_answers"
+    if kind in CONTRADICTION_RECONCILABLE_KINDS:
+        return "reconcilable", None
+    if jointly >= jointly_true_threshold:  # not_contradiction
+        return "no_conflict", None
+    return None, "inconsistent_answers"
 
 
 def suggest_contradiction_kind(
@@ -496,22 +535,9 @@ def suggest_contradiction_kind(
         kind = None
     jointly = _probability(_answered(result, "jointly_true", "noul"))
     same = _probability(_answered(result, "same_subject", "noul"))
-    assessment, reason = None, None
-    if kind is None or jointly is None or same is None:
-        reason = "unanswered"
-    elif kind == "unclear":
-        reason = "unclear"
-    elif kind in CONTRADICTION_CONFLICT_KINDS:
-        if jointly < jointly_true_threshold and same >= same_subject_threshold:
-            assessment = "conflict"
-        else:
-            reason = "inconsistent_answers"
-    elif kind in CONTRADICTION_RECONCILABLE_KINDS:
-        assessment = "reconcilable"
-    elif jointly >= jointly_true_threshold:  # not_contradiction
-        assessment = "no_conflict"
-    else:
-        reason = "inconsistent_answers"
+    assessment, reason = derive_contradiction_assessment(
+        kind, jointly, same, jointly_true_threshold, same_subject_threshold
+    )
     return {
         **base,
         "status": "suggested" if assessment else "abstained",

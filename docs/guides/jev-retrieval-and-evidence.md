@@ -130,13 +130,19 @@ runs in three steps:
 | `gate` | A link Jev answers *against* is withheld, together with any temporal transition derived from it |
 
 Jev can only withhold a planned link. It never adds a link or changes a
-relation. A claim without exactly one occurrence in its document's current
-committed revision (`unresolved`), a provider, policy or budget failure
-(`unavailable`), or an abstention keeps the local link.
+relation. Three outcomes keep the local link:
+
+- `unresolved`: the claim does not occur exactly once in its document's
+  current committed revision.
+- `unavailable`: a provider, policy or budget failure. A run that never
+  answered, for example because 429s ran out of retries, is recorded as
+  `unavailable` with its error code, not as an abstention.
+- `abstained`: Jev answered without a usable relation. A `shadow` task
+  rollout also abstains, with reason `shadow_rollout`.
 
 Every review is stored in `claim_link_jev_assessments` under the linking
 `run_id`, so `delete_run` reverts it along with the links. The counts are in
-`summary["jev"]`.
+`summary["jev"]`, including `requests`, the number of hosted requests made.
 
 `document_revision_resolver(conn)` locates each claim's exact span, and only
 those spans are sent to the provider. `build_jev_reviewer` wires the real
@@ -149,6 +155,117 @@ python3 scripts/kb_brief.py --harvest --jev-links shadow --jev-policy policy.jso
 
 Shadow mode is the intended starting point. Gate mode should wait until a
 human-labeled evaluation supports it.
+
+### Batched review (opt-in)
+
+By default each link is reviewed in its own request, with its own hosted
+decision run and budget reservation. System One answers every question in a
+request in one parallel pass, so a batched reviewer packs many links into
+each request instead. Pass a `src.kb.claim_link_batch.BatchConfig` as
+`batch=` to `JevClaimLinkReviewer` or `build_jev_reviewer`, or use
+`--jev-batch` on the daily run:
+
+```bash
+python3 scripts/kb_brief.py --harvest --jev-links shadow --jev-policy policy.json --jev-batch
+```
+
+Batched review applies the same verdict rules as per-link review
+(`derive_claim_relation`, `derive_contradiction_assessment`, `link_agrees`)
+and writes the same assessment rows. Each row's `detail_json.batch` records
+`batch_id`, `batch_size` and `split_depth`, and its `decision_run_id` is the
+batch run.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `state_token_budget` (`--jev-batch-state-tokens`) | 24,000 | Estimated tokens of request state, which holds the claim spans. Must stay under `question_token_limit` |
+| `request_token_limit` | 60,000 | Estimated tokens of state plus all questions; at most 64,000 |
+| `question_token_limit` | 32,000 | State plus the longest question; at most 32,000 |
+| `max_links` (`--jev-batch-max-links`) | 120 | Links per request |
+| `concurrency` (`--jev-batch-concurrency`) | 1 | Requests in flight. May not exceed the policy's `max_concurrent` (at most 4) |
+| `max_attempts` | 3 | Attempts per request for 429/529, at most 3 |
+| `bytes_per_token` | 3.0 | Packing estimate: UTF-8 bytes per token |
+| `input_price_usd_micros_per_million_tokens` | 42,000 | $0.042 per million input tokens; output is free |
+| `deadline_s` | 60 | Per-request deadline, retries included |
+
+Provider limits for jev-1.13.0 and 1.14.0 are 64k tokens per request (state
+plus all questions) and 32k tokens per question (state plus one question).
+There is no limit on question count, and the body may be up to 32 MiB.
+
+**Packing.** Links are packed greedily in order. A link is added only if the
+estimated state stays within `state_token_budget`, state plus all questions
+stays within `request_token_limit`, and state plus the longest question
+stays within `question_token_limit`. The estimate is UTF-8 bytes divided by
+`bytes_per_token`; 3.0 is conservative for English, where about 4 is
+typical. A link that cannot fit in a request on its own is `unavailable`
+with error `input_limit`.
+
+**Isolation.** Each link's claim spans are stored in state as
+`links.L0007.claim_a` and `claim_b`. Every question for that link has the
+id prefix `L0007__`, and its instructions name `links.L0007`, so an answer
+can only be attributed to its own link. Claims shared by several links are
+repeated in each link entry rather than cross-referenced.
+
+**Source binding.** Each distinct claim span is one exact committed
+revision slice. The runtime authorizes it, rechecks it before every attempt
+and before publication, and builds the request state itself from those
+captures (`compose_state`). Caller text never reaches the wire. Spans that
+change between capture and request make that batch `unavailable`
+(`source_changed`).
+
+**Budget.** Each request reserves a strict upper bound before it is sent:
+every body byte is counted as a token, plus 32 tokens per question and 512
+per request, priced at the input rate, times `max_attempts`. The runtime
+refuses a request that would push the ledger past
+`max_total_cost_usd_micros`; those links are `unavailable` with error
+`budget_exhausted` and are written. Once answered, the reservation is
+settled to the response's reported `usage.input_tokens`:
+
+- reservations for attempts that were never made are released;
+- failed attempts stay charged their full reservation;
+- if reported cost ever exceeded the reservation, it is charged as reported
+  and flagged `budget_overrun`.
+
+The billing model is an assumption: state is billed once per request.
+`docs.typesafe.ai` could not be checked when this was written. If the
+provider bills state once per question, settlement records the real charge,
+and the overrun flag shows the reservation was too low.
+
+**Failures.**
+
+- 429 and 529 are retried by `TypeSafeClient` with bounded exponential
+  backoff (at most 8 s, honouring `Retry-After` within the deadline).
+- `400 max_tokens_exceeded` splits the batch in half and retries each half.
+  A single link that still exceeds it is `unavailable`.
+- Any other failed batch makes only that batch's links `unavailable`, so
+  they are written.
+- With `response_retention: "none"`, error codes are not retained, so a
+  batch can't be split and becomes `unavailable`.
+
+**Validate before enabling.** Batching changes what the model sees: dozens
+of independent pairs in one state instead of one. Compare the two paths on
+already planned links before using `--jev-batch` in production:
+
+```bash
+python3 scripts/validate_jev_link_batching.py --policy policy.json --sample 480 --batch-sizes 25 120 --out batching-report.json
+```
+
+The script samples stored `supports`/`duplicate`/`contradicts` links. It
+reviews the same links per link and at about 25 and about 120 links per
+batch, in shadow mode, without writing links or assessments. It reports:
+
+- verdict agreement by relation, over links both paths answered;
+- outcome agreement (status, verdict and Jev relation);
+- status and verdict confusion pairs;
+- request counts, wall time and p50/p95 request latency;
+- input tokens and settled cost.
+
+`recommended` is true only when every relation has at least
+`--min-links-per-relation` answered links (default 20), each relation's
+verdict agreement and the overall outcome agreement reach `--min-agreement`
+(default 0.95). It is advice for an operator: the report always says
+`production_switch: false`, and nothing enables batching automatically.
+The validation sends real claim spans to TypeSafe and spends from the
+policy's budget.
 
 All current adapter tests use `fixture` labels. No independent human Jev
 evaluation or measured gain is available, so the evaluation helpers return
