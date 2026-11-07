@@ -75,3 +75,18 @@ def test_no_conflicts_table_is_graceful(seed):
     seed.claims([("k1", "x", "d1", "news", 0.5, None)])
     out = contradiction_scan(seed.conn, topic="anything")
     assert out["count"] == 0 and out["contradictions"] == []
+
+
+def test_scan_reads_conflict_graph_direct_and_implied_types(seed):
+    """The production conflict graph writes direct/implied, not "contradicts"."""
+    _base(seed)
+    seed.conflicts(
+        [
+            ("k3", "k4", "implied", 0.95, "emissions rule"),
+            ("k1", "k2", "direct", 0.81, "energy storage"),
+        ]
+    )
+    out = contradiction_scan(seed.conn)
+    assert out["count"] == 2
+    # Direct conflicts lead even when an implied pair is more similar.
+    assert [pair["conflict_type"] for pair in out["contradictions"]] == ["direct", "implied"]

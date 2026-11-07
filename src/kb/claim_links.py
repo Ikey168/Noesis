@@ -21,7 +21,9 @@ Mechanics:
   lexical-overlap fallback ranks the same window.
 - **Classification** uses the shared NLI backend (:mod:`src.kb.nli`):
   entailment → supports, contradiction → contradicts, high similarity plus
-  bidirectional entailment → duplicate. Model weights must be fetched before
+  bidirectional entailment → duplicate. A pair whose directions disagree
+  decisively (one entails, the other contradicts) abstains and is counted in
+  ``summary["abstained"]`` instead of writing the more confident side. Model weights must be fetched before
   the pass runs.
 - **Provenance**: every link row carries method, model version,
   ``prediction_mode``/confidence (#958), and a ``run_id`` — a bad model
@@ -257,6 +259,7 @@ def run_claim_linking_pass(
         "run_id": run_id,
         "scanned": len(new_claims),
         "links": {relation: 0 for relation in RELATIONS},
+        "abstained": {"conflicting_directions": 0},
         "mode": getattr(nli, "prediction_mode", "unknown"),
     }
     if not new_claims:
@@ -393,6 +396,15 @@ def _link_pair(
     source_b, change_b = _claim_temporal_context(conn, claim_b)
     same_source = bool(source_a and source_a == source_b)
     newer_change = change_a if ingested_a > ingested_b else change_b
+
+    # Opposing decisive directions (A entails B but B contradicts A) are an
+    # inconsistent assessment, not evidence for either relation. Writing the
+    # more confident side would turn model noise into a graph edge, so the
+    # pair abstains and is counted for review.
+    if {forward.label, backward.label} == {ENTAILMENT, CONTRADICTION}:
+        summary.setdefault("abstained", {}).setdefault("conflicting_directions", 0)
+        summary["abstained"]["conflicting_directions"] += 1
+        return
 
     # Duplicate: high similarity + mutual entailment.
     if (

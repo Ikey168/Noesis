@@ -155,3 +155,85 @@ def test_no_fused_score_field(seed):
     assert set(out["grading"]) == {
         "source_reliability", "information_credibility", "independent_axes", "note"
     }
+
+
+# --- claim-to-claim NLI links (claim_links) ----------------------------------
+
+
+def _claim_links(conn, rows):
+    """rows: (claim_a, claim_b, relation, confidence, score)"""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS claim_links (claim_a VARCHAR, claim_b VARCHAR, "
+        "relation VARCHAR, confidence DOUBLE, score DOUBLE)"
+    )
+    conn.executemany("INSERT INTO claim_links VALUES (?, ?, ?, ?, ?)", rows)
+
+
+def _link_claims(seed):
+    seed.claims(
+        [
+            ("k3", "Emissions rule cut output by 12 percent.", "d2", "news", 0.9, None),
+            ("k4", "Output fell 12 percent after the rule.", "d3", "news", 0.9, None),
+            ("k5", "The rule cut output.", "d3", "news", 0.9, None),
+            ("k6", "Correction: the rule cut output 8 percent.", "d1", "news", 0.9, None),
+        ]
+    )
+
+
+def test_claim_links_corroborate_in_entailment_direction_only(seed):
+    _base(seed)
+    _link_claims(seed)
+    _claim_links(
+        seed.conn,
+        [
+            ("k1", "k3", "duplicate", 0.9, 0.95),  # Beta: mutual entailment
+            ("k1", "k5", "supports", 0.8, 0.7),  # k1 entails k5: not support of k1
+            ("k1", "k2", "contradicts", 0.85, 0.75),  # Delta contradicts
+        ],
+    )
+    out = corroborate(seed.conn, "k1")
+    assert {s["source"] for s in out["support"]} == {"Beta Journal"}
+    assert out["support"][0]["found_via"] == ["claim_link"]
+    assert out["contradict"][0]["source"] == "Delta Post"
+    assert out["independent_support_count"] == 1
+    assert out["mixed_sources"] == []
+
+    # A link *into* k1 from another outlet is corroboration.
+    _claim_links(seed.conn, [("k4", "k1", "supports", 0.8, 0.7)])
+    out = corroborate(seed.conn, "k1")
+    assert {s["source"] for s in out["support"]} == {"Beta Journal", "Gamma Review"}
+    assert out["credibility_grade"]["grade"] in (2, 3)
+
+
+def test_same_document_through_several_layers_counts_once(seed):
+    _base(seed)
+    _link_claims(seed)
+    seed.evidence([("e1", "k1", "d2", "news", "supports", 0.6)])
+    _claim_links(seed.conn, [("k3", "k1", "supports", 0.9, 0.92)])
+    out = corroborate(seed.conn, "k1")
+    assert out["publication_support_count"] == 1
+    (beta,) = out["support"]
+    assert beta["found_via"] == ["evidence", "claim_link"]
+    assert beta["similarity"] == 0.92
+
+
+def test_same_source_correction_is_revision_history_not_support(seed):
+    _base(seed)
+    _link_claims(seed)
+    _claim_links(seed.conn, [("k6", "k1", "corrects", 0.9, 0.9)])
+    out = corroborate(seed.conn, "k1")
+    assert out["single_sourced"] is True
+    assert out["corrected_by_source"] is True and out["retracted_by_source"] is False
+    assert out["revisions"] == [
+        {"relation": "corrects", "this_claim_is": "older", "claim_id": "k6", "confidence": 0.9}
+    ]
+
+
+def test_source_on_both_sides_is_named_as_mixed(seed):
+    _base(seed)
+    seed.claims([("k7", "The rule did not cut output.", "d2", "news", 0.8, None)])
+    seed.evidence([("e1", "k1", "d2", "news", "supports", 0.9)])
+    seed.conflicts([("k1", "k7", "direct", 0.85, "emissions")])
+    out = corroborate(seed.conn, "k1")
+    assert out["mixed_sources"] == ["Beta Journal"]
+    assert out["contradict"][0]["similarity"] == 0.85

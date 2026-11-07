@@ -174,3 +174,11 @@ def test_movement_position_tools_are_behind_the_review_gate(monkeypatch):
     assert all(is_gated(tool) for tool in MOVEMENT_GATED_TOOLS)
     assert not set(MOVEMENT_GATED_TOOLS) & off and "movement_registry" in off
     assert set(MOVEMENT_GATED_TOOLS) <= _served_tool_names(monkeypatch, "on")
+
+
+def test_osint_telemetry_counts_conflict_graph_types(seed):
+    _open_investigation(seed, "op_a")
+    seed.conflicts([("k1", "k2", "direct", 0.9, "energy")])
+    tel = osint_telemetry(seed.conn)
+    contradicted = next(s for s in tel["signals"] if s["label"] == "CONTRADICTED")
+    assert contradicted["value"] == 1

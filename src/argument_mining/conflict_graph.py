@@ -9,12 +9,15 @@ Algorithm (no heavy ML dependencies):
   1. Load recent claims grouped by topic window (news article category).
   2. For each within-topic pair from different sources, compute bag-of-words
      cosine similarity.
-  3. If similarity ≥ 0.65 AND (opposite evidence relations OR cross-format
-     contradiction detected), store as a conflict.
+  3. If similarity ≥ 0.65 AND an opposing signal fires (explicit evidence
+     contradiction, negation-aware opposite polarity, negation mismatch, or a
+     numeric disagreement over the same unit), store as a conflict.
   4. conflict_type:
-       "direct"  — similarity ≥ 0.80 AND explicit 'contradicts' relation in
-                   claim_evidence, OR clearly opposing sentiment polarity.
-       "implied" — 0.65 ≤ sim < 0.80, or high sim without explicit contradiction.
+       "direct"  — similarity ≥ 0.80 with an opposing signal, or an explicit
+                   'contradicts' relation in claim_evidence with sim ≥ 0.45.
+       "implied" — 0.65 ≤ sim < 0.80 with an opposing signal, or an explicit
+                   contradiction with sim ≥ 0.30.
+     Cross-format pairs without an opposing signal are not conflicts.
 
 Results are stored in ``claim_conflicts`` and served by
 ``GET /api/v1/arguments/controversy`` and ``GET /api/v1/arguments/controversy/graph``.
@@ -108,6 +111,7 @@ class ClaimConflict:
     source_type_b:   str
     topic:           str
     computed_at:     str   # ISO UTC
+    signals:         tuple[str, ...] = ()  # opposing signals that fired
 
 
 def _conflict_id(cid_a: str, cid_b: str) -> Tuple[str, str]:
@@ -115,21 +119,110 @@ def _conflict_id(cid_a: str, cid_b: str) -> Tuple[str, str]:
     return (min(cid_a, cid_b), max(cid_a, cid_b))
 
 
+_NEGATION_CUES = re.compile(
+    r"\b(?:not|no|never|none|neither|nor|without|cannot|denied|denies|deny|"
+    r"refuted|refutes|false|untrue)\b|n't\b",
+    re.IGNORECASE,
+)
+_POSITIVE = re.compile(
+    r"\b(increase|increased|increases|rise|rises|rose|risen|improve|improved|"
+    r"grow|grew|grows|gain|gained|expand|expanded|support|supports|supported|"
+    r"positive|higher|up)\b",
+    re.IGNORECASE,
+)
+_NEGATIVE = re.compile(
+    r"\b(decrease|decreased|decreases|fall|falls|fell|fallen|decline|declined|"
+    r"shrink|shrank|loss|lost|contract|contracted|oppose|opposes|opposed|"
+    r"negative|lower|down)\b",
+    re.IGNORECASE,
+)
+#: tokens between a negation cue and a polarity word that still flip it
+_NEGATION_SCOPE = 3
+_NUMBER_UNIT = re.compile(
+    r"(?<![\w.])(\d+(?:[.,]\d+)?)\s*(%|percent\b|per\s+cent\b|[a-z]{2,}\b)?",
+    re.IGNORECASE,
+)
+
+#: function words that follow numbers without naming a unit ("in 2024 the")
+_NOT_UNITS: set[str] = {
+    "the", "and", "for", "in", "on", "of", "to", "at", "by", "from", "with",
+    "than", "as", "or", "an", "is", "was", "were", "are", "be", "that", "this",
+    "it", "its", "but", "after", "before", "when", "while",
+}
+
+
+def _negated(text: str, start: int) -> bool:
+    """True when a negation cue occurs within a few tokens before ``start``."""
+    window = re.findall(r"[\w']+", text[:start])[-_NEGATION_SCOPE:]
+    return any(_NEGATION_CUES.fullmatch(token) or token.lower().endswith("n't")
+               for token in window)
+
+
 def _sentiment_polarity(text: str) -> int:
-    """Rough polarity: +1 positive / -1 negative / 0 neutral, via keyword."""
-    pos = len(re.findall(
-        r"\b(increase|rise|improve|grow|gain|expand|support|positive|higher|up)\b",
-        text, re.IGNORECASE,
-    ))
-    neg = len(re.findall(
-        r"\b(decrease|fall|decline|shrink|loss|contract|oppose|negative|lower|down)\b",
-        text, re.IGNORECASE,
-    ))
+    """Rough polarity: +1 positive / -1 negative / 0 neutral, via keyword.
+
+    A polarity word inside a short negation scope counts for the opposite
+    direction ("did not rise" is negative), so negated restatements no longer
+    read as agreement.
+    """
+    pos = neg = 0
+    for pattern, sign in ((_POSITIVE, 1), (_NEGATIVE, -1)):
+        for match in pattern.finditer(text):
+            effective = -sign if _negated(text, match.start()) else sign
+            if effective > 0:
+                pos += 1
+            else:
+                neg += 1
     if pos > neg:
         return 1
     if neg > pos:
         return -1
     return 0
+
+
+def negation_mismatch(text_a: str, text_b: str) -> bool:
+    """Exactly one of two claims carries an explicit negation cue."""
+    return bool(_NEGATION_CUES.search(text_a)) != bool(_NEGATION_CUES.search(text_b))
+
+
+def _quantities(text: str) -> dict[str, set[float]]:
+    found: dict[str, set[float]] = {}
+    for match in _NUMBER_UNIT.finditer(text):
+        raw, unit = match.group(1), (match.group(2) or "").lower()
+        if not unit or unit in _NOT_UNITS:
+            continue
+        unit = "%" if unit in {"%", "percent"} or unit.startswith("per") and "cent" in unit else unit
+        try:
+            value = float(raw.replace(",", ""))
+        except ValueError:  # pragma: no cover - regex guarantees digits
+            continue
+        found.setdefault(unit, set()).add(value)
+    return found
+
+
+def numeric_disagreement(text_a: str, text_b: str) -> bool:
+    """Both claims quantify the same unit with no value in common.
+
+    Exact comparison stays deterministic: "5 percent" vs "7 percent" or
+    "300 jobs" vs "120 jobs" disagree; a shared value, or quantities over
+    different units, does not.
+    """
+    qa, qb = _quantities(text_a), _quantities(text_b)
+    return any(qa[unit].isdisjoint(qb[unit]) for unit in set(qa) & set(qb))
+
+
+def contradiction_signals(text_a: str, text_b: str, explicit_contradicts: bool = False) -> list[str]:
+    """Deterministic opposing-position signals for a claim pair, sorted."""
+    signals = []
+    if explicit_contradicts:
+        signals.append("explicit_contradiction")
+    if _sentiment_polarity(text_a) * _sentiment_polarity(text_b) == -1:
+        signals.append("opposite_polarity")
+    if negation_mismatch(text_a, text_b):
+        signals.append("negation_mismatch")
+    if numeric_disagreement(text_a, text_b):
+        signals.append("numeric_disagreement")
+    return sorted(signals)
 
 
 def detect_conflict(
@@ -140,29 +233,25 @@ def detect_conflict(
 ) -> Optional[ClaimConflict]:
     """Return a ClaimConflict if the two claims conflict, else None.
 
+    Opposing signals (:func:`contradiction_signals`): an explicit
+    ``claim_evidence`` contradiction, opposite (negation-aware) polarity, a
+    negation mismatch, or a numeric disagreement over the same unit.
+
     Thresholds:
-      - direct:  sim ≥ 0.80 + opposite polarity, OR explicit contradiction + sim ≥ 0.45
-      - implied: sim ≥ 0.65 + (explicit_contradicts OR cross-format), OR
-                 explicit contradiction + sim ≥ 0.30
-    When claim_evidence already marks claims as contradicting, topical overlap
-    (sim ≥ 0.30) is sufficient — we trust the pipeline's judgement and flag the
-    conflict; higher sim upgrades it to "direct".
+      - direct:  sim ≥ 0.80 + any opposing signal, OR explicit contradiction + sim ≥ 0.45
+      - implied: sim ≥ 0.65 + any opposing signal, OR explicit contradiction + sim ≥ 0.30
+    Different source formats alone are not an opposing signal: a paper and a
+    news report agreeing with each other are corroboration, not conflict.
     """
     sim = cosine_similarity(text_a, text_b)
+    signals = contradiction_signals(text_a, text_b, explicit_contradicts)
 
-    opposite_polarity = _sentiment_polarity(text_a) * _sentiment_polarity(text_b) == -1
-    cross_format = stype_a != stype_b
-
-    # Direct: strong semantic match + opposing signals
-    if sim >= _SIM_DIRECT and (opposite_polarity or explicit_contradicts):
+    if sim >= _SIM_DIRECT and signals:
         ctype = "direct"
-    # Direct via explicit contradiction + clear topical overlap
     elif explicit_contradicts and sim >= 0.45:
         ctype = "direct"
-    # Implied: moderate similarity + some opposing signal
-    elif sim >= _SIM_IMPLIED and (explicit_contradicts or cross_format or opposite_polarity):
+    elif sim >= _SIM_IMPLIED and signals:
         ctype = "implied"
-    # Implied via explicit contradiction + minimal overlap (trust the pipeline)
     elif explicit_contradicts and sim >= 0.30:
         ctype = "implied"
     else:
@@ -180,6 +269,7 @@ def detect_conflict(
         source_type_b=st_b_n,
         topic=topic,
         computed_at=datetime.now(timezone.utc).isoformat(),
+        signals=tuple(signals),
     )
 
 

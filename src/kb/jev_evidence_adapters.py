@@ -366,3 +366,252 @@ def suggest_claim_relation(
         "temporal_transition": None,
         "decision_run": result["decision_run"],
     }
+
+
+CONTRADICTION_CONFLICT_KINDS = frozenset({"direct", "quantitative"})
+CONTRADICTION_RECONCILABLE_KINDS = frozenset({"temporal", "scope", "attribution"})
+
+
+def _probability(answer: Mapping[str, Any] | None) -> float | None:
+    if answer is None:
+        return None
+    value = answer.get("value")
+    if type(value) not in {int, float} or not math.isfinite(value) or not 0 <= value <= 1:
+        return None
+    return float(value)
+
+
+def _threshold(value: Any, name: str) -> float:
+    if type(value) not in {int, float} or not math.isfinite(value) or not 0 < value < 1:
+        raise ValueError(f"{name} must be a finite probability in (0, 1)")
+    return float(value)
+
+
+def _claim_pair(
+    runtime: Any,
+    namespace: str,
+    principal_id: str,
+    scopes: set[str],
+    first: Mapping[str, Any],
+    second: Mapping[str, Any],
+) -> tuple[list[dict], list[dict], list[dict[str, int]], tuple[str, str]]:
+    refs = [dict(first["source_ref"]), dict(second["source_ref"])]
+    bindings, texts = _capture(runtime, namespace, principal_id, refs, scopes)
+    locator_a, text_a = _span(texts[0], first["locator"])
+    locator_b, text_b = _span(texts[1], second["locator"])
+    return refs, bindings, [locator_a, locator_b], (text_a, text_b)
+
+
+def suggest_contradiction_kind(
+    runtime: Any,
+    namespace: str,
+    run_id: str,
+    claim_a: Mapping[str, Any],
+    claim_b: Mapping[str, Any],
+    *,
+    principal_id: str,
+    scopes: set[str],
+    allow_remote: bool,
+    policy: Mapping[str, Any],
+    local_relation: str | None = None,
+    jointly_true_threshold: float = 0.5,
+    same_subject_threshold: float = 0.5,
+    max_cost_usd_micros: int = 1000,
+    deadline_s: float = 30,
+) -> dict[str, Any]:
+    """Type an already flagged contradiction as a secondary Jev assessment.
+
+    Local NLI and the conflict graph flag many pairs that are not genuine
+    contradictions: the claims describe different times, places or
+    populations, or one merely reports an allegation. This asks one Choice
+    (the kind of disagreement) and two independent Noul questions (can both
+    hold; same subject) over the exact claim spans, then derives an
+    ``assessment`` in code:
+
+    * ``conflict`` — a direct or quantitative kind that both Noul answers
+      agree with (cannot jointly hold, same subject);
+    * ``reconcilable`` — temporal, scope or attribution differences;
+    * ``no_conflict`` — compatible claims that can jointly hold;
+    * abstention — unclear, unanswered, or internally inconsistent answers.
+
+    ``local_relation`` (e.g. the stored ``contradicts`` edge or conflict type)
+    is echoed for comparison but never sent to the provider, so the hosted
+    judgment is not anchored on the local label. Nothing is written to
+    ``claim_links`` or ``claim_conflicts``; thresholds are uncalibrated
+    defaults until a human-labeled evaluation fixes them.
+    """
+    jointly_true_threshold = _threshold(jointly_true_threshold, "jointly_true_threshold")
+    same_subject_threshold = _threshold(same_subject_threshold, "same_subject_threshold")
+    if local_relation is not None and (
+        not isinstance(local_relation, str) or not 1 <= len(local_relation) <= 64
+    ):
+        raise ValueError("bounded local relation label required")
+    refs, bindings, locators, (text_a, text_b) = _claim_pair(
+        runtime, namespace, principal_id, scopes, claim_a, claim_b
+    )
+    base = {
+        "contract": "noesis-jev-contradiction-kind-suggestion-v1",
+        "accepted": False,
+        "local_relation": local_relation,
+        "locators": locators,
+        "graph_write": False,
+        "thresholds": {
+            "jointly_true": jointly_true_threshold,
+            "same_subject": same_subject_threshold,
+            "calibrated": False,
+        },
+    }
+    if refs[0] == refs[1] and locators[0] == locators[1]:
+        return {
+            **base,
+            "status": "abstained",
+            "reason": "same_claim_span",
+            "kind": None,
+            "assessment": None,
+            "jointly_true_probability": None,
+            "same_subject_probability": None,
+            "source_binding": bindings,
+            "decision_run": None,
+        }
+    result = suggest_task(
+        runtime,
+        namespace,
+        run_id,
+        "contradiction_kind",
+        {"claim_a": text_a, "claim_b": text_b},
+        refs,
+        principal_id=principal_id,
+        scopes=scopes,
+        allow_remote=allow_remote,
+        policy=policy,
+        max_cost_usd_micros=max_cost_usd_micros,
+        deadline_s=deadline_s,
+        source_slices=locators,
+    )
+    from src.kb.jev_tasks import CONTRADICTION_KINDS
+
+    kind_answer = _answered(result, "kind", "choice")
+    kind = kind_answer.get("value") if kind_answer else None
+    if kind not in CONTRADICTION_KINDS:
+        kind = None
+    jointly = _probability(_answered(result, "jointly_true", "noul"))
+    same = _probability(_answered(result, "same_subject", "noul"))
+    assessment, reason = None, None
+    if kind is None or jointly is None or same is None:
+        reason = "unanswered"
+    elif kind == "unclear":
+        reason = "unclear"
+    elif kind in CONTRADICTION_CONFLICT_KINDS:
+        if jointly < jointly_true_threshold and same >= same_subject_threshold:
+            assessment = "conflict"
+        else:
+            reason = "inconsistent_answers"
+    elif kind in CONTRADICTION_RECONCILABLE_KINDS:
+        assessment = "reconcilable"
+    elif jointly >= jointly_true_threshold:  # not_contradiction
+        assessment = "no_conflict"
+    else:
+        reason = "inconsistent_answers"
+    return {
+        **base,
+        "status": "suggested" if assessment else "abstained",
+        "reason": reason,
+        "kind": kind,
+        "assessment": assessment,
+        "agrees_with_local": None
+        if assessment is None or local_relation is None
+        else assessment == "conflict",
+        "probabilities": dict(kind_answer["probabilities"])
+        if kind_answer and kind_answer.get("probabilities")
+        else None,
+        "vendor_confidence": kind_answer.get("vendor_confidence") if kind_answer else None,
+        "jointly_true_probability": jointly,
+        "same_subject_probability": same,
+        "source_binding": result.get("source_binding") or bindings,
+        "decision_run": result["decision_run"],
+    }
+
+
+def suggest_corroboration(
+    runtime: Any,
+    namespace: str,
+    run_id: str,
+    claim: Mapping[str, Any],
+    evidence: Mapping[str, Any],
+    *,
+    principal_id: str,
+    scopes: set[str],
+    allow_remote: bool,
+    policy: Mapping[str, Any],
+    max_cost_usd_micros: int = 1000,
+    deadline_s: float = 30,
+) -> dict[str, Any]:
+    """Assess whether an exact evidence span corroborates an exact claim span.
+
+    A secondary check for the corroboration ledger
+    (:func:`src.osint.corroboration.corroborate`): it can confirm or dispute
+    that a stored ``supports``/``contradicts`` edge is borne out by the text.
+    It never adds a source, never counts as an independent origin (origin
+    lineage stays authoritative for independence), and never writes
+    ``claim_evidence`` or ``claim_links``. ``independent_report_probability``
+    is a reading of the text only, reported for reviewers.
+    """
+    refs, bindings, locators, (claim_text, evidence_text) = _claim_pair(
+        runtime, namespace, principal_id, scopes, claim, evidence
+    )
+    base = {
+        "contract": "noesis-jev-corroboration-suggestion-v1",
+        "accepted": False,
+        "locators": locators,
+        "graph_write": False,
+        "counts_as_independent_source": False,
+    }
+    if refs[0] == refs[1] and locators[0] == locators[1]:
+        return {
+            **base,
+            "status": "abstained",
+            "reason": "same_claim_span",
+            "relation": None,
+            "independent_report_probability": None,
+            "source_binding": bindings,
+            "decision_run": None,
+        }
+    result = suggest_task(
+        runtime,
+        namespace,
+        run_id,
+        "corroboration",
+        {"claim": claim_text, "evidence": evidence_text},
+        refs,
+        principal_id=principal_id,
+        scopes=scopes,
+        allow_remote=allow_remote,
+        policy=policy,
+        max_cost_usd_micros=max_cost_usd_micros,
+        deadline_s=deadline_s,
+        source_slices=locators,
+    )
+    from src.kb.jev_tasks import CORROBORATION_RELATIONS
+
+    answer = _answered(result, "relation", "choice")
+    relation = answer.get("value") if answer else None
+    if relation not in CORROBORATION_RELATIONS or relation == "unclear":
+        reason = "unclear" if relation == "unclear" else "unanswered"
+        relation = None
+    else:
+        reason = None
+    return {
+        **base,
+        "status": "suggested" if relation else "abstained",
+        "reason": reason,
+        "relation": relation,
+        "probabilities": dict(answer["probabilities"])
+        if answer and answer.get("probabilities")
+        else None,
+        "vendor_confidence": answer.get("vendor_confidence") if answer else None,
+        "independent_report_probability": _probability(
+            _answered(result, "independent_report", "noul")
+        ),
+        "source_binding": result.get("source_binding") or bindings,
+        "decision_run": result["decision_run"],
+    }

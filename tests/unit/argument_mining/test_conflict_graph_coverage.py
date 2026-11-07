@@ -16,8 +16,11 @@ from src.argument_mining.conflict_graph import (
     ClaimConflict,
     build_conflict_graph,
     compute_claim_conflicts,
+    contradiction_signals,
     cosine_similarity,
     detect_conflict,
+    negation_mismatch,
+    numeric_disagreement,
     _conflict_id,
     _sentiment_polarity,
     _tokenize,
@@ -178,8 +181,9 @@ class TestDetectConflict(unittest.TestCase):
         self.assertEqual(c.conflict_type, "direct")
         self.assertGreaterEqual(c.similarity_score, 0.45)
 
-    def test_implied_via_cross_format(self):
-        # moderate sim (>=0.65), no explicit, different source types -> implied
+    def test_cross_format_agreement_is_not_a_conflict(self):
+        # moderate sim (>=0.65), different source types, but no opposing
+        # signal: a paper and a news report agreeing is corroboration.
         c = detect_conflict(
             "a", "economy inflation prices growth markets stable",
             "news",
@@ -187,8 +191,46 @@ class TestDetectConflict(unittest.TestCase):
             "paper",
             topic="Economy",
         )
+        self.assertIsNone(c)
+
+    def test_negation_mismatch_is_a_direct_conflict(self):
+        c = detect_conflict(
+            "a", "The central bank will raise interest rates in September",
+            "news",
+            "b", "The central bank will not raise interest rates in September",
+            "paper",
+            topic="Economy",
+        )
         self.assertIsNotNone(c)
-        self.assertEqual(c.conflict_type, "implied")
+        self.assertEqual(c.conflict_type, "direct")
+        self.assertIn("negation_mismatch", c.signals)
+
+    def test_numeric_disagreement_over_same_unit_is_a_conflict(self):
+        c = detect_conflict(
+            "a", "Regional unemployment reached 5 percent during spring",
+            "news",
+            "b", "Regional unemployment reached 7 percent during spring",
+            "news",
+            topic="Economy",
+        )
+        self.assertIsNotNone(c)
+        self.assertEqual(c.signals, ("numeric_disagreement",))
+
+    def test_same_quantity_or_years_only_do_not_disagree(self):
+        self.assertFalse(numeric_disagreement(
+            "In 2023 the plant hired 300 workers", "In 2024 the plant hired 300 workers"
+        ))
+        self.assertFalse(numeric_disagreement("300 jobs", "300 jobs and 4 sites"))
+        self.assertTrue(numeric_disagreement("a 5 per cent levy", "a 7% levy"))
+
+    def test_negated_restatement_does_not_agree_in_polarity(self):
+        self.assertEqual(_sentiment_polarity("Prices did not rise this quarter"), -1)
+        self.assertEqual(_sentiment_polarity("Exports never fell"), 1)
+        self.assertEqual(
+            contradiction_signals("Prices rose sharply", "Prices did not rise sharply"),
+            ["negation_mismatch", "opposite_polarity"],
+        )
+        self.assertFalse(negation_mismatch("Prices rose", "Prices increased"))
 
     def test_implied_via_explicit_low_sim(self):
         # sim in [0.30, 0.45), explicit contradiction -> implied-explicit branch

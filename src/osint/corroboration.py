@@ -9,7 +9,12 @@ builds:
 * the RAG evidence links (``claim_evidence``: SUPPORTS / CONTRADICTS to other
   documents), and
 * the semantic conflict edges (``claim_conflicts``: another claim contradicts
-  this one),
+  this one), and
+* the KB claim-to-claim NLI links (``claim_links``): another outlet's claim
+  that entails this one (``supports`` toward it, or a mutual ``duplicate``)
+  corroborates it, a ``contradicts`` link contradicts it, and same-source
+  ``supersedes``/``corrects``/``retracts`` transitions are reported as the
+  claim's own revision history rather than as independent sources,
 
 each source weighted by its credibility (``outlet_scores.composite_score``).
 
@@ -44,6 +49,9 @@ ASSUMPTIONS = [
     "source credibility is the latest outlet transparency composite (0.5 when unscored)",
     "absence of evidence is not evidence: a single-sourced claim is flagged, not scored",
     "reads only already-ingested public documents; no crawling or targeting",
+    "a claim link counts as support only in its entailment direction (other -> this claim) or as a mutual duplicate",
+    "one document reached through several layers counts once per relation",
+    "same-source corrections and retractions are revision history, never independent corroboration",
 ]
 
 
@@ -183,13 +191,15 @@ def _contradict_from_conflicts(conn, claim_id: str) -> List[Dict[str, Any]]:
         return []
     rows = conn.execute(
         """
-        SELECT CASE WHEN claim_id_a = ? THEN claim_id_b ELSE claim_id_a END
+        SELECT CASE WHEN claim_id_a = ? THEN claim_id_b ELSE claim_id_a END,
+               similarity_score, conflict_type
         FROM claim_conflicts
         WHERE claim_id_a = ? OR claim_id_b = ?
         """,
         [claim_id, claim_id, claim_id],
     ).fetchall()
-    other_ids = [r[0] for r in rows if r[0]]
+    edges = {r[0]: (r[1], r[2]) for r in rows if r[0] and r[0] != claim_id}
+    other_ids = list(edges)
     if not other_ids:
         return []
     src_map = common.claim_sources(conn, other_ids)
@@ -201,13 +211,98 @@ def _contradict_from_conflicts(conn, claim_id: str) -> List[Dict[str, Any]]:
                 "relation": "contradicts",
                 "source": info.get("source", "unknown"),
                 "source_type": info.get("source_type"),
-                "similarity": None,
+                "similarity": float(edges[oid][0]) if edges[oid][0] is not None else None,
+                "conflict_type": edges[oid][1],
                 "via": "conflict",
                 "claim_id": oid,
                 "document_id": info.get("document_id"),
             }
         )
     return out
+
+
+_REVISION_RELATIONS = ("supersedes", "corrects", "retracts")
+
+
+def _from_claim_links(conn, claim_id: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Claim-to-claim NLI links naming this claim.
+
+    Returns ``(entries, revisions)``. ``supports`` is directed premise ->
+    hypothesis, so only a link *into* this claim corroborates it; a link out of
+    it (this claim entails a weaker one) says nothing about this claim's truth.
+    ``duplicate`` is mutual entailment and ``contradicts`` is symmetric.
+    Temporal transitions are newer -> older from the same source.
+    """
+    if not common.table_exists(conn, "claim_links"):
+        return [], []
+    rows = conn.execute(
+        """
+        SELECT claim_a, claim_b, relation, confidence, score
+        FROM claim_links
+        WHERE (claim_a = ? OR claim_b = ?) AND claim_a <> claim_b
+        """,
+        [claim_id, claim_id],
+    ).fetchall()
+    other_ids = list({b if a == claim_id else a for a, b, *_ in rows})
+    src_map = common.claim_sources(conn, other_ids)
+    entries: list[dict[str, Any]] = []
+    revisions: list[dict[str, Any]] = []
+    for claim_a, claim_b, relation, confidence, score in rows:
+        relation = (relation or "").lower()
+        other = claim_b if claim_a == claim_id else claim_a
+        if relation in _REVISION_RELATIONS:
+            revisions.append(
+                {
+                    "relation": relation,
+                    # newer -> older: when this claim is claim_b, it was revised.
+                    "this_claim_is": "older" if claim_b == claim_id else "newer",
+                    "claim_id": other,
+                    "confidence": float(confidence) if confidence is not None else None,
+                }
+            )
+            continue
+        if relation == "supports" and claim_b != claim_id:
+            continue  # this claim entails the other; not corroboration of it
+        if relation not in ("supports", "duplicate", "contradicts"):
+            continue
+        info = src_map.get(other, {})
+        entries.append(
+            {
+                "relation": "contradicts" if relation == "contradicts" else "supports",
+                "source": info.get("source", "unknown"),
+                "source_type": info.get("source_type"),
+                "similarity": float(score) if score is not None else None,
+                "link_relation": relation,
+                "link_confidence": float(confidence) if confidence is not None else None,
+                "via": "claim_link",
+                "claim_id": other,
+                "document_id": info.get("document_id"),
+            }
+        )
+    revisions.sort(key=lambda r: (r["this_claim_is"], r["relation"], r["claim_id"]))
+    return entries, revisions
+
+
+def _dedupe_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One entry per (relation, document) — the same publication found via
+    evidence, a conflict edge and a claim link is still one publication. The
+    strongest similarity is kept and every layer that found it is listed."""
+    out: dict[tuple, dict[str, Any]] = {}
+    for entry in entries:
+        document = entry.get("document_id")
+        key = (
+            entry["relation"],
+            document if document else ("claim", entry.get("claim_id"), entry["source"], entry["via"]),
+        )
+        current = out.get(key)
+        if current is None:
+            out[key] = {**entry, "found_via": [entry["via"]]}
+            continue
+        if entry["via"] not in current["found_via"]:
+            current["found_via"].append(entry["via"])
+        if (entry.get("similarity") or 0) > (current.get("similarity") or 0):
+            current["similarity"] = entry.get("similarity")
+    return list(out.values())
 
 
 def corroborate(conn, claim_id: str) -> Dict[str, Any]:
@@ -234,6 +329,8 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
 
     entries = _support_contradict_from_evidence(conn, claim_id)
     entries += _contradict_from_conflicts(conn, claim_id)
+    link_entries, revisions = _from_claim_links(conn, claim_id)
+    entries = _dedupe_entries(entries + link_entries)
 
     # A source only counts as independent corroboration if it is not the
     # claim's own carrying source.
@@ -243,6 +340,11 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
     contradict = [
         e for e in entries if e["relation"] == "contradicts" and e["source"] != own_source
     ]
+    # A source on both sides is contested within itself; keep it on both
+    # sides but name it, rather than silently netting it out.
+    mixed_sources = sorted(
+        {e["source"] for e in support} & {e["source"] for e in contradict}
+    )
 
     cred = common.source_credibility(
         conn, [e["source"] for e in support + contradict] + [own_source]
@@ -346,6 +448,14 @@ def corroborate(conn, claim_id: str) -> Dict[str, Any]:
         weighted_support=weighted_support,
         weighted_contradict=weighted_contradict,
         single_sourced=single_sourced,
+        mixed_sources=mixed_sources,
+        revisions=revisions,
+        retracted_by_source=any(
+            r["relation"] == "retracts" and r["this_claim_is"] == "older" for r in revisions
+        ),
+        corrected_by_source=any(
+            r["relation"] == "corrects" and r["this_claim_is"] == "older" for r in revisions
+        ),
         source_reliability_grade=source_grade,
         credibility_grade=info_grade,
         grading={
@@ -372,14 +482,19 @@ def _collapse(entries: List[Dict[str, Any]], cred: Dict[str, Optional[float]]) -
                 "source_type": e.get("source_type"),
                 "credibility": cred.get(e["source"]),
                 "via": e["via"],
+                "found_via": list(e.get("found_via") or [e["via"]]),
+                "publication_count": 1,
                 "similarity": e.get("similarity"),
             }
         else:
+            cur["publication_count"] += 1
+            for via in e.get("found_via") or [e["via"]]:
+                if via not in cur["found_via"]:
+                    cur["found_via"].append(via)
             if (e.get("similarity") or 0) > (cur.get("similarity") or 0):
                 cur["similarity"] = e.get("similarity")
-    # Highest-credibility sources first (None sorts last).
+    # Highest-credibility sources first (None sorts last), stable by name.
     return sorted(
         by_source.values(),
-        key=lambda r: (r["credibility"] is not None, r["credibility"] or 0),
-        reverse=True,
+        key=lambda r: (r["credibility"] is None, -(r["credibility"] or 0), r["source"]),
     )
