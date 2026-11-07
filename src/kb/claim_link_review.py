@@ -131,8 +131,63 @@ def _decision_run_id(run_id: str, relation: str, claim_a: str, claim_b: str) -> 
     return f"{run_id[:200]}:jev:{digest}"
 
 
+def link_agrees(relation: str, jev_relation: str | None) -> bool | None:
+    """Whether a Jev relation confirms a proposed local link (None = no answer)."""
+    if jev_relation is None:
+        return None
+    if relation == "contradicts":
+        return jev_relation == "conflict"
+    if relation == "duplicate":
+        return jev_relation == "duplicate"
+    return jev_relation in {"a_supports_b", "duplicate"}  # supports: a entails b
+
+
+def run_failure(run: Mapping[str, Any] | None) -> tuple[str, dict[str, Any]] | None:
+    """``(status, detail)`` when a hosted run produced no usable answers.
+
+    A provider that never answered (rate limits, overload, schema drift, a
+    failed publication) is ``unavailable``, never an abstention; a ``shadow``
+    rollout ran but withholds its answers, so it abstains.
+    """
+    if run is None:
+        return None
+    if run.get("rollout_mode") == "shadow":
+        return "abstained", {"reason": "shadow_rollout"}
+    if run.get("status") == "completed":
+        return None
+    receipt = run.get("receipt") or {}
+    code = (
+        run.get("failure_code")
+        or (receipt.get("execution") or {}).get("error_code")
+        or run.get("status")
+        or "unavailable"
+    )
+    return "unavailable", {"error": str(code)}
+
+
+def contradiction_detail(kind, reason, jointly, same) -> dict[str, Any]:
+    return {
+        "kind": kind,
+        "reason": reason,
+        "jointly_true_probability": jointly,
+        "same_subject_probability": same,
+    }
+
+
+def relation_detail(a_to_b, b_to_a, reason) -> dict[str, Any]:
+    return {"a_to_b": a_to_b, "b_to_a": b_to_a, "reason": reason}
+
+
 class JevClaimLinkReviewer:
-    """Review proposed claim links with Jev before the linking pass writes them."""
+    """Review proposed claim links with Jev before the linking pass writes them.
+
+    ``batch`` (a :class:`src.kb.claim_link_batch.BatchConfig`) packs many
+    links into each TypeSafe request; the default ``None`` reviews one link
+    per request, exactly as before. Both paths apply the same verdict rules
+    and record the same assessment shape. ``stats`` lists every hosted
+    request made (links, questions, estimated and reported tokens,
+    reservation, latency) for evaluation.
+    """
 
     def __init__(
         self,
@@ -147,11 +202,19 @@ class JevClaimLinkReviewer:
         mode: str = "shadow",
         max_cost_usd_micros: int = 1000,
         deadline_s: float = 30,
+        batch: Any = None,
     ) -> None:
         if mode not in MODES:
             raise ValueError(f"mode must be one of {MODES}")
         if not callable(resolve_claim):
             raise TypeError("a claim span resolver is required")
+        if batch is not None:
+            from src.kb.claim_link_batch import BatchConfig
+
+            if not isinstance(batch, BatchConfig):
+                raise TypeError("batch must be a BatchConfig")
+            if batch.concurrency > int(dict(policy).get("max_concurrent", 1)):
+                raise ValueError("batch concurrency exceeds the policy's max_concurrent")
         self.runtime = runtime
         self.namespace = namespace
         self.principal_id = principal_id
@@ -162,10 +225,36 @@ class JevClaimLinkReviewer:
         self.mode = mode
         self.max_cost_usd_micros = max_cost_usd_micros
         self.deadline_s = deadline_s
+        self.batch = batch
+        self.stats: list[dict[str, Any]] = []
 
     @property
     def method(self) -> str:
-        return f"jev:{self.policy.get('model', 'unknown')}:{self.mode}"
+        suffix = "" if self.batch is None else ":batched"
+        return f"jev:{self.policy.get('model', 'unknown')}:{self.mode}{suffix}"
+
+    def review_all(self, run_id: str, items: list[Mapping[str, Any]]) -> list[dict[str, Any]]:
+        """Review many proposed links, returning one review per item in order.
+
+        Each item has ``relation``, ``premise``/``hypothesis`` (``(claim_id,
+        claim_text)`` in stored direction), ``similarity`` and
+        ``duplicate_threshold``.
+        """
+        for item in items:
+            if item["relation"] not in REVIEWED_RELATIONS:
+                raise ValueError(f"unreviewable relation {item['relation']!r}")
+        if self.batch is None:
+            return [
+                self.review(
+                    run_id, item["relation"], item["premise"], item["hypothesis"],
+                    similarity=item["similarity"],
+                    duplicate_threshold=item["duplicate_threshold"],
+                )
+                for item in items
+            ]
+        from src.kb.claim_link_batch import review_batched
+
+        return review_batched(self, run_id, items)
 
     def review(
         self,
@@ -177,19 +266,14 @@ class JevClaimLinkReviewer:
         similarity: float,
         duplicate_threshold: float,
     ) -> dict[str, Any]:
-        """Assess one proposed link. ``premise``/``hypothesis`` are
-        ``(claim_id, claim_text)`` in the link's stored direction."""
+        """Assess one proposed link in its own hosted request."""
         if relation not in REVIEWED_RELATIONS:
             raise ValueError(f"unreviewable relation {relation!r}")
         decision_run_id = _decision_run_id(run_id, relation, premise[0], hypothesis[0])
-        base = {
-            "relation": relation,
-            "mode": self.mode,
-            "decision_run_id": decision_run_id,
-        }
+        base = self.base(relation, decision_run_id)
         spans = [self.resolve_claim(claim_id, text) for claim_id, text in (premise, hypothesis)]
         if any(span is None for span in spans):
-            return self._finish(base, "unresolved", None, None, {"reason": "no_exact_claim_span"})
+            return self.finish(base, "unresolved", None, None, {"reason": "no_exact_claim_span"})
         common = {
             "principal_id": self.principal_id,
             "scopes": self.scopes,
@@ -198,6 +282,7 @@ class JevClaimLinkReviewer:
             "max_cost_usd_micros": self.max_cost_usd_micros,
             "deadline_s": self.deadline_s,
         }
+        started = time.monotonic()
         try:
             if relation == "contradicts":
                 result = suggest_contradiction_kind(
@@ -212,35 +297,32 @@ class JevClaimLinkReviewer:
                 )
         except _REVIEW_FAILURES as exc:  # provider, policy, budget or source failures
             code = getattr(exc, "code", type(exc).__name__)
-            return self._finish(base, "unavailable", None, None, {"error": str(code)})
+            return self.finish(base, "unavailable", None, None, {"error": str(code)})
+        run = result.get("decision_run")
+        if run is not None:
+            self.stats.append(run_stats(run, "link", decision_run_id, links=1,
+                                        latency_s=time.monotonic() - started))
         if relation == "contradicts":
             jev_relation = result.get("assessment")
-            detail = {
-                "kind": result.get("kind"),
-                "reason": result.get("reason"),
-                "jointly_true_probability": result.get("jointly_true_probability"),
-                "same_subject_probability": result.get("same_subject_probability"),
-            }
-            agrees = None if jev_relation is None else jev_relation == "conflict"
+            detail = contradiction_detail(
+                result.get("kind"), result.get("reason"),
+                result.get("jointly_true_probability"), result.get("same_subject_probability"),
+            )
         else:
             jev_relation = result.get("relation")
-            detail = {
-                "a_to_b": result.get("a_to_b"),
-                "b_to_a": result.get("b_to_a"),
-                "reason": result.get("reason"),
-            }
-            if jev_relation is None:
-                agrees = None
-            elif relation == "duplicate":
-                agrees = jev_relation == "duplicate"
-            else:  # supports: premise (a) entails hypothesis (b)
-                agrees = jev_relation in {"a_supports_b", "duplicate"}
+            detail = relation_detail(result.get("a_to_b"), result.get("b_to_a"), result.get("reason"))
+        failure = run_failure(run)
+        if failure is not None:
+            return self.finish(base, failure[0], None, None, {**detail, **failure[1]})
+        agrees = link_agrees(relation, jev_relation)
         if agrees is None:
-            status = "unavailable" if result.get("status") != "abstained" else "abstained"
-            return self._finish(base, status, None, jev_relation, detail)
-        return self._finish(base, "answered", "agrees" if agrees else "disagrees", jev_relation, detail)
+            return self.finish(base, "abstained", None, jev_relation, detail)
+        return self.finish(base, "answered", "agrees" if agrees else "disagrees", jev_relation, detail)
 
-    def _finish(self, base, status, verdict, jev_relation, detail) -> dict[str, Any]:
+    def base(self, relation: str, decision_run_id: str) -> dict[str, Any]:
+        return {"relation": relation, "mode": self.mode, "decision_run_id": decision_run_id}
+
+    def finish(self, base, status, verdict, jev_relation, detail) -> dict[str, Any]:
         withhold = self.mode == "gate" and verdict == "disagrees"
         return {
             **base,
@@ -251,6 +333,29 @@ class JevClaimLinkReviewer:
             "write": not withhold,
             "detail": detail,
         }
+
+    _finish = finish
+
+
+def run_stats(run: Mapping[str, Any], kind: str, decision_run_id: str, *, links: int,
+              latency_s: float, **extra: Any) -> dict[str, Any]:
+    receipt = run.get("receipt") or {}
+    usage = receipt.get("usage") or {}
+    return {
+        "kind": kind,
+        "decision_run_id": decision_run_id,
+        "links": links,
+        "status": run.get("status"),
+        "error": (run_failure(run) or (None, {}))[1].get("error"),
+        "attempts": run.get("attempts_reserved"),
+        "input_tokens": usage.get("input_tokens"),
+        "output_tokens": usage.get("output_tokens"),
+        "reserved_usd_micros": run.get("reserved_cost_usd_micros"),
+        "settled_usd_micros": run.get("settled_cost_usd_micros"),
+        "budget_overrun": run.get("budget_overrun"),
+        "latency_s": round(latency_s, 4),
+        **extra,
+    }
 
 
 def record_assessment(
@@ -286,6 +391,8 @@ def build_jev_reviewer(
     policy: Mapping[str, Any],
     principal_id: str = "local-operator",
     scopes: set[str] | None = None,
+    batch: Any = None,
+    client: Any = None,
 ) -> JevClaimLinkReviewer:
     """A reviewer over the real TypeSafe client for a local operator run.
 
@@ -293,6 +400,8 @@ def build_jev_reviewer(
     ``credential_ref`` (``"typesafe"`` reads ``TYPESAFE_API_KEY`` at
     execution time) and set ``hosted_allowed``; the decision runtime rejects
     anything less. Calling this is the explicit remote-processing approval.
+    ``batch`` (a :class:`src.kb.claim_link_batch.BatchConfig`) opts in to
+    many links per request; ``None`` keeps one request per link.
     """
     import os
 
@@ -301,7 +410,7 @@ def build_jev_reviewer(
 
     runtime = DecisionRuntime(
         conn,
-        client=TypeSafeClient(),
+        client=client or TypeSafeClient(),
         credential_resolver=lambda reference: (
             os.environ.get("TYPESAFE_API_KEY") if reference == "typesafe" else None
         ),
@@ -315,4 +424,5 @@ def build_jev_reviewer(
         allow_remote=True,
         resolve_claim=document_revision_resolver(conn),
         mode=mode,
+        batch=batch,
     )

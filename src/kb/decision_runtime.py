@@ -27,6 +27,12 @@ def _hash(value: Any) -> str:
     return hashlib.sha256(_json(value).encode()).hexdigest()
 
 
+#: Default exact sources per run; batched callers raise it per run up to
+#: :data:`MAX_BATCH_SOURCES`.
+DEFAULT_MAX_SOURCES = 20
+MAX_BATCH_SOURCES = 512
+
+
 class DecisionRuntimeError(RuntimeError):
     def __init__(self, code: str, message: str):
         super().__init__(message)
@@ -156,9 +162,16 @@ class DecisionRuntime:
             "updated_at_ms": row[5] if row else None,
         }
 
-    def _sources(self, namespace: str, owner: str, refs: list[dict[str, Any]], scopes: set[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        if not isinstance(refs, list) or not 1 <= len(refs) <= 20:
-            raise DecisionRuntimeError("invalid_sources", "one to 20 exact source versions required")
+    def _sources(self, namespace: str, owner: str, refs: list[dict[str, Any]], scopes: set[str],
+                 max_sources: int = DEFAULT_MAX_SOURCES) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        if type(max_sources) is not int or not 1 <= max_sources <= MAX_BATCH_SOURCES:
+            raise DecisionRuntimeError("invalid_sources", "invalid exact source limit")
+        if not isinstance(refs, list) or not 1 <= len(refs) <= max_sources:
+            raise DecisionRuntimeError(
+                "invalid_sources",
+                "one to 20 exact source versions required" if max_sources == DEFAULT_MAX_SOURCES
+                else f"one to {max_sources} exact source versions required",
+            )
         bindings: list[dict[str, Any]] = []
         captures: list[dict[str, Any]] = []
         documents = ReviewInboxStore(self.conn, initialize=False)
@@ -255,13 +268,14 @@ class DecisionRuntime:
         return bindings, captures
 
     def capture_sources(self, namespace: str, principal_id: str,
-                        source_refs: list[dict[str, Any]], scopes: set[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+                        source_refs: list[dict[str, Any]], scopes: set[str],
+                        max_sources: int = DEFAULT_MAX_SOURCES) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Read authorized exact source versions for task-specific span construction.
 
         The decision run independently rechecks these bindings before a remote
         request, so a caller cannot use this capture to bypass currency checks.
         """
-        return self._sources(namespace, principal_id, source_refs, scopes)
+        return self._sources(namespace, principal_id, source_refs, scopes, max_sources)
 
     @staticmethod
     def _policy(policy: Mapping[str, Any] | None, allow_remote: bool, max_attempts: int,
@@ -296,6 +310,47 @@ class DecisionRuntime:
                 raise DecisionRuntimeError("invalid_policy", "discard threshold requires a pinned calibration")
         return dict(policy)
 
+    def _settle(self, namespace: str, owner: str, settings: Mapping[str, Any], run_id: str,
+                result: Mapping[str, Any], reserved: int, max_attempts: int,
+                attempts_made: int, settle_cost: Callable[[Mapping[str, Any]], int | None]) -> dict[str, Any]:
+        """Replace this run's reservation in the budget ledger with its charge.
+
+        Unattempted reservations are released. Every attempt that may have
+        reached the provider stays charged its full per-attempt reservation,
+        except an answered attempt with reported usage, which is charged that
+        usage's cost. A cost above the reservation is recorded as charged and
+        flagged; it can only arise if the caller's estimate was not an upper
+        bound, and it blocks later reservations once the budget is spent.
+        """
+        per_attempt = reserved // max_attempts
+        charge = per_attempt * attempts_made
+        usage = ((result.get("receipt") or {}).get("usage") or {}) if result.get("status") == "completed" else {}
+        actual = None
+        if usage.get("input_tokens") is not None:
+            actual = settle_cost(usage)
+            if type(actual) is not int or actual < 0:
+                actual = None
+        if actual is not None and attempts_made >= 1:
+            charge = per_attempt * (attempts_made - 1) + actual
+        self.conn.execute("BEGIN")
+        try:
+            self.conn.execute(
+                "UPDATE hosted_decision_budgets SET reserved_cost_micros=reserved_cost_micros-?+? "
+                "WHERE namespace=? AND owner=? AND budget_id=?",
+                [reserved, charge, namespace, owner, settings["budget_id"]],
+            )
+            self.conn.execute(
+                "UPDATE hosted_decision_runs SET reserved_cost_micros=? WHERE namespace=? AND owner=? AND run_id=?",
+                [charge, namespace, owner, run_id],
+            )
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return {"settled_cost_usd_micros": charge,
+                "actual_cost_usd_micros": actual,
+                "budget_overrun": actual is not None and actual > per_attempt}
+
     def inspect(self, namespace: str, run_id: str, *, principal_id: str, scopes: set[str]) -> dict[str, Any]:
         self._authorize(namespace, principal_id, scopes, execute=False)
         row = self.conn.execute(
@@ -304,7 +359,9 @@ class DecisionRuntime:
         ).fetchone()
         if not row:
             raise DecisionRuntimeError("run_unavailable", "hosted decision run is unavailable")
-        bindings, _ = self._sources(namespace, principal_id, json.loads(row[0]), scopes)
+        stored = json.loads(row[0])
+        bindings, _ = self._sources(namespace, principal_id, stored, scopes,
+                                    max(DEFAULT_MAX_SOURCES, min(len(stored), MAX_BATCH_SOURCES)))
         attempts = self.conn.execute(
             "SELECT count(*) FROM hosted_decision_attempts WHERE namespace=? AND owner=? AND run_id=?",
             [namespace, principal_id, run_id],
@@ -320,13 +377,35 @@ class DecisionRuntime:
             scopes: set[str], allow_remote: bool = False, policy: Mapping[str, Any] | None = None,
             max_attempts: int = 1, max_cost_usd_micros: int = 0, deadline_s: float = 30,
             cancelled: Callable[[], bool] | None = None,
-            source_slices: list[dict[str, int]] | None = None) -> dict[str, Any]:
+            source_slices: list[dict[str, int]] | None = None,
+            max_sources: int = DEFAULT_MAX_SOURCES, max_questions: int = 64,
+            compose_state: Callable[[list[dict[str, Any]]], Mapping[str, Any]] | None = None,
+            settle_cost: Callable[[Mapping[str, Any]], int | None] | None = None,
+            component_tasks: list[str] | None = None) -> dict[str, Any]:
+        """Execute one hosted decision.
+
+        Batched callers may raise ``max_sources``/``max_questions`` and pass:
+
+        * ``compose_state(captures)``: builds the request state from the
+          runtime's own authorized, rechecked captures (instead of injecting
+          them at ``state.sources``), so caller prose never reaches the wire;
+        * ``settle_cost(usage)``: microdollars actually charged for the
+          answered attempt's reported usage. The budget reservation is then
+          settled: unattempted reservations are released, failed attempts stay
+          charged in full, and an answered attempt is charged its reported
+          cost (an overrun is recorded truthfully and flagged);
+        * ``component_tasks``: task rollouts that also govern this run. Any
+          ``off`` component disables it; ``shadow`` components are reported in
+          ``component_rollout_modes`` so the caller can withhold them.
+        """
         self._authorize(namespace, principal_id, scopes, execute=True)
         settings = self._policy(policy, allow_remote, max_attempts, max_cost_usd_micros, deadline_s)
         if (not isinstance(run_id, str) or not 1 <= len(run_id) <= 256 or
             not isinstance(task, str) or not task or not isinstance(state, Mapping) or
             not isinstance(questions, Mapping) or not questions or "sources" in state):
             raise DecisionRuntimeError("invalid_request", "bounded run, task, structured state and questions required")
+        if compose_state is not None and (state or not callable(compose_state)):
+            raise DecisionRuntimeError("invalid_request", "composed state replaces caller state")
         if source_slices is not None:
             if (not isinstance(source_slices, list) or not isinstance(source_refs, list)
                 or len(source_slices) != len(source_refs) or
@@ -345,15 +424,33 @@ class DecisionRuntime:
             raise DecisionRuntimeError("task_disabled", "hosted processing is off for this task")
         if rollout and (settings["model"] != rollout[1] or settings["rubric_id"] != rollout[2]):
             raise DecisionRuntimeError("rollout_mismatch", "task rollout pins a different model or rubric")
-        bindings, captures = self._sources(namespace, principal_id, source_refs, scopes)
+        component_modes: dict[str, str] = {}
+        for component in component_tasks or []:
+            row = self.conn.execute(
+                "SELECT mode,model,rubric_id FROM hosted_decision_task_rollouts WHERE namespace=? AND task=?",
+                [namespace, component],
+            ).fetchone()
+            if row and row[0] == "off":
+                raise DecisionRuntimeError("task_disabled", f"hosted processing is off for {component}")
+            if row and (settings["model"] != row[1] or settings["rubric_id"] != row[2]):
+                raise DecisionRuntimeError("rollout_mismatch", f"{component} rollout pins a different model or rubric")
+            component_modes[component] = row[0] if row else "manual"
+        bindings, captures = self._sources(namespace, principal_id, source_refs, scopes, max_sources)
         if cancelled and cancelled():
             raise DecisionRuntimeError("cancelled", "hosted decision cancelled before reservation")
         from src.integrations.decisions import DecisionRequest
 
+        if compose_state is not None:
+            request_state = dict(compose_state([dict(capture) for capture in captures]))
+            if not request_state or "sources" in request_state:
+                raise DecisionRuntimeError("invalid_request", "composed state must be nonempty")
+        else:
+            request_state = {**state, "sources": captures}
         request = DecisionRequest(task_id=task, rubric_id=settings["rubric_id"],
-                                  state={**state, "sources": captures}, questions=questions,
+                                  state=request_state, questions=questions,
                                   source_binding=bindings, model=settings["model"],
-                                  policy_id=settings["policy_id"], calibration_id=settings.get("calibration_id"))
+                                  policy_id=settings["policy_id"], calibration_id=settings.get("calibration_id"),
+                                  max_questions=max_questions)
         request_hash = _hash({"namespace": namespace, "owner": principal_id,
                               "request": request.as_wire(), "task": task,
                               "rubric_id": settings["rubric_id"], "source_binding": bindings,
@@ -421,7 +518,7 @@ class DecisionRuntime:
                 raise DecisionRuntimeError("cancelled", "hosted decision cancelled before attempt")
             if type(ordinal) is not int or not 1 <= ordinal <= max_attempts or amount != max_cost_usd_micros // max_attempts:
                 raise DecisionRuntimeError("invalid_attempt", "hosted attempt exceeds its reservation")
-            self._sources(namespace, principal_id, source_refs, scopes)
+            self._sources(namespace, principal_id, source_refs, scopes, max_sources)
             self.conn.execute(
                 "INSERT INTO hosted_decision_attempts VALUES (?,?,?,?,?,?)",
                 [namespace, principal_id, run_id, ordinal, amount, self.now()],
@@ -448,7 +545,7 @@ class DecisionRuntime:
                 raise DecisionRuntimeError("deadline_exceeded", "hosted decision exceeded its deadline")
             if cancelled and cancelled():
                 raise DecisionRuntimeError("cancelled", "hosted decision cancelled before publication")
-            fresh_bindings, _ = self._sources(namespace, principal_id, source_refs, scopes)
+            fresh_bindings, _ = self._sources(namespace, principal_id, source_refs, scopes, max_sources)
             if fresh_bindings != bindings:
                 raise DecisionRuntimeError("source_changed", "source changed before decision publication")
             retention = settings.get("response_retention", "decision")
@@ -492,12 +589,18 @@ class DecisionRuntime:
             [namespace, principal_id, run_id],
         ).fetchone()[0]
         result["attempts_reserved"] = attempts_made
+        if component_tasks is not None:
+            result["component_rollout_modes"] = component_modes
+        if settle_cost is not None:
+            result.update(self._settle(namespace, principal_id, settings, run_id, result,
+                                       max_cost_usd_micros, max_attempts, attempts_made,
+                                       settle_cost))
         result["remote_processing_used"] = attempts_made > 0
         result["hosted_inference_used"] = attempts_made > 0
         if result["status"] == "completed":
             self.conn.execute("BEGIN")
             try:
-                final_bindings, _ = self._sources(namespace, principal_id, source_refs, scopes)
+                final_bindings, _ = self._sources(namespace, principal_id, source_refs, scopes, max_sources)
                 if final_bindings != bindings:
                     raise DecisionRuntimeError("source_changed", "source changed before decision publication")
                 if settings.get("response_retention", "decision") != "none":

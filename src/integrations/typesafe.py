@@ -68,6 +68,27 @@ def _retry_after(headers: dict[str, str], now: float) -> float | None:
             return None
 
 
+def _error_code(content: bytes) -> str | None:
+    """Best-effort provider error code from an error body.
+
+    Accepts ``{"error": {"code": ...}}``, ``{"error": {"type": ...}}``,
+    ``{"code": ...}`` or ``{"error": "..."}``. Unknown shapes return None.
+    """
+    try:
+        payload = json.loads(content)
+    except (UnicodeDecodeError, ValueError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    error = payload.get("error")
+    candidates = [payload.get("code"), payload.get("type")]
+    if isinstance(error, dict):
+        candidates = [error.get("code"), error.get("type"), *candidates]
+    elif isinstance(error, str):
+        candidates.insert(0, error)
+    return next((c for c in candidates if isinstance(c, str) and c), None)
+
+
 class TypeSafeClient:
     """One request per explicit attempt; retry requires caller-owned cost reservation.
 
@@ -227,6 +248,11 @@ class TypeSafeClient:
                     policy_id=request.policy_id,
                     calibration_id=request.calibration_id,
                 )
+            if status == 400 and _error_code(content) == "max_tokens_exceeded":
+                # Deterministic: the same body would fail again. The caller
+                # decides whether to split the request.
+                last_code = "max_tokens_exceeded"
+                break
             if status in (401, 422):
                 last_code = (
                     "authentication_failed"

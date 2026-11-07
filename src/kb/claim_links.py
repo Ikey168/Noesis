@@ -569,74 +569,73 @@ def _new_jev_summary(reviewer) -> dict[str, Any]:
         "abstained": 0,
         "unavailable": 0,
         "unresolved": 0,
+        "requests": 0,
     }
 
 
-def _review_planned(
-    reviewer, run_id: str, links: list[dict[str, Any]], duplicate_threshold: float,
-    jev_summary: dict[str, Any], cache: dict[tuple, dict[str, Any]] | None = None,
-) -> list[tuple[dict[str, Any], dict[str, Any] | None]]:
-    """Ask Jev about each primary link (outside any write transaction).
-
-    Returns ``(link, review)`` pairs. A dependent temporal transition inherits
-    its primary's review so a withheld duplicate takes its supersession with it.
-    """
-    reviewed: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
-    by_link: dict[int, dict[str, Any] | None] = {}
-    for link in links:
-        if link["primary"] is not None:
-            reviewed.append((link, by_link.get(id(link["primary"]))))
-            continue
-        relation = link.get("review_as", link["relation"])
-        premise, hypothesis = link.get(
-            "review_direction", (link["premise"], link["hypothesis"])
-        )
-        # Both endpoints may be new claims, so the same pair is planned from
-        # each side; ask Jev once per distinct link.
-        ends = (premise[1], hypothesis[1])
-        key = (relation, tuple(sorted(ends)) if relation != "supports" else ends)
-        if cache is not None and key in cache:
-            by_link[id(link)] = cache[key]
-            reviewed.append((link, cache[key]))
-            continue
-        review = reviewer.review(
-            run_id,
-            relation,
-            (premise[1], link["texts"][premise[1]]),
-            (hypothesis[1], link["texts"][hypothesis[1]]),
-            similarity=link["score"],
-            duplicate_threshold=duplicate_threshold,
-        )
-        if cache is not None:
-            cache[key] = review
-        jev_summary["reviewed"] += 1
-        if review["verdict"]:
-            jev_summary[review["verdict"]] += 1
-        else:
-            jev_summary[review["status"]] += 1
-        if not review["write"]:
-            jev_summary["withheld"] += 1
-        by_link[id(link)] = review
-        reviewed.append((link, review))
-    return reviewed
+def _review_key(link: dict[str, Any]) -> tuple:
+    relation = link.get("review_as", link["relation"])
+    premise, hypothesis = link.get("review_direction", (link["premise"], link["hypothesis"]))
+    ends = (premise[1], hypothesis[1])
+    return (relation, tuple(sorted(ends)) if relation != "supports" else ends)
 
 
 def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary):
-    """Review planned links once per distinct link, or pass them through."""
+    """Ask Jev about every distinct primary link (outside any write transaction).
+
+    Both endpoints may be new claims, so a pair is often planned from each
+    side; it is asked about once. All distinct links of the pass go to
+    ``reviewer.review_all`` together, which reviews them one request per link
+    or, when the reviewer is batched, many links per request. A dependent
+    temporal transition inherits its primary's review, so a withheld
+    duplicate takes its supersession with it.
+    """
     if reviewer is None:
         return [(claim_id, [(link, None) for link in links]) for claim_id, links in plans]
     from src.kb.claim_link_review import ensure_assessment_schema
 
     ensure_assessment_schema(conn)
     jev_summary = summary.setdefault("jev", _new_jev_summary(reviewer))
-    cache: dict[tuple, dict[str, Any]] = {}
+    order: dict[tuple, None] = {}
+    items: list[dict[str, Any]] = []
+    for _, links in plans:
+        for link in links:
+            if link["primary"] is not None:
+                continue
+            key = _review_key(link)
+            if key in order:
+                continue
+            premise, hypothesis = link.get(
+                "review_direction", (link["premise"], link["hypothesis"])
+            )
+            order[key] = None
+            items.append({
+                "relation": key[0],
+                "premise": (premise[1], link["texts"][premise[1]]),
+                "hypothesis": (hypothesis[1], link["texts"][hypothesis[1]]),
+                "similarity": link["score"],
+                "duplicate_threshold": duplicate_threshold,
+            })
+    requests_before = len(getattr(reviewer, "stats", []))
+    reviews = dict(zip(order, reviewer.review_all(run_id, items), strict=True)) if items else {}
+    jev_summary["requests"] += len(getattr(reviewer, "stats", [])) - requests_before
+    for review in reviews.values():
+        jev_summary["reviewed"] += 1
+        jev_summary[review["verdict"] or review["status"]] += 1
+        if not review["write"]:
+            jev_summary["withheld"] += 1
     out = []
     for claim_id, links in plans:
-        out.append(
-            (claim_id, _review_planned(
-                reviewer, run_id, links, duplicate_threshold, jev_summary, cache,
-            ))
-        )
+        by_link: dict[int, dict[str, Any] | None] = {}
+        reviewed: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
+        for link in links:
+            if link["primary"] is not None:
+                review = by_link.get(id(link["primary"]))
+            else:
+                review = reviews[_review_key(link)]
+                by_link[id(link)] = review
+            reviewed.append((link, review))
+        out.append((claim_id, reviewed))
     return out
 
 

@@ -14,6 +14,13 @@ from typing import Any
 
 CONTRACT = "noesis-typed-decision-v1"
 KINDS = frozenset({"choice", "score", "noul"})
+#: Default per-request question cap. Batched callers raise it explicitly via
+#: ``DecisionRequest.max_questions`` (System One has no question-count limit;
+#: its limits are tokens per request and per question).
+DEFAULT_MAX_QUESTIONS = 64
+MAX_QUESTIONS = 4096
+#: A batched request binds one exact span per distinct claim.
+MAX_SOURCE_BINDINGS = 1024
 STATUSES = frozenset({"answered", "abstained", "unavailable"})
 
 
@@ -162,9 +169,10 @@ class DecisionQuestion:
 
 def _binding(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
-        if not value or len(value) > 100:
+        if not value or len(value) > MAX_SOURCE_BINDINGS:
             raise DecisionError(
-                "invalid_input", "source binding list must contain 1 to 100 entries"
+                "invalid_input",
+                f"source binding list must contain 1 to {MAX_SOURCE_BINDINGS} entries",
             )
         return [_binding(entry) for entry in value]
     if not isinstance(value, Mapping):
@@ -193,8 +201,14 @@ class DecisionRequest:
     model: str = "jev-1.13.0"
     policy_id: str | None = None
     calibration_id: str | None = None
+    #: Not sent on the wire; bounds how many questions this request may carry.
+    max_questions: int = DEFAULT_MAX_QUESTIONS
 
     def __post_init__(self) -> None:
+        if type(self.max_questions) is not int or not 1 <= self.max_questions <= MAX_QUESTIONS:
+            raise DecisionError(
+                "invalid_input", f"max_questions must be between 1 and {MAX_QUESTIONS}"
+            )
         _required_text(self.task_id, "task_id")
         _required_text(self.rubric_id, "rubric_id")
         _required_text(self.model, "model")
@@ -212,9 +226,11 @@ class DecisionRequest:
         _json_value(self.state, "state")
         if (
             not isinstance(self.questions, Mapping)
-            or not 1 <= len(self.questions) <= 64
+            or not 1 <= len(self.questions) <= self.max_questions
         ):
-            raise DecisionError("invalid_input", "request needs 1 to 64 questions")
+            raise DecisionError(
+                "invalid_input", f"request needs 1 to {self.max_questions} questions"
+            )
         for question_id, question in self.questions.items():
             _required_text(question_id, "question id", 200)
             DecisionQuestion.from_value(question)

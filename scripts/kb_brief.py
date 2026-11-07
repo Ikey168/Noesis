@@ -42,6 +42,16 @@ def main() -> int:
     parser.add_argument("--jev-policy", type=Path, default=None,
                         help="JSON hosted-decision policy pinning model, rubric,"
                              " budget and credential_ref (required with --jev-links)")
+    parser.add_argument("--jev-batch", action="store_true",
+                        help="Pack many links per Jev request (default: one per link)."
+                             " Validate first with scripts/validate_jev_link_batching.py")
+    parser.add_argument("--jev-batch-state-tokens", type=int, default=24_000,
+                        help="Estimated state tokens per batched request (default 24000)")
+    parser.add_argument("--jev-batch-max-links", type=int, default=120,
+                        help="Max links per batched request (default 120)")
+    parser.add_argument("--jev-batch-concurrency", type=int, default=1,
+                        help="Batched requests in flight, up to the policy's"
+                             " max_concurrent (default 1)")
     parser.add_argument("--jev-namespace", default="kb",
                         help="Decision namespace for Jev link reviews (default kb)")
     parser.add_argument("--email", action="store_true",
@@ -49,6 +59,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.jev_links != "off" and (not args.harvest or args.jev_policy is None):
         parser.error("--jev-links needs --harvest and --jev-policy")
+    if args.jev_batch and args.jev_links == "off":
+        parser.error("--jev-batch needs --jev-links shadow|gate")
 
     from src.database.local_analytics_connector import get_shared_connection
 
@@ -77,9 +89,18 @@ def main() -> int:
 
             from src.kb.claim_link_review import build_jev_reviewer
 
+            batch = None
+            if args.jev_batch:
+                from src.kb.claim_link_batch import BatchConfig
+
+                batch = BatchConfig(
+                    state_token_budget=args.jev_batch_state_tokens,
+                    max_links=args.jev_batch_max_links,
+                    concurrency=args.jev_batch_concurrency,
+                )
             jev_reviewer = build_jev_reviewer(
                 conn, args.jev_namespace, mode=args.jev_links,
-                policy=json.loads(args.jev_policy.read_text()),
+                policy=json.loads(args.jev_policy.read_text()), batch=batch,
             )
         links = run_claim_linking_pass(conn, jev_reviewer=jev_reviewer)
         if "jev" in links:
