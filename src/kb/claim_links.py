@@ -43,7 +43,7 @@ import json
 import re
 import time
 import uuid
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Sequence
 
 from src.kb.nli import CONTRADICTION, ENTAILMENT, get_nli_backend
 from src.kb.temporal import classify_temporal_relation
@@ -173,8 +173,8 @@ def _embed_new_claims(conn, claims, provider, model_name: str) -> None:
 
 def _upsert_link(
     conn,
-    endpoint_a: Tuple[str, str],
-    endpoint_b: Tuple[str, str],
+    endpoint_a: tuple[str, str],
+    endpoint_b: tuple[str, str],
     relation: str,
     score: float,
     method: str,
@@ -221,9 +221,9 @@ def _upsert_link(
 
 def run_claim_linking_pass(
     conn,
-    provider: Optional[Any] = None,
-    nli: Optional[Any] = None,
-    run_id: Optional[str] = None,
+    provider: Any | None = None,
+    nli: Any | None = None,
+    run_id: str | None = None,
     embedding_model: str = "all-MiniLM-L6-v2",
     time_window_days: int = 14,
     k_neighbors: int = 8,
@@ -231,12 +231,21 @@ def run_claim_linking_pass(
     duplicate_threshold: float = 0.88,
     min_link_confidence: float = 0.55,
     supersede_gap_days: int = 3,
-) -> Dict[str, Any]:
+    jev_reviewer: Any | None = None,
+) -> dict[str, Any]:
     """Link new claims to their neighbours; returns a summary.
 
     ``provider`` embeds claim texts for candidate ranking (``None`` → lexical
     fallback). ``nli`` classifies pair relations (``None`` → the shared
     pretrained backend). Both are injectable for tests.
+
+    ``jev_reviewer`` (a :class:`src.kb.claim_link_review.JevClaimLinkReviewer`)
+    reviews every proposed ``supports``/``duplicate``/``contradicts`` link
+    with Jev between planning and the write transaction. In ``shadow`` mode
+    links are written as planned and the assessment is recorded; in ``gate``
+    mode a link Jev answers against is withheld. Jev never adds a link, and
+    an unavailable or abstaining review keeps the local link. Counts are in
+    ``summary["jev"]``.
     """
     ensure_claim_link_schema(conn)
     nli = nli or get_nli_backend()
@@ -262,6 +271,8 @@ def run_claim_linking_pass(
         "abstained": {"conflicting_directions": 0},
         "mode": getattr(nli, "prediction_mode", "unknown"),
     }
+    if jev_reviewer is not None:
+        summary["jev"] = _new_jev_summary(jev_reviewer)
     if not new_claims:
         return summary
 
@@ -273,40 +284,53 @@ def run_claim_linking_pass(
             embedding_model,
         )
 
+    # 1. Plan every pair from local NLI (reads only).
+    plans: list[tuple[str, list[dict[str, Any]]]] = []
+    for claim_id, claim_text, document_id, ingested_at in new_claims:
+        candidates = _candidates_for(
+            conn,
+            claim_id,
+            claim_text,
+            ingested_at,
+            provider is not None,
+            embedding_model,
+            window_ms,
+            k_neighbors,
+            candidate_threshold,
+        )
+        links: list[dict[str, Any]] = []
+        if candidates:
+            domain = _claim_domain(conn, document_id)
+            for other_id, other_text, other_doc, other_ingested, similarity in candidates:
+                links += _plan_pair(
+                    conn,
+                    nli,
+                    summary,
+                    (domain, claim_id, claim_text, ingested_at),
+                    (
+                        _claim_domain(conn, other_doc),
+                        other_id,
+                        other_text,
+                        other_ingested,
+                    ),
+                    similarity,
+                    duplicate_threshold,
+                    min_link_confidence,
+                    supersede_gap_days * 86_400_000,
+                )
+        plans.append((claim_id, links))
+
+    # 2. Optional Jev review, outside the write transaction: the decision
+    #    runtime commits its own budget and receipt records.
+    reviewed_plans = _review_plans(
+        conn, jev_reviewer, run_id, plans, duplicate_threshold, summary
+    )
+
+    # 3. Write links, assessments and the scan ledger atomically.
     conn.execute("BEGIN TRANSACTION")
     try:
-        for claim_id, claim_text, document_id, ingested_at in new_claims:
-            candidates = _candidates_for(
-                conn,
-                claim_id,
-                claim_text,
-                ingested_at,
-                provider is not None,
-                embedding_model,
-                window_ms,
-                k_neighbors,
-                candidate_threshold,
-            )
-            if candidates:
-                domain = _claim_domain(conn, document_id)
-                for other_id, other_text, other_doc, other_ingested, similarity in candidates:
-                    _link_pair(
-                        conn,
-                        nli,
-                        run_id,
-                        summary,
-                        (domain, claim_id, claim_text, ingested_at),
-                        (
-                            _claim_domain(conn, other_doc),
-                            other_id,
-                            other_text,
-                            other_ingested,
-                        ),
-                        similarity,
-                        duplicate_threshold,
-                        min_link_confidence,
-                        supersede_gap_days * 86_400_000,
-                    )
+        for claim_id, reviewed in reviewed_plans:
+            _write_reviewed(conn, run_id, summary, reviewed)
             conn.execute(
                 """
                 INSERT INTO kb_claim_link_scans (claim_id, run_id, scanned_at)
@@ -333,7 +357,7 @@ def _candidates_for(
     window_ms: int,
     k_neighbors: int,
     candidate_threshold: float,
-) -> List[Tuple[str, str, str, int, float]]:
+) -> list[tuple[str, str, str, int, float]]:
     """Top-K similar claims inside the time window (embedding or lexical)."""
     rows = conn.execute(
         """
@@ -376,19 +400,62 @@ def _link_pair(
     conn,
     nli,
     run_id: str,
-    summary: Dict[str, Any],
-    side_a: Tuple[str, str, str, int],
-    side_b: Tuple[str, str, str, int],
+    summary: dict[str, Any],
+    side_a: tuple[str, str, str, int],
+    side_b: tuple[str, str, str, int],
     similarity: float,
     duplicate_threshold: float,
     min_link_confidence: float,
     supersede_gap_ms: int,
 ) -> None:
+    """Plan and immediately write one pair's links (no hosted review)."""
+    for link in _plan_pair(
+        conn, nli, summary, side_a, side_b, similarity, duplicate_threshold,
+        min_link_confidence, supersede_gap_ms,
+    ):
+        _write_planned(conn, run_id, summary, link)
+
+
+def _planned(relation, premise, hypothesis, texts, similarity, method, mode,
+             confidence, model_version, primary=None) -> dict[str, Any]:
+    return {
+        "relation": relation,
+        "premise": premise,
+        "hypothesis": hypothesis,
+        "texts": texts,
+        "score": similarity,
+        "method": method,
+        "prediction_mode": mode,
+        "confidence": confidence,
+        "model_version": model_version,
+        # A temporal transition follows its primary link's review outcome.
+        "primary": primary,
+    }
+
+
+def _plan_pair(
+    conn,
+    nli,
+    summary: dict[str, Any],
+    side_a: tuple[str, str, str, int],
+    side_b: tuple[str, str, str, int],
+    similarity: float,
+    duplicate_threshold: float,
+    min_link_confidence: float,
+    supersede_gap_ms: int,
+) -> list[dict[str, Any]]:
+    """Decide one pair's links from local NLI without writing anything.
+
+    Returns the primary link first, followed by any temporal transition that
+    depends on it. Reads only (temporal context), so hosted review can run
+    between planning and the write transaction.
+    """
     domain_a, claim_a, text_a, ingested_a = side_a
     domain_b, claim_b, text_b, ingested_b = side_b
     method = getattr(nli, "name", "unknown")
     mode = getattr(nli, "prediction_mode", "unknown")
     model_version = getattr(nli, "model_version", "unknown")
+    texts = {claim_a: text_a, claim_b: text_b}
 
     forward = nli.classify(text_a, text_b)
     backward = nli.classify(text_b, text_a)
@@ -404,7 +471,7 @@ def _link_pair(
     if {forward.label, backward.label} == {ENTAILMENT, CONTRADICTION}:
         summary.setdefault("abstained", {}).setdefault("conflicting_directions", 0)
         summary["abstained"]["conflicting_directions"] += 1
-        return
+        return []
 
     # Duplicate: high similarity + mutual entailment.
     if (
@@ -414,12 +481,10 @@ def _link_pair(
     ):
         confidence = min(forward.confidence, backward.confidence)
         if confidence >= min_link_confidence:
-            wrote = _upsert_link(
-                conn, (domain_a, claim_a), (domain_b, claim_b), "duplicate",
-                similarity, method, mode, confidence, model_version, run_id,
-            )
-            if wrote:
-                summary["links"]["duplicate"] += 1
+            links = [_planned(
+                "duplicate", (domain_a, claim_a), (domain_b, claim_b), texts,
+                similarity, method, mode, confidence, model_version,
+            )]
             transition = classify_temporal_relation(
                 "supersedes",
                 same_source=same_source,
@@ -436,12 +501,12 @@ def _link_pair(
                     if ingested_a > ingested_b
                     else ((domain_b, claim_b), (domain_a, claim_a))
                 )
-                if _upsert_link(
-                    conn, newer, older, transition, similarity,
-                    f"{method}+temporal", mode, confidence, model_version, run_id,
-                ):
-                    summary["links"][transition] += 1
-            return
+                links.append(_planned(
+                    transition, newer, older, texts, similarity,
+                    f"{method}+temporal", mode, confidence, model_version,
+                    primary=links[0],
+                ))
+            return links
 
     # Directed supports/contradicts: keep the stronger direction.
     best = None
@@ -453,29 +518,144 @@ def _link_pair(
             if best is None or result.confidence > best[2].confidence:
                 best = (premise, hypothesis, result)
     if best is None:
-        return
+        return []
     premise, hypothesis, result = best
     if result.confidence < min_link_confidence:
-        return
-    relation = "supports" if result.label == ENTAILMENT else "contradicts"
+        return []
+    base_relation = "supports" if result.label == ENTAILMENT else "contradicts"
     relation = classify_temporal_relation(
-        relation,
+        base_relation,
         same_source=same_source,
         observed_a_ms=ingested_a,
         observed_b_ms=ingested_b,
         newer_change_class=newer_change,
     )
+    link = _planned(
+        relation, premise, hypothesis, texts, similarity, method, mode,
+        result.confidence, model_version,
+    )
     if relation in {"corrects", "retracts", "supersedes"}:
-        premise, hypothesis = (
+        link["premise"], link["hypothesis"] = (
             ((domain_a, claim_a), (domain_b, claim_b))
             if ingested_a > ingested_b
             else ((domain_b, claim_b), (domain_a, claim_a))
         )
-    if _upsert_link(
-        conn, premise, hypothesis, relation, similarity, method, mode,
-        result.confidence, model_version, run_id,
-    ):
-        summary["links"][relation] += 1
+        # Same-source temporal transitions stay deterministic: the semantic
+        # relation that produced them is what a hosted review would judge.
+        link["review_as"] = base_relation
+        link["review_direction"] = (premise, hypothesis)
+    return [link]
+
+
+def _write_planned(conn, run_id: str, summary: dict[str, Any], link: dict[str, Any]) -> bool:
+    wrote = _upsert_link(
+        conn, link["premise"], link["hypothesis"], link["relation"],
+        link["score"], link["method"], link["prediction_mode"],
+        link["confidence"], link["model_version"], run_id,
+    )
+    if wrote:
+        summary["links"][link["relation"]] += 1
+    return wrote
+
+
+def _new_jev_summary(reviewer) -> dict[str, Any]:
+    return {
+        "mode": reviewer.mode,
+        "method": reviewer.method,
+        "reviewed": 0,
+        "agrees": 0,
+        "disagrees": 0,
+        "withheld": 0,
+        "abstained": 0,
+        "unavailable": 0,
+        "unresolved": 0,
+    }
+
+
+def _review_planned(
+    reviewer, run_id: str, links: list[dict[str, Any]], duplicate_threshold: float,
+    jev_summary: dict[str, Any], cache: dict[tuple, dict[str, Any]] | None = None,
+) -> list[tuple[dict[str, Any], dict[str, Any] | None]]:
+    """Ask Jev about each primary link (outside any write transaction).
+
+    Returns ``(link, review)`` pairs. A dependent temporal transition inherits
+    its primary's review so a withheld duplicate takes its supersession with it.
+    """
+    reviewed: list[tuple[dict[str, Any], dict[str, Any] | None]] = []
+    by_link: dict[int, dict[str, Any] | None] = {}
+    for link in links:
+        if link["primary"] is not None:
+            reviewed.append((link, by_link.get(id(link["primary"]))))
+            continue
+        relation = link.get("review_as", link["relation"])
+        premise, hypothesis = link.get(
+            "review_direction", (link["premise"], link["hypothesis"])
+        )
+        # Both endpoints may be new claims, so the same pair is planned from
+        # each side; ask Jev once per distinct link.
+        ends = (premise[1], hypothesis[1])
+        key = (relation, tuple(sorted(ends)) if relation != "supports" else ends)
+        if cache is not None and key in cache:
+            by_link[id(link)] = cache[key]
+            reviewed.append((link, cache[key]))
+            continue
+        review = reviewer.review(
+            run_id,
+            relation,
+            (premise[1], link["texts"][premise[1]]),
+            (hypothesis[1], link["texts"][hypothesis[1]]),
+            similarity=link["score"],
+            duplicate_threshold=duplicate_threshold,
+        )
+        if cache is not None:
+            cache[key] = review
+        jev_summary["reviewed"] += 1
+        if review["verdict"]:
+            jev_summary[review["verdict"]] += 1
+        else:
+            jev_summary[review["status"]] += 1
+        if not review["write"]:
+            jev_summary["withheld"] += 1
+        by_link[id(link)] = review
+        reviewed.append((link, review))
+    return reviewed
+
+
+def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary):
+    """Review planned links once per distinct link, or pass them through."""
+    if reviewer is None:
+        return [(claim_id, [(link, None) for link in links]) for claim_id, links in plans]
+    from src.kb.claim_link_review import ensure_assessment_schema
+
+    ensure_assessment_schema(conn)
+    jev_summary = summary.setdefault("jev", _new_jev_summary(reviewer))
+    cache: dict[tuple, dict[str, Any]] = {}
+    out = []
+    for claim_id, links in plans:
+        out.append(
+            (claim_id, _review_planned(
+                reviewer, run_id, links, duplicate_threshold, jev_summary, cache,
+            ))
+        )
+    return out
+
+
+def _write_reviewed(conn, run_id, summary, reviewed) -> int:
+    """Write reviewed links and their assessments; returns links written."""
+    from src.kb.claim_link_review import record_assessment
+
+    written = 0
+    for link, review in reviewed:
+        if review is not None and link["primary"] is None:
+            ends = (link["premise"][1], link["hypothesis"][1])
+            if link["relation"] in ("duplicate", "contradicts"):
+                ends = tuple(sorted(ends))  # same canonical order as claim_links
+            record_assessment(
+                conn, run_id, *ends, {**review, "relation": link["relation"]},
+            )
+        if review is None or review["write"]:
+            written += int(_write_planned(conn, run_id, summary, link))
+    return written
 
 
 def _claim_temporal_context(conn, claim_id: str) -> tuple[str, str | None]:
@@ -506,16 +686,17 @@ def _claim_temporal_context(conn, claim_id: str) -> tuple[str, str | None]:
 def run_cross_backing_link_pass(
     conn,
     registry: Any,
-    provider: Optional[Any] = None,
-    nli: Optional[Any] = None,
-    run_id: Optional[str] = None,
+    provider: Any | None = None,
+    nli: Any | None = None,
+    run_id: str | None = None,
     embedding_model: str = "all-MiniLM-L6-v2",
     time_window_days: int = 3650,
     k_neighbors: int = 8,
     candidate_threshold: float = 0.5,
     duplicate_threshold: float = 0.88,
     min_link_confidence: float = 0.55,
-) -> Dict[str, Any]:
+    jev_reviewer: Any | None = None,
+) -> dict[str, Any]:
     """Link namespace-native claims to the shared corpus (depth linkage).
 
     A lighter pass than intra-corpus linking: only claims that live *solely*
@@ -526,6 +707,9 @@ def run_cross_backing_link_pass(
 
     Enforces the shared embedding space: a namespace domain declaring a
     different ``embedding_model`` than the corpus domains fails loudly.
+
+    ``jev_reviewer`` reviews proposed links exactly as in
+    :func:`run_claim_linking_pass`.
     """
     from src.kb.registry import DomainConfigError
     from src.provisioning.namespaces import (
@@ -559,7 +743,7 @@ def run_cross_backing_link_pass(
     run_id = run_id or f"kb-cross-links-{uuid.uuid4().hex[:12]}"
     window_ms = time_window_days * 86_400_000
 
-    summary: Dict[str, Any] = {
+    summary: dict[str, Any] = {
         "run_id": run_id,
         "domains": {},
         "mode": getattr(nli, "prediction_mode", "unknown"),
@@ -592,35 +776,46 @@ def run_cross_backing_link_pass(
         if native and provider is not None:
             _embed_new_claims(conn, native, provider, embedding_model)
 
+        plans: list[tuple[str, list[dict[str, Any]]]] = []
+        scratch: dict[str, Any] = {"links": {r: 0 for r in RELATIONS}}
+        for claim_id, claim_text in native:
+            candidates = _candidates_for(
+                conn, claim_id, claim_text, 0,
+                provider is not None, embedding_model,
+                window_ms, k_neighbors, candidate_threshold,
+            )
+            links: list[dict[str, Any]] = []
+            for other_id, other_text, other_doc, other_ingested, similarity in candidates:
+                links += _plan_pair(
+                    conn, nli, scratch,
+                    (definition.name, claim_id, claim_text, 0),
+                    (
+                        _claim_domain(conn, other_doc),
+                        other_id, other_text, other_ingested,
+                    ),
+                    similarity, duplicate_threshold,
+                    min_link_confidence, 10**15,
+                )
+            plans.append((claim_id, links))
+        if jev_reviewer is not None:
+            summary.setdefault("jev", _new_jev_summary(jev_reviewer))
+        reviewed_plans = _review_plans(
+            conn, jev_reviewer, run_id, plans, duplicate_threshold, summary
+        )
+
         conn.execute("BEGIN TRANSACTION")
         try:
-            for claim_id, claim_text in native:
-                candidates = _candidates_for(
-                    conn, claim_id, claim_text, 0,
-                    provider is not None, embedding_model,
-                    window_ms, k_neighbors, candidate_threshold,
-                )
-                for other_id, other_text, other_doc, other_ingested, similarity in candidates:
-                    before = conn.execute(
-                        "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
-                        [run_id],
-                    ).fetchone()[0]
-                    _link_pair(
-                        conn, nli, run_id,
-                        {"links": {r: 0 for r in RELATIONS}},
-                        (definition.name, claim_id, claim_text, 0),
-                        (
-                            _claim_domain(conn, other_doc),
-                            other_id, other_text, other_ingested,
-                        ),
-                        similarity, duplicate_threshold,
-                        min_link_confidence, 10**15,
-                    )
-                    after = conn.execute(
-                        "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
-                        [run_id],
-                    ).fetchone()[0]
-                    counts["links"] += max(0, after - before)
+            for claim_id, reviewed in reviewed_plans:
+                before = conn.execute(
+                    "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
+                    [run_id],
+                ).fetchone()[0]
+                _write_reviewed(conn, run_id, scratch, reviewed)
+                after = conn.execute(
+                    "SELECT COUNT(*) FROM claim_links WHERE run_id = ?",
+                    [run_id],
+                ).fetchone()[0]
+                counts["links"] += max(0, after - before)
                 conn.execute(
                     """
                     INSERT INTO kb_claim_link_scans (claim_id, run_id, scanned_at)
@@ -639,8 +834,8 @@ def run_cross_backing_link_pass(
     return summary
 
 
-def delete_run(conn, run_id: str) -> Dict[str, int]:
-    """Revert one run: its links and scan-ledger rows are removed.
+def delete_run(conn, run_id: str) -> dict[str, int]:
+    """Revert one run: its links, scan-ledger rows and Jev assessments are removed.
 
     Claims scanned by the run become unscanned, so the next pass reassesses
     them — deleting a bad model release's run restores the prior state.
@@ -653,4 +848,20 @@ def delete_run(conn, run_id: str) -> Dict[str, int]:
     ).fetchone()[0]
     conn.execute("DELETE FROM claim_links WHERE run_id = ?", [run_id])
     conn.execute("DELETE FROM kb_claim_link_scans WHERE run_id = ?", [run_id])
-    return {"links_deleted": int(links), "scans_deleted": int(scans)}
+    assessments = 0
+    if conn.execute(
+        "SELECT 1 FROM information_schema.tables"
+        " WHERE table_name = 'claim_link_jev_assessments'"
+    ).fetchone():
+        assessments = conn.execute(
+            "SELECT COUNT(*) FROM claim_link_jev_assessments WHERE run_id = ?",
+            [run_id],
+        ).fetchone()[0]
+        conn.execute(
+            "DELETE FROM claim_link_jev_assessments WHERE run_id = ?", [run_id]
+        )
+    return {
+        "links_deleted": int(links),
+        "scans_deleted": int(scans),
+        "jev_assessments_deleted": int(assessments),
+    }
