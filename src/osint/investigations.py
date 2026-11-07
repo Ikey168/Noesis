@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from src.osint import common
+from src.osint.contradictions import CONTRADICTION_TYPES_SQL
 
 # Tools held behind the explicit review gate; absent from the server until the
 # gate passes. Named here so enforcement is testable.
@@ -104,14 +105,14 @@ def osint_telemetry(conn) -> Dict[str, Any]:
     if common.table_exists(conn, "claim_conflicts"):
         contradicted = int(
             conn.execute(
-                "SELECT COUNT(*) FROM claim_conflicts WHERE lower(conflict_type) LIKE '%contradict%'"
+                "SELECT COUNT(*) FROM claim_conflicts WHERE " + CONTRADICTION_TYPES_SQL
             ).fetchone()[0]
         )
         contradiction_topics = [
             r[0]
             for r in conn.execute(
                 "SELECT DISTINCT topic FROM claim_conflicts "
-                "WHERE topic IS NOT NULL AND lower(conflict_type) LIKE '%contradict%' LIMIT 6"
+                "WHERE topic IS NOT NULL AND " + CONTRADICTION_TYPES_SQL + " LIMIT 6"
             ).fetchall()
             if r[0]
         ]

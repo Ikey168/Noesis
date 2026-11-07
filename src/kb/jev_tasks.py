@@ -27,6 +27,8 @@ TASKS = frozenset(
         "reranking",
         "answer_support",
         "claim_links",
+        "contradiction_kind",
+        "corroboration",
         "intake_routing",
         "review_priority",
         "methodology",
@@ -40,6 +42,28 @@ TASKS = frozenset(
         "attribution",
     }
 )
+
+
+#: Choice options for typing a flagged contradiction. Only ``direct`` and
+#: ``quantitative`` assert that both claims cannot hold together; the others
+#: name the ways an apparent conflict is commonly reconcilable.
+CONTRADICTION_KINDS = {
+    "direct": "The claims assert incompatible propositions about the same subject",
+    "quantitative": "The claims give incompatible values for the same quantity",
+    "temporal": "The claims describe different times, so both may hold",
+    "scope": "The claims cover different places, populations, or conditions",
+    "attribution": "One claim reports what someone said rather than asserting it",
+    "not_contradiction": "The claims are compatible or unrelated",
+    "unclear": "The supplied text is insufficient to judge",
+}
+#: Choice options for whether one claim's text corroborates another's.
+CORROBORATION_RELATIONS = {
+    "supports": "The evidence asserts the claim or something that entails it",
+    "partially_supports": "The evidence supports part of the claim only",
+    "contradicts": "The evidence conflicts with the claim",
+    "unrelated": "The evidence does not bear on the claim",
+    "unclear": "The supplied text is insufficient to judge",
+}
 
 
 def _text(value: Any, name: str, maximum: int = 4000) -> str:
@@ -283,6 +307,41 @@ def prepare_task(
         questions["b_to_a"] = _choice(
             "Does `claim_b` entail, contradict, or have no established relation to `claim_a`?",
             relation,
+        )
+    elif task == "contradiction_kind":
+        if source_count != 2:
+            raise JevTaskError(
+                "invalid_sources", "contradiction kind needs two exact claim sources"
+            )
+        state = {
+            "claim_a": _text(parameters.get("claim_a"), "claim A", 8000),
+            "claim_b": _text(parameters.get("claim_b"), "claim B", 8000),
+        }
+        questions["kind"] = _choice(
+            "`claim_a` and `claim_b` were flagged as possibly conflicting. What kind of disagreement, if any, do the supplied texts express? Judge only the supplied text; do not use outside knowledge about which claim is true.",
+            CONTRADICTION_KINDS,
+        )
+        questions["jointly_true"] = _noul(
+            "Could `claim_a` and `claim_b` both be true at the same time, as literally stated?"
+        )
+        questions["same_subject"] = _noul(
+            "Do `claim_a` and `claim_b` make assertions about the same subject, event, or quantity?"
+        )
+    elif task == "corroboration":
+        if source_count != 2:
+            raise JevTaskError(
+                "invalid_sources", "corroboration needs two exact claim sources"
+            )
+        state = {
+            "claim": _text(parameters.get("claim"), "claim", 8000),
+            "evidence": _text(parameters.get("evidence"), "evidence", 8000),
+        }
+        questions["relation"] = _choice(
+            "Does `evidence` independently corroborate `claim`? Judge only the supplied text. Restating the same claim is support; a related topic alone is not.",
+            CORROBORATION_RELATIONS,
+        )
+        questions["independent_report"] = _noul(
+            "Does `evidence` read as an independent account rather than a quotation, citation, or repetition of the claim's own source?"
         )
     elif task == "intake_routing":
         state = {"intent": _text(parameters.get("intent"), "intent", 8000)}

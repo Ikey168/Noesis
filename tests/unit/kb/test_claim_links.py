@@ -115,6 +115,29 @@ class TestLinking:
         summary = run_claim_linking_pass(conn, provider=FakeProvider(), nli=FakeNLI())
         assert summary["links"]["contradicts"] == 1
 
+    def test_conflicting_directions_abstain_instead_of_linking(self, conn):
+        class AsymmetricNLI(FakeNLI):
+            def classify(self, premise, hypothesis):
+                from src.kb.nli import NLIResult
+
+                if "not" in premise.lower():
+                    return NLIResult(ENTAILMENT, 0.99, self.prediction_mode)
+                return NLIResult(CONTRADICTION, 0.6, self.prediction_mode)
+
+        _seed_claims(
+            conn,
+            [
+                ("c1", DUP_A, "d1", BASE_MS, "economics"),
+                ("c3", CONTRA, "d3", BASE_MS + DAY_MS, None),
+            ],
+        )
+        summary = run_claim_linking_pass(
+            conn, provider=FakeProvider(), nli=AsymmetricNLI()
+        )
+        assert summary["abstained"]["conflicting_directions"] >= 1
+        assert sum(summary["links"].values()) == 0
+        assert conn.execute("SELECT COUNT(*) FROM claim_links").fetchone()[0] == 0
+
     def test_supersedes_written_for_gapped_duplicates(self, conn):
         _seed_claims(
             conn,

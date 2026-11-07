@@ -19,6 +19,18 @@ from typing import Any, Dict, List, Optional
 
 from src.osint import common
 
+#: ``claim_conflicts`` rows that assert opposing positions. The conflict graph
+#: (``src.argument_mining.conflict_graph``) writes ``direct``/``implied``; older
+#: and hand-seeded layers write ``contradicts``. Filtering on "contradict"
+#: alone silently hid every conflict the production pass produced.
+CONTRADICTION_TYPES_SQL = (
+    "(lower(conflict_type) IN ('direct', 'implied')"
+    " OR lower(conflict_type) LIKE '%contradict%')"
+)
+_TYPE_RANK_SQL = (
+    "CASE WHEN lower(conflict_type) = 'implied' THEN 1 ELSE 0 END"
+)
+
 
 def contradiction_scan(
     conn,
@@ -29,14 +41,15 @@ def contradiction_scan(
     """A cited contradiction ledger for a topic or entity.
 
     Returns each contradiction pair with both claims (text, source, citation)
-    and whether it is cited. ``uncited_count`` reports how many entries lack a
+    and whether it is cited. Direct conflicts rank ahead of implied ones, then
+    by similarity, with a stable claim-id tie break. ``uncited_count`` reports how many entries lack a
     resolvable citation, so the gap is legible.
     """
     if not common.table_exists(conn, "claim_conflicts"):
         return {"contradictions": [], "count": 0, "topic": topic, "entity": entity,
                 "note": "no conflict layer available"}
 
-    where: List[str] = ["lower(conflict_type) LIKE '%contradict%'"]
+    where: List[str] = [CONTRADICTION_TYPES_SQL]
     params: List[Any] = []
     if topic:
         where.append("topic ILIKE ?")
@@ -47,7 +60,8 @@ def contradiction_scan(
         SELECT claim_id_a, claim_id_b, conflict_type, topic, similarity_score
         FROM claim_conflicts
         WHERE {' AND '.join(where)}
-        ORDER BY similarity_score DESC NULLS LAST
+        ORDER BY {_TYPE_RANK_SQL}, similarity_score DESC NULLS LAST,
+                 claim_id_a, claim_id_b
         LIMIT ?
         """,
         params,

@@ -14,6 +14,8 @@ from src.evaluation.jev_evidence import (
 from src.kb.jev_evidence_adapters import (
     suggest_answer_support,
     suggest_claim_relation,
+    suggest_contradiction_kind,
+    suggest_corroboration,
     suggest_shortlist_rerank,
 )
 from services.rag.rerank import CrossEncoderReranker
@@ -512,3 +514,87 @@ def test_answer_support_evaluator_counts_abstention_and_false_support():
         ).read_text()
     )
     Draft202012Validator(schema).validate(report)
+
+
+# --- contradiction typing and corroboration (secondary Jev assessments) -----
+
+
+def _pair(text_a, text_b):
+    runtime_texts = {"a": text_a, "b": text_b}
+    claims = [
+        {"source_ref": ref(name), "locator": {"start": 0, "end": len(text)}}
+        for name, text in (("a", text_a), ("b", text_b))
+    ]
+    return runtime_texts, claims
+
+
+def _kind(runtime, claims, run_id, **kwargs):
+    return suggest_contradiction_kind(
+        runtime, "ns", run_id, *claims, principal_id="alice", scopes=set(),
+        allow_remote=True, policy={}, **kwargs,
+    )
+
+
+def test_contradiction_kind_derives_conflict_only_from_consistent_answers():
+    texts, claims = _pair("Unemployment was 5 percent in May.", "Unemployment was 7 percent in May.")
+    runtime = FakeRuntime(
+        texts, labels={"kind": "quantitative", "jointly_true": 0.05, "same_subject": 0.95}
+    )
+    out = _kind(runtime, claims, "k-1", local_relation="contradicts")
+    assert out["status"] == "suggested" and out["assessment"] == "conflict"
+    assert out["agrees_with_local"] is True
+    assert out["graph_write"] is False and out["accepted"] is False
+    assert out["thresholds"]["calibrated"] is False
+    # The local label is never sent to the provider (no anchoring).
+    assert "contradicts" not in json.dumps(runtime.calls[-1]["state"])
+    assert runtime.calls[-1]["task"] == "jev-contradiction_kind-v1"
+    assert runtime.calls[-1]["slices"] == [claim["locator"] for claim in claims]
+
+    # A "direct" kind contradicted by a high jointly-true probability abstains.
+    runtime.labels.update({"kind": "direct", "jointly_true": 0.9})
+    inconsistent = _kind(runtime, claims, "k-2")
+    assert inconsistent["status"] == "abstained"
+    assert inconsistent["reason"] == "inconsistent_answers"
+
+    runtime.labels.update({"kind": "temporal", "jointly_true": 0.8})
+    temporal = _kind(runtime, claims, "k-3", local_relation="direct")
+    assert temporal["assessment"] == "reconcilable"
+    assert temporal["agrees_with_local"] is False
+
+    runtime.labels.update({"kind": "unclear"})
+    assert _kind(runtime, claims, "k-4")["reason"] == "unclear"
+
+
+def test_contradiction_kind_unavailable_and_self_pair_abstain_without_guessing():
+    texts, claims = _pair("The levy was withdrawn.", "The levy remains in force.")
+    unavailable = _kind(FakeRuntime(texts, unavailable=True), claims, "k-5")
+    assert unavailable["status"] == "abstained" and unavailable["assessment"] is None
+    assert unavailable["reason"] == "unanswered"
+
+    runtime = FakeRuntime(texts)
+    same = _kind(runtime, [claims[0], claims[0]], "k-6")
+    assert same["reason"] == "same_claim_span" and runtime.calls == []
+    with pytest.raises(ValueError, match="jointly_true_threshold"):
+        _kind(runtime, claims, "k-7", jointly_true_threshold=1.5)
+
+
+def test_corroboration_suggestion_never_counts_as_an_independent_source():
+    texts, claims = _pair("The bank raised rates in May.", "Rates went up in May, the bank said.")
+    runtime = FakeRuntime(
+        texts, labels={"relation": "supports", "independent_report": 0.3}
+    )
+    out = suggest_corroboration(
+        runtime, "ns", "c-1", *claims, principal_id="alice", scopes=set(),
+        allow_remote=True, policy={},
+    )
+    assert out["status"] == "suggested" and out["relation"] == "supports"
+    assert out["counts_as_independent_source"] is False
+    assert out["independent_report_probability"] == 0.3
+    assert out["graph_write"] is False
+
+    runtime.labels["relation"] = "unclear"
+    unclear = suggest_corroboration(
+        runtime, "ns", "c-2", *claims, principal_id="alice", scopes=set(),
+        allow_remote=True, policy={},
+    )
+    assert unclear["status"] == "abstained" and unclear["relation"] is None
