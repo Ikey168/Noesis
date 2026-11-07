@@ -109,6 +109,47 @@ These deterministic rules apply with or without Jev:
   `revisions`, `corrected_by_source` and `retracted_by_source`, never as
   corroboration. A source found on both sides is listed in `mixed_sources`.
 
+## Jev in the claim linking pass
+
+`run_claim_linking_pass` and `run_cross_backing_link_pass` take an optional
+`jev_reviewer` (`src.kb.claim_link_review.JevClaimLinkReviewer`). The pass
+runs in three steps:
+
+1. **Plan.** Local NLI proposes links. Nothing is written yet.
+2. **Review.** Each proposed `contradicts` link goes to
+   `suggest_contradiction_kind`, and each `supports` or `duplicate` link goes
+   to `suggest_claim_relation`. This step runs outside the write
+   transaction, because the decision runtime commits its own budget and
+   receipt records. A pair planned from both sides is asked about once.
+3. **Write.** Links, assessments and the scan ledger are written in one
+   transaction.
+
+| Mode | Effect on `claim_links` |
+|---|---|
+| `shadow` | Every planned link is written; the Jev assessment is recorded beside it |
+| `gate` | A link Jev answers *against* is withheld, together with any temporal transition derived from it |
+
+Jev can only withhold a planned link. It never adds a link or changes a
+relation. A claim without exactly one occurrence in its document's current
+committed revision (`unresolved`), a provider, policy or budget failure
+(`unavailable`), or an abstention keeps the local link.
+
+Every review is stored in `claim_link_jev_assessments` under the linking
+`run_id`, so `delete_run` reverts it along with the links. The counts are in
+`summary["jev"]`.
+
+`document_revision_resolver(conn)` locates each claim's exact span, and only
+those spans are sent to the provider. `build_jev_reviewer` wires the real
+TypeSafe client to `TYPESAFE_API_KEY` (`credential_ref: "typesafe"`). The
+daily run is opt-in:
+
+```bash
+python3 scripts/kb_brief.py --harvest --jev-links shadow --jev-policy policy.json
+```
+
+Shadow mode is the intended starting point. Gate mode should wait until a
+human-labeled evaluation supports it.
+
 All current adapter tests use `fixture` labels. No independent human Jev
 evaluation or measured gain is available, so the evaluation helpers return
 `task_ready: false` and no production selection is enabled.

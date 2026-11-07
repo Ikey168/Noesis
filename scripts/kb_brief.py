@@ -8,6 +8,7 @@ Usage:
     python3 scripts/kb_brief.py --since 2026-07-20 --budget 10
     python3 scripts/kb_brief.py --out brief.md        # write instead of print
     python3 scripts/kb_brief.py --harvest             # pull feeds + assign first
+    python3 scripts/kb_brief.py --harvest --jev-links shadow --jev-policy policy.json
 
 Pair with the harvest for a one-command daily run:
     make kb-brief
@@ -34,9 +35,20 @@ def main() -> int:
                         help="Write markdown to a file instead of stdout")
     parser.add_argument("--harvest", action="store_true",
                         help="Harvest feeds + run membership/consolidation first")
+    parser.add_argument("--jev-links", choices=("off", "shadow", "gate"), default="off",
+                        help="Review proposed claim links with Jev during --harvest:"
+                             " shadow records assessments, gate also withholds links"
+                             " Jev answers against (default off)")
+    parser.add_argument("--jev-policy", type=Path, default=None,
+                        help="JSON hosted-decision policy pinning model, rubric,"
+                             " budget and credential_ref (required with --jev-links)")
+    parser.add_argument("--jev-namespace", default="kb",
+                        help="Decision namespace for Jev link reviews (default kb)")
     parser.add_argument("--email", action="store_true",
                         help="Email the result to NOESIS_DAILY_BRIEF_TO")
     args = parser.parse_args()
+    if args.jev_links != "off" and (not args.harvest or args.jev_policy is None):
+        parser.error("--jev-links needs --harvest and --jev-policy")
 
     from src.database.local_analytics_connector import get_shared_connection
 
@@ -59,7 +71,19 @@ def main() -> int:
             file=sys.stderr,
         )
         run_membership_pass(conn)
-        run_claim_linking_pass(conn)
+        jev_reviewer = None
+        if args.jev_links != "off":
+            import json
+
+            from src.kb.claim_link_review import build_jev_reviewer
+
+            jev_reviewer = build_jev_reviewer(
+                conn, args.jev_namespace, mode=args.jev_links,
+                policy=json.loads(args.jev_policy.read_text()),
+            )
+        links = run_claim_linking_pass(conn, jev_reviewer=jev_reviewer)
+        if "jev" in links:
+            print(f"claim links jev review: {links['jev']}", file=sys.stderr)
         run_clustering_pass(conn)
         run_entity_canonicalization_pass(conn)
 
