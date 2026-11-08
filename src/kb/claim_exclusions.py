@@ -61,6 +61,29 @@ NOT_EXCLUDED = (
 def ensure_exclusion_schema(conn) -> None:
     for statement in _SCHEMA:
         conn.execute(statement)
+    if conn.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name = 'argument_claims'"
+    ).fetchone():
+        conn.execute("ALTER TABLE argument_claims ADD COLUMN IF NOT EXISTS excluded_reason VARCHAR")
+
+
+def sync_excluded_reason(conn) -> None:
+    """Mirror ``argument_claim_exclusions`` into ``argument_claims.excluded_reason``.
+
+    The side table stays authoritative (it carries run ids for undo); the
+    column lets any reader filter with ``excluded_reason IS NULL``.
+    Re-extracted claims (deleted and reinserted) pick their flag back up.
+    """
+    conn.execute(
+        "UPDATE argument_claims SET excluded_reason = x.reason FROM argument_claim_exclusions x"
+        " WHERE x.claim_id = argument_claims.claim_id"
+        " AND (argument_claims.excluded_reason IS NULL OR argument_claims.excluded_reason <> x.reason)"
+    )
+    conn.execute(
+        "UPDATE argument_claims SET excluded_reason = NULL WHERE excluded_reason IS NOT NULL"
+        " AND NOT EXISTS (SELECT 1 FROM argument_claim_exclusions x"
+        " WHERE x.claim_id = argument_claims.claim_id)"
+    )
 
 
 def not_excluded(alias: str = "c") -> str:
@@ -158,7 +181,10 @@ def run_claim_exclusion_pass(
         "links_withheld": len(link_keys),
         "links_withheld_by_relation": dict(sorted(links_by_relation.items())),
     }
-    if dry_run or not planned:
+    if dry_run:
+        return summary
+    if not planned:
+        sync_excluded_reason(conn)
         return summary
     now = int(time.time() * 1000)
     conn.execute("BEGIN TRANSACTION")
@@ -176,6 +202,7 @@ def run_claim_exclusion_pass(
                                 "reasons": sorted({planned[c][0] for c in excluded})}
             withhold(conn, run_id, link_keys, "claim_excluded", details)
         record_op(conn, run_id, "claim_exclusions", None, summary)
+        sync_excluded_reason(conn)
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
@@ -196,6 +223,7 @@ def undo_claim_exclusions(conn, run_id: str) -> dict[str, int]:
         ).fetchone()[0]
         conn.execute("DELETE FROM argument_claim_exclusions WHERE run_id = ?", [run_id])
         links = restore_op(conn, run_id)
+        sync_excluded_reason(conn)
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
@@ -243,6 +271,7 @@ def restore_claims(conn, claim_ids: Iterable[str], *, note: str | None = None) -
                 by_op[op_id].append((claim_a, claim_b, relation))
         for op_id, keys in by_op.items():
             restored_links += restore_op(conn, op_id, keys=keys)["restored"]
+        sync_excluded_reason(conn)
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")

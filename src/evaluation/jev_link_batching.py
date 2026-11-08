@@ -15,17 +15,25 @@ from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
-REVIEWED = ("supports", "duplicate", "contradicts")
+REVIEWED = ("supports", "duplicate", "contradicts", "supersedes")
 
 
 def sample_planned_links(
     conn, *, sample: int, seed: int = 0, duplicate_threshold: float = 0.88,
     relations: Sequence[str] = REVIEWED,
 ) -> list[dict[str, Any]]:
-    """Review items for stored ``claim_links`` rows (newest first, then sampled)."""
+    """Review items for stored ``claim_links`` rows (newest first, then sampled).
+
+    Stored ``supersedes``/``corrects``/``retracts`` links are sampled as the
+    ``supersedes`` review relation (newer claim first), as the linking pass
+    reviews them.
+    """
     if not relations or any(r not in REVIEWED for r in relations):
         raise ValueError(f"relations must be drawn from {REVIEWED}")
-    placeholders = ", ".join("?" for _ in relations)
+    stored = [r for r in relations if r != "supersedes"]
+    if "supersedes" in relations:
+        stored += ["supersedes", "corrects", "retracts"]
+    placeholders = ", ".join("?" for _ in stored)
     rows = conn.execute(
         f"""
         SELECT l.relation, l.claim_a, ca.claim_text, l.claim_b, cb.claim_text, l.score
@@ -35,13 +43,13 @@ def sample_planned_links(
         WHERE l.relation IN ({placeholders})
         ORDER BY l.created_at DESC, l.claim_a, l.claim_b, l.relation
         """,
-        list(relations),
+        stored,
     ).fetchall()
     rows = list(rows)
     random.Random(seed).shuffle(rows)
     return [
         {
-            "relation": relation,
+            "relation": "supersedes" if relation in ("corrects", "retracts") else relation,
             "premise": (claim_a, text_a),
             "hypothesis": (claim_b, text_b),
             "similarity": float(score),
@@ -139,11 +147,22 @@ def run_validation(
     run_prefix: str | None = None,
     min_agreement: float = 0.95,
     min_links_per_relation: int = 20,
+    max_drift: float = 0.02,
+    repeat_baseline: bool = True,
 ) -> dict[str, Any]:
-    """Review ``items`` per link and at each batch size, and compare.
+    """Review ``items`` per link (twice) and at each batch size, and compare.
 
     ``make_reviewer(batch_config_or_None)`` returns a fresh reviewer. Run IDs
     are unique per invocation so no path replays another's stored results.
+
+    The per-link path runs twice (``repeat_baseline``) so batching drift can
+    be told apart from Jev's run-to-run variation: each batched comparison
+    reports the per-link-vs-per-link agreement next to it. A relation is
+    recommended for batching only when its batched verdict agreement reaches
+    ``min_agreement`` and is within ``max_drift`` of the repeat agreement,
+    on at least ``min_links_per_relation`` links answered by both paths.
+    Each relation is judged on its own (``recommended_relations``), so
+    batching can be enabled per relation via ``BatchConfig.relations``.
     """
     from src.kb.claim_link_batch import BatchConfig
 
@@ -158,16 +177,26 @@ def run_validation(
         paths[name] = {"reviews": reviews, "usage": usage(reviewer.stats, time.monotonic() - started)}
 
     review("per_link", None)
+    if repeat_baseline:
+        review("per_link_repeat", None)
     for size in batch_sizes:
-        review(f"batch_{size}", BatchConfig(max_links=size))
+        # Batch every relation here so each gets its own agreement verdict.
+        review(f"batch_{size}", BatchConfig(max_links=size, relations=REVIEWED))
     baseline = paths["per_link"]["reviews"]
+    repeat = (
+        compare(items, baseline, paths["per_link_repeat"]["reviews"]) if repeat_baseline else None
+    )
     report: dict[str, Any] = {
         "links": len(items),
         "relations": dict(Counter(item["relation"] for item in items)),
         "per_link": paths["per_link"]["usage"],
+        "per_link_repeat": (
+            {"usage": paths["per_link_repeat"]["usage"], "agreement": repeat} if repeat else None
+        ),
         "batched": {},
         "thresholds": {"min_agreement": min_agreement,
-                       "min_links_per_relation": min_links_per_relation},
+                       "min_links_per_relation": min_links_per_relation,
+                       "max_drift": max_drift},
         "production_switch": False,
     }
     for size in batch_sizes:
@@ -177,23 +206,55 @@ def run_validation(
             "max_links": size,
             "usage": paths[name]["usage"],
             "agreement": agreement,
-            **_recommendation(agreement, min_agreement, min_links_per_relation),
+            "repeat_baseline": _baseline_view(repeat),
+            **_recommendation(agreement, repeat, min_agreement, min_links_per_relation, max_drift),
         }
     return report
 
 
-def _recommendation(agreement, min_agreement, min_links) -> dict[str, Any]:
-    reasons = []
-    if agreement["verdict_agreement"] is None:
-        reasons.append("no link was answered by both paths")
+def _baseline_view(repeat: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    if repeat is None:
+        return None
+    return {
+        "verdict_agreement": repeat["verdict_agreement"],
+        "outcome_agreement": repeat["outcome_agreement"],
+        "by_relation": {
+            relation: {"verdict_agreement": row["verdict_agreement"],
+                       "outcome_agreement": row["outcome_agreement"]}
+            for relation, row in repeat["by_relation"].items()
+        },
+    }
+
+
+def _recommendation(agreement, repeat, min_agreement, min_links, max_drift) -> dict[str, Any]:
+    reasons: list[str] = []
+    recommended: list[str] = []
+    per_relation: dict[str, Any] = {}
     for relation in REVIEWED:
         row = agreement["by_relation"].get(relation)
+        base = (repeat or {}).get("by_relation", {}).get(relation)
+        why = []
         if row is None or row["both_answered"] < min_links:
-            reasons.append(f"fewer than {min_links} answered {relation} links")
-        elif row["verdict_agreement"] < min_agreement:
-            reasons.append(
-                f"{relation} verdict agreement {row['verdict_agreement']} < {min_agreement}"
-            )
-    if agreement["outcome_agreement"] is not None and agreement["outcome_agreement"] < min_agreement:
-        reasons.append(f"outcome agreement {agreement['outcome_agreement']} < {min_agreement}")
-    return {"recommended": not reasons, "not_recommended_because": reasons}
+            why.append(f"fewer than {min_links} answered {relation} links")
+        else:
+            if row["verdict_agreement"] < min_agreement:
+                why.append(f"{relation} verdict agreement {row['verdict_agreement']} < {min_agreement}")
+            if base and base["verdict_agreement"] is not None and (
+                row["verdict_agreement"] < base["verdict_agreement"] - max_drift
+            ):
+                why.append(
+                    f"{relation} verdict agreement {row['verdict_agreement']} drifts more than"
+                    f" {max_drift} below the per-link repeat {base['verdict_agreement']}"
+                )
+        per_relation[relation] = {"recommended": not why, "reasons": why}
+        if why:
+            reasons.extend(why)
+        else:
+            recommended.append(relation)
+    present = [r for r in REVIEWED if r in agreement["by_relation"]]
+    return {
+        "recommended": bool(present) and all(per_relation[r]["recommended"] for r in present),
+        "recommended_relations": recommended,
+        "by_relation_recommendation": per_relation,
+        "not_recommended_because": reasons,
+    }

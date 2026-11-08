@@ -28,6 +28,7 @@ TASKS = frozenset(
         "answer_support",
         "claim_links",
         "contradiction_kind",
+        "supersession",
         "corroboration",
         "intake_routing",
         "review_priority",
@@ -54,6 +55,15 @@ CONTRADICTION_KINDS = {
     "scope": "The claims cover different places, populations, or conditions",
     "attribution": "One claim reports what someone said rather than asserting it",
     "not_contradiction": "The claims are compatible or unrelated",
+    "unclear": "The supplied text is insufficient to judge",
+}
+#: Choice options for whether a later claim supersedes an earlier one. Only
+#: ``updates`` confirms a supersedes/corrects/retracts transition; it is a
+#: different question from whether the two claims conflict.
+SUPERSESSION_KINDS = {
+    "updates": "The later claim updates, corrects, retracts or replaces the earlier claim about the same subject",
+    "restates": "The later claim repeats the earlier claim without changing it",
+    "independent": "The claims concern different subjects, or neither changes the other",
     "unclear": "The supplied text is insufficient to judge",
 }
 #: Choice options for whether one claim's text corroborates another's.
@@ -327,6 +337,22 @@ def prepare_task(
         questions["same_subject"] = _noul(
             "Do `claim_a` and `claim_b` make assertions about the same subject, event, or quantity?"
         )
+    elif task == "supersession":
+        if source_count != 2:
+            raise JevTaskError(
+                "invalid_sources", "supersession needs two exact claim sources"
+            )
+        state = {
+            "later_claim": _text(parameters.get("later_claim"), "later claim", 8000),
+            "earlier_claim": _text(parameters.get("earlier_claim"), "earlier claim", 8000),
+        }
+        questions["kind"] = _choice(
+            "`later_claim` was published after `earlier_claim` by the same source. Does `later_claim` update, correct, retract or replace `earlier_claim`? Judge only the supplied text.",
+            SUPERSESSION_KINDS,
+        )
+        questions["same_subject"] = _noul(
+            "Do `later_claim` and `earlier_claim` make assertions about the same subject, event, or quantity?"
+        )
     elif task == "corroboration":
         if source_count != 2:
             raise JevTaskError(
@@ -517,8 +543,13 @@ def suggest_task(
     max_cost_usd_micros: int = 1000,
     deadline_s: float = 30,
     source_slices: list[dict[str, int]] | None = None,
+    settle_cost: Any = None,
 ) -> dict:
-    """Execute one plan and return an explicitly non-authoritative suggestion."""
+    """Execute one plan and return an explicitly non-authoritative suggestion.
+
+    ``settle_cost(usage)`` (optional) settles the run's budget reservation
+    to the reported token usage.
+    """
     state, questions = prepare_task(task, parameters, source_count=len(source_refs))
     run = runtime.run(
         namespace,
@@ -535,6 +566,7 @@ def suggest_task(
         max_cost_usd_micros=max_cost_usd_micros,
         deadline_s=deadline_s,
         **({"source_slices": source_slices} if source_slices is not None else {}),
+        **({"settle_cost": settle_cost} if settle_cost is not None else {}),
     )
     shadow = run.get("rollout_mode") == "shadow"
     return {

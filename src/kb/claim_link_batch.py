@@ -50,27 +50,44 @@ from typing import Any
 from src.integrations.decisions import MAX_QUESTIONS
 from src.kb.claim_link_review import (
     _REVIEW_FAILURES,
+    REVIEWED_RELATIONS,
     contradiction_detail,
+    empty_detail,
     link_agrees,
     relation_detail,
     run_failure,
     run_stats,
+    span_matches,
+    supersession_detail,
 )
 from src.kb.decision_runtime import DEFAULT_MAX_SOURCES, MAX_BATCH_SOURCES
 from src.kb.jev_evidence_adapters import (
     LONG_CLAIM_CHARS,
     _probability,
+    contradiction_decision,
     derive_claim_relation,
-    derive_contradiction_assessment,
+    supersession_decision,
 )
-from src.kb.jev_tasks import CONTRADICTION_KINDS, prepare_task
+from src.kb.jev_tasks import CONTRADICTION_KINDS, SUPERSESSION_KINDS, prepare_task
 
 BATCH_TASK = "jev-claim_link_review_batch-v1"
 TASK_FOR = {
     "contradicts": "contradiction_kind",
     "supports": "claim_links",
     "duplicate": "claim_links",
+    "supersedes": "supersession",
 }
+#: State keys holding a link's two spans, in source order, per task.
+FIELDS = {
+    "contradiction_kind": ("claim_a", "claim_b"),
+    "claim_links": ("claim_a", "claim_b"),
+    "supersession": ("later_claim", "earlier_claim"),
+}
+#: Relations batched by default. Measured on 240 links, batching kept
+#: duplicate verdicts within 96-98% of per-link review but moved supports
+#: to 84-88%; other relations stay per-link until their own validation gate
+#: passes (scripts/validate_jev_link_batching.py reports per relation).
+DEFAULT_BATCHED_RELATIONS = ("duplicate",)
 #: Documented System One limits for jev-1.13.0/1.14.0.
 PROVIDER_REQUEST_TOKENS = 64_000
 PROVIDER_QUESTION_TOKENS = 32_000
@@ -108,8 +125,14 @@ class BatchConfig:
     bytes_per_token: float = 3.0
     input_price_usd_micros_per_million_tokens: int = 42_000
     deadline_s: float = 60
+    #: Relations packed into batches; the rest are reviewed per link.
+    relations: tuple[str, ...] = DEFAULT_BATCHED_RELATIONS
 
     def __post_init__(self) -> None:
+        relations = tuple(self.relations)
+        if not relations or any(r not in REVIEWED_RELATIONS for r in relations) or len(set(relations)) != len(relations):
+            raise ValueError(f"relations must be distinct values from {REVIEWED_RELATIONS}")
+        object.__setattr__(self, "relations", relations)
         ints = (
             "state_token_budget", "request_token_limit", "question_token_limit",
             "max_links", "concurrency", "max_attempts",
@@ -248,6 +271,8 @@ class _Batcher:
         def shaped(reason):
             if relation == "contradicts":
                 return contradiction_detail(None, reason, None, None)
+            if relation == "supersedes":
+                return supersession_detail(None, reason, None)
             return relation_detail(None, None, reason)
 
         spans = [reviewer.resolve_claim(cid, text) for cid, text in (item["premise"], item["hypothesis"])]
@@ -268,28 +293,36 @@ class _Batcher:
             return done("unavailable", {"error": str(getattr(exc, "code", type(exc).__name__))})
         locators = [loc for loc, _ in located]
         passages = [passage for _, passage in located]
+        matched = span_matches(spans)
+
+        def abstain(reason):
+            detail = shaped(reason)
+            if matched:
+                detail["spans"] = matched
+            return done("abstained", detail)
+
         if refs[0] == refs[1] and locators[0] == locators[1]:
-            return done("abstained", shaped("same_claim_span"))
-        if relation != "contradicts" and max(map(len, passages)) > LONG_CLAIM_CHARS:
-            return done("abstained", shaped("window_coverage_unverified"))
+            return abstain("same_claim_span")
+        if relation in ("supports", "duplicate") and max(map(len, passages)) > LONG_CLAIM_CHARS:
+            return abstain("window_coverage_unverified")
         task = TASK_FOR[relation]
+        fields = FIELDS[task]
         try:
             state, questions = prepare_task(
-                task, {"claim_a": passages[0], "claim_b": passages[1]}, source_count=2
+                task, dict(zip(fields, passages, strict=True)), source_count=2
             )
         except _REVIEW_FAILURES as exc:
             return done("unavailable", {"error": str(getattr(exc, "code", type(exc).__name__))})
         key = f"L{index:04d}"
         namespaced = {}
         for qid, question in questions.items():
-            instructions = (
-                f"This question is only about `links.{key}`. "
-                + question["instructions"]
-                .replace("`claim_a`", f"`links.{key}.claim_a`")
-                .replace("`claim_b`", f"`links.{key}.claim_b`")
-            )
-            namespaced[f"{key}__{qid}"] = {**question, "instructions": instructions}
-        entry = {"claim_a": state["claim_a"], "claim_b": state["claim_b"]}
+            instructions = question["instructions"]
+            for field in fields:
+                instructions = instructions.replace(f"`{field}`", f"`links.{key}.{field}`")
+            namespaced[f"{key}__{qid}"] = {
+                **question, "instructions": f"This question is only about `links.{key}`. " + instructions,
+            }
+        entry = {field: state[field] for field in fields}
         question_tokens = {qid: self.config.estimate(q) + QUESTION_OVERHEAD_TOKENS for qid, q in namespaced.items()}
         return {
             "index": index,
@@ -299,6 +332,8 @@ class _Batcher:
             "task": task,
             "similarity": similarity,
             "sources": list(zip(refs, locators, strict=True)),
+            "fields": fields,
+            "spans_matched": span_matches(spans),
             "entry": entry,
             "questions": namespaced,
             "state_tokens": self.config.estimate({key: entry}),
@@ -389,8 +424,8 @@ class _Batcher:
                 "instructions": STATE_NOTE,
                 "links": {
                     e["key"]: {
-                        "claim_a": captures[e["source_slots"][0]]["content"].strip(),
-                        "claim_b": captures[e["source_slots"][1]]["content"].strip(),
+                        field: captures[slot]["content"].strip()
+                        for field, slot in zip(e["fields"], e["source_slots"], strict=True)
                     }
                     for e in entries
                 },
@@ -453,37 +488,47 @@ class _Batcher:
         base = reviewer.base(relation, batch_id)
         if failure is None and modes.get(f"jev-{entry['task']}-v1") == "shadow":
             failure = ("abstained", {"reason": "shadow_rollout"})
-        if relation == "contradicts":
-            if failure is None:
-                kind_answer = _answered(answers, f"{key}__kind", "choice")
-                kind = kind_answer.get("value") if kind_answer else None
-                if kind not in CONTRADICTION_KINDS:
-                    kind = None
-                jointly = _probability(_answered(answers, f"{key}__jointly_true", "noul"))
-                same = _probability(_answered(answers, f"{key}__same_subject", "noul"))
-                jev_relation, reason = derive_contradiction_assessment(kind, jointly, same)
-                detail = contradiction_detail(kind, reason, jointly, same)
-            else:
-                jev_relation = None
-                detail = contradiction_detail(None, "unanswered", None, None)
-        else:
-            if failure is None:
-                labels = [
-                    (answer or {}).get("value")
-                    for answer in (
-                        _answered(answers, f"{key}__a_to_b", "choice"),
-                        _answered(answers, f"{key}__b_to_a", "choice"),
-                    )
-                ]
-                jev_relation = derive_claim_relation(
-                    labels, entry["similarity"], entry["item"]["duplicate_threshold"]
-                )
-                detail = relation_detail(labels[0], labels[1], None)
-            else:
-                jev_relation = None
-                detail = relation_detail(None, None, None)
         if failure is not None:
+            detail = empty_detail(relation, "unanswered" if relation in ("contradicts", "supersedes") else None)
+            if entry.get("spans_matched"):
+                detail["spans"] = entry["spans_matched"]
             return reviewer.finish(base, failure[0], None, None, {**detail, **failure[1], "batch": batch_meta})
+        if relation == "contradicts":
+            kind_answer = _answered(answers, f"{key}__kind", "choice")
+            kind = kind_answer.get("value") if kind_answer else None
+            if kind not in CONTRADICTION_KINDS:
+                kind = None
+            jointly = _probability(_answered(answers, f"{key}__jointly_true", "noul"))
+            same = _probability(_answered(answers, f"{key}__same_subject", "noul"))
+            jev_relation, reason, decided_by = contradiction_decision(
+                kind, jointly, same, 0.5, reviewer.same_subject_threshold,
+                tie_break=reviewer.tie_break, same_subject_gate=reviewer.same_subject_gate,
+            )
+            detail = contradiction_detail(kind, reason, jointly, same, decided_by)
+        elif relation == "supersedes":
+            kind_answer = _answered(answers, f"{key}__kind", "choice")
+            kind = kind_answer.get("value") if kind_answer else None
+            if kind not in SUPERSESSION_KINDS:
+                kind = None
+            same = _probability(_answered(answers, f"{key}__same_subject", "noul"))
+            jev_relation, reason, decided_by = supersession_decision(
+                kind, same, reviewer.same_subject_threshold, tie_break=reviewer.tie_break
+            )
+            detail = supersession_detail(kind, reason, same, decided_by)
+        else:
+            labels = [
+                (answer or {}).get("value")
+                for answer in (
+                    _answered(answers, f"{key}__a_to_b", "choice"),
+                    _answered(answers, f"{key}__b_to_a", "choice"),
+                )
+            ]
+            jev_relation = derive_claim_relation(
+                labels, entry["similarity"], entry["item"]["duplicate_threshold"]
+            )
+            detail = relation_detail(labels[0], labels[1], None)
+        if entry.get("spans_matched"):
+            detail["spans"] = entry["spans_matched"]
         detail["batch"] = batch_meta
         agrees = link_agrees(relation, jev_relation)
         if agrees is None:
@@ -497,6 +542,13 @@ def review_batched(reviewer: Any, run_id: str, items: list[Mapping[str, Any]]) -
     reviews: dict[int, dict] = {}
     entries = []
     for index, item in enumerate(items):
+        if item["relation"] not in batcher.config.relations:
+            # Relations without a passed batching gate keep per-link review.
+            reviews[index] = reviewer.review(
+                run_id, item["relation"], item["premise"], item["hypothesis"],
+                similarity=item["similarity"], duplicate_threshold=item["duplicate_threshold"],
+            )
+            continue
         prepared = batcher.prepare(index, item)
         if "review" in prepared:
             reviews[index] = prepared["review"]

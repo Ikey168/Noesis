@@ -38,6 +38,21 @@ from src.kb.link_withholding import (
 
 TEMPORAL = ("supersedes", "corrects", "retracts")
 
+_REVIEW_STATE = """
+CREATE TABLE IF NOT EXISTS claim_link_review_state (
+    claim_a    TEXT NOT NULL,
+    claim_b    TEXT NOT NULL,
+    relation   TEXT NOT NULL,
+    state      TEXT NOT NULL,
+    jev_run_id TEXT NOT NULL,
+    op_id      TEXT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    PRIMARY KEY (claim_a, claim_b, relation)
+)
+"""
+#: Review state per stored link after its verdicts are applied.
+REVIEW_STATES = ("confirmed", "reversed", "withheld", "unreviewed", "kept_override")
+
 _OVERRIDES = """
 CREATE TABLE IF NOT EXISTS claim_link_jev_overrides (
     claim_a    TEXT NOT NULL,
@@ -54,6 +69,7 @@ Key = tuple[str, str, str]
 
 def ensure_override_schema(conn) -> None:
     conn.execute(_OVERRIDES)
+    conn.execute(_REVIEW_STATE)
 
 
 def _table_exists(conn, name: str) -> bool:
@@ -100,6 +116,7 @@ def plan_jev_verdicts(conn, run_id: str, *, keep: Iterable[Key] = ()) -> dict[st
         raise ValueError(f"run {run_id!r} has no stored Jev assessments")
     withhold_keys: list[Key] = []
     reverse_keys: list[Key] = []
+    states: dict[Key, str] = {}
     dependents: dict[Key, list[Key]] = {}
     counts: Counter = Counter()
     kept: list[Key] = []
@@ -107,20 +124,25 @@ def plan_jev_verdicts(conn, run_id: str, *, keep: Iterable[Key] = ()) -> dict[st
         key = (claim_a, claim_b, relation)
         counts[f"{relation}:{status}:{verdict}"] += 1
         if verdict != "disagrees":
+            states[key] = "confirmed" if verdict == "agrees" else "unreviewed"
             continue
         if action in ("withheld", "reversed"):
             counts["already_applied_by_gate"] += 1
+            states[key] = action
             continue
         if key in keep:
             kept.append(key)
+            states[key] = "kept_override"
             continue
         if _link(conn, key) is None:
             counts["link_missing"] += 1
             continue
         if relation == "supports" and jev_relation == "b_supports_a":
             reverse_keys.append(key)
+            states[key] = "reversed"
             continue
         withhold_keys.append(key)
+        states[key] = "withheld"
         if relation == "duplicate":
             deps = [tuple(r) for r in conn.execute(
                 "SELECT claim_a, claim_b, relation FROM claim_links WHERE run_id = ?"
@@ -142,7 +164,9 @@ def plan_jev_verdicts(conn, run_id: str, *, keep: Iterable[Key] = ()) -> dict[st
         "reverse": reverse_keys,
         "dependents": dependents,
         "kept": kept,
+        "states": states,
         "summary": {
+            "states": dict(sorted(Counter(states.values()).items())),
             "withheld": len(withhold_keys),
             "dependent_transitions_withheld": sum(len(v) for v in dependents.values()),
             "reversed": len(reverse_keys),
@@ -200,25 +224,44 @@ def apply_jev_verdicts(
                 domain_a=original["domain_b"], domain_b=original["domain_a"],
                 method_suffix="+jev_reversed",
             )
+        for key, state in plan["states"].items():
+            conn.execute(
+                "INSERT INTO claim_link_review_state VALUES (?, ?, ?, ?, ?, ?, ?)"
+                " ON CONFLICT (claim_a, claim_b, relation) DO UPDATE SET state = excluded.state,"
+                " jev_run_id = excluded.jev_run_id, op_id = excluded.op_id,"
+                " updated_at = excluded.updated_at",
+                [*key, state, run_id, op_id, now],
+            )
         result.update({"applied": True, "op_id": op_id, "reversed_links_written": reversed_written})
         record_op(conn, op_id, "jev_verdicts", run_id, result)
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
         raise
+    result["clusters"] = _rebuild_clusters(conn, op_id)
     return result
+
+
+def _rebuild_clusters(conn, op_id: str) -> dict[str, Any]:
+    """Clusters derive from duplicate links, so recompute them after a change."""
+    from src.kb.clusters import run_clustering_pass
+
+    return run_clustering_pass(conn, run_id=f"{op_id}:clusters")
 
 
 def undo_jev_verdicts(conn, op_id: str) -> dict[str, int]:
     """Revert an applied verdict operation: withheld links return, reversals go."""
     ensure_withholding_schema(conn)
+    ensure_override_schema(conn)
     conn.execute("BEGIN TRANSACTION")
     try:
         result = restore_op(conn, op_id)
+        conn.execute("DELETE FROM claim_link_review_state WHERE op_id = ?", [op_id])
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
         raise
+    result["clusters"] = _rebuild_clusters(conn, op_id)
     return result
 
 
@@ -255,8 +298,14 @@ def keep_links(conn, keys: Iterable[Key], *, note: str | None = None) -> dict[st
                     [op_id, f"%{json.dumps(list(key))[1:-1]}%"],
                 ).fetchall()]
                 restored += restore_op(conn, op_id, keys=[key, *dependents])["restored"]
+            conn.execute(
+                "UPDATE claim_link_review_state SET state = 'kept_override', updated_at = ?"
+                " WHERE claim_a = ? AND claim_b = ? AND relation = ?",
+                [now, *key],
+            )
         conn.execute("COMMIT")
     except Exception:
         conn.execute("ROLLBACK")
         raise
-    return {"overrides": len(keys), "links_restored": restored}
+    clusters = _rebuild_clusters(conn, f"keep-{now}") if restored else None
+    return {"overrides": len(keys), "links_restored": restored, "clusters": clusters}

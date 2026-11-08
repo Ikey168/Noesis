@@ -16,10 +16,10 @@ remove it.
 | Reason | Examples |
 |---|---|
 | `too_short` | Fewer than 4 words or 20 characters ("It was bad.", "5 min read") |
-| `navigation` | "Skip to main content", "Next post: …", "Read more about …", breadcrumbs (`Home \| Blog \| Malware`) |
+| `navigation` | "Skip to main content", "Next post: …", "Read more about …", "Related: …", breadcrumbs (`Home \| Blog \| Malware`) |
 | `share` | "Share this post on LinkedIn", "Facebook Twitter LinkedIn Email" |
-| `byline` | "By Jane Doe, Senior Researcher", "Posted by A. Kim on March 3", "Published on 2026-03-04" |
-| `marketing` | "Subscribe to our newsletter", "Book a demo", "All rights reserved" |
+| `byline` | "By Jane Doe, Senior Researcher", "Posted by A. Kim on March 3", "Published on 2026-03-04", "Jane Doe is a senior threat researcher at Acme." |
+| `marketing` | "Subscribe to our newsletter", "Book a demo", "All rights reserved", "Trusted by 150k+ orgs" |
 
 All patterns except `too_short` apply only to sentences of at most 25
 words. A real claim that mentions a newsletter or a share button is kept.
@@ -39,7 +39,10 @@ claims in `argument_claim_exclusions` with a reason and run id:
   recorded. The same sentence on two different sites is kept, because that
   is corroboration, not furniture.
 
-The claim linking pass, the cluster read view and the conflict graph skip
+The pass also mirrors each exclusion into `argument_claims.excluded_reason`,
+so any reader can filter with `excluded_reason IS NULL`. The side table
+stays authoritative, because it carries the run ids used for undo. The
+claim linking pass, the cluster read view and the conflict graph skip
 excluded claims. By default the pass also withholds existing links that
 touch an excluded claim. The production workflow runs the pass after
 materialising claims, and `kb_brief.py --harvest` runs it before linking,
@@ -121,6 +124,12 @@ mistakes remain visible. A `--keep` override:
 - restores the link if it was already withheld or reversed;
 - makes later gate-mode runs write the link as planned, with action
   `override_written`.
+
+Applying the verdicts also records a review state for every assessed link
+in `claim_link_review_state`: `confirmed`, `reversed`, `withheld`,
+`unreviewed` or `kept_override`. It then rebuilds clusters, because
+withheld duplicates change them. Undo removes the states and rebuilds
+clusters again.
 
 Gate mode (`--jev-links gate`) now does the same automatically:
 - rejected links are withheld;

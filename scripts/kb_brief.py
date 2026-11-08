@@ -52,6 +52,15 @@ def main() -> int:
     parser.add_argument("--jev-batch-concurrency", type=int, default=1,
                         help="Batched requests in flight, up to the policy's"
                              " max_concurrent (default 1)")
+    parser.add_argument("--jev-batch-relations", nargs="+", default=["duplicate"],
+                        choices=["duplicate", "supports", "contradicts", "supersedes"],
+                        help="Relations packed into batches (default: duplicate only; the"
+                             " rest stay per-link until their validation gate passes)")
+    parser.add_argument("--jev-tie-break", choices=["abstain", "label", "probabilities"],
+                        default="abstain",
+                        help="How to settle a Jev label that disagrees with its probabilities")
+    parser.add_argument("--jev-same-subject-gate", type=float, default=None,
+                        help="Withhold confirmed conflicts whose same-subject probability is below this")
     parser.add_argument("--jev-namespace", default="kb",
                         help="Decision namespace for Jev link reviews (default kb)")
     parser.add_argument("--email", action="store_true",
@@ -104,10 +113,12 @@ def main() -> int:
                     state_token_budget=args.jev_batch_state_tokens,
                     max_links=args.jev_batch_max_links,
                     concurrency=args.jev_batch_concurrency,
+                    relations=tuple(args.jev_batch_relations),
                 )
             jev_reviewer = build_jev_reviewer(
                 conn, args.jev_namespace, mode=args.jev_links,
                 policy=json.loads(args.jev_policy.read_text()), batch=batch,
+                tie_break=args.jev_tie_break, same_subject_gate=args.jev_same_subject_gate,
             )
         links = run_claim_linking_pass(conn, jev_reviewer=jev_reviewer)
         if "jev" in links:

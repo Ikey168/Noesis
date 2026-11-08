@@ -43,6 +43,7 @@ from src.kb.decision_runtime import DecisionRuntimeError
 from src.kb.jev_evidence_adapters import (
     suggest_claim_relation,
     suggest_contradiction_kind,
+    suggest_supersession,
 )
 
 #: Failures that leave a link unreviewed (and therefore written) rather than
@@ -50,7 +51,10 @@ from src.kb.jev_evidence_adapters import (
 _REVIEW_FAILURES = (DecisionRuntimeError, DecisionError, ValueError, OSError, TimeoutError)
 
 MODES = ("shadow", "gate")
-REVIEWED_RELATIONS = ("supports", "duplicate", "contradicts")
+#: ``supersedes`` covers every same-source temporal transition derived from a
+#: support or contradiction (supersedes, corrects, retracts); it is reviewed
+#: with its own rubric ("does the later claim update the earlier one?").
+REVIEWED_RELATIONS = ("supports", "duplicate", "contradicts", "supersedes")
 
 ASSESSMENTS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS claim_link_jev_assessments (
@@ -74,18 +78,42 @@ CREATE TABLE IF NOT EXISTS claim_link_jev_assessments (
 ClaimResolver = Callable[[str, str], Mapping[str, Any] | None]
 
 
+#: Answers persisted as each review chunk returns, keyed by reviewer identity,
+#: claim pair and claim texts: a restarted (or repeated) linking pass reuses
+#: them instead of paying for the same question again.
+REVIEW_CACHE_SCHEMA = """
+CREATE TABLE IF NOT EXISTS claim_link_review_cache (
+    cache_key       TEXT PRIMARY KEY,
+    relation        TEXT NOT NULL,
+    premise_id      TEXT NOT NULL,
+    hypothesis_id   TEXT NOT NULL,
+    review_json     TEXT NOT NULL,
+    decision_run_id TEXT,
+    linking_run_id  TEXT NOT NULL,
+    created_at      BIGINT NOT NULL
+)
+"""
+
+
 def ensure_assessment_schema(conn) -> None:
     conn.execute(ASSESSMENTS_SCHEMA)
+    conn.execute(REVIEW_CACHE_SCHEMA)
 
 
 def document_revision_resolver(conn) -> ClaimResolver:
     """Locate a claim's exact span in its document's current committed revision.
 
-    Returns None (the link stays unreviewed, never dropped) when the revision
-    tables are absent, the document has no committed current revision, or the
-    claim text does not occur exactly once in it. The decision runtime
-    re-authorizes and rechecks the revision before any remote request.
+    In order: the character offsets stored at extraction (when they belong
+    to the current revision and are in range), then
+    :func:`src.argument_mining.spans.locate_span` over the revision text
+    (exact, first of several occurrences, whitespace- or quote-insensitive).
+    The returned ``match`` records which rule found the span. Returns None
+    (the link stays unreviewed, never dropped) only when the revision tables
+    are absent, there is no committed current revision, or the text does not
+    occur in it at all. The decision runtime re-authorizes and rechecks the
+    revision before any remote request.
     """
+    from src.argument_mining.spans import locate_span
 
     def resolve(claim_id: str, claim_text: str) -> Mapping[str, Any] | None:
         if not claim_text:
@@ -99,9 +127,14 @@ def document_revision_resolver(conn) -> ClaimResolver:
         }
         if len(tables) != 2:
             return None
+        columns = {row[0] for row in conn.execute(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'argument_claims'"
+        ).fetchall()}
+        stored = ("c.span_revision_id, c.span_start, c.span_end" if
+                  {"span_revision_id", "span_start", "span_end"} <= columns else "NULL, NULL, NULL")
         row = conn.execute(
-            """
-            SELECT r.document_id, r.revision_id, r.payload_json
+            f"""
+            SELECT r.document_id, r.revision_id, r.payload_json, {stored}
             FROM argument_claims c
             JOIN document_current_revisions cur ON cur.document_id = c.document_id
             JOIN document_revision_records r
@@ -118,13 +151,17 @@ def document_revision_resolver(conn) -> ClaimResolver:
             return None
         if not isinstance(content, str):
             return None
-        start = content.find(claim_text)
-        if start < 0 or content.find(claim_text, start + 1) >= 0:
-            return None  # absent or ambiguous: no exact span
-        return {
-            "source_ref": {"document_id": row[0], "revision_id": row[1]},
-            "locator": {"start": start, "end": start + len(claim_text)},
-        }
+        ref = {"document_id": row[0], "revision_id": row[1]}
+        span_revision, start, end = row[3], row[4], row[5]
+        if (span_revision == row[1] and type(start) is int and type(end) is int
+                and 0 <= start < end <= len(content) and content[start:end].strip()):
+            return {"source_ref": ref, "locator": {"start": start, "end": end},
+                    "match": "stored_offsets"}
+        span = locate_span(content, claim_text)
+        if span is None:
+            return None
+        return {"source_ref": ref, "locator": {"start": span["start"], "end": span["end"]},
+                "match": span["match"]}
 
     return resolve
 
@@ -140,6 +177,8 @@ def link_agrees(relation: str, jev_relation: str | None) -> bool | None:
         return None
     if relation == "contradicts":
         return jev_relation == "conflict"
+    if relation == "supersedes":
+        return jev_relation == "supersedes"
     if relation == "duplicate":
         return jev_relation == "duplicate"
     return jev_relation in {"a_supports_b", "duplicate"}  # supports: a entails b
@@ -168,13 +207,34 @@ def run_failure(run: Mapping[str, Any] | None) -> tuple[str, dict[str, Any]] | N
     return "unavailable", {"error": str(code)}
 
 
-def contradiction_detail(kind, reason, jointly, same) -> dict[str, Any]:
+def contradiction_detail(kind, reason, jointly, same, decided_by=None) -> dict[str, Any]:
     return {
         "kind": kind,
         "reason": reason,
         "jointly_true_probability": jointly,
         "same_subject_probability": same,
+        "decided_by": decided_by,
     }
+
+
+def supersession_detail(kind, reason, same, decided_by=None) -> dict[str, Any]:
+    return {"kind": kind, "reason": reason, "same_subject_probability": same,
+            "decided_by": decided_by}
+
+
+def empty_detail(relation: str, reason: str | None) -> dict[str, Any]:
+    """The detail shape a relation records when Jev gave no answers."""
+    if relation == "contradicts":
+        return contradiction_detail(None, reason, None, None, "unanswered")
+    if relation == "supersedes":
+        return supersession_detail(None, reason, None, "unanswered")
+    return relation_detail(None, None, reason)
+
+
+def span_matches(spans: list[Mapping[str, Any] | None]) -> list[str] | None:
+    """How each claim's span was found, when the resolver reports it."""
+    matches = [span.get("match") for span in spans if span is not None]
+    return matches if any(matches) else None
 
 
 def relation_detail(a_to_b, b_to_a, reason) -> dict[str, Any]:
@@ -206,7 +266,31 @@ class JevClaimLinkReviewer:
         max_cost_usd_micros: int = 1000,
         deadline_s: float = 30,
         batch: Any = None,
+        tie_break: str = "abstain",
+        same_subject_threshold: float = 0.5,
+        same_subject_gate: float | None = None,
+        input_price_usd_micros_per_million_tokens: int | None = 42_000,
     ) -> None:
+        """``tie_break`` settles a Choice label that disagrees with its Noul
+        probabilities (``abstain``, ``label`` or ``probabilities``);
+        ``same_subject_gate`` rejects confirmed conflicts whose same-subject
+        probability is below it. Both are recorded in every assessment.
+        ``input_price_usd_micros_per_million_tokens`` settles each per-link
+        reservation to its reported usage (None keeps the full reservation).
+        """
+        from src.kb.jev_evidence_adapters import TIE_BREAKS
+
+        if tie_break not in TIE_BREAKS:
+            raise ValueError(f"tie_break must be one of {TIE_BREAKS}")
+        for name, value in (("same_subject_threshold", same_subject_threshold),
+                            ("same_subject_gate", same_subject_gate)):
+            if value is not None and (type(value) not in {int, float} or not 0 < value < 1):
+                raise ValueError(f"{name} must be a probability in (0, 1)")
+        if input_price_usd_micros_per_million_tokens is not None and (
+            type(input_price_usd_micros_per_million_tokens) is not int
+            or input_price_usd_micros_per_million_tokens < 1
+        ):
+            raise ValueError("input price must be a positive integer")
         if mode not in MODES:
             raise ValueError(f"mode must be one of {MODES}")
         if not callable(resolve_claim):
@@ -229,7 +313,34 @@ class JevClaimLinkReviewer:
         self.max_cost_usd_micros = max_cost_usd_micros
         self.deadline_s = deadline_s
         self.batch = batch
+        self.tie_break = tie_break
+        self.same_subject_threshold = float(same_subject_threshold)
+        self.same_subject_gate = same_subject_gate
+        self.input_price = input_price_usd_micros_per_million_tokens
         self.stats: list[dict[str, Any]] = []
+
+    @property
+    def rules(self) -> dict[str, Any]:
+        """Decision rules applied to Jev's answers (part of every cache key)."""
+        return {"tie_break": self.tie_break,
+                "same_subject_threshold": self.same_subject_threshold,
+                "same_subject_gate": self.same_subject_gate}
+
+    def cache_identity(self) -> dict[str, Any]:
+        """What must match for a stored review to be reused for a question."""
+        return {
+            "model": self.policy.get("model"),
+            "rubric_id": self.policy.get("rubric_id"),
+            "policy_id": self.policy.get("policy_id"),
+            "batched_relations": sorted(self.batch.relations) if self.batch else [],
+            "rules": self.rules,
+        }
+
+    def settle_cost(self, usage: Mapping[str, Any]) -> int | None:
+        tokens = usage.get("input_tokens")
+        if self.input_price is None or type(tokens) is not int:
+            return None
+        return max(1, -(-tokens * self.input_price // 1_000_000))
 
     @property
     def method(self) -> str:
@@ -284,13 +395,23 @@ class JevClaimLinkReviewer:
             "policy": self.policy,
             "max_cost_usd_micros": self.max_cost_usd_micros,
             "deadline_s": self.deadline_s,
+            "settle_cost": self.settle_cost if self.input_price is not None else None,
         }
+        matched = span_matches(spans)
         started = time.monotonic()
         try:
             if relation == "contradicts":
                 result = suggest_contradiction_kind(
                     self.runtime, self.namespace, decision_run_id, *spans,
-                    local_relation="contradicts", **common,
+                    local_relation="contradicts", tie_break=self.tie_break,
+                    same_subject_threshold=self.same_subject_threshold,
+                    same_subject_gate=self.same_subject_gate, **common,
+                )
+            elif relation == "supersedes":
+                result = suggest_supersession(
+                    self.runtime, self.namespace, decision_run_id, *spans,
+                    same_subject_threshold=self.same_subject_threshold,
+                    tie_break=self.tie_break, **common,
                 )
             else:
                 result = suggest_claim_relation(
@@ -310,10 +431,19 @@ class JevClaimLinkReviewer:
             detail = contradiction_detail(
                 result.get("kind"), result.get("reason"),
                 result.get("jointly_true_probability"), result.get("same_subject_probability"),
+                result.get("decided_by"),
+            )
+        elif relation == "supersedes":
+            jev_relation = result.get("assessment")
+            detail = supersession_detail(
+                result.get("kind"), result.get("reason"),
+                result.get("same_subject_probability"), result.get("decided_by"),
             )
         else:
             jev_relation = result.get("relation")
             detail = relation_detail(result.get("a_to_b"), result.get("b_to_a"), result.get("reason"))
+        if matched:
+            detail["spans"] = matched
         failure = run_failure(run)
         if failure is not None:
             return self.finish(base, failure[0], None, None, {**detail, **failure[1]})
@@ -401,6 +531,7 @@ def build_jev_reviewer(
     scopes: set[str] | None = None,
     batch: Any = None,
     client: Any = None,
+    **rules: Any,
 ) -> JevClaimLinkReviewer:
     """A reviewer over the real TypeSafe client for a local operator run.
 
@@ -433,4 +564,5 @@ def build_jev_reviewer(
         resolve_claim=document_revision_resolver(conn),
         mode=mode,
         batch=batch,
+        **rules,
     )

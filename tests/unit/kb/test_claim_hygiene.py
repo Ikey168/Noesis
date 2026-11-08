@@ -339,9 +339,18 @@ def test_apply_stored_verdicts_withholds_and_reverses_then_undoes(conn):
     assert conn.execute("SELECT COUNT(*) FROM claim_link_jev_assessments").fetchone()[0] == 2
 
     assert apply_jev_verdicts(conn, summary["run_id"])["withheld"] == 0  # nothing left to do
+    states = {(r[0], r[1], r[2]): r[3] for r in conn.execute(
+        "SELECT claim_a, claim_b, relation, state FROM claim_link_review_state").fetchall()}
+    assert states == {("c1", "c2", "contradicts"): "withheld", ("s1", "s2", "supports"): "reversed"}
+    assert applied["states"] == {"reversed": 1, "withheld": 1}
+    assert "clusters" in applied  # clusters rebuilt from the changed duplicate graph
+
     undone = undo_jev_verdicts(conn, applied["op_id"])
-    assert undone == {"restored": 2, "replacements_removed": 1, "kept_newer": 0}
+    assert {k: undone[k] for k in ("restored", "replacements_removed", "kept_newer")} == {
+        "restored": 2, "replacements_removed": 1, "kept_newer": 0}
+    assert "clusters" in undone
     assert _links(conn) == written
+    assert conn.execute("SELECT COUNT(*) FROM claim_link_review_state").fetchone()[0] == 0
 
 
 def test_overrides_keep_jev_mistakes_and_apply_to_gate_runs(conn):
