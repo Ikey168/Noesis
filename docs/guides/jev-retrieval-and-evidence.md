@@ -127,7 +127,14 @@ runs in three steps:
 | Mode | Effect on `claim_links` |
 |---|---|
 | `shadow` | Every planned link is written; the Jev assessment is recorded beside it |
-| `gate` | A link Jev answers *against* is withheld, together with any temporal transition derived from it |
+| `gate` | A link Jev answers *against* is withheld, together with any temporal transition derived from it. A `supports` link Jev reads in the opposite direction is written reversed instead |
+
+A shadow run's stored verdicts can be applied afterwards, with no new Jev
+requests, using `scripts/apply_jev_link_verdicts.py`. Operator overrides for
+Jev's mistakes are respected by both that script and gate mode. Before
+linking, boilerplate claims are excluded, and a contradiction is only
+proposed between claims about the same subject. See
+[claim hygiene](claim-hygiene.md).
 
 Jev can only withhold a planned link. It never adds a link or changes a
 relation. Three outcomes keep the local link:

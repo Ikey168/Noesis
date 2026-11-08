@@ -171,7 +171,8 @@ def cluster_claims(
         FROM argument_claims c
         LEFT JOIN claim_clusters cl ON cl.claim_id = c.claim_id
         LEFT JOIN documents d ON d.document_id = c.document_id
-        WHERE 1 = 1 {domain_filter}
+        WHERE NOT EXISTS (SELECT 1 FROM argument_claim_exclusions x
+                          WHERE x.claim_id = c.claim_id) {domain_filter}
         """,
         params,
     ).fetchall()

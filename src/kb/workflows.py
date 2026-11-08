@@ -782,10 +782,16 @@ def _materialize_argument_claims(
         )
         stored += 1
 
+    from src.kb.claim_exclusions import run_claim_exclusion_pass
+
+    # Wording repeated across a site's documents is only visible corpus-wide;
+    # mark it (reversibly) before clustering so furniture is not clustered.
+    exclusions = run_claim_exclusion_pass(conn, run_id=f"{run_id}:claim-exclusions")
     clustering = run_clustering_pass(conn, run_id=f"{run_id}:clusters")
     return {
         "documents_reconciled": len(document_ids),
         "claims_indexed": stored,
+        "claims_excluded": exclusions["claims_excluded"],
         "clustering": clustering,
     }
 

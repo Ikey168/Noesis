@@ -143,15 +143,25 @@ def _cosine_similarities(claim_text: str, corpus_texts: List[str]) -> List[float
 # Public API
 # ---------------------------------------------------------------------------
 
-def extract_claims(document: Document) -> List[ClaimRecord]:
-    """Run ClaimDetector over `document`; return only sentences classified as claims."""
+def extract_claims(document: Document, *, filter_boilerplate: bool = True) -> List[ClaimRecord]:
+    """Run ClaimDetector over `document`; return only sentences classified as claims.
+
+    With ``filter_boilerplate`` (default), navigation, marketing and
+    share-button text, bylines and fragments too short to state anything
+    are dropped (:func:`src.argument_mining.boilerplate.boilerplate_reason`).
+    """
     from src.argument_mining.attribution import classify_attribution  # lazy — avoids circular import
+    from src.argument_mining.boilerplate import boilerplate_reason
 
     detector = get_claim_detector()
     predictions = detector.predict(document)
     records = []
+    dropped = 0
     for pred in predictions:
         if not pred.is_claim:
+            continue
+        if filter_boilerplate and boilerplate_reason(pred.text):
+            dropped += 1
             continue
         attributed, attribution_text = classify_attribution(pred.text, document.source_type)
         records.append(ClaimRecord(
@@ -164,6 +174,9 @@ def extract_claims(document: Document) -> List[ClaimRecord]:
             attributed=attributed,
             attribution_text=attribution_text,
         ))
+    if dropped:
+        logger.info("extract_claims: doc=%s dropped %d boilerplate sentence(s)",
+                    document.document_id, dropped)
     return records
 
 

@@ -230,6 +230,7 @@ def detect_conflict(
     cid_b: str, text_b: str, stype_b: str,
     topic: str,
     explicit_contradicts: bool = False,
+    subject_gate: bool = True,
 ) -> Optional[ClaimConflict]:
     """Return a ClaimConflict if the two claims conflict, else None.
 
@@ -242,8 +243,17 @@ def detect_conflict(
       - implied: sim ≥ 0.65 + any opposing signal, OR explicit contradiction + sim ≥ 0.30
     Different source formats alone are not an opposing signal: a paper and a
     news report agreeing with each other are corroboration, not conflict.
+    With ``subject_gate`` (default), claims about different things (see
+    :func:`src.kb.claim_subjects.subject_gate`) never conflict.
     """
     sim = cosine_similarity(text_a, text_b)
+    if subject_gate:
+        from src.kb.claim_subjects import subject_gate as gate
+
+        # Opposing wording about two different things (two campaigns' install
+        # hooks, two packages, two hosts) is not a conflict.
+        if not gate(text_a, text_b, "contradicts").allowed:
+            return None
     signals = contradiction_signals(text_a, text_b, explicit_contradicts)
 
     if sim >= _SIM_DIRECT and signals:
@@ -304,6 +314,20 @@ def compute_claim_conflicts(
     params.append(limit)
 
     with lock:
+        # Boilerplate claims excluded by src.kb.claim_exclusions are skipped.
+        # Only read the exclusion table when it exists: this pass must not
+        # create tables in a warehouse that has none.
+        try:
+            has_exclusions = conn.execute(
+                "SELECT 1 FROM information_schema.tables"
+                " WHERE table_name = 'argument_claim_exclusions'"
+            ).fetchone() is not None
+        except Exception:
+            has_exclusions = False
+        if has_exclusions:
+            where_parts.append(
+                "NOT EXISTS (SELECT 1 FROM argument_claim_exclusions x WHERE x.claim_id = c.claim_id)"
+            )
         claim_rows = conn.execute(
             f"""
             SELECT c.claim_id, c.claim_text, c.source_type,

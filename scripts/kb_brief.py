@@ -83,6 +83,13 @@ def main() -> int:
             file=sys.stderr,
         )
         run_membership_pass(conn)
+        from src.kb.claim_exclusions import run_claim_exclusion_pass
+
+        # Boilerplate claims are excluded (reversibly) before linking, so
+        # they cost neither NLI calls nor Jev questions.
+        exclusions = run_claim_exclusion_pass(conn)
+        print(f"claim exclusions: {exclusions['claims_excluded']} new,"
+              f" {exclusions['links_withheld']} links withheld", file=sys.stderr)
         jev_reviewer = None
         if args.jev_links != "off":
             import json

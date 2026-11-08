@@ -113,7 +113,7 @@ def test_gate_withholds_a_contradiction_jev_finds_reconcilable(conn):
     assert summary["jev"] == {
         "mode": "gate", "method": "jev:jev-1.13.0:gate", "reviewed": 1,
         "agrees": 0, "disagrees": 1, "withheld": 1, "abstained": 0,
-        "unavailable": 0, "unresolved": 0, "requests": 1,
+        "unavailable": 0, "unresolved": 0, "requests": 1, "reversed": 0,
     }
     (row,) = _assessments(conn)
     assert row[2:] == ("contradicts", "gate", "answered", "disagrees", "withheld", "reconcilable")
