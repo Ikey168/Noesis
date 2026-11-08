@@ -109,6 +109,9 @@ def ensure_claim_link_schema(conn) -> None:
     conn.execute(_LINKS_SCHEMA)
     conn.execute(_CLAIM_EMBEDDINGS_SCHEMA)
     conn.execute(_SCANS_SCHEMA)
+    from src.kb.claim_exclusions import ensure_exclusion_schema
+
+    ensure_exclusion_schema(conn)
 
 
 def _tokens(text: str) -> set:
@@ -232,6 +235,8 @@ def run_claim_linking_pass(
     min_link_confidence: float = 0.55,
     supersede_gap_days: int = 3,
     jev_reviewer: Any | None = None,
+    subject_gate: bool = True,
+    allow_unidentified_subjects: bool = True,
 ) -> dict[str, Any]:
     """Link new claims to their neighbours; returns a summary.
 
@@ -246,10 +251,19 @@ def run_claim_linking_pass(
     mode a link Jev answers against is withheld. Jev never adds a link, and
     an unavailable or abstaining review keeps the local link. Counts are in
     ``summary["jev"]``.
+
+    ``subject_gate`` (default on) allows a ``contradicts`` link only between
+    claims about the same thing (same malware family, package, host,
+    wallet, file hash or named entity; see :mod:`src.kb.claim_subjects`),
+    and skips any pair whose claims name different indicators. Pairs where
+    neither claim names anything are linked as before unless
+    ``allow_unidentified_subjects`` is False. Blocked pairs are counted in
+    ``summary["subject_gate"]``.
     """
     ensure_claim_link_schema(conn)
     nli = nli or get_nli_backend()
     run_id = run_id or f"kb-claim-links-{uuid.uuid4().hex[:12]}"
+    gate = {"enabled": subject_gate, "allow_unidentified": allow_unidentified_subjects}
     window_ms = time_window_days * 86_400_000
 
     new_claims = conn.execute(
@@ -260,6 +274,8 @@ def run_claim_linking_pass(
         LEFT JOIN documents d ON d.document_id = c.document_id
         LEFT JOIN kb_claim_link_scans s ON s.claim_id = c.claim_id
         WHERE s.claim_id IS NULL
+          AND NOT EXISTS (SELECT 1 FROM argument_claim_exclusions x
+                          WHERE x.claim_id = c.claim_id)
         ORDER BY c.claim_id
         """
     ).fetchall()
@@ -317,6 +333,7 @@ def run_claim_linking_pass(
                     duplicate_threshold,
                     min_link_confidence,
                     supersede_gap_days * 86_400_000,
+                    gate,
                 )
         plans.append((claim_id, links))
 
@@ -368,6 +385,8 @@ def _candidates_for(
         LEFT JOIN claim_embeddings e
           ON e.claim_id = c.claim_id AND e.model = ?
         WHERE c.claim_id <> ?
+          AND NOT EXISTS (SELECT 1 FROM argument_claim_exclusions x
+                          WHERE x.claim_id = c.claim_id)
           AND (COALESCE(d.ingested_at, 0) = 0 OR ? = 0
                OR abs(COALESCE(d.ingested_at, 0) - ?) <= ?)
         """,
@@ -443,6 +462,7 @@ def _plan_pair(
     duplicate_threshold: float,
     min_link_confidence: float,
     supersede_gap_ms: int,
+    gate: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Decide one pair's links from local NLI without writing anything.
 
@@ -456,6 +476,20 @@ def _plan_pair(
     mode = getattr(nli, "prediction_mode", "unknown")
     model_version = getattr(nli, "model_version", "unknown")
     texts = {claim_a: text_a, claim_b: text_b}
+
+    subjects = None
+    if gate is not None and gate.get("enabled", True):
+        from src.kb.claim_subjects import claim_subjects, subject_gate
+
+        subjects = (claim_subjects(text_a), claim_subjects(text_b))
+        # Claims naming different indicators (hash, host, package, wallet,
+        # CVE, file) are about different things for every relation: skip
+        # the NLI calls entirely.
+        early = subject_gate(text_a, text_b, "supports",
+                             subjects_a=subjects[0], subjects_b=subjects[1])
+        if not early.allowed:
+            _count_gate(summary, early.reason)
+            return []
 
     forward = nli.classify(text_a, text_b)
     backward = nli.classify(text_b, text_a)
@@ -523,6 +557,17 @@ def _plan_pair(
     if result.confidence < min_link_confidence:
         return []
     base_relation = "supports" if result.label == ENTAILMENT else "contradicts"
+    if base_relation == "contradicts" and subjects is not None:
+        from src.kb.claim_subjects import subject_gate
+
+        decision = subject_gate(
+            text_a, text_b, "contradicts",
+            allow_unidentified=gate.get("allow_unidentified", True),
+            subjects_a=subjects[0], subjects_b=subjects[1],
+        )
+        if not decision.allowed:
+            _count_gate(summary, decision.reason)
+            return []
     relation = classify_temporal_relation(
         base_relation,
         same_source=same_source,
@@ -545,6 +590,11 @@ def _plan_pair(
         link["review_as"] = base_relation
         link["review_direction"] = (premise, hypothesis)
     return [link]
+
+
+def _count_gate(summary: dict[str, Any], reason: str | None) -> None:
+    gated = summary.setdefault("subject_gate", {})
+    gated[reason or "blocked"] = gated.get(reason or "blocked", 0) + 1
 
 
 def _write_planned(conn, run_id: str, summary: dict[str, Any], link: dict[str, Any]) -> bool:
@@ -570,6 +620,7 @@ def _new_jev_summary(reviewer) -> dict[str, Any]:
         "unavailable": 0,
         "unresolved": 0,
         "requests": 0,
+        "reversed": 0,
     }
 
 
@@ -624,6 +675,8 @@ def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary):
         jev_summary[review["verdict"] or review["status"]] += 1
         if not review["write"]:
             jev_summary["withheld"] += 1
+        if review.get("reverse"):
+            jev_summary["reversed"] += 1
     out = []
     for claim_id, links in plans:
         by_link: dict[int, dict[str, Any] | None] = {}
@@ -640,11 +693,32 @@ def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary):
 
 
 def _write_reviewed(conn, run_id, summary, reviewed) -> int:
-    """Write reviewed links and their assessments; returns links written."""
-    from src.kb.claim_link_review import record_assessment
+    """Write reviewed links and their assessments; returns links written.
 
+    A gate-mode ``reverse`` writes the support in the direction Jev read it.
+    A link with an operator override (``claim_link_jev_overrides``) is
+    written as planned and its assessment records ``override_written``.
+    """
+    from src.kb.claim_link_review import record_assessment
+    from src.kb.jev_verdicts import overridden_keys
+
+    def stored_key(link):
+        ends = (link["premise"][1], link["hypothesis"][1])
+        if link["relation"] in ("duplicate", "contradicts"):
+            ends = tuple(sorted(ends))  # same canonical order as claim_links
+        return (*ends, link["relation"])
+
+    keys = [stored_key(l) for l, r in reviewed if r is not None]
+    keys += [stored_key(l["primary"]) for l, r in reviewed if r is not None and l["primary"] is not None]
+    overrides = overridden_keys(conn, keys) if keys else set()
     written = 0
     for link, review in reviewed:
+        key = stored_key(link)
+        primary_key = stored_key(link if link["primary"] is None else link["primary"])
+        if review is not None and (key in overrides or primary_key in overrides) and (
+            not review["write"] or review.get("reverse")
+        ):
+            review = {**review, "action": "override_written", "write": True, "reverse": False}
         if review is not None and link["primary"] is None:
             ends = (link["premise"][1], link["hypothesis"][1])
             if link["relation"] in ("duplicate", "contradicts"):
@@ -653,6 +727,9 @@ def _write_reviewed(conn, run_id, summary, reviewed) -> int:
                 conn, run_id, *ends, {**review, "relation": link["relation"]},
             )
         if review is None or review["write"]:
+            if review is not None and review.get("reverse") and link["relation"] == "supports":
+                link = {**link, "premise": link["hypothesis"], "hypothesis": link["premise"],
+                        "method": f"{link['method']}+jev_reversed"}
             written += int(_write_planned(conn, run_id, summary, link))
     return written
 
@@ -695,6 +772,8 @@ def run_cross_backing_link_pass(
     duplicate_threshold: float = 0.88,
     min_link_confidence: float = 0.55,
     jev_reviewer: Any | None = None,
+    subject_gate: bool = True,
+    allow_unidentified_subjects: bool = True,
 ) -> dict[str, Any]:
     """Link namespace-native claims to the shared corpus (depth linkage).
 
@@ -740,6 +819,7 @@ def run_cross_backing_link_pass(
 
     nli = nli or get_nli_backend()
     run_id = run_id or f"kb-cross-links-{uuid.uuid4().hex[:12]}"
+    gate = {"enabled": subject_gate, "allow_unidentified": allow_unidentified_subjects}
     window_ms = time_window_days * 86_400_000
 
     summary: dict[str, Any] = {
@@ -793,7 +873,7 @@ def run_cross_backing_link_pass(
                         other_id, other_text, other_ingested,
                     ),
                     similarity, duplicate_threshold,
-                    min_link_confidence, 10**15,
+                    min_link_confidence, 10**15, gate,
                 )
             plans.append((claim_id, links))
         if jev_reviewer is not None:

@@ -17,10 +17,13 @@ Modes:
     Every proposed link is written exactly as the local pass decided; the
     Jev assessment is recorded beside it for evaluation.
 ``gate``
-    A link is withheld when Jev answers and disagrees. Jev can only remove a
-    proposed link, never add one or change its relation, and a missing span,
-    an unavailable provider or an abstention keeps the local link: a failure
-    is never converted into "no relation".
+    A link is withheld when Jev answers and disagrees, except a ``supports``
+    link Jev reads in the opposite direction, which is written reversed.
+    Jev never adds a link or changes its relation, and a missing span, an
+    unavailable provider or an abstention keeps the local link: a failure is
+    never converted into "no relation". A link listed in
+    ``claim_link_jev_overrides`` (see :mod:`src.kb.jev_verdicts`) is written
+    as planned whatever Jev answers.
 
 Every review (agreeing, disagreeing, unavailable, unresolved) is stored in
 ``claim_link_jev_assessments`` with the linking ``run_id``, so
@@ -323,14 +326,19 @@ class JevClaimLinkReviewer:
         return {"relation": relation, "mode": self.mode, "decision_run_id": decision_run_id}
 
     def finish(self, base, status, verdict, jev_relation, detail) -> dict[str, Any]:
-        withhold = self.mode == "gate" and verdict == "disagrees"
+        gate = self.mode == "gate" and verdict == "disagrees"
+        # A support Jev reads in the opposite direction is reversed, not
+        # dropped: the evidence relation stands, its direction was wrong.
+        reverse = gate and base["relation"] == "supports" and jev_relation == "b_supports_a"
+        withhold = gate and not reverse
         return {
             **base,
             "status": status,
             "verdict": verdict,
             "jev_relation": jev_relation,
-            "action": "withheld" if withhold else "written",
+            "action": "reversed" if reverse else "withheld" if withhold else "written",
             "write": not withhold,
+            "reverse": reverse,
             "detail": detail,
         }
 
