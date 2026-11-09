@@ -668,14 +668,18 @@ class _ArgumentMiningExtractor:
             analysis_document = replace(document, content=analysis_text)
         else:
             analysis_document = document
+        from src.argument_mining.spans import locate_span
+
         outputs = []
         for claim in extract_claims(analysis_document):
             locator = {"document_id": document.document_id, "revision_id": value["revision"]}
-            # A unique exact span is safe; ambiguous or normalized text retains
-            # its document revision locator without invented character offsets.
-            if claim.claim_text and source_text.count(claim.claim_text) == 1:
-                locator["start"] = source_text.index(claim.claim_text)
-                locator["end"] = locator["start"] + len(claim.claim_text)
+            # Record where the claim sits in the source revision, and how it
+            # was found (exact, first of several, or whitespace/quote
+            # insensitive), so every claim can be checked against its source.
+            span = locate_span(source_text, claim.claim_text or "")
+            if span is not None:
+                locator["start"], locator["end"] = span["start"], span["end"]
+                locator["match"] = span["match"]
             outputs.append({"output_type": "claim", "value": {
                 "claim_id": claim.claim_id,
                 "statement": claim.claim_text,
@@ -704,6 +708,9 @@ def _materialize_argument_claims(
 
     ensure_schema(conn)
     ensure_cluster_schema(conn)
+    for column, kind in (("span_revision_id", "VARCHAR"), ("span_start", "BIGINT"),
+                         ("span_end", "BIGINT"), ("span_match", "VARCHAR")):
+        conn.execute(f"ALTER TABLE argument_claims ADD COLUMN IF NOT EXISTS {column} {kind}")
     failed_inputs = {
         str(failure.get("input_id"))
         for failure in extraction.get("failures") or []
@@ -761,12 +768,15 @@ def _materialize_argument_claims(
         statement = str(value.get("statement") or "").strip()
         if not claim_id or not statement or document_id not in document_map:
             continue
+        locator = dict(value.get("source_locator") or {})
+        has_span = type(locator.get("start")) is int and type(locator.get("end")) is int
         conn.execute(
             """
             INSERT INTO argument_claims
                 (claim_id, claim_text, document_id, source_type, confidence,
-                 prediction_mode, extracted_at, attributed, attribution_text)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 prediction_mode, extracted_at, attributed, attribution_text,
+                 span_revision_id, span_start, span_end, span_match)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 claim_id,
@@ -778,6 +788,10 @@ def _materialize_argument_claims(
                 value.get("extracted_at"),
                 value.get("attributed"),
                 value.get("attribution_text"),
+                locator.get("revision_id") if has_span else None,
+                locator["start"] if has_span else None,
+                locator["end"] if has_span else None,
+                locator.get("match") if has_span else None,
             ],
         )
         stored += 1

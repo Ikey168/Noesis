@@ -41,6 +41,10 @@ def main() -> int:
                         help="Per-relation verdict agreement required to recommend (default 0.95)")
     parser.add_argument("--min-links-per-relation", type=int, default=20,
                         help="Answered links per relation required to recommend (default 20)")
+    parser.add_argument("--max-drift", type=float, default=0.02,
+                        help="Allowed drop below the per-link repeat agreement (default 0.02)")
+    parser.add_argument("--no-repeat-baseline", action="store_true",
+                        help="Skip the second per-link run (cheaper, cannot separate drift from noise)")
     parser.add_argument("--out", type=Path, default=None, help="Write the JSON report here")
     args = parser.parse_args()
 
@@ -60,6 +64,7 @@ def main() -> int:
     report = run_validation(
         items, make_reviewer, batch_sizes=args.batch_sizes,
         min_agreement=args.min_agreement, min_links_per_relation=args.min_links_per_relation,
+        max_drift=args.max_drift, repeat_baseline=not args.no_repeat_baseline,
     )
     text = json.dumps(report, indent=2, sort_keys=True)
     if args.out:
@@ -67,6 +72,10 @@ def main() -> int:
         print(f"wrote {args.out}", file=sys.stderr)
     else:
         print(text)
+    repeat = report.get("per_link_repeat")
+    if repeat:
+        print(f"per-link repeat: verdict agreement {repeat['agreement']['verdict_agreement']},"
+              f" outcome agreement {repeat['agreement']['outcome_agreement']}", file=sys.stderr)
     per_link = report["per_link"]
     print(
         f"per-link: {per_link['requests']} requests, {per_link['wall_s']}s,"
@@ -79,7 +88,8 @@ def main() -> int:
             f"{name}: {result['usage']['requests']} requests, {result['usage']['wall_s']}s,"
             f" {result['usage']['input_tokens']} input tokens; verdict agreement"
             f" {agreement['verdict_agreement']}, outcome agreement {agreement['outcome_agreement']};"
-            f" recommended={result['recommended']}",
+            f" recommended={result['recommended']}"
+            f" relations={','.join(result['recommended_relations']) or 'none'}",
             file=sys.stderr,
         )
         for reason in result["not_recommended_because"]:

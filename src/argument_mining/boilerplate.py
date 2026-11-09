@@ -36,8 +36,9 @@ _NAVIGATION_LABEL = re.compile(
 #: Link prompts that are furniture wherever the sentence goes.
 _NAVIGATION = re.compile(
     r"^\W*(read more|continue reading|read the full (story|article|report|post)|"
-    r"view all|see all|show more|load more|related (posts|articles|stories|reading)|"
-    r"you (may|might) also like|recommended for you|more from|popular (posts|stories))\b",
+    r"view all|see all|show more|load more|related (posts|articles|stories|reading|content)|"
+    r"related:|see also:|also read:|read next:|up next:|don't miss:|trending:|"
+    r"you (may|might) also (like|enjoy)|recommended for you|more from|popular (posts|stories))",
     re.IGNORECASE,
 )
 _BREADCRUMB = re.compile(r"\s(?:\||»|›|>|/|·)\s")
@@ -49,7 +50,12 @@ _MARKETING = re.compile(
     r"download (our|the) (free )?(report|whitepaper|white paper|e-?book|guide|datasheet)|"
     r"follow us( on)?|all rights reserved|cookie (policy|settings|preferences)|"
     r"we use cookies|privacy policy|terms of (use|service)|advertisement|sponsored content|"
-    r"learn more about (our|how we)|try it (free|now)|buy now|limited time offer)\b",
+    r"learn more about (our|how we)|try it (free|now)|buy now|limited time offer|"
+    r"(trusted|used|loved) by (over |more than )?\d[\d,.]*\s*[km]?\+?\s*(orgs?|organi[sz]ations|"
+    r"companies|customers|teams|developers|enterprises|users|businesses)|"
+    r"(protect|secure) your (business|organi[sz]ation|team|code|supply chain) (with|today)|"
+    r"request (a|your) (free )?(quote|trial|assessment|consultation)|"
+    r"(see|watch) (it|us) in action|start for free|get (a|your) free)\b",
     re.IGNORECASE,
 )
 _SHARE = re.compile(
@@ -73,6 +79,15 @@ _BYLINE = re.compile(
     r"(\s*[,|·—–-]\s*[A-Z][\w\s,.'’&/-]*|\s+(?i:on|at|in)\s+.+|\s+\d.*)?\W*$",
 )
 BYLINE_MAX_WORDS = 14
+#: Author bio lines: "Jane Doe is a senior threat researcher at Acme."
+_AUTHOR_BIO = re.compile(
+    rf"^\W*(?!(?:The|A|An|This|That|These|Those|It|He|She|They|We|Our|Their|His|Her|Its)\b){_NAME}"
+    r"\s+(?:is|was|has been)\s+(?:a|an|the)\s+[\w\s,&/-]{0,60}?"
+    r"\b(?:researcher|analyst|engineer|writer|editor|journalist|reporter|director|manager|"
+    r"lead|head|founder|co-founder|ceo|cto|ciso|specialist|consultant|contributor|"
+    r"evangelist|advocate|architect|scientist|strategist|correspondent)s?\b"
+)
+BIO_MAX_WORDS = 30
 _DATELINE = re.compile(
     r"^\W*(published|updated|posted|last updated|last modified|date)\b( on)?\s*[:\-–—]?\s*"
     r"(\w+\.? \d{1,2},? \d{4}|\d{4}-\d{2}-\d{2}|\d{1,2} \w+ \d{4}|\d{1,2}/\d{1,2}/\d{2,4})",
@@ -109,6 +124,7 @@ def boilerplate_reason(text: str) -> str | None:
         return "share"
     if short and (
         (_BYLINE.match(stripped) and len(tokens) <= BYLINE_MAX_WORDS)
+        or (_AUTHOR_BIO.match(stripped) and len(tokens) <= BIO_MAX_WORDS)
         or _DATELINE.match(stripped)
         or _READ_TIME.search(stripped) or _CREDIT.match(stripped)
     ):

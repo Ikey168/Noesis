@@ -15,6 +15,12 @@ import pytest
 from src.ingestion.revisions import DocumentRevisionStore
 from src.integrations.typesafe import TypeSafeClient
 from src.kb.claim_link_batch import BatchConfig
+from src.kb.claim_link_review import REVIEWED_RELATIONS
+
+
+def BC(**kwargs):
+    """Batch every relation (the default batches duplicates only)."""
+    return BatchConfig(relations=REVIEWED_RELATIONS, **kwargs)
 from src.kb.claim_link_review import JevClaimLinkReviewer, document_revision_resolver
 from src.kb.claim_links import delete_run, run_claim_linking_pass
 from src.kb.decision_runtime import DecisionRuntime
@@ -177,7 +183,7 @@ def _comparable(review):
 def test_packing_respects_state_budget_and_max_links(conn):
     items = _claims(conn, _mixed(60))
     transport = FakeTransport()
-    config = BatchConfig(state_token_budget=1_500, max_links=25)
+    config = BC(state_token_budget=1_500, max_links=25)
     reviewer = _reviewer(conn, transport, batch=config)
     reviews = reviewer.review_all("run-pack", items)
     assert all(r["status"] == "answered" for r in reviews)
@@ -189,14 +195,14 @@ def test_packing_respects_state_budget_and_max_links(conn):
         assert config.estimate(body) <= config.request_token_limit
     # A larger budget packs up to the link cap instead.
     roomy = FakeTransport()
-    _reviewer(conn, roomy, batch=BatchConfig(max_links=25)).review_all("run-pack-2", items)
+    _reviewer(conn, roomy, batch=BC(max_links=25)).review_all("run-pack-2", items)
     assert [len(b["state"]["links"]) for b in roomy.bodies] == [25, 25, 10]
 
 
 def test_each_question_is_answered_against_its_own_link(conn):
     items = _claims(conn, _mixed(16))
     transport = FakeTransport()
-    reviews = _reviewer(conn, transport, batch=BatchConfig()).review_all("run-map", items)
+    reviews = _reviewer(conn, transport, batch=BC()).review_all("run-map", items)
     (body,) = transport.bodies
     links = body["state"]["links"]
     for qid, question in body["questions"].items():
@@ -228,7 +234,7 @@ def test_batched_and_per_link_reviews_are_identical(conn, mode):
     items = _claims(conn, pairs)
     per_link = _reviewer(conn, FakeTransport(), mode=mode).review_all("run-eq-a", items)
     batched_transport = FakeTransport()
-    batched = _reviewer(conn, batched_transport, mode=mode, batch=BatchConfig()).review_all("run-eq-b", items)
+    batched = _reviewer(conn, batched_transport, mode=mode, batch=BC()).review_all("run-eq-b", items)
     assert [_comparable(r) for r in per_link] == [_comparable(r) for r in batched]
     assert len(batched_transport.bodies) == 1
     withheld = [r["action"] == "withheld" for r in batched]
@@ -238,7 +244,7 @@ def test_batched_and_per_link_reviews_are_identical(conn, mode):
 
 def test_shadow_rollout_abstains_identically(conn):
     items = _claims(conn, _mixed(4))
-    for batch in (None, BatchConfig()):
+    for batch in (None, BC()):
         reviewer = _reviewer(conn, FakeTransport(), batch=batch)
         reviewer.runtime.configure_task_rollout(
             "kb", "jev-contradiction_kind-v1", "shadow", model="jev-1.13.0",
@@ -255,7 +261,7 @@ def test_partial_failure_leaves_only_that_batch_unreviewed(conn):
     items = _claims(conn, _mixed(20))
     transport = FakeTransport()
     transport.fail_if = lambda body: 500 if "L0012" in body["state"]["links"] else None
-    reviews = _reviewer(conn, transport, batch=BatchConfig(max_links=10)).review_all("run-partial", items)
+    reviews = _reviewer(conn, transport, batch=BC(max_links=10)).review_all("run-partial", items)
     failed, ok = reviews[10:], reviews[:10]
     assert {(r["status"], r["detail"]["error"], r["action"]) for r in failed} == {
         ("unavailable", "provider_error", "written")
@@ -268,7 +274,7 @@ def test_429_and_529_retry_with_bounded_backoff(conn):
     transport = FakeTransport()
     transport.script = [429, 529]
     sleeps = []
-    reviewer = _reviewer(conn, transport, batch=BatchConfig(max_attempts=3), sleeps=sleeps)
+    reviewer = _reviewer(conn, transport, batch=BC(max_attempts=3), sleeps=sleeps)
     reviews = reviewer.review_all("run-retry", items)
     assert all(r["status"] == "answered" for r in reviews)
     assert len(transport.bodies) == 3 and len(sleeps) == 2 and max(sleeps) <= 8
@@ -276,7 +282,7 @@ def test_429_and_529_retry_with_bounded_backoff(conn):
 
     exhausted = FakeTransport()
     exhausted.script = [429, 429, 429]
-    reviews = _reviewer(conn, exhausted, batch=BatchConfig(max_attempts=3)).review_all("run-retry-2", items)
+    reviews = _reviewer(conn, exhausted, batch=BC(max_attempts=3)).review_all("run-retry-2", items)
     assert {(r["status"], r["detail"]["error"], r["write"]) for r in reviews} == {
         ("unavailable", "rate_limited", True)
     }
@@ -286,7 +292,7 @@ def test_max_tokens_exceeded_splits_the_batch(conn):
     items = _claims(conn, _mixed(32))
     transport = FakeTransport()
     transport.max_links = 8
-    reviewer = _reviewer(conn, transport, batch=BatchConfig())
+    reviewer = _reviewer(conn, transport, batch=BC())
     reviews = reviewer.review_all("run-split", items)
     assert all(r["status"] == "answered" for r in reviews)
     sizes = [len(b["state"]["links"]) for b in transport.bodies]
@@ -296,7 +302,7 @@ def test_max_tokens_exceeded_splits_the_batch(conn):
 
     stubborn = FakeTransport()
     stubborn.max_links = 0
-    reviews = _reviewer(conn, stubborn, batch=BatchConfig()).review_all("run-split-2", items[:2])
+    reviews = _reviewer(conn, stubborn, batch=BC()).review_all("run-split-2", items[:2])
     assert {(r["status"], r["detail"]["error"], r["write"]) for r in reviews} == {
         ("unavailable", "max_tokens_exceeded", True)
     }
@@ -314,7 +320,7 @@ def _budget_run(conn, items, config, total, budget_id):
 
 def test_budget_is_never_exceeded_and_settles_to_reported_usage(conn):
     items = _claims(conn, _mixed(40))
-    config = BatchConfig(max_links=10, max_attempts=1)
+    config = BC(max_links=10, max_attempts=1)
     probe = _reviewer(conn, FakeTransport(), batch=config)
     probe.review_all("run-probe", items[:10])
     one_batch = probe.stats[-1]["reserved_usd_micros"]
@@ -346,15 +352,15 @@ def test_budget_is_never_exceeded_and_settles_to_reported_usage(conn):
 
 def test_concurrent_batches_match_sequential(conn):
     items = _claims(conn, _mixed(30))
-    sequential = _reviewer(conn, FakeTransport(), batch=BatchConfig(max_links=10)).review_all("run-seq", items)
+    sequential = _reviewer(conn, FakeTransport(), batch=BC(max_links=10)).review_all("run-seq", items)
     concurrent_transport = FakeTransport()
     concurrent = _reviewer(
-        conn, concurrent_transport, batch=BatchConfig(max_links=10, concurrency=2)
+        conn, concurrent_transport, batch=BC(max_links=10, concurrency=2)
     ).review_all("run-par", items)
     assert [_comparable(r) for r in sequential] == [_comparable(r) for r in concurrent]
     assert len(concurrent_transport.bodies) == 3
     with pytest.raises(ValueError, match="max_concurrent"):
-        _reviewer(conn, FakeTransport(), batch=BatchConfig(concurrency=3))
+        _reviewer(conn, FakeTransport(), batch=BC(concurrency=3))
 
 
 def test_linking_pass_records_batches_and_delete_run_reverts_them(conn):
@@ -368,7 +374,7 @@ def test_linking_pass_records_batches_and_delete_run_reverts_them(conn):
     transport = FakeTransport()
     summary = run_claim_linking_pass(
         conn, provider=FakeProvider(), nli=FakeNLI(),
-        jev_reviewer=_reviewer(conn, transport, batch=BatchConfig()),
+        jev_reviewer=_reviewer(conn, transport, batch=BC()),
     )
     assert summary["jev"]["requests"] == 1 and summary["jev"]["agrees"] == 1
     assert summary["links"]["contradicts"] == 1
@@ -427,11 +433,14 @@ def test_validation_reports_agreement_latency_and_tokens(conn):
                             min_links_per_relation=10)
     assert report["production_switch"] is False
     assert report["per_link"]["requests"] == 60
+    assert report["per_link_repeat"]["agreement"]["verdict_agreement"] == 1.0
     small, large = report["batched"]["batch_25"], report["batched"]["batch_120"]
     assert small["usage"]["requests"] == 3 and large["usage"]["requests"] == 1
     assert small["agreement"]["verdict_agreement"] == 1.0 == large["agreement"]["outcome_agreement"]
     assert large["usage"]["input_tokens"] < report["per_link"]["input_tokens"]
     assert small["recommended"] is True and large["recommended"] is True
+    assert large["recommended_relations"] == ["supports", "duplicate", "contradicts"]
+    assert large["repeat_baseline"]["by_relation"]["supports"]["verdict_agreement"] == 1.0
     assert set(large["agreement"]["by_relation"]) == {"contradicts", "supports", "duplicate"}
 
 
@@ -462,6 +471,8 @@ def test_validation_withholds_recommendation_on_disagreement(conn):
     assert result["agreement"]["by_relation"]["contradicts"]["verdict_agreement"] == 0.5
     assert result["agreement"]["by_relation"]["supports"]["verdict_agreement"] == 1.0
     assert any("contradicts verdict agreement" in r for r in result["not_recommended_because"])
+    # Per-relation gates: supports and duplicates pass, contradictions do not.
+    assert result["recommended_relations"] == ["supports", "duplicate"]
 
 
 def test_sample_planned_links_reads_stored_links(conn):

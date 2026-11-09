@@ -276,6 +276,7 @@ def suggest_claim_relation(
     window_coverage_complete: bool = False,
     max_cost_usd_micros: int = 1000,
     deadline_s: float = 30,
+    settle_cost: Any = None,
 ) -> dict[str, Any]:
     """Assess both claim directions, preserving duplicate and temporal gates."""
     if (
@@ -358,6 +359,7 @@ def suggest_claim_relation(
         max_cost_usd_micros=max_cost_usd_micros,
         deadline_s=deadline_s,
         source_slices=[locator_a, locator_b],
+        settle_cost=settle_cost,
     )
     forward = _answered(result, "a_to_b", "choice")
     backward = _answered(result, "b_to_a", "choice")
@@ -415,6 +417,53 @@ def _claim_pair(
     return refs, bindings, [locator_a, locator_b], (text_a, text_b)
 
 
+#: How to settle answers that disagree with each other (the Choice label and
+#: the Noul probabilities): abstain (default), trust the label, or trust the
+#: probabilities. Every assessment records which rule decided.
+TIE_BREAKS = ("abstain", "label", "probabilities")
+
+
+def contradiction_decision(
+    kind: str | None,
+    jointly: float | None,
+    same: float | None,
+    jointly_true_threshold: float = 0.5,
+    same_subject_threshold: float = 0.5,
+    *,
+    tie_break: str = "abstain",
+    same_subject_gate: float | None = None,
+) -> tuple[str | None, str | None, str]:
+    """``(assessment, reason, decided_by)`` from the Choice kind and two Nouls.
+
+    ``decided_by`` is ``consistent`` when label and probabilities agree,
+    otherwise the ``tie_break`` that settled them (``abstain``, ``label`` or
+    ``probabilities``), or ``unanswered``/``unclear``. ``same_subject_gate``
+    (optional) rejects an otherwise consistent conflict whose same-subject
+    probability is below it (``different_subject``).
+    """
+    if tie_break not in TIE_BREAKS:
+        raise ValueError(f"tie_break must be one of {TIE_BREAKS}")
+    if kind is None or jointly is None or same is None:
+        return None, "unanswered", "unanswered"
+    if kind == "unclear":
+        return None, "unclear", "unclear"
+    if kind in CONTRADICTION_RECONCILABLE_KINDS:
+        return "reconcilable", None, "consistent"
+    conflict_probs = jointly < jointly_true_threshold and same >= same_subject_threshold
+    if kind in CONTRADICTION_CONFLICT_KINDS and conflict_probs:
+        if same_subject_gate is not None and same < same_subject_gate:
+            return "no_conflict", "different_subject", "same_subject_gate"
+        return "conflict", None, "consistent"
+    if kind not in CONTRADICTION_CONFLICT_KINDS and jointly >= jointly_true_threshold:
+        return "no_conflict", None, "consistent"
+    # Label and probabilities disagree.
+    if tie_break == "abstain":
+        return None, "inconsistent_answers", "abstain"
+    if tie_break == "label":
+        return ("conflict" if kind in CONTRADICTION_CONFLICT_KINDS else "no_conflict"), None, "label"
+    return ("conflict" if conflict_probs else "no_conflict"), None, "probabilities"
+
+
 def derive_contradiction_assessment(
     kind: str | None,
     jointly: float | None,
@@ -422,23 +471,39 @@ def derive_contradiction_assessment(
     jointly_true_threshold: float = 0.5,
     same_subject_threshold: float = 0.5,
 ) -> tuple[str | None, str | None]:
-    """``(assessment, reason)`` from the Choice kind and two Noul answers.
+    """``(assessment, reason)`` under the default (abstaining) tie-break."""
+    assessment, reason, _ = contradiction_decision(
+        kind, jointly, same, jointly_true_threshold, same_subject_threshold
+    )
+    return assessment, reason
 
-    Shared by per-link and batched review so both apply identical rules.
+
+def supersession_decision(
+    kind: str | None, same: float | None, same_subject_threshold: float = 0.5,
+    *, tie_break: str = "abstain",
+) -> tuple[str | None, str | None, str]:
+    """``(assessment, reason, decided_by)`` for a later/earlier claim pair.
+
+    ``supersedes`` when Jev reads an update about the same subject;
+    ``restates`` or ``independent`` otherwise. An update with a same-subject
+    probability below the threshold disagrees with itself and is settled by
+    ``tie_break``.
     """
-    if kind is None or jointly is None or same is None:
-        return None, "unanswered"
+    if tie_break not in TIE_BREAKS:
+        raise ValueError(f"tie_break must be one of {TIE_BREAKS}")
+    if kind is None or same is None:
+        return None, "unanswered", "unanswered"
     if kind == "unclear":
-        return None, "unclear"
-    if kind in CONTRADICTION_CONFLICT_KINDS:
-        if jointly < jointly_true_threshold and same >= same_subject_threshold:
-            return "conflict", None
-        return None, "inconsistent_answers"
-    if kind in CONTRADICTION_RECONCILABLE_KINDS:
-        return "reconcilable", None
-    if jointly >= jointly_true_threshold:  # not_contradiction
-        return "no_conflict", None
-    return None, "inconsistent_answers"
+        return None, "unclear", "unclear"
+    if kind == "restates":
+        return "restates", None, "consistent"
+    if kind == "independent":
+        return "independent", None, "consistent"
+    if same >= same_subject_threshold:
+        return "supersedes", None, "consistent"
+    if tie_break == "abstain":
+        return None, "inconsistent_answers", "abstain"
+    return ("supersedes" if tie_break == "label" else "independent"), None, tie_break
 
 
 def suggest_contradiction_kind(
@@ -455,8 +520,11 @@ def suggest_contradiction_kind(
     local_relation: str | None = None,
     jointly_true_threshold: float = 0.5,
     same_subject_threshold: float = 0.5,
+    tie_break: str = "abstain",
+    same_subject_gate: float | None = None,
     max_cost_usd_micros: int = 1000,
     deadline_s: float = 30,
+    settle_cost: Any = None,
 ) -> dict[str, Any]:
     """Type an already flagged contradiction as a secondary Jev assessment.
 
@@ -526,6 +594,7 @@ def suggest_contradiction_kind(
         max_cost_usd_micros=max_cost_usd_micros,
         deadline_s=deadline_s,
         source_slices=locators,
+        settle_cost=settle_cost,
     )
     from src.kb.jev_tasks import CONTRADICTION_KINDS
 
@@ -535,11 +604,13 @@ def suggest_contradiction_kind(
         kind = None
     jointly = _probability(_answered(result, "jointly_true", "noul"))
     same = _probability(_answered(result, "same_subject", "noul"))
-    assessment, reason = derive_contradiction_assessment(
-        kind, jointly, same, jointly_true_threshold, same_subject_threshold
+    assessment, reason, decided_by = contradiction_decision(
+        kind, jointly, same, jointly_true_threshold, same_subject_threshold,
+        tie_break=tie_break, same_subject_gate=same_subject_gate,
     )
     return {
         **base,
+        "decided_by": decided_by,
         "status": "suggested" if assessment else "abstained",
         "reason": reason,
         "kind": kind,
@@ -552,6 +623,76 @@ def suggest_contradiction_kind(
         else None,
         "vendor_confidence": kind_answer.get("vendor_confidence") if kind_answer else None,
         "jointly_true_probability": jointly,
+        "same_subject_probability": same,
+        "source_binding": result.get("source_binding") or bindings,
+        "decision_run": result["decision_run"],
+    }
+
+
+def suggest_supersession(
+    runtime: Any,
+    namespace: str,
+    run_id: str,
+    later: Mapping[str, Any],
+    earlier: Mapping[str, Any],
+    *,
+    principal_id: str,
+    scopes: set[str],
+    allow_remote: bool,
+    policy: Mapping[str, Any],
+    same_subject_threshold: float = 0.5,
+    tie_break: str = "abstain",
+    max_cost_usd_micros: int = 1000,
+    deadline_s: float = 30,
+    settle_cost: Any = None,
+) -> dict[str, Any]:
+    """Does a later same-source claim update the earlier one? (own rubric)
+
+    A supersedes/corrects/retracts transition is a different question from
+    a contradiction: "the newer claim updates the older one". This asks one
+    Choice (updates / restates / independent / unclear) and a same-subject
+    Noul over the exact spans and derives the assessment in code
+    (:func:`supersession_decision`). Nothing is written.
+    """
+    same_subject_threshold = _threshold(same_subject_threshold, "same_subject_threshold")
+    refs, bindings, locators, (text_later, text_earlier) = _claim_pair(
+        runtime, namespace, principal_id, scopes, later, earlier
+    )
+    base = {
+        "contract": "noesis-jev-supersession-suggestion-v1",
+        "accepted": False,
+        "locators": locators,
+        "graph_write": False,
+    }
+    if refs[0] == refs[1] and locators[0] == locators[1]:
+        return {**base, "status": "abstained", "reason": "same_claim_span", "kind": None,
+                "assessment": None, "decided_by": None,
+                "same_subject_probability": None, "source_binding": bindings,
+                "decision_run": None}
+    result = suggest_task(
+        runtime, namespace, run_id, "supersession",
+        {"later_claim": text_later, "earlier_claim": text_earlier}, refs,
+        principal_id=principal_id, scopes=scopes, allow_remote=allow_remote, policy=policy,
+        max_cost_usd_micros=max_cost_usd_micros, deadline_s=deadline_s,
+        source_slices=locators, settle_cost=settle_cost,
+    )
+    from src.kb.jev_tasks import SUPERSESSION_KINDS
+
+    kind_answer = _answered(result, "kind", "choice")
+    kind = kind_answer.get("value") if kind_answer else None
+    if kind not in SUPERSESSION_KINDS:
+        kind = None
+    same = _probability(_answered(result, "same_subject", "noul"))
+    assessment, reason, decided_by = supersession_decision(
+        kind, same, same_subject_threshold, tie_break=tie_break
+    )
+    return {
+        **base,
+        "status": "suggested" if assessment else "abstained",
+        "reason": reason,
+        "kind": kind,
+        "assessment": assessment,
+        "decided_by": decided_by,
         "same_subject_probability": same,
         "source_binding": result.get("source_binding") or bindings,
         "decision_run": result["decision_run"],

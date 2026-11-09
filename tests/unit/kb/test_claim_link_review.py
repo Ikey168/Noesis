@@ -114,6 +114,8 @@ def test_gate_withholds_a_contradiction_jev_finds_reconcilable(conn):
         "mode": "gate", "method": "jev:jev-1.13.0:gate", "reviewed": 1,
         "agrees": 0, "disagrees": 1, "withheld": 1, "abstained": 0,
         "unavailable": 0, "unresolved": 0, "requests": 1, "reversed": 0,
+        "planned": {"contradicts": 1},
+        "reused": {"cache": 0, "identical_text": 0, "duplicate_group": 0},
     }
     (row,) = _assessments(conn)
     assert row[2:] == ("contradicts", "gate", "answered", "disagrees", "withheld", "reconcilable")
@@ -217,7 +219,7 @@ def test_reviewer_rejects_unknown_mode():
         reviewer(FakeRuntime(TEXTS, CONFLICT), "auto")
 
 
-def test_document_revision_resolver_requires_one_exact_committed_span(conn):
+def test_document_revision_resolver_finds_committed_spans(conn):
     from src.ingestion.revisions import _DDL
 
     _seed_claims(conn, [("c1", "Rates will rise.", "d1", BASE_MS, None)])
@@ -236,13 +238,16 @@ def test_document_revision_resolver_requires_one_exact_committed_span(conn):
     assert span == {
         "source_ref": {"document_id": "d1", "revision_id": "rev-1"},
         "locator": {"start": 7, "end": 23},
+        "match": "exact",
     }
     assert resolve("c1", "Absent text.") is None
     conn.execute(
         "UPDATE document_revision_records SET payload_json = ?",
         [json.dumps({"content": body + " Rates will rise."})],
     )
-    assert resolve("c1", "Rates will rise.") is None  # ambiguous
+    # Repeated text resolves to its first occurrence, and says so.
+    assert resolve("c1", "Rates will rise.")["match"] == "first_of_n"
+    assert resolve("c1", "Rates  will\nrise.")["match"] == "whitespace_insensitive_first_of_n"
 
 
 def test_end_to_end_with_the_real_decision_runtime(conn):

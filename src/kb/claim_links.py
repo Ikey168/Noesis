@@ -43,6 +43,7 @@ import json
 import re
 import time
 import uuid
+from collections import Counter
 from typing import Any, Sequence
 
 from src.kb.nli import CONTRADICTION, ENTAILMENT, get_nli_backend
@@ -237,6 +238,9 @@ def run_claim_linking_pass(
     jev_reviewer: Any | None = None,
     subject_gate: bool = True,
     allow_unidentified_subjects: bool = True,
+    review_cache: bool = True,
+    review_chunk_size: int = 200,
+    write_chunk_claims: int = 500,
 ) -> dict[str, Any]:
     """Link new claims to their neighbours; returns a summary.
 
@@ -259,7 +263,15 @@ def run_claim_linking_pass(
     neither claim names anything are linked as before unless
     ``allow_unidentified_subjects`` is False. Blocked pairs are counted in
     ``summary["subject_gate"]``.
+
+    Reviews are asked in chunks of ``review_chunk_size`` and persisted as
+    they return (``review_cache``), so a restart after a crash reuses every
+    answer already paid for. Links and the scan ledger are committed every
+    ``write_chunk_claims`` claims instead of in one transaction (a crash
+    mid-write leaves later claims unscanned, and the next pass picks them up).
     """
+    if type(write_chunk_claims) is not int or write_chunk_claims < 1:
+        raise ValueError("write_chunk_claims must be a positive integer")
     ensure_claim_link_schema(conn)
     nli = nli or get_nli_backend()
     run_id = run_id or f"kb-claim-links-{uuid.uuid4().hex[:12]}"
@@ -340,27 +352,32 @@ def run_claim_linking_pass(
     # 2. Optional Jev review, outside the write transaction: the decision
     #    runtime commits its own budget and receipt records.
     reviewed_plans = _review_plans(
-        conn, jev_reviewer, run_id, plans, duplicate_threshold, summary
+        conn, jev_reviewer, run_id, plans, duplicate_threshold, summary,
+        review_cache=review_cache, chunk_size=review_chunk_size,
     )
 
-    # 3. Write links, assessments and the scan ledger atomically.
-    conn.execute("BEGIN TRANSACTION")
-    try:
-        for claim_id, reviewed in reviewed_plans:
-            _write_reviewed(conn, run_id, summary, reviewed)
-            conn.execute(
-                """
-                INSERT INTO kb_claim_link_scans (claim_id, run_id, scanned_at)
-                VALUES (?, ?, ?)
-                ON CONFLICT (claim_id) DO UPDATE SET
-                    run_id = excluded.run_id, scanned_at = excluded.scanned_at
-                """,
-                [claim_id, run_id, int(time.time() * 1000)],
-            )
-        conn.execute("COMMIT")
-    except Exception:
-        conn.execute("ROLLBACK")
-        raise
+    # 3. Write links, assessments and the scan ledger, one transaction per
+    #    chunk of claims (one transaction for a whole corpus ran out of memory).
+    if type(write_chunk_claims) is not int or write_chunk_claims < 1:
+        raise ValueError("write_chunk_claims must be a positive integer")
+    for start in range(0, len(reviewed_plans), write_chunk_claims):
+        conn.execute("BEGIN TRANSACTION")
+        try:
+            for claim_id, reviewed in reviewed_plans[start:start + write_chunk_claims]:
+                _write_reviewed(conn, run_id, summary, reviewed)
+                conn.execute(
+                    """
+                    INSERT INTO kb_claim_link_scans (claim_id, run_id, scanned_at)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT (claim_id) DO UPDATE SET
+                        run_id = excluded.run_id, scanned_at = excluded.scanned_at
+                    """,
+                    [claim_id, run_id, int(time.time() * 1000)],
+                )
+            conn.execute("COMMIT")
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
     return summary
 
 
@@ -585,10 +602,10 @@ def _plan_pair(
             if ingested_a > ingested_b
             else ((domain_b, claim_b), (domain_a, claim_a))
         )
-        # Same-source temporal transitions stay deterministic: the semantic
-        # relation that produced them is what a hosted review would judge.
-        link["review_as"] = base_relation
-        link["review_direction"] = (premise, hypothesis)
+        # A same-source transition is reviewed with its own rubric: does the
+        # newer claim update the older one? (Not "do they conflict?", which
+        # rejected most genuine updates.) Direction stays newer -> older.
+        link["review_as"] = "supersedes"
     return [link]
 
 
@@ -628,48 +645,212 @@ def _review_key(link: dict[str, Any]) -> tuple:
     relation = link.get("review_as", link["relation"])
     premise, hypothesis = link.get("review_direction", (link["premise"], link["hypothesis"]))
     ends = (premise[1], hypothesis[1])
-    return (relation, tuple(sorted(ends)) if relation != "supports" else ends)
+    return (relation, tuple(sorted(ends)) if relation in _SYMMETRIC else ends)
 
 
-def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary):
+_SYMMETRIC = ("duplicate", "contradicts")
+
+
+def _text_key(item: dict[str, Any]) -> tuple:
+    """Identity of the question itself, independent of which claims ask it.
+
+    Similarity and threshold only change the answer for duplicates, so they
+    are part of the key only there.
+    """
+    relation = item["relation"]
+    texts = (item["premise"][1], item["hypothesis"][1])
+    if relation in _SYMMETRIC:
+        texts = tuple(sorted(texts))
+    if relation == "duplicate":
+        return (relation, *texts, round(float(item["similarity"]), 6), item["duplicate_threshold"])
+    return (relation, *texts)
+
+
+def _cache_key(identity: Any, claim_key: tuple, text_key: tuple) -> str:
+    import hashlib
+
+    payload = json.dumps([identity, list(claim_key), list(text_key)], sort_keys=True, default=str)
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
+class _Groups:
+    """Union-find over Jev-confirmed duplicates of this pass."""
+
+    def __init__(self) -> None:
+        self.parent: dict[str, str] = {}
+
+    def find(self, item: str) -> str:
+        self.parent.setdefault(item, item)
+        while self.parent[item] != item:
+            self.parent[item] = self.parent[self.parent[item]]
+            item = self.parent[item]
+        return item
+
+    def union(self, a: str, b: str) -> None:
+        ra, rb = self.find(a), self.find(b)
+        if ra != rb:
+            self.parent[max(ra, rb)] = min(ra, rb)
+
+
+_REUSABLE = ("answered", "abstained")
+
+
+def _review_plans(conn, reviewer, run_id, plans, duplicate_threshold, summary, *,
+                  review_cache: bool = True, chunk_size: int = 200):
     """Ask Jev about every distinct primary link (outside any write transaction).
 
-    Both endpoints may be new claims, so a pair is often planned from each
-    side; it is asked about once. All distinct links of the pass go to
-    ``reviewer.review_all`` together, which reviews them one request per link
-    or, when the reviewer is batched, many links per request. A dependent
-    temporal transition inherits its primary's review, so a withheld
-    duplicate takes its supersession with it.
+    Each distinct question is asked once:
+
+    * a pair planned from both sides is one link;
+    * a link whose claim texts repeat word for word elsewhere reuses that
+      answer (``reused_from: identical_text``);
+    * duplicates are reviewed first; supports/contradicts between two groups
+      of Jev-confirmed duplicates reuse one answer (``duplicate_group``);
+    * with ``review_cache``, answers persisted by an earlier (e.g. crashed)
+      run with the same reviewer identity are reused (``cache``).
+
+    Reviews run in chunks of ``chunk_size``; each chunk's answers are
+    persisted in ``claim_link_review_cache`` as soon as it returns, so a
+    crash loses at most one chunk. The planned total per relation and
+    progress are logged and reported in ``summary["jev"]``. A dependent
+    temporal transition inherits its primary's review.
     """
     if reviewer is None:
         return [(claim_id, [(link, None) for link in links]) for claim_id, links in plans]
+    import logging
+
     from src.kb.claim_link_review import ensure_assessment_schema
 
+    log = logging.getLogger(__name__)
     ensure_assessment_schema(conn)
     jev_summary = summary.setdefault("jev", _new_jev_summary(reviewer))
-    order: dict[tuple, None] = {}
-    items: list[dict[str, Any]] = []
+    items: dict[tuple, dict[str, Any]] = {}
     for _, links in plans:
         for link in links:
             if link["primary"] is not None:
                 continue
             key = _review_key(link)
-            if key in order:
+            if key in items:
                 continue
             premise, hypothesis = link.get(
                 "review_direction", (link["premise"], link["hypothesis"])
             )
-            order[key] = None
-            items.append({
+            items[key] = {
                 "relation": key[0],
                 "premise": (premise[1], link["texts"][premise[1]]),
                 "hypothesis": (hypothesis[1], link["texts"][hypothesis[1]]),
                 "similarity": link["score"],
                 "duplicate_threshold": duplicate_threshold,
-            })
-    requests_before = len(getattr(reviewer, "stats", []))
-    reviews = dict(zip(order, reviewer.review_all(run_id, items), strict=True)) if items else {}
-    jev_summary["requests"] += len(getattr(reviewer, "stats", [])) - requests_before
+            }
+    planned = Counter(item["relation"] for item in items.values())
+    jev_summary["planned"] = dict(sorted(planned.items()))
+    log.info("claim-link review %s: %d planned %s", run_id, len(items), dict(planned))
+    identity = reviewer.cache_identity() if hasattr(reviewer, "cache_identity") else None
+    cache_keys = {key: _cache_key(identity, key, _text_key(item)) for key, item in items.items()}
+    cached: dict[tuple, dict[str, Any]] = {}
+    if review_cache and identity is not None and items:
+        stored = {}
+        keys = list(cache_keys.values())
+        for start in range(0, len(keys), 500):
+            chunk = keys[start:start + 500]
+            marks = ", ".join("?" for _ in chunk)
+            stored.update(dict(conn.execute(
+                f"SELECT cache_key, review_json FROM claim_link_review_cache WHERE cache_key IN ({marks})",
+                chunk,
+            ).fetchall()))
+        cached = {key: json.loads(stored[ck]) for key, ck in cache_keys.items() if ck in stored}
+    reused = {"cache": 0, "identical_text": 0, "duplicate_group": 0}
+    reviews: dict[tuple, dict[str, Any]] = {}
+
+    def reuse(source: dict[str, Any], relation: str, kind: str) -> dict[str, Any]:
+        reused[kind] += 1
+        detail = {**source["detail"], "reused_from": {
+            "kind": kind, "decision_run_id": source.get("decision_run_id")}}
+        return reviewer.finish(reviewer.base(relation, source.get("decision_run_id")),
+                               source["status"], source["verdict"], source["jev_relation"], detail)
+
+    def persist(key: tuple, review: dict[str, Any]) -> None:
+        if not review_cache or identity is None or review["status"] not in _REUSABLE:
+            return
+        stored = {k: review[k] for k in ("status", "verdict", "jev_relation", "detail", "decision_run_id")}
+        conn.execute(
+            "INSERT INTO claim_link_review_cache VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            " ON CONFLICT (cache_key) DO UPDATE SET review_json = excluded.review_json,"
+            " decision_run_id = excluded.decision_run_id, linking_run_id = excluded.linking_run_id,"
+            " created_at = excluded.created_at",
+            [cache_keys[key], key[0], key[1][0], key[1][1], json.dumps(stored, sort_keys=True),
+             review.get("decision_run_id"), run_id, int(time.time() * 1000)],
+        )
+
+    done = 0
+
+    def ask(keys: list[tuple]) -> None:
+        nonlocal done
+        for start in range(0, len(keys), max(1, chunk_size)):
+            chunk = keys[start:start + chunk_size]
+            before = len(getattr(reviewer, "stats", []))
+            results = reviewer.review_all(run_id, [items[key] for key in chunk])
+            jev_summary["requests"] += len(getattr(reviewer, "stats", [])) - before
+            for key, review in zip(chunk, results, strict=True):
+                reviews[key] = review
+                persist(key, review)
+            done += len(chunk)
+            log.info("claim-link review %s: %d/%d asked", run_id, done, len(items))
+
+    groups = _Groups()
+
+    def group_key(key: tuple) -> tuple | None:
+        relation = key[0]
+        if relation not in ("supports", "contradicts"):
+            return None
+        a, b = groups.find(key[1][0]), groups.find(key[1][1])
+        ends = tuple(sorted((a, b))) if relation == "contradicts" else (a, b)
+        return (relation, ends)
+
+    def review_phase(keys: list[tuple]) -> None:
+        by_text: dict[tuple, tuple] = {}
+        by_group: dict[tuple, tuple] = {}
+        for key in keys:
+            if key in reviews:
+                by_text.setdefault(_text_key(items[key]), key)
+        representatives, followers = [], []
+        for key in keys:
+            tk, gk = _text_key(items[key]), group_key(key)
+            if key in cached:
+                reviews[key] = reuse(cached[key], key[0], "cache")
+                if reviews[key]["status"] in _REUSABLE:
+                    by_text.setdefault(tk, key)
+                    if gk is not None:
+                        by_group.setdefault(gk, key)
+                continue
+            if tk in by_text or (gk is not None and gk in by_group):
+                followers.append(key)
+                continue
+            by_text[tk] = key
+            if gk is not None:
+                by_group[gk] = key
+            representatives.append(key)
+        ask(representatives)
+        retry = []
+        for key in followers:
+            tk, gk = _text_key(items[key]), group_key(key)
+            source = by_text.get(tk) if by_text.get(tk) in reviews else None
+            kind = "identical_text"
+            if source is None or reviews[source]["status"] not in _REUSABLE:
+                source, kind = (by_group.get(gk), "duplicate_group") if gk is not None else (None, None)
+            if source is None or source not in reviews or reviews[source]["status"] not in _REUSABLE:
+                retry.append(key)  # the answer to reuse was not usable: ask this one
+                continue
+            reviews[key] = reuse(reviews[source], key[0], kind)
+        ask(retry)
+
+    duplicate_keys = [key for key, item in items.items() if item["relation"] == "duplicate"]
+    review_phase(duplicate_keys)
+    for key in duplicate_keys:
+        if reviews[key]["verdict"] == "agrees":
+            groups.union(key[1][0], key[1][1])
+    review_phase([key for key, item in items.items() if item["relation"] != "duplicate"])
+    jev_summary["reused"] = reused
     for review in reviews.values():
         jev_summary["reviewed"] += 1
         jev_summary[review["verdict"] or review["status"]] += 1
@@ -774,6 +955,9 @@ def run_cross_backing_link_pass(
     jev_reviewer: Any | None = None,
     subject_gate: bool = True,
     allow_unidentified_subjects: bool = True,
+    review_cache: bool = True,
+    review_chunk_size: int = 200,
+    write_chunk_claims: int = 500,
 ) -> dict[str, Any]:
     """Link namespace-native claims to the shared corpus (depth linkage).
 
@@ -879,7 +1063,8 @@ def run_cross_backing_link_pass(
         if jev_reviewer is not None:
             summary.setdefault("jev", _new_jev_summary(jev_reviewer))
         reviewed_plans = _review_plans(
-            conn, jev_reviewer, run_id, plans, duplicate_threshold, summary
+            conn, jev_reviewer, run_id, plans, duplicate_threshold, summary,
+            review_cache=review_cache, chunk_size=review_chunk_size,
         )
 
         conn.execute("BEGIN TRANSACTION")

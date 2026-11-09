@@ -54,7 +54,10 @@ def canonicalize_url(url: str) -> str:
 
     host = parts.hostname or ""
     host = host.lower()
-    port = parts.port
+    try:
+        port = parts.port
+    except ValueError:  # e.g. a template port ("https://h:{port}/x")
+        return url
     netloc = host
     if port is not None and str(port) != _DEFAULT_PORTS.get(scheme):
         netloc = f"{host}:{port}"

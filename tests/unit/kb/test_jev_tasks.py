@@ -14,6 +14,7 @@ CASES = {
     "reranking": ({"query": "what changed"}, 2),
     "answer_support": ({"statement": "A new rule was adopted", "locator": {"page": 2}}, 1),
     "claim_links": ({"claim_a": "The law passed", "claim_b": "The law was adopted"}, 2),
+    "supersession": ({"later_claim": "The law was repealed", "earlier_claim": "The law passed"}, 2),
     "contradiction_kind": ({"claim_a": "Rates rose", "claim_b": "Rates fell"}, 2),
     "corroboration": ({"claim": "Rates rose", "evidence": "The bank raised rates"}, 2),
     "intake_routing": ({"intent": "I need to decide", "modes": {"Decision Support": "Compare choices", "Awareness": "Monitor stream"}}, 1),

@@ -116,13 +116,63 @@ These deterministic rules apply with or without Jev:
 runs in three steps:
 
 1. **Plan.** Local NLI proposes links. Nothing is written yet.
-2. **Review.** Each proposed `contradicts` link goes to
-   `suggest_contradiction_kind`, and each `supports` or `duplicate` link goes
-   to `suggest_claim_relation`. This step runs outside the write
-   transaction, because the decision runtime commits its own budget and
-   receipt records. A pair planned from both sides is asked about once.
-3. **Write.** Links, assessments and the scan ledger are written in one
-   transaction.
+2. **Review.** Each proposed link is sent to the Jev task for its relation:
+
+   | Relation | Task |
+   |---|---|
+   | `contradicts` | `suggest_contradiction_kind` |
+   | `supports`, `duplicate` | `suggest_claim_relation` |
+   | `supersedes`, `corrects`, `retracts` (from a newer same-source claim) | `suggest_supersession` |
+
+   The supersession rubric has its own question: "does the later claim
+   update, correct, retract or replace the earlier one?" It asks this
+   instead of "do they conflict?", which rejected most genuine updates.
+   This step runs outside the write transaction, because the decision
+   runtime commits its own budget and receipt records.
+3. **Write.** Links, assessments and the scan ledger are committed every
+   `write_chunk_claims` claims (default 500). A single transaction for a
+   whole corpus ran out of memory. If the pass crashes mid-write, later
+   claims stay unscanned and the next pass picks them up.
+
+**Each distinct question is asked once.**
+
+- A pair planned from both sides is one link.
+- A link whose claim texts repeat word for word elsewhere reuses that
+  answer (`reused_from: identical_text`).
+- Duplicates are reviewed first. Supports and contradicts links between two
+  groups of Jev-confirmed duplicates reuse one answer
+  (`reused_from: duplicate_group`).
+- Each reused assessment records where its answer came from in
+  `detail_json.reused_from`.
+
+**Restarts reuse answers already paid for.** Reviews are asked in chunks
+of `review_chunk_size` (default 200). Each answer is stored in
+`claim_link_review_cache` as soon as its chunk returns. The cache is keyed
+by reviewer identity (model, rubric, policy, batched relations and decision
+rules), the claim pair and the claim texts. A restarted pass reuses these
+answers (`reused_from: cache`). Provider failures are not cached, so they
+are asked again. Pass `review_cache=False` to disable this.
+
+**Progress.** The planned total per relation is logged before reviewing,
+and progress is logged after each chunk. Both are reported in
+`summary["jev"]["planned"]` and `summary["jev"]["reused"]`.
+
+**Decision rules**, recorded in every assessment's `detail_json.decided_by`:
+
+- `tie_break`: what to do when Jev's Choice label disagrees with its Noul
+  probabilities. `abstain` (default) keeps the link, `label` trusts the
+  label, and `probabilities` trusts the probabilities. This is set on
+  `JevClaimLinkReviewer` or with `--jev-tie-break`. Re-asking does not help:
+  per-link review repeats its verdict about 99.6% of the time.
+- `same_subject_gate` (optional, `--jev-same-subject-gate`): a conflict
+  Jev confirms is rejected (`different_subject`) when its same-subject
+  probability is below this value. This is a cheap complement to the local
+  [subject gate](claim-hygiene.md#2-subject-gate-for-contradictions).
+
+**Budget.** Per-link reviews settle their budget reservation to the
+reported input tokens (`input_price_usd_micros_per_million_tokens`,
+default 42,000), as batched reviews do, so the budget ledger matches the
+provider's usage.
 
 | Mode | Effect on `claim_links` |
 |---|---|
@@ -139,8 +189,11 @@ proposed between claims about the same subject. See
 Jev can only withhold a planned link. It never adds a link or changes a
 relation. Three outcomes keep the local link:
 
-- `unresolved`: the claim does not occur exactly once in its document's
-  current committed revision.
+- `unresolved`: the claim text does not occur in its document's current
+  committed revision at all. Spans are found, in order, from the offsets
+  stored at extraction, an exact unique match, the first of several
+  occurrences, or a whitespace- or quote-insensitive match. Which one was
+  used is recorded in `detail_json.spans`.
 - `unavailable`: a provider, policy or budget failure. A run that never
   answered, for example because 429s ran out of retries, is recorded as
   `unavailable` with its error code, not as an abstention.
@@ -170,7 +223,19 @@ decision run and budget reservation. System One answers every question in a
 request in one parallel pass, so a batched reviewer packs many links into
 each request instead. Pass a `src.kb.claim_link_batch.BatchConfig` as
 `batch=` to `JevClaimLinkReviewer` or `build_jev_reviewer`, or use
-`--jev-batch` on the daily run:
+`--jev-batch` on the daily run.
+
+Batching is enabled per relation (`BatchConfig.relations`,
+`--jev-batch-relations`). The default batches **duplicates only**. On a
+240-link sample, the share of verdicts matching per-link review was:
+
+| Relation | Batched vs per-link |
+|---|---|
+| Duplicates | 96–98% |
+| Supports | 84–88% |
+
+Each other relation is reviewed per link until its own validation gate
+passes.
 
 ```bash
 python3 scripts/kb_brief.py --harvest --jev-links shadow --jev-policy policy.json --jev-batch
@@ -256,9 +321,15 @@ already planned links before using `--jev-batch` in production:
 python3 scripts/validate_jev_link_batching.py --policy policy.json --sample 480 --batch-sizes 25 120 --out batching-report.json
 ```
 
-The script samples stored `supports`/`duplicate`/`contradicts` links. It
-reviews the same links per link and at about 25 and about 120 links per
-batch, in shadow mode, without writing links or assessments. It reports:
+The script samples stored `supports`, `duplicate`, `contradicts` and
+supersession links. It reviews the same links in shadow mode, without
+writing links or assessments:
+
+- per link **twice**, as a repeat baseline, so batching drift can be told
+  apart from Jev's normal run-to-run variation;
+- batched at about 25 and about 120 links per request.
+
+It reports:
 
 - verdict agreement by relation, over links both paths answered;
 - outcome agreement (status, verdict and Jev relation);
@@ -266,11 +337,20 @@ batch, in shadow mode, without writing links or assessments. It reports:
 - request counts, wall time and p50/p95 request latency;
 - input tokens and settled cost.
 
-`recommended` is true only when every relation has at least
-`--min-links-per-relation` answered links (default 20), each relation's
-verdict agreement and the overall outcome agreement reach `--min-agreement`
-(default 0.95). It is advice for an operator: the report always says
-`production_switch: false`, and nothing enables batching automatically.
+Each batched comparison also shows the per-link repeat agreement next to
+it (`repeat_baseline`). Each relation is judged separately, and
+`recommended_relations` lists those that pass. A relation passes when it
+has:
+
+- at least `--min-links-per-relation` links answered by both paths
+  (default 20);
+- verdict agreement of at least `--min-agreement` (default 0.95);
+- verdict agreement no more than `--max-drift` (default 0.02) below the
+  per-link repeat.
+
+Pass the passing relations to `--jev-batch-relations`. The report is advice
+for an operator: it always says `production_switch: false`, and nothing
+enables batching automatically.
 The validation sends real claim spans to TypeSafe and spends from the
 policy's budget.
 
