@@ -160,9 +160,11 @@ and progress is logged after each chunk. Both are reported in
 **Decision rules**, recorded in every assessment's `detail_json.decided_by`:
 
 - `tie_break`: what to do when Jev's Choice label disagrees with its Noul
-  probabilities. `abstain` (default) keeps the link, `label` trusts the
-  label, and `probabilities` trusts the probabilities. This is set on
-  `JevClaimLinkReviewer` or with `--jev-tie-break`. Re-asking does not help:
+  probabilities. `abstain` keeps the link unreviewed, `label` trusts the
+  label, and `probabilities` trusts the probabilities. `JevClaimLinkReviewer`
+  defaults to `abstain`. The daily run (`kb_brief.py`) defaults to
+  `probabilities`, the rule chosen after the 2026-11-08 run; it matches that
+  run's 349 kept links. Override it with `--jev-tie-break`. Re-asking does not help:
   per-link review repeats its verdict about 99.6% of the time.
 - `same_subject_gate` (optional, `--jev-same-subject-gate`): a conflict
   Jev confirms is rejected (`different_subject`) when its same-subject

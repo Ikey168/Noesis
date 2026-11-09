@@ -57,8 +57,10 @@ def main() -> int:
                         help="Relations packed into batches (default: duplicate only; the"
                              " rest stay per-link until their validation gate passes)")
     parser.add_argument("--jev-tie-break", choices=["abstain", "label", "probabilities"],
-                        default="abstain",
-                        help="How to settle a Jev label that disagrees with its probabilities")
+                        default="probabilities",
+                        help="How to settle a Jev label that disagrees with its probabilities"
+                             " (default probabilities, as chosen after the 2026-11-08 run;"
+                             " abstain keeps such links unreviewed)")
     parser.add_argument("--jev-same-subject-gate", type=float, default=None,
                         help="Withhold confirmed conflicts whose same-subject probability is below this")
     parser.add_argument("--jev-namespace", default="kb",
